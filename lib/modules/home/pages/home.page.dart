@@ -277,7 +277,7 @@ class HomePage extends GetView<AuthController> {
         : null;
 
     return AppCard(
-      onTap: () => AppRoutes.toAi(mode: 'details'),
+      onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
       borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.all(Design.spacing.lg),
       child: Column(

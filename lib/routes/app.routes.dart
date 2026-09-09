@@ -9,6 +9,7 @@ import 'package:rexone_mobile/routes/server.routes.dart';
 
 import '../modules/ai/ai.dart';
 import '../modules/atom_create/atom_create.dart';
+import '../modules/atom_details/atom_details.dart';
 import '../modules/auth/auth.dart';
 import '../modules/calendar/calendar.dart';
 import '../modules/home/home.dart';
@@ -36,6 +37,7 @@ class AppRoutes {
   // ===== PROTECTED ROUTES (Auth Required) =====
   static const String home = '/home';
   static const String atomCreate = '/atom-create';
+  static const String atomDetail = '/atom-detail';
   static const String calendar = '/calendar';
   static const String settings = '/settings';
   static const String payment = '/payment';
@@ -76,6 +78,8 @@ class AppRoutes {
   static void toHome() => Get.offAllNamed(home);
   static void toAtomCreate({String mode = 'import'}) =>
       Get.toNamed(atomCreate, arguments: {'mode': mode});
+  static void toAtomDetail({required String atomId}) =>
+      Get.toNamed(atomDetail, arguments: {'atom_id': atomId});
   static void toCalendar() => Get.toNamed(calendar);
   static void toSettings() => Get.toNamed(settings);
   static void toPayment() => Get.toNamed(payment);
@@ -250,6 +254,14 @@ class AppRoutes {
       page: () => const AtomCreatePage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<AtomCreateController>(() => AtomCreateController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: atomDetail,
+      page: () => const AtomDetailsPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<AtomDetailsController>(() => AtomDetailsController());
       }),
       middlewares: [GuardRoutes()],
     ),
