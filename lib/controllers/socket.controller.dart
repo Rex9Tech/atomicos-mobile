@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/components/components.dart';
 import 'package:rexone_mobile/services/services.dart';
 import '../modules/ai/ai.dart';
+import '../modules/home/home.dart';
 import '../modules/payment/payment.dart';
 import '../modules/notification/notification.dart';
 
@@ -101,6 +102,9 @@ class SocketController extends GetxController {
       case EWsEventType.aiResponseReady:
       case EWsEventType.assetCompressed:
       case EWsEventType.ttsReady:
+      case EWsEventType.recordingCompleted:
+      case EWsEventType.atomUpdated:
+      case EWsEventType.assetProcessed:
         AppSnackbar.success(message);
         break;
 
@@ -147,6 +151,15 @@ class SocketController extends GetxController {
     // --- Notification ---
     if (Get.isRegistered<NotificationController>()) {
       Get.find<NotificationController>().onSocketNotification(event);
+    }
+
+    // --- Atoms / Home ---
+    if (eventType == EWsEventType.atomUpdated ||
+        eventType == EWsEventType.recordingCompleted ||
+        eventType == EWsEventType.assetProcessed) {
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadAtoms();
+      }
     }
   }
 }

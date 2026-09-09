@@ -37,6 +37,11 @@ enum EWsEventType {
   assetCompressionFailed('asset_compression_failed'),
   signInAlert('sign_in_alert'),
 
+  recordingProcessing('recording_processing'),
+  recordingCompleted('recording_completed'),
+  atomUpdated('atom_updated'),
+  assetProcessed('asset_processed'),
+
   unknown('unknown');
 
   final String value;
