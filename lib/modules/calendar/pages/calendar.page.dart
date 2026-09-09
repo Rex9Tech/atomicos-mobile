@@ -186,7 +186,6 @@ class CalendarPage extends GetView<CalendarController> {
   Widget _buildCalendarGrid(BuildContext context) {
     final colors = context.colors;
     final days = List<int>.generate(35, (index) => index + 1);
-    final highlighted = <int>{6, 7, 9, 10, 13, 18, 22, 26, 28, 31};
 
     return Container(
       padding: EdgeInsets.all(Design.spacing.lg),
@@ -223,7 +222,7 @@ class CalendarPage extends GetView<CalendarController> {
               crossAxisSpacing: Design.spacing.sm,
               childAspectRatio: 0.72,
               children: days.map((day) {
-                final isActive = highlighted.contains(day);
+                final isActive = controller.hasEventOnDay(day);
                 final isSelected = controller.selectedDay.value == day;
 
                 return GestureDetector(
@@ -318,25 +317,64 @@ class CalendarPage extends GetView<CalendarController> {
             ],
           ),
           SizedBox(height: Design.spacing.md),
-          const _AgendaRow(
-            time: '09:00',
-            title: 'Daily sync with Product',
-            subtitle: 'Zoom · 3 speakers',
-          ),
-          SizedBox(height: Design.spacing.md),
-          const _AgendaRow(
-            time: '11:30',
-            title: 'Myanmar research review',
-            subtitle: 'Google Meet · 4 speakers',
-          ),
-          SizedBox(height: Design.spacing.md),
-          const _AgendaRow(
-            time: '15:00',
-            title: 'Weekly launch planning',
-            subtitle: 'Slack huddle · 2 speakers',
-          ),
+          _buildAgendaList(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildAgendaList(BuildContext context) {
+    final colors = context.colors;
+
+    return Obx(() {
+      if (controller.isLoadingEvents.value) {
+        return _agendaStatus(context, const CircularProgressIndicator());
+      }
+      if (controller.hasEventsError.value) {
+        return _agendaStatus(
+          context,
+          Text(
+            "Couldn't load your schedule",
+            style: context.typo.bodySmall.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+        );
+      }
+      if (controller.events.isEmpty) {
+        return _agendaStatus(
+          context,
+          Text(
+            'No upcoming events',
+            style: context.typo.bodySmall.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          for (var i = 0; i < controller.events.length; i++) ...[
+            if (i > 0) SizedBox(height: Design.spacing.md),
+            _AgendaRow(
+              time: controller.eventTime(controller.events[i]) ?? '--:--',
+              title: controller.events[i].title,
+              subtitle:
+                  (controller.events[i].description?.isNotEmpty ?? false)
+                  ? controller.events[i].description!
+                  : 'Scheduled',
+            ),
+          ],
+        ],
+      );
+    });
+  }
+
+  Widget _agendaStatus(BuildContext context, Widget child) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
+      child: Center(child: child),
     );
   }
 }
