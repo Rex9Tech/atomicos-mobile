@@ -13,6 +13,7 @@ class AiController extends GetxController {
   final AiService _ai = Get.find<AiService>();
   final SpeechService _speech = Get.find<SpeechService>();
   final PermissionService _permissions = Get.find<PermissionService>();
+  final RecordingService _recording = Get.find<RecordingService>();
 
   final RxList<AiMessageModel> messages = <AiMessageModel>[].obs;
   final RxList<AiRoomModel> rooms = <AiRoomModel>[].obs;
@@ -26,6 +27,11 @@ class AiController extends GetxController {
   final RxString entryMode = 'auto'.obs;
   final RxString askStage = 'landing'.obs;
   final RxString recordingStage = 'idle'.obs;
+  final RxnString currentRecordingId = RxnString();
+  final RxnString currentRecordingAtomId = RxnString();
+  final RxInt currentRecordingSeconds = 0.obs;
+  DateTime? _recordingStartedAt;
+  Timer? _recordingTicker;
   final RxnString askAttachmentPreview = RxnString();
   final RxnString askSelectedSource = RxnString();
   final RxnString askSubmittedPrompt = RxnString();
@@ -69,8 +75,10 @@ class AiController extends GetxController {
     if (args is Map && args['mode'] != null) {
       entryMode.value = args['mode'].toString();
     }
+    // Meeting workspace starts idle; the user taps the record control to start
+    // a backend session (startRecording) + device mic.
     if (entryMode.value == 'meeting') {
-      recordingStage.value = 'recording';
+      recordingStage.value = 'idle';
     }
     _playbackWorker = ever(_speech.isPlaying, (playing) {
       if (!playing && !isTtsLoading.value) {
@@ -90,6 +98,7 @@ class AiController extends GetxController {
   void onClose() {
     _liveTextWorker?.dispose();
     _playbackWorker?.dispose();
+    _stopRecordingTicker();
     unawaited(_speech.stopListening());
     unawaited(_speech.stopPlayback());
     textController.dispose();
@@ -373,19 +382,119 @@ class AiController extends GetxController {
   }
 
   void cycleRecordingStage() {
-    if (recordingStage.value == 'paused') {
-      recordingStage.value = 'processing';
+    switch (recordingStage.value) {
+      case 'recording':
+        pauseRecording();
+        break;
+      case 'paused':
+        finishRecording();
+        break;
+      case 'processing':
+        break;
+      case 'complete':
+        resetRecording();
+        break;
+      default:
+        startRecording();
+        break;
+    }
+  }
+
+  // ============================================================
+  // RECORDING SESSION (backend lifecycle)
+  // ============================================================
+  Future<void> startRecording() async {
+    if (currentRecordingId.value != null) return;
+
+    final result = await _recording.start(AppLocales.ai.title.tr);
+    if (!result.success || result.data == null) {
+      AppSnackbar.error(result.error ?? AppLocales.ai.aiStartRecordingFailed.tr);
       return;
     }
-    if (recordingStage.value == 'processing') {
-      recordingStage.value = 'complete';
-      return;
+
+    currentRecordingId.value = result.data!.id;
+    currentRecordingAtomId.value = null;
+    _recordingStartedAt = DateTime.now();
+    currentRecordingSeconds.value = 0;
+    _recordingSecondsTicker();
+
+    await startListening();
+    setRecordingStage('recording');
+  }
+
+  Future<void> pauseRecording() async {
+    final id = currentRecordingId.value;
+    if (id == null) return;
+
+    await stopListening();
+    _stopRecordingTicker();
+
+    await _recording.updateRecording(
+      id,
+      status: 'paused',
+      durationSecs: _elapsedSeconds(),
+    );
+    setRecordingStage('paused');
+  }
+
+  Future<void> resumeRecording() async {
+    final id = currentRecordingId.value;
+    if (id == null) return;
+
+    await _recording.updateRecording(id, status: 'recording');
+    _recordingStartedAt = DateTime.now().subtract(
+      Duration(seconds: currentRecordingSeconds.value),
+    );
+    _recordingSecondsTicker();
+
+    await startListening();
+    setRecordingStage('recording');
+  }
+
+  Future<void> finishRecording() async {
+    final id = currentRecordingId.value;
+    if (id == null) return;
+
+    await stopListening();
+    _stopRecordingTicker();
+    setRecordingStage('processing');
+
+    final result = await _recording.finish(id, durationSecs: _elapsedSeconds());
+    if (result.success && result.data != null) {
+      currentRecordingAtomId.value = result.data!.atomId;
+      currentRecordingId.value = null;
+      setRecordingStage('complete');
+    } else {
+      AppSnackbar.error(result.error ?? AppLocales.ai.aiResponseFailed.tr);
+      setRecordingStage('paused');
     }
-    if (recordingStage.value == 'complete') {
-      recordingStage.value = isDetailsMode ? 'idle' : 'recording';
-      return;
-    }
-    recordingStage.value = 'paused';
+  }
+
+  void resetRecording() {
+    currentRecordingId.value = null;
+    currentRecordingAtomId.value = null;
+    currentRecordingSeconds.value = 0;
+    _recordingStartedAt = null;
+    _stopRecordingTicker();
+    setRecordingStage('idle');
+  }
+
+  void _recordingSecondsTicker() {
+    _stopRecordingTicker();
+    _recordingTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+      currentRecordingSeconds.value = _elapsedSeconds();
+    });
+  }
+
+  void _stopRecordingTicker() {
+    _recordingTicker?.cancel();
+    _recordingTicker = null;
+  }
+
+  int _elapsedSeconds() {
+    final startedAt = _recordingStartedAt;
+    if (startedAt == null) return currentRecordingSeconds.value;
+    return DateTime.now().difference(startedAt).inSeconds.clamp(0, 1 << 31);
   }
 
   // ============================================================
