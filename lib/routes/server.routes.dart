@@ -75,6 +75,14 @@ class ServerRoutes {
   static String get aiTranslate => api('/ai/translate');
   static String get aiAnalyze => api('/ai/analyze');
 
+  // Atoms
+  static String get atoms => api('/atoms');
+  static String atomDetail(String id) => api('/atoms/$id');
+  static String get atomFromNote => api('/atoms/from-note');
+  static String get atomFromUrl => api('/atoms/from-url');
+  static String get atomFromAsset => api('/atoms/from-asset');
+  static String atomAssets(String id) => api('/atoms/$id/assets');
+
   // Speech service api
   static String get textToSpeech => api('/speech/tts');
   static String get speechToText => api('/speech/stt');

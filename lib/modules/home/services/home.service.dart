@@ -1,0 +1,50 @@
+import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
+import 'package:rexone_mobile/models/models.dart';
+import 'package:rexone_mobile/routes/routes.dart';
+import 'package:rexone_mobile/services/api.service.dart';
+
+import '../data/models/models.dart';
+
+class HomeService extends GetxService {
+  late final ApiService _api;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _api = Get.find<ApiService>();
+  }
+
+  /// GET /v1/atoms — recent list with optional search/filter/pagination.
+  Future<PaginatedResponse<AtomModel>> getAtoms({
+    int? page,
+    int? limit,
+    String? search,
+    String? status,
+  }) async {
+    final query = <String, dynamic>{};
+    if (page != null) query[ApiKeys.page] = page.toString();
+    if (limit != null) query[ApiKeys.limit] = limit.toString();
+    if (search != null && search.isNotEmpty) query[AtomKeys.search] = search;
+    if (status != null && status.isNotEmpty) query[AtomKeys.status] = status;
+
+    final response = await _api.get(ServerRoutes.atoms, query: query);
+    return _api.parsePaginatedResponse<AtomModel>(
+      response,
+      (data) => AtomModel.fromJson(Map<String, dynamic>.from(data as Map)),
+    );
+  }
+
+  /// GET /v1/atoms/:id — single atom.
+  Future<ApiResponse<AtomModel>> getAtom(String id) async {
+    final response = await _api.get(ServerRoutes.atomDetail(id));
+    return _api.parseResponse<AtomModel>(response, (data) {
+      final record = data is Map && data[AtomKeys.atom] is Map
+          ? data[AtomKeys.atom]
+          : data;
+      return ApiHelper.parseRecord<AtomModel>(record, AtomModel.fromJson) ??
+          AtomModel.fromJson(const {});
+    });
+  }
+}

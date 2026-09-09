@@ -8,8 +8,11 @@ import 'package:rexone_mobile/routes/guard.routes.dart';
 import 'package:rexone_mobile/routes/server.routes.dart';
 
 import '../modules/ai/ai.dart';
+import '../modules/atom_create/atom_create.dart';
 import '../modules/auth/auth.dart';
+import '../modules/calendar/calendar.dart';
 import '../modules/home/home.dart';
+import '../modules/live_activity/live_activity.dart';
 import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
 import '../modules/setting/setting.dart';
@@ -32,10 +35,13 @@ class AppRoutes {
 
   // ===== PROTECTED ROUTES (Auth Required) =====
   static const String home = '/home';
+  static const String atomCreate = '/atom-create';
+  static const String calendar = '/calendar';
   static const String settings = '/settings';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
   static const String ai = '/ai';
+  static const String liveActivity = '/live-activity';
   static const String profile = '/profile';
   static const String notifications = '/notifications';
 
@@ -68,11 +74,18 @@ class AppRoutes {
 
   // ===== PROTECTED NAVIGATION =====
   static void toHome() => Get.offAllNamed(home);
+  static void toAtomCreate({String mode = 'import'}) =>
+      Get.toNamed(atomCreate, arguments: {'mode': mode});
+  static void toCalendar() => Get.toNamed(calendar);
   static void toSettings() => Get.toNamed(settings);
   static void toPayment() => Get.toNamed(payment);
   static void toCheckout({required String url}) =>
       Get.toNamed(checkout, arguments: {'url': url});
-  static void toAi() => Get.toNamed(ai);
+  static void toAi({String mode = 'auto'}) => Get.toNamed(
+    ai,
+    arguments: {'mode': mode},
+  );
+  static void toLiveActivity() => Get.toNamed(liveActivity);
   static void toProfile() => Get.toNamed(profile);
   static void toNotifications() => Get.toNamed(notifications);
 
@@ -199,6 +212,7 @@ class AppRoutes {
     return 'https://rexone.org';
   }
 
+
   static final pages = [
     // Public Pages
     GetPage(
@@ -232,6 +246,22 @@ class AppRoutes {
       middlewares: [GuardRoutes()],
     ),
     GetPage(
+      name: atomCreate,
+      page: () => const AtomCreatePage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<AtomCreateController>(() => AtomCreateController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: calendar,
+      page: () => const CalendarPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<CalendarController>(() => CalendarController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
       name: settings,
       page: () => const SettingPage(),
       middlewares: [GuardRoutes()],
@@ -257,6 +287,14 @@ class AppRoutes {
       page: () => const AiPage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<AiController>(() => AiController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: liveActivity,
+      page: () => const LiveActivityPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<LiveActivityController>(() => LiveActivityController());
       }),
       middlewares: [GuardRoutes()],
     ),

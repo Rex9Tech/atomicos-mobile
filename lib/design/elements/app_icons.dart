@@ -24,10 +24,35 @@ class AppIcons {
   IconData get rightArrow => Icons.chevron_right_rounded;
   IconData get downArrow => Icons.arrow_drop_down_rounded;
   IconData get close => Icons.close_rounded;
+  IconData get add => Icons.add_rounded;
+  IconData get more => Icons.more_horiz_rounded;
+  IconData get search => Icons.search_rounded;
+  IconData get filter => Icons.tune_rounded;
+  IconData get bolt => Icons.bolt_rounded;
+  IconData get route => Icons.alt_route_rounded;
+  IconData get task => Icons.task_alt_rounded;
+  IconData get report => Icons.insert_chart_outlined_rounded;
+  IconData get atomAdd => Icons.widgets_outlined;
+  IconData get link => Icons.link_rounded;
+  IconData get shareIos => Icons.ios_share_rounded;
+  IconData get clipboard => Icons.event_note_outlined;
   IconData get send => Icons.send_rounded;
   IconData get feedback => Icons.feedback_outlined;
   IconData get delete => Icons.delete_outline;
   IconData get deleteSweep => Icons.delete_sweep_outlined;
+  IconData get upload => Icons.upload_file_rounded;
+  IconData get import => Icons.file_download_outlined;
+  IconData get attachment => Icons.attach_file_rounded;
+  IconData get note => Icons.sticky_note_2_outlined;
+  IconData get sparkles => Icons.auto_awesome_rounded;
+  IconData get audioWave => Icons.graphic_eq_rounded;
+  IconData get pause => Icons.pause_rounded;
+  IconData get clock => Icons.access_time_rounded;
+  IconData get calendar => Icons.calendar_month_rounded;
+  IconData get folder => Icons.folder_copy_outlined;
+  IconData get emptyBox => Icons.inventory_2_outlined;
+  IconData get micOutline => Icons.mic_none_rounded;
+  IconData get home => Icons.home_outlined;
 
   // ── User / Auth ────────────────────────────────────────────────
   IconData get logout => Icons.logout_rounded;
@@ -43,7 +68,6 @@ class AppIcons {
   IconData get bell => Icons.notifications_outlined;
   IconData get bellActive => Icons.notifications_rounded;
   IconData get checkAll => Icons.done_all_rounded;
-  IconData get filter => Icons.filter_list_rounded;
   IconData get openLink => Icons.open_in_new_rounded;
 
   // ── Chat / AI ─────────────────────────────────────────────────

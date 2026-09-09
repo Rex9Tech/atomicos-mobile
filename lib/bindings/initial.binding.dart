@@ -2,6 +2,8 @@
 import 'package:get/get.dart';
 import '../modules/ai/ai.dart';
 import '../modules/auth/auth.dart';
+import '../modules/atom_create/atom_create.dart';
+import '../modules/home/home.dart';
 import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
 import '../modules/setting/setting.dart';
@@ -52,6 +54,10 @@ class InitialBinding extends Bindings {
 
     // AI Service (depends on ApiService)
     Get.put(AiService(), permanent: true);
+
+    // Atom domain services (depend on ApiService)
+    Get.put(HomeService(), permanent: true);
+    Get.put(AtomCreateService(), permanent: true);
 
     // Auth Service (depends on ApiService)
     Get.put(AuthService(), permanent: true);

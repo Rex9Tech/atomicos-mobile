@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors();
 
-  // ===== BRAND (Rex9 Neon Scarlet Red Palette - More Red, Less Pink) =====
-  Color get primary => const Color(0xFFFF2238);
-  Color get primaryLight => const Color(0xFFFF5263);
-  Color get primaryDark => const Color(0xFFCC1125);
-  Color get secondary => const Color(0xFFFF4D2E);
-  Color get accent => const Color(0xFFFF0D2D);
+  // ===== BRAND (AtomicOS Green Palette) =====
+  Color get primary => const Color(0xFF22C55E);
+  Color get primaryLight => const Color(0xFF4ADE80);
+  Color get primaryDark => const Color(0xFF15803D);
+  Color get secondary => const Color(0xFF34D399);
+  Color get accent => const Color(0xFF166534);
 
   // ===== NEON GLOW COLORS =====
-  Color get glowWhite => const Color(0xFFFFF2F4);
-  Color get glowRuby => const Color(0xFF5C0916);
+  Color get glowWhite => const Color(0xFFF0FDF4);
+  Color get glowRuby => const Color(0xFF14532D);
 
   // ===== SEMANTIC (Unified across Light & Dark) =====
   Color get success => const Color(0xFF10B981);
@@ -26,7 +26,7 @@ class AppColors {
   // ===== DAY THEME (Light Mode) =====
   AppDayColors get day => const AppDayColors();
 
-  // ===== NIGHT THEME (Dark Mode - Rex9 Cyber Aesthetic) =====
+  // ===== NIGHT THEME (Dark Mode - AtomicOS Deep Forest) =====
   AppNightColors get night => const AppNightColors();
 
   // ===== GLASSMORPHISM =====
@@ -53,28 +53,28 @@ class AppDayColors {
 class AppNightColors {
   const AppNightColors();
 
-  Color get background => const Color(0xFF160B11);
-  Color get surface => const Color(0xFF1F1018);
-  Color get card => const Color(0xFF26131E);
-  Color get border => const Color(0xFF3D1B28);
-  Color get divider => const Color(0xFF2C111C);
+  Color get background => const Color(0xFF08130D);
+  Color get surface => const Color(0xFF0F1D14);
+  Color get card => const Color(0xFF13261A);
+  Color get border => const Color(0xFF23412E);
+  Color get divider => const Color(0xFF193222);
   Color get textPrimary => const Color(0xFFFFFFFF);
-  Color get textSecondary => const Color(0xFFE2D4D8);
-  Color get textMuted => const Color(0xFFA39298);
+  Color get textSecondary => const Color(0xFFD7E8DC);
+  Color get textMuted => const Color(0xFF98B5A0);
 }
 
 class AppGlassColors {
   const AppGlassColors();
 
-  Color get nav => const Color(0xBF16070D);
-  Color get card => const Color(0x61230C14);
-  Color get cardHover => const Color(0x8C32101C);
-  Color get form => const Color(0xA61C0810);
-  Color get project => const Color(0x8C12060C);
-  Color get border => const Color(0x38FF2238);
-  Color get borderHover => const Color(0x8CFF2238);
-  Color get tag => const Color(0xA6FF2238);
-  Color get tagBg => const Color(0x14FF2238);
+  Color get nav => const Color(0xBF08130D);
+  Color get card => const Color(0x61112518);
+  Color get cardHover => const Color(0x8C163222);
+  Color get form => const Color(0xA60D1E14);
+  Color get project => const Color(0x8C09150F);
+  Color get border => const Color(0x3822C55E);
+  Color get borderHover => const Color(0x8C22C55E);
+  Color get tag => const Color(0xA622C55E);
+  Color get tagBg => const Color(0x1422C55E);
 }
 
 class GradientColors {
@@ -129,33 +129,33 @@ class Shadows {
 
   List<BoxShadow> get neon => const [
     BoxShadow(
-      color: Color(0xFFFF2238),
+      color: Color(0xFF22C55E),
       blurRadius: 8,
     ),
     BoxShadow(
-      color: Color(0xFFCC1125),
+      color: Color(0xFF15803D),
       blurRadius: 25,
     ),
   ];
 
   List<BoxShadow> get neonLg => const [
     BoxShadow(
-      color: Color(0xFFFF2238),
+      color: Color(0xFF22C55E),
       blurRadius: 8,
     ),
     BoxShadow(
-      color: Color(0xFFCC1125),
+      color: Color(0xFF15803D),
       blurRadius: 25,
     ),
     BoxShadow(
-      color: Color(0xFF5C0916),
+      color: Color(0xFF14532D),
       blurRadius: 50,
     ),
   ];
 
   List<BoxShadow> get glassCard => const [
     BoxShadow(
-      color: Color(0x59FF2238),
+      color: Color(0x5922C55E),
       blurRadius: 30,
       offset: Offset(0, 6),
     ),
@@ -163,7 +163,7 @@ class Shadows {
 
   List<BoxShadow> get glassHover => const [
     BoxShadow(
-      color: Color(0x73FF2238),
+      color: Color(0x7322C55E),
       blurRadius: 32,
       offset: Offset(0, 8),
     ),

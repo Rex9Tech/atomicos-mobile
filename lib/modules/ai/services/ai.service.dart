@@ -84,4 +84,49 @@ class AiService extends GetxService {
     final response = await _api.delete(ServerRoutes.aiDeleteRoom(roomId));
     return _api.parseResponse(response, (data) => data);
   }
+
+  // ============================================================
+  // AI ACTIONS (summarize / translate / analyze)
+  // ============================================================
+  Future<ApiResponse<Map<String, dynamic>>> summarize(String text) async {
+    final response = await _api.post(
+      ServerRoutes.aiSummarize,
+      {'text': text},
+      showLoading: false,
+    );
+    return _api.parseResponse<Map<String, dynamic>>(
+      response,
+      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+    );
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> translate(
+    String text, {
+    String language = 'en',
+  }) async {
+    final response = await _api.post(
+      ServerRoutes.aiTranslate,
+      {'text': text, 'language': language},
+      showLoading: false,
+    );
+    return _api.parseResponse<Map<String, dynamic>>(
+      response,
+      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+    );
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> analyze(
+    String text, {
+    String? type,
+  }) async {
+    final response = await _api.post(
+      ServerRoutes.aiAnalyze,
+      {'text': text, if (type != null && type.isNotEmpty) 'type': type},
+      showLoading: false,
+    );
+    return _api.parseResponse<Map<String, dynamic>>(
+      response,
+      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+    );
+  }
 }

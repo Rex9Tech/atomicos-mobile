@@ -23,6 +23,13 @@ class AiController extends GetxController {
   final RxBool isProcessing = false.obs;
   final RxnString activeTtsMessageId = RxnString();
   final RxBool isTtsLoading = false.obs;
+  final RxString entryMode = 'auto'.obs;
+  final RxString askStage = 'landing'.obs;
+  final RxString recordingStage = 'idle'.obs;
+  final RxnString askAttachmentPreview = RxnString();
+  final RxnString askSelectedSource = RxnString();
+  final RxnString askSubmittedPrompt = RxnString();
+  final RxString askDraft = ''.obs;
 
   bool _isSubmitting = false;
   String _textBeforeListen = '';
@@ -31,6 +38,25 @@ class AiController extends GetxController {
 
   RxBool get isRecording => _speech.isListening;
   RxDouble get voiceLevel => _speech.voiceLevel;
+  bool get isMeetingWorkspace => entryMode.value == 'meeting';
+  bool get isDetailsMode => entryMode.value == 'details';
+  bool get hasRecordingPreview =>
+      recordingStage.value != 'idle' || _speech.isListening.value;
+  bool get isRecordingPaused => recordingStage.value == 'paused';
+  bool get isRecordingProcessing => recordingStage.value == 'processing';
+  bool get isRecordingComplete => recordingStage.value == 'complete';
+  bool get isAskMode {
+    if (entryMode.value == 'ask') return true;
+    if (entryMode.value == 'meeting' || entryMode.value == 'details') {
+      return false;
+    }
+    final nonWelcome = messages.where((message) => message.id != 'welcome');
+    if (nonWelcome.isEmpty) return true;
+    return nonWelcome.length == 1 && nonWelcome.first.isUser;
+  }
+  bool get showAskAttachmentMenu => askStage.value == 'sources';
+  bool get showAskSourceResults => askStage.value == 'source_results';
+  bool get showAskResultPreview => askStage.value == 'prompt_result';
 
   // UI controllers — owned here so no StatefulWidget is needed in AiPage.
   final textController = TextEditingController();
@@ -39,6 +65,13 @@ class AiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args['mode'] != null) {
+      entryMode.value = args['mode'].toString();
+    }
+    if (entryMode.value == 'meeting') {
+      recordingStage.value = 'recording';
+    }
     _playbackWorker = ever(_speech.isPlaying, (playing) {
       if (!playing && !isTtsLoading.value) {
         activeTtsMessageId.value = null;
@@ -105,10 +138,17 @@ class AiController extends GetxController {
   // HISTORY & MESSAGES
   // ============================================================
   Future<void> loadHistory([String? roomId]) async {
+    if (isMeetingWorkspace) {
+      messages.clear();
+      isProcessing.value = false;
+      return;
+    }
+
     try {
       final result = await _ai.getHistory(roomId: roomId);
       if (result.success) {
         if (result.records.isEmpty) {
+          resetAskFlow();
           messages.assignAll([
             AiMessageModel(
               id: 'welcome',
@@ -189,6 +229,7 @@ class AiController extends GetxController {
   }
 
   void selectRoom(AiRoomModel room) {
+    entryMode.value = 'details';
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
     loadHistory(room.id);
@@ -196,6 +237,7 @@ class AiController extends GetxController {
 
   Future<void> createNewRoom([String? title]) async {
     try {
+      entryMode.value = 'ask';
       final roomTitle = title ?? AppLocales.ai.newChat.tr;
       final response = await _ai.createRoom(
         CreateRoomRequest(title: roomTitle),
@@ -257,9 +299,93 @@ class AiController extends GetxController {
     if (isRecording.value || activeTtsMessageId.value != null) return;
     final text = textController.text.trim();
     if (text.isEmpty) return;
+    if (isMeetingWorkspace) {
+      askDraft.value = text;
+      _setInputText(text);
+      return;
+    }
+    askSubmittedPrompt.value = text;
+    askStage.value = 'prompt_result';
+    askAttachmentPreview.value = null;
+    askDraft.value = '';
     textController.clear();
     sendMessage(text);
     scrollToBottom();
+  }
+
+  void toggleAskAttachmentMenu() {
+    askStage.value = showAskAttachmentMenu ? 'landing' : 'sources';
+  }
+
+  void closeAskAttachmentMenu() {
+    if (showAskAttachmentMenu) {
+      askStage.value = 'landing';
+    }
+  }
+
+  void selectAskAttachment(String previewLabel) {
+    askSelectedSource.value = previewLabel;
+    if (previewLabel == 'Add Atom') {
+      askAttachmentPreview.value = null;
+      askStage.value = 'source_results';
+      return;
+    }
+
+    askAttachmentPreview.value = '${previewLabel.toLowerCase()}_capture.png';
+    askStage.value = 'landing';
+  }
+
+  void clearAskAttachmentPreview() {
+    askAttachmentPreview.value = null;
+  }
+
+  void applyPromptSuggestion(String prompt) {
+    askStage.value = 'landing';
+    askDraft.value = prompt;
+    textController.value = TextEditingValue(
+      text: prompt,
+      selection: TextSelection.collapsed(offset: prompt.length),
+    );
+  }
+
+  void updateAskDraft(String value) {
+    askDraft.value = value;
+  }
+
+  void selectAskSearchResult(String source, {String? suggestedPrompt}) {
+    askSelectedSource.value = source;
+    askStage.value = 'landing';
+    if (suggestedPrompt != null) {
+      applyPromptSuggestion(suggestedPrompt);
+    }
+  }
+
+  void resetAskFlow() {
+    askStage.value = 'landing';
+    askAttachmentPreview.value = null;
+    askSelectedSource.value = null;
+    askSubmittedPrompt.value = null;
+    askDraft.value = '';
+  }
+
+  void setRecordingStage(String value) {
+    recordingStage.value = value;
+  }
+
+  void cycleRecordingStage() {
+    if (recordingStage.value == 'paused') {
+      recordingStage.value = 'processing';
+      return;
+    }
+    if (recordingStage.value == 'processing') {
+      recordingStage.value = 'complete';
+      return;
+    }
+    if (recordingStage.value == 'complete') {
+      recordingStage.value = isDetailsMode ? 'idle' : 'recording';
+      return;
+    }
+    recordingStage.value = 'paused';
   }
 
   // ============================================================
@@ -281,7 +407,10 @@ class AiController extends GetxController {
     _liveTextWorker = ever(_speech.liveText, _setInputText);
 
     final result = await _speech.startListening(seed: textController.text);
-    if (result == ESpeechListenResult.started) return;
+    if (result == ESpeechListenResult.started) {
+      recordingStage.value = 'recording';
+      return;
+    }
 
     _liveTextWorker?.dispose();
     _liveTextWorker = null;
@@ -303,11 +432,15 @@ class AiController extends GetxController {
     _liveTextWorker?.dispose();
     _liveTextWorker = null;
     await _speech.stopListening();
+    if (recordingStage.value == 'recording') {
+      recordingStage.value = 'paused';
+    }
   }
 
   Future<void> cancelListening() async {
     await stopListening();
     _setInputText(_textBeforeListen);
+    recordingStage.value = isDetailsMode ? 'idle' : 'recording';
   }
 
   void _setInputText(String text) {
