@@ -3,6 +3,8 @@ export 'asset.keys.dart';
 export 'auth.keys.dart';
 export 'ai.keys.dart';
 export 'atom.keys.dart';
+export 'recording.keys.dart';
+export 'calendar.keys.dart';
 export 'log.keys.dart';
 export 'payment.keys.dart';
 export 'socket.keys.dart';

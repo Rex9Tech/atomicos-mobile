@@ -4,4 +4,5 @@ export './data/models/models.dart';
 export 'pages/ai.page.dart';
 export './controllers/ai.controller.dart';
 export './services/ai.service.dart';
+export './services/recording.service.dart';
 export 'components/voice_level_bars.dart';

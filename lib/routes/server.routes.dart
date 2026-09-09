@@ -83,6 +83,15 @@ class ServerRoutes {
   static String get atomFromAsset => api('/atoms/from-asset');
   static String atomAssets(String id) => api('/atoms/$id/assets');
 
+  // Recordings
+  static String get recordings => api('/recordings');
+  static String recordingDetail(String id) => api('/recordings/$id');
+  static String recordingFinish(String id) => api('/recordings/$id/finish');
+
+  // Calendar
+  static String get calendarEvents => api('/calendar/events');
+  static String calendarEventDetail(String id) => api('/calendar/events/$id');
+
   // Speech service api
   static String get textToSpeech => api('/speech/tts');
   static String get speechToText => api('/speech/stt');
