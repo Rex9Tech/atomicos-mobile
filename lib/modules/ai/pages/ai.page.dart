@@ -29,7 +29,9 @@ class AiPage extends GetView<AiController> {
                     Design.spacing.screenPadding,
                     0,
                   ),
-                  child: _buildAskFlow(context),
+                  child: SingleChildScrollView(
+                    child: _buildAskFlow(context),
+                  ),
                 ),
               ),
               _buildAskComposer(context),
@@ -332,7 +334,7 @@ class AiPage extends GetView<AiController> {
             ),
           ),
         ),
-        const Spacer(),
+        SizedBox(height: Design.spacing.lg),
         Obx(() {
           final preview = controller.askAttachmentPreview.value;
           if (preview == null) {
@@ -543,7 +545,6 @@ class AiPage extends GetView<AiController> {
             ),
           ),
         ),
-        SizedBox(height: Design.spacing.md),
         SizedBox(height: Design.spacing.lg),
         Container(
           padding: EdgeInsets.all(Design.spacing.md),
