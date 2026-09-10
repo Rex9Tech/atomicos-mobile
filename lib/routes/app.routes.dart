@@ -18,6 +18,7 @@ import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
 import '../modules/setting/setting.dart';
 import '../modules/notification/notification.dart';
+import '../modules/permission/permission.dart';
 import '../modules/splash/splash.dart';
 
 class AppRoutes {
@@ -46,6 +47,7 @@ class AppRoutes {
   static const String liveActivity = '/live-activity';
   static const String profile = '/profile';
   static const String notifications = '/notifications';
+  static const String permissionOnboarding = '/permission-onboarding';
 
   // ===== PUBLIC NAVIGATION =====
   static void toSplash() => Get.offAllNamed(splash);
@@ -96,6 +98,7 @@ class AppRoutes {
   static void toLiveActivity() => Get.toNamed(liveActivity);
   static void toProfile() => Get.toNamed(profile);
   static void toNotifications() => Get.toNamed(notifications);
+  static void toPermissionOnboarding() => Get.toNamed(permissionOnboarding);
 
   /// Resolves and routes a notification or deep link.
   ///
@@ -327,6 +330,16 @@ class AppRoutes {
       page: () => const NotificationPage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<NotificationController>(() => NotificationController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: permissionOnboarding,
+      page: () => const PermissionOnboardingPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<PermissionOnboardingController>(
+          () => PermissionOnboardingController(),
+        );
       }),
       middlewares: [GuardRoutes()],
     ),

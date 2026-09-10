@@ -16,6 +16,7 @@ class AppLocales {
   static const update = _UpdateLocales();
   static const atom = _AtomLocales();
   static const calendar = _CalendarLocales();
+  static const permission = _PermissionLocales();
 }
 
 class _AuthLocales {
@@ -322,4 +323,13 @@ class _CalendarLocales {
   final scheduleLoadFailed = 'calendar.schedule_load_failed';
   final noEvents = 'calendar.no_events';
   final scheduled = 'calendar.scheduled';
+}
+
+class _PermissionLocales {
+  const _PermissionLocales();
+
+  final title = 'permission.title';
+  final subtitle = 'permission.subtitle';
+  final grantAll = 'permission.grant_all';
+  final done = 'permission.done';
 }

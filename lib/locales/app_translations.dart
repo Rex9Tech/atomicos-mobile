@@ -295,6 +295,13 @@ class AppTranslations extends Translations {
       AppLocales.calendar.scheduleLoadFailed: "Couldn't load your schedule",
       AppLocales.calendar.noEvents: 'No events for the selected range',
       AppLocales.calendar.scheduled: 'Scheduled',
+
+      // Permission
+      AppLocales.permission.title: 'Permissions',
+      AppLocales.permission.subtitle:
+          'Allow access so you can record meetings, capture media, and attach files.',
+      AppLocales.permission.grantAll: 'Grant all',
+      AppLocales.permission.done: 'Done',
     },
     'my_MM': {
       // Common
@@ -557,6 +564,13 @@ class AppTranslations extends Translations {
       AppLocales.calendar.scheduleLoadFailed: 'အချိန်ဇယား ရယူ၍မရပါ',
       AppLocales.calendar.noEvents: 'ရွေးထားသော အချိန်တွင် အစီအစဉ် မရှိပါ',
       AppLocales.calendar.scheduled: 'စီစဉ်ထားသည်',
+
+      // Permission
+      AppLocales.permission.title: 'ခွင့်ပြုချက်များ',
+      AppLocales.permission.subtitle:
+          'အစည်းအဝေး မှတ်တမ်းတင်ရန်၊ မီဒီယာ ရိုက်ကူးရန်နှင့် ဖိုင်ချိတ်ရန် ခွင့်ပြုပေးပါ။',
+      AppLocales.permission.grantAll: 'အားလုံး ခွင့်ပြုမည်',
+      AppLocales.permission.done: 'ပြီးပြီ',
     },
   };
 }
