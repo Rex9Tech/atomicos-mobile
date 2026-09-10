@@ -603,12 +603,7 @@ class AiPage extends GetView<AiController> {
                   ),
                   child: controller.isRunningAskAction.value
                       ? const Center(child: CircularProgressIndicator())
-                      : Text(
-                          lines.isEmpty
-                              ? 'Run an action to generate a backend response preview.'
-                              : lines.take(3).join('\n\n'),
-                          style: context.typo.bodyMedium.copyWith(height: 1.45),
-                        ),
+                      : _buildActionResultContent(context),
                 ),
                 SizedBox(height: Design.spacing.md),
                 Text(
@@ -681,6 +676,151 @@ class AiPage extends GetView<AiController> {
             ),
           );
         }),
+      ],
+    );
+  }
+
+  Widget _buildActionResultContent(BuildContext context) {
+    final data = controller.askActionData.value;
+    final lines = controller.askActionLines;
+
+    if (data != null) {
+      final decisions = data['decisions'];
+      final tasks = data['tasks'];
+      final report = data['report'];
+
+      if (decisions is List && decisions.isNotEmpty) {
+        return _buildDecisionList(context, decisions);
+      }
+      if (tasks is List && tasks.isNotEmpty) {
+        return _buildTaskList(context, tasks);
+      }
+      if (report is Map && report.isNotEmpty) {
+        return _buildReportSections(context, report);
+      }
+    }
+
+    return Text(
+      lines.isEmpty
+          ? 'Run an action to generate a backend response preview.'
+          : lines.take(3).join('\n\n'),
+      style: context.typo.bodyMedium.copyWith(height: 1.45),
+    );
+  }
+
+  Widget _buildDecisionList(BuildContext context, List<dynamic> decisions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: decisions.whereType<Map>().map((d) {
+        final title = d['title']?.toString() ?? '';
+        final detail = d['detail']?.toString() ?? '';
+        return Padding(
+          padding: EdgeInsets.only(bottom: Design.spacing.sm),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Design.icons.bolt, size: 16, color: context.colors.primary),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: context.typo.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (detail.isNotEmpty)
+                      Text(
+                        detail,
+                        style: context.typo.bodySmall.copyWith(
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildTaskList(BuildContext context, List<dynamic> tasks) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: tasks.whereType<Map>().map((t) {
+        final title = t['title']?.toString() ?? '';
+        return Padding(
+          padding: EdgeInsets.only(bottom: Design.spacing.sm),
+          child: Row(
+            children: [
+              Icon(Design.icons.check, size: 16, color: context.colors.primary),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(child: Text(title, style: context.typo.bodyMedium)),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildReportSections(BuildContext context, Map report) {
+    final summary = report['summary']?.toString() ?? '';
+    final keyPoints = report['key_points'];
+    final actionItems = report['action_items'];
+    final risks = report['risks'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (summary.isNotEmpty)
+          Text(
+            summary,
+            style: context.typo.bodyMedium.copyWith(height: 1.45),
+          ),
+        if (keyPoints is List && keyPoints.isNotEmpty) ...[
+          SizedBox(height: Design.spacing.md),
+          _reportSection(context, 'Key points', keyPoints),
+        ],
+        if (actionItems is List && actionItems.isNotEmpty) ...[
+          SizedBox(height: Design.spacing.md),
+          _reportSection(context, 'Action items', actionItems),
+        ],
+        if (risks is List && risks.isNotEmpty) ...[
+          SizedBox(height: Design.spacing.md),
+          _reportSection(context, 'Risks', risks),
+        ],
+      ],
+    );
+  }
+
+  Widget _reportSection(
+    BuildContext context,
+    String title,
+    List<dynamic> items,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: context.typo.labelMedium.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(height: Design.spacing.xs),
+        ...items.map(
+          (i) => Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Text(
+              '• ${i.toString()}',
+              style: context.typo.bodySmall.copyWith(height: 1.4),
+            ),
+          ),
+        ),
       ],
     );
   }

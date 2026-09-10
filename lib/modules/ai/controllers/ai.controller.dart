@@ -40,6 +40,7 @@ class AiController extends GetxController {
   final RxString askDraft = ''.obs;
   final RxString askActionTitle = 'Summary'.obs;
   final RxList<String> askActionLines = <String>[].obs;
+  final Rxn<Map<String, dynamic>> askActionData = Rxn<Map<String, dynamic>>();
   final RxBool isRunningAskAction = false.obs;
 
   bool _isSubmitting = false;
@@ -325,6 +326,7 @@ class AiController extends GetxController {
     askDraft.value = '';
     askActionTitle.value = 'Summary';
     askActionLines.clear();
+    askActionData.value = null;
     textController.clear();
     sendMessage(text);
     unawaited(runAskAction('Summary', prompt: text));
@@ -386,6 +388,7 @@ class AiController extends GetxController {
     askDraft.value = '';
     askActionTitle.value = 'Summary';
     askActionLines.clear();
+    askActionData.value = null;
   }
 
   Future<void> runAskAction(String label, {String? prompt}) async {
@@ -434,6 +437,8 @@ class AiController extends GetxController {
         AppSnackbar.error(response.error ?? response.message);
         return;
       }
+
+      askActionData.value = response.data;
 
       final lines = _extractResultLines(response.data ?? const {});
       askActionLines.assignAll(

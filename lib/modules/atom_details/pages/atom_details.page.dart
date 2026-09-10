@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/atom_details.controller.dart';
 
@@ -92,9 +94,20 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          atom.title,
-          style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                atom.title,
+                style: context.typo.headline3.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            _iconAction(context, Design.icons.clipboard, () => _copyAtom(atom)),
+          ],
         ),
         SizedBox(height: Design.spacing.xs),
         Row(
@@ -254,37 +267,86 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       context,
       Column(
         children: atom.assets.map((asset) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: Design.spacing.sm),
-            child: Row(
-              children: [
-                Icon(
-                  Design.icons.attachment,
-                  size: Design.spacing.iconSmall,
-                  color: context.colors.textSecondary,
-                ),
-                SizedBox(width: Design.spacing.sm),
-                Expanded(
-                  child: Text(
-                    asset.name,
-                    style: context.typo.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Text(
-                  (asset.format.isNotEmpty ? asset.format : asset.type)
-                      .toUpperCase(),
-                  style: context.typo.caption.copyWith(
+          return GestureDetector(
+            onTap: () => _openAsset(asset),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: Design.spacing.sm),
+              child: Row(
+                children: [
+                  Icon(
+                    Design.icons.attachment,
+                    size: Design.spacing.iconSmall,
                     color: context.colors.textSecondary,
                   ),
-                ),
-              ],
+                  SizedBox(width: Design.spacing.sm),
+                  Expanded(
+                    child: Text(
+                      asset.name,
+                      style: context.typo.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    (asset.format.isNotEmpty ? asset.format : asset.type)
+                        .toUpperCase(),
+                    style: context.typo.caption.copyWith(
+                      color: context.colors.textSecondary,
+                    ),
+                  ),
+                  SizedBox(width: Design.spacing.sm),
+                  Icon(
+                    Design.icons.rightArrow,
+                    size: Design.spacing.iconSmall,
+                    color: context.colors.textMuted,
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),
       ),
     );
+  }
+
+  Widget _iconAction(BuildContext context, IconData icon, VoidCallback onTap) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 32,
+        width: 32,
+        decoration: BoxDecoration(
+          color: colors.surface,
+          shape: BoxShape.circle,
+          border: Border.all(color: colors.border),
+        ),
+        child: Icon(
+          icon,
+          size: Design.spacing.iconSmall,
+          color: colors.textSecondary,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _copyAtom(AtomModel atom) async {
+    final parts = <String>[
+      atom.title,
+      if ((atom.note ?? '').trim().isNotEmpty) atom.note!.trim(),
+      for (final b in atom.summaryBlocks)
+        if (b is Map) (b['text'] ?? b['content'] ?? '').toString().trim(),
+    ].where((e) => e.isNotEmpty);
+
+    await Clipboard.setData(ClipboardData(text: parts.join('\n\n')));
+    AppSnackbar.success('Copied to clipboard');
+  }
+
+  Future<void> _openAsset(AtomAssetModel asset) async {
+    final uri = Uri.tryParse(asset.url);
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Widget _scrollableCard(BuildContext context, Widget child) {

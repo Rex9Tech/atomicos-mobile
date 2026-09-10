@@ -26,13 +26,13 @@ class HomePage extends GetView<AuthController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildTopBar(context),
-            SizedBox(height: Design.spacing.md),
+          SizedBox(height: Design.spacing.md),
           _buildGreeting(context),
-            SizedBox(height: Design.spacing.md),
-          _buildSearchBar(context),
+          SizedBox(height: Design.spacing.md),
+          _buildSearchBar(context, homeController),
           SizedBox(height: Design.spacing.md),
           _buildFilterRow(context),
-            SizedBox(height: Design.spacing.md),
+          SizedBox(height: Design.spacing.md),
           _buildSectionHeader(context),
           SizedBox(height: Design.spacing.md),
           Expanded(child: Obx(() => _buildHomeBody(context, homeController))),
@@ -164,43 +164,60 @@ class HomePage extends GetView<AuthController> {
     });
   }
 
-  Widget _buildSearchBar(BuildContext context) {
+  Widget _buildSearchBar(BuildContext context, HomeController homeController) {
     final colors = context.colors;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.md,
-        vertical: Design.spacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        border: Border.all(color: colors.border),
-      ),
-      child: Row(
-        children: [
-          Icon(Design.icons.search, color: colors.textMuted),
-          SizedBox(width: Design.spacing.sm),
-          Expanded(
-            child: Text(
-              'Search atoms or meetings',
-              style: context.typo.bodyMedium.copyWith(color: colors.textMuted),
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.md,
+          vertical: Design.spacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          children: [
+            Icon(Design.icons.search, color: colors.textMuted),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: TextField(
+                controller: homeController.searchController,
+                onChanged: homeController.updateSearch,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  hintText: 'Search atoms or meetings',
+                ),
+                style: context.typo.bodyMedium,
+              ),
             ),
-          ),
-          Container(
-            height: 28,
-            width: 28,
-            decoration: BoxDecoration(
-              color: colors.card,
-              shape: BoxShape.circle,
+            GestureDetector(
+              onTap: homeController.searchQuery.value.isEmpty
+                  ? null
+                  : homeController.clearSearch,
+              child: Container(
+                height: 28,
+                width: 28,
+                decoration: BoxDecoration(
+                  color: colors.card,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  homeController.searchQuery.value.isEmpty
+                      ? Design.icons.filter
+                      : Design.icons.close,
+                  size: Design.spacing.iconSmall,
+                  color: colors.textSecondary,
+                ),
+              ),
             ),
-            child: Icon(
-              Design.icons.filter,
-              size: Design.spacing.iconSmall,
-              color: colors.textSecondary,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -271,10 +288,12 @@ class HomePage extends GetView<AuthController> {
   Widget _buildAtomCard(BuildContext context, AtomModel atom) {
     final colors = context.colors;
     final duration = _formatDuration(atom.durationSecs);
-    final participants = atom.participantsCount != null &&
-            atom.participantsCount! > 0
+    final participants =
+        atom.participantsCount != null && atom.participantsCount! > 0
         ? '${atom.participantsCount} speakers'
         : null;
+    final time = _relativeTime(atom.createdAt);
+    final summary = _shortSummary(atom);
 
     return AppCard(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
@@ -285,38 +304,9 @@ class HomePage extends GetView<AuthController> {
         children: [
           Row(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Design.spacing.sm,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 6,
-                      width: 6,
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: Design.spacing.xs),
-                    Text(
-                      atom.source.toUpperCase(),
-                      style: context.typo.caption.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _sourceBadge(atom.source),
+              SizedBox(width: Design.spacing.xs),
+              _statusBadge(atom.status),
               const Spacer(),
               Icon(
                 Design.icons.more,
@@ -333,20 +323,78 @@ class HomePage extends GetView<AuthController> {
               height: 1.2,
             ),
           ),
-          if (duration.isNotEmpty || participants != null) ...[
-            SizedBox(height: Design.spacing.sm),
+          if (summary.isNotEmpty) ...[
+            SizedBox(height: Design.spacing.xs),
             Text(
-              [duration, participants]
-                  .where((e) => e != null && e.isNotEmpty)
-                  .join(' · '),
+              summary,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: context.typo.bodySmall.copyWith(
                 color: colors.textSecondary,
+                height: 1.4,
+              ),
+            ),
+          ],
+          if (time.isNotEmpty || duration.isNotEmpty || participants != null) ...[
+            SizedBox(height: Design.spacing.sm),
+            Text(
+              [
+                time,
+                duration,
+                participants,
+              ].where((e) => e != null && e.isNotEmpty).join(' · '),
+              style: context.typo.caption.copyWith(
+                color: colors.textMuted,
               ),
             ),
           ],
         ],
       ),
     );
+  }
+
+  Widget _sourceBadge(String source) => AppBadge(
+        text: source.toUpperCase(),
+        type: EBadgeVariant.primary,
+      );
+
+  Widget _statusBadge(String status) {
+    final variant = switch (status.toLowerCase()) {
+      'completed' => EBadgeVariant.success,
+      'processing' => EBadgeVariant.warning,
+      'failed' => EBadgeVariant.error,
+      _ => EBadgeVariant.info,
+    };
+    final label = status.isEmpty ? 'draft' : status;
+    return AppBadge(
+      text: label[0].toUpperCase() + label.substring(1).toLowerCase(),
+      type: variant,
+    );
+  }
+
+  String _shortSummary(AtomModel atom) {
+    if (atom.summaryBlocks.isNotEmpty) {
+      final block = atom.summaryBlocks.first;
+      if (block is Map) {
+        final text = block['text'] ?? block['content'] ?? '';
+        if (text.toString().trim().isNotEmpty) return text.toString().trim();
+      } else if (block is String && block.trim().isNotEmpty) {
+        return block.trim();
+      }
+    }
+    return atom.note?.trim() ?? '';
+  }
+
+  String _relativeTime(String? iso) {
+    if (iso == null || iso.isEmpty) return '';
+    final dt = DateTime.tryParse(iso)?.toLocal();
+    if (dt == null) return '';
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${dt.month}/${dt.day}';
   }
 
   String _formatDuration(int? secs) {
@@ -433,10 +481,16 @@ class HomePage extends GetView<AuthController> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final homeController = Get.find<HomeController>();
+
     return _StatusCard(
       icon: Design.icons.emptyBox,
       title: 'No Atoms found',
-      subtitle: 'Try another filter or create a new atom.',
+      subtitle:
+          homeController.searchQuery.value.isNotEmpty ||
+              homeController.selectedFilter.value != 'All'
+          ? 'Try a different search or filter.'
+          : 'Create a new atom to populate this workspace.',
       primaryLabel: 'New Atom',
       onPrimaryTap: () => _showCreateSheet(context),
     );
@@ -862,9 +916,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? colors.primary : colors.surface,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected ? colors.primary : colors.border,
-          ),
+          border: Border.all(color: selected ? colors.primary : colors.border),
         ),
         child: Text(
           label,
@@ -900,11 +952,11 @@ class _StateChip extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: selected ? colors.primary.withValues(alpha: 0.16) : colors.card,
+          color: selected
+              ? colors.primary.withValues(alpha: 0.16)
+              : colors.card,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected ? colors.primary : colors.border,
-          ),
+          border: Border.all(color: selected ? colors.primary : colors.border),
         ),
         child: Text(
           label,
