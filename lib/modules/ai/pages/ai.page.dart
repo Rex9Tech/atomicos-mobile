@@ -11,11 +11,6 @@ class AiPage extends GetView<AiController> {
   static const _tabs = <String>['Summary', 'Transcript', 'Note', 'Assets'];
   static const _askFilters = <String>['All', 'AtomOS', 'New', 'Personal'];
   static const _askSources = <String>['Camera', 'Files', 'Add Atom'];
-  static const _askResults = <String>[
-    'An Atom name example here...',
-    'An Atom name example here...',
-    'An Atom name example here...',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +124,7 @@ class AiPage extends GetView<AiController> {
     });
   }
 
-  bool get _showRecordingPreviewState =>
-      controller.hasRecordingPreview;
+  bool get _showRecordingPreviewState => controller.hasRecordingPreview;
 
   Widget _buildMeetingWorkspaceHeader(BuildContext context) {
     final colors = context.colors;
@@ -212,9 +206,7 @@ class AiPage extends GetView<AiController> {
           SizedBox(height: Design.spacing.sm),
           Text(
             '@ Marketing',
-            style: context.typo.bodySmall.copyWith(
-              color: colors.textSecondary,
-            ),
+            style: context.typo.bodySmall.copyWith(color: colors.textSecondary),
           ),
           SizedBox(height: Design.spacing.lg),
           Expanded(
@@ -289,15 +281,13 @@ class AiPage extends GetView<AiController> {
         _buildAskTopBar(context),
         SizedBox(height: Design.spacing.xxl),
         Text(
-          'Hey, Robert!',
+          'Ask AtomicOS',
           style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
           'Start with a question or pick a shortcut.',
-          style: context.typo.bodyMedium.copyWith(
-            color: colors.textSecondary,
-          ),
+          style: context.typo.bodyMedium.copyWith(color: colors.textSecondary),
         ),
         SizedBox(height: Design.spacing.xxl),
         Obx(() {
@@ -322,9 +312,8 @@ class AiPage extends GetView<AiController> {
                         child: _AskSourceCard(
                           icon: _iconForSource(entry.value),
                           label: entry.value,
-                          onTap: () => controller.selectAskAttachment(
-                            entry.value,
-                          ),
+                          onTap: () =>
+                              controller.selectAskAttachment(entry.value),
                         ),
                       ),
                     ),
@@ -339,9 +328,7 @@ class AiPage extends GetView<AiController> {
             child: _AskActionRow(
               icon: item.icon,
               label: item.label,
-              onTap: () => controller.applyPromptSuggestion(
-                '${item.label.toUpperCase()} What happened in Myanmar?',
-              ),
+              onTap: () => controller.applyPromptSuggestion(item.label),
             ),
           ),
         ),
@@ -406,15 +393,13 @@ class AiPage extends GetView<AiController> {
         _buildAskTopBar(context),
         SizedBox(height: Design.spacing.xxl),
         Text(
-          'Hey, Robert!',
+          'Choose context',
           style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
           'Choose an atom to use as context.',
-          style: context.typo.bodyMedium.copyWith(
-            color: colors.textSecondary,
-          ),
+          style: context.typo.bodyMedium.copyWith(color: colors.textSecondary),
         ),
         SizedBox(height: Design.spacing.xl),
         Container(
@@ -470,15 +455,14 @@ class AiPage extends GetView<AiController> {
                     .toList(),
               ),
               SizedBox(height: Design.spacing.md),
-              ..._askResults.map(
-                (label) => Padding(
-                  padding: EdgeInsets.only(bottom: Design.spacing.sm),
-                  child: _AskSearchResultRow(
-                    label: label,
-                    onTap: () => controller.selectAskSearchResult(
-                      'Lorem Ipsum',
-                      suggestedPrompt: 'What happened in Myanmar?',
-                    ),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
+                child: Text(
+                  'Your atoms will appear here to use as context.',
+                  textAlign: TextAlign.center,
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
@@ -492,10 +476,7 @@ class AiPage extends GetView<AiController> {
                   SizedBox(width: Design.spacing.sm),
                   _BottomMiniButton(
                     icon: Design.icons.sparkles,
-                    onTap: () => controller.selectAskSearchResult(
-                      'Lorem Ipsum',
-                      suggestedPrompt: 'What happened in Myanmar?',
-                    ),
+                    onTap: controller.closeAskAttachmentMenu,
                     background: colors.primary,
                     foreground: colors.background,
                   ),
@@ -510,9 +491,9 @@ class AiPage extends GetView<AiController> {
 
   Widget _buildAskResultPreview(BuildContext context) {
     final colors = context.colors;
-    final submittedPrompt = controller.askSubmittedPrompt.value ??
-        controller.askDraft.value;
-    final sourceLabel = controller.askSelectedSource.value ?? 'Lorem Ipsum';
+    final submittedPrompt =
+        controller.askSubmittedPrompt.value ?? controller.askDraft.value;
+    final sourceLabel = controller.askSelectedSource.value ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,14 +511,10 @@ class AiPage extends GetView<AiController> {
             decoration: BoxDecoration(
               color: colors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(
-                color: colors.primary.withValues(alpha: 0.22),
-              ),
+              border: Border.all(color: colors.primary.withValues(alpha: 0.22)),
             ),
             child: Text(
-              submittedPrompt.isEmpty
-                  ? 'What happened in Myanmar?'
-                  : submittedPrompt,
+              submittedPrompt.isEmpty ? '' : submittedPrompt,
               style: context.typo.bodySmall.copyWith(
                 color: colors.primary,
                 fontWeight: FontWeight.w700,
@@ -567,38 +544,6 @@ class AiPage extends GetView<AiController> {
           ),
         ),
         SizedBox(height: Design.spacing.md),
-        Text(
-          'Here is a tighter preview of the answer, supporting context, and next actions.',
-          style: context.typo.bodyMedium.copyWith(
-            height: 1.45,
-            color: colors.textPrimary,
-          ),
-        ),
-        SizedBox(height: Design.spacing.lg),
-        Row(
-          children: const [
-            Expanded(
-              child: _InsightMetric(
-                title: 'Confidence',
-                value: '92%',
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _InsightMetric(
-                title: 'Sources',
-                value: '03',
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _InsightMetric(
-                title: 'Actions',
-                value: '05',
-              ),
-            ),
-          ],
-        ),
         SizedBox(height: Design.spacing.lg),
         Container(
           padding: EdgeInsets.all(Design.spacing.md),
@@ -615,16 +560,12 @@ class AiPage extends GetView<AiController> {
                   children: _buildAskActionItems()
                       .map(
                         (item) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: Design.spacing.sm,
-                          ),
+                          padding: EdgeInsets.only(bottom: Design.spacing.sm),
                           child: _AskActionRow(
                             icon: item.icon,
                             label: item.label,
                             compact: true,
-                            onTap: () => controller.applyPromptSuggestion(
-                              '${item.label.toUpperCase()} $submittedPrompt',
-                            ),
+                            onTap: () => controller.runAskAction(item.label),
                           ),
                         ),
                       )
@@ -637,80 +578,108 @@ class AiPage extends GetView<AiController> {
           ),
         ),
         SizedBox(height: Design.spacing.lg),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(Design.spacing.md),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 112,
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  borderRadius: BorderRadius.circular(
-                    Design.spacing.radiusLarge,
+        Obx(() {
+          final lines = controller.askActionLines;
+          return Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(Design.spacing.md),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+              border: Border.all(color: colors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(Design.spacing.md),
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(
+                      Design.spacing.radiusLarge,
+                    ),
+                  ),
+                  child: controller.isRunningAskAction.value
+                      ? const Center(child: CircularProgressIndicator())
+                      : Text(
+                          lines.isEmpty
+                              ? 'Run an action to generate a backend response preview.'
+                              : lines.take(3).join('\n\n'),
+                          style: context.typo.bodyMedium.copyWith(height: 1.45),
+                        ),
+                ),
+                SizedBox(height: Design.spacing.md),
+                Text(
+                  controller.askActionTitle.value,
+                  style: context.typo.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Text(
-                'Summary',
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
+                SizedBox(height: Design.spacing.xs),
+                Text(
+                  'Live result returned by the selected AI action.',
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.xs),
-              Text(
-                'A compact answer preview built from the selected source.',
-                style: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
+                SizedBox(height: Design.spacing.md),
+                Wrap(
+                  spacing: Design.spacing.sm,
+                  runSpacing: Design.spacing.sm,
+                  children: [
+                    _MiniResultChip(label: '${lines.length} lines'),
+                    _MiniResultChip(label: sourceLabel),
+                    _MiniResultChip(
+                      label: submittedPrompt.isEmpty ? 'Draft' : 'Prompt',
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Wrap(
-                spacing: Design.spacing.sm,
-                runSpacing: Design.spacing.sm,
-                children: const [
-                  _MiniResultChip(label: '3 insights'),
-                  _MiniResultChip(label: '2 blockers'),
-                  _MiniResultChip(label: '5 action items'),
-                ],
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        }),
         SizedBox(height: Design.spacing.lg),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(Design.spacing.md),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Generated actions',
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
+        Obx(() {
+          final lines = controller.askActionLines.skip(3).take(3).toList();
+          return Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(Design.spacing.md),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+              border: Border.all(color: colors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Generated actions',
+                  style: context.typo.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              const _ActionBullet(text: 'Confirm revised timeline with design'),
-              SizedBox(height: 8),
-              const _ActionBullet(text: 'Send market snapshot to leadership'),
-              SizedBox(height: 8),
-              const _ActionBullet(text: 'Ask AtomicOS to extract decisions'),
-            ],
-          ),
-        ),
+                SizedBox(height: Design.spacing.md),
+                if (controller.isRunningAskAction.value)
+                  const Center(child: CircularProgressIndicator())
+                else if (lines.isEmpty)
+                  _ActionBullet(
+                    text:
+                        'Additional structured steps will appear here when the response includes them.',
+                  )
+                else
+                  ...lines.asMap().entries.map(
+                    (entry) => Padding(
+                      padding: EdgeInsets.only(
+                        bottom: entry.key == lines.length - 1 ? 0 : 8,
+                      ),
+                      child: _ActionBullet(text: entry.value),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
@@ -718,10 +687,7 @@ class AiPage extends GetView<AiController> {
   Widget _buildAskTopBar(BuildContext context) {
     return Row(
       children: [
-        _CircleIconButton(
-          icon: Design.icons.backArrow,
-          onTap: Get.back,
-        ),
+        _CircleIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
             'Ask AtomicOS',
@@ -895,7 +861,10 @@ class AiPage extends GetView<AiController> {
       _AskActionItem(icon: Design.icons.route, label: 'Decisions'),
       _AskActionItem(icon: Design.icons.sparkles, label: 'Fusion with'),
       _AskActionItem(icon: Design.icons.task, label: 'Generate tasks'),
-      _AskActionItem(icon: Design.icons.report, label: 'Generate analytic report'),
+      _AskActionItem(
+        icon: Design.icons.report,
+        label: 'Generate analytic report',
+      ),
     ];
   }
 
@@ -915,10 +884,7 @@ class AiPage extends GetView<AiController> {
   Widget _buildDetailsTopBar(BuildContext context) {
     return Row(
       children: [
-        _CircleIconButton(
-          icon: Design.icons.backArrow,
-          onTap: Get.back,
-        ),
+        _CircleIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
             'Details',
@@ -1215,9 +1181,7 @@ class AiPage extends GetView<AiController> {
               padding: EdgeInsets.all(Design.spacing.lg),
               decoration: BoxDecoration(
                 color: context.colors.surface,
-                borderRadius: BorderRadius.circular(
-                  Design.spacing.radiusLarge,
-                ),
+                borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
                 border: Border.all(color: context.colors.border),
               ),
               child: Row(
@@ -1271,9 +1235,7 @@ class AiPage extends GetView<AiController> {
               padding: EdgeInsets.all(Design.spacing.lg),
               decoration: BoxDecoration(
                 color: context.colors.surface,
-                borderRadius: BorderRadius.circular(
-                  Design.spacing.radiusLarge,
-                ),
+                borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
                 border: Border.all(color: context.colors.border),
               ),
               child: Row(
@@ -1654,7 +1616,9 @@ class AiPage extends GetView<AiController> {
 
   List<_SummaryBlock> _summaryBlocks() {
     final assistantMessages = controller.messages
-        .where((message) => !message.isUser && message.content.trim().isNotEmpty)
+        .where(
+          (message) => !message.isUser && message.content.trim().isNotEmpty,
+        )
         .toList();
 
     if (assistantMessages.isEmpty) {
@@ -1796,10 +1760,7 @@ class AiPage extends GetView<AiController> {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _CircleIconButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -1829,10 +1790,7 @@ class _CircleIconButton extends StatelessWidget {
 }
 
 class _MiniControl extends StatelessWidget {
-  const _MiniControl({
-    required this.icon,
-    this.active = false,
-  });
+  const _MiniControl({required this.icon, this.active = false});
 
   final IconData icon;
   final bool active;
@@ -1858,10 +1816,7 @@ class _MiniControl extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.child,
-  });
+  const _SectionCard({required this.title, required this.child});
 
   final String title;
   final Widget child;
@@ -1915,7 +1870,9 @@ class _TranscriptCard extends StatelessWidget {
         color: isUser ? colors.primary.withValues(alpha: 0.14) : colors.surface,
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         border: Border.all(
-          color: isUser ? colors.primary.withValues(alpha: 0.25) : colors.border,
+          color: isUser
+              ? colors.primary.withValues(alpha: 0.25)
+              : colors.border,
         ),
       ),
       child: Column(
@@ -1933,9 +1890,7 @@ class _TranscriptCard extends StatelessWidget {
               const Spacer(),
               Text(
                 status,
-                style: context.typo.caption.copyWith(
-                  color: colors.textMuted,
-                ),
+                style: context.typo.caption.copyWith(color: colors.textMuted),
               ),
             ],
           ),
@@ -2111,10 +2066,7 @@ class _AskSourceCard extends StatelessWidget {
 }
 
 class _AskFilterChip extends StatelessWidget {
-  const _AskFilterChip({
-    required this.label,
-    required this.selected,
-  });
+  const _AskFilterChip({required this.label, required this.selected});
 
   final String label;
   final bool selected;
@@ -2124,10 +2076,7 @@ class _AskFilterChip extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: selected ? colors.primary : colors.card,
         borderRadius: BorderRadius.circular(999),
@@ -2138,27 +2087,6 @@ class _AskFilterChip extends StatelessWidget {
           color: selected ? colors.background : colors.textSecondary,
         ),
       ),
-    );
-  }
-}
-
-class _AskSearchResultRow extends StatelessWidget {
-  const _AskSearchResultRow({
-    required this.label,
-    required this.onTap,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppToneCard(
-      title: label,
-      subtitle: 'Saved atom',
-      leadingIcon: Design.icons.note,
-      tone: EAppToneCardTone.neutral,
-      onTap: onTap,
     );
   }
 }
@@ -2189,30 +2117,21 @@ class _BottomMiniButton extends StatelessWidget {
           color: background ?? colors.card,
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          size: 16,
-          color: foreground ?? colors.textPrimary,
-        ),
+        child: Icon(icon, size: 16, color: foreground ?? colors.textPrimary),
       ),
     );
   }
 }
 
 class _MeetingChip extends StatelessWidget {
-  const _MeetingChip({
-    required this.label,
-  });
+  const _MeetingChip({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 4),
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(999),
@@ -2223,26 +2142,6 @@ class _MeetingChip extends StatelessWidget {
           color: context.colors.textSecondary,
         ),
       ),
-    );
-  }
-}
-
-class _InsightMetric extends StatelessWidget {
-  const _InsightMetric({
-    required this.title,
-    required this.value,
-  });
-
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppToneCard(
-      title: value,
-      subtitle: title,
-      tone: EAppToneCardTone.neutral,
-      padding: EdgeInsets.all(Design.spacing.md),
     );
   }
 }
@@ -2275,9 +2174,7 @@ class _PreviewDocumentCard extends StatelessWidget {
             'Market deck',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.typo.bodySmall.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: context.typo.bodySmall.copyWith(fontWeight: FontWeight.w700),
           ),
           SizedBox(height: Design.spacing.xs),
           Text(
@@ -2300,10 +2197,7 @@ class _MiniResultChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(999),
@@ -2339,19 +2233,14 @@ class _ActionBullet extends StatelessWidget {
           ),
         ),
         SizedBox(width: Design.spacing.sm),
-        Expanded(
-          child: Text(text, style: context.typo.bodyMedium),
-        ),
+        Expanded(child: Text(text, style: context.typo.bodyMedium)),
       ],
     );
   }
 }
 
 class _ContextPreviewCard extends StatelessWidget {
-  const _ContextPreviewCard({
-    required this.title,
-    required this.subtitle,
-  });
+  const _ContextPreviewCard({required this.title, required this.subtitle});
 
   final String title;
   final String subtitle;
@@ -2368,20 +2257,14 @@ class _ContextPreviewCard extends StatelessWidget {
 }
 
 class _SummaryBlock {
-  const _SummaryBlock({
-    required this.title,
-    required this.lines,
-  });
+  const _SummaryBlock({required this.title, required this.lines});
 
   final String title;
   final List<String> lines;
 }
 
 class _AskActionItem {
-  const _AskActionItem({
-    required this.icon,
-    required this.label,
-  });
+  const _AskActionItem({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
