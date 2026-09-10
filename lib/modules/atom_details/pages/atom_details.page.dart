@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
@@ -213,10 +214,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         children: atom.summaryBlocks.map((block) {
           return Padding(
             padding: EdgeInsets.only(bottom: Design.spacing.sm),
-            child: Text(
-              _blockText(block),
-              style: context.typo.bodyMedium.copyWith(height: 1.4),
-            ),
+            child: _markdown(context, _blockText(block)),
           );
         }).toList(),
       ),
@@ -252,10 +250,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     }
     return _scrollableCard(
       context,
-      Text(
-        note,
-        style: context.typo.bodyMedium.copyWith(height: 1.5),
-      ),
+      _markdown(context, note),
     );
   }
 
@@ -422,5 +417,28 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       return text.isNotEmpty ? text : segment.toString();
     }
     return segment.toString();
+  }
+
+  Widget _markdown(BuildContext context, String text) {
+    final colors = context.colors;
+    final base = context.typo.bodyMedium.copyWith(
+      color: colors.textPrimary,
+      height: 1.5,
+    );
+
+    return MarkdownBody(
+      data: text,
+      styleSheet: MarkdownStyleSheet(
+        p: base,
+        strong: base.copyWith(fontWeight: FontWeight.w700),
+        em: base.copyWith(fontStyle: FontStyle.italic),
+        h1: context.typo.headline2.copyWith(color: colors.textPrimary),
+        h2: context.typo.headline3.copyWith(color: colors.textPrimary),
+        h3: context.typo.headline4.copyWith(color: colors.textPrimary),
+        listBullet: base,
+        blockquote: base.copyWith(color: colors.textSecondary),
+        code: context.typo.bodySmall.copyWith(color: colors.primary),
+      ),
+    );
   }
 }
