@@ -78,6 +78,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           ),
         ),
         SizedBox(height: Design.spacing.xl),
+        _buildModeHero(context),
+        SizedBox(height: Design.spacing.xl),
         _buildModePicker(context),
         SizedBox(height: Design.spacing.xl),
         if (controller.selectedMode.value == 'import')
@@ -141,6 +143,78 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     );
   }
 
+  Widget _buildModeHero(BuildContext context) {
+    final colors = context.colors;
+    final mode = controller.selectedMode.value;
+    final title = switch (mode) {
+      'share' => 'Turn shared content into a reviewable atom',
+      'note' => 'Draft first, then refine with AI help',
+      _ => 'Capture context from links, files, and meetings',
+    };
+    final subtitle = switch (mode) {
+      'share' => 'Shared text can become a note, ask flow, or new atom.',
+      'note' => 'Use summary and task stages to shape a better final output.',
+      _ => 'Import sources feed the same structured AtomicOS workspace.',
+    };
+
+    return Container(
+      padding: EdgeInsets.all(Design.spacing.lg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
+        ),
+        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 42,
+            width: 42,
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+            ),
+            child: Icon(
+              mode == 'share'
+                  ? Design.icons.shareIos
+                  : mode == 'note'
+                  ? Design.icons.clipboard
+                  : Design.icons.upload,
+              color: colors.primary,
+            ),
+          ),
+          SizedBox(width: Design.spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: context.typo.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                ),
+                SizedBox(height: Design.spacing.xs),
+                Text(
+                  subtitle,
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildImportMode(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,37 +240,39 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         ),
         SizedBox(height: Design.spacing.md),
         _SectionShell(
-          title: 'Queued items',
-          child: Column(
-            children: [
-              if (controller.importStage.value == 'youtube')
-                const _QueuedImportCard(
-                  source: 'YOUTUBE',
-                  title: 'Myanmar market trends 2026 - weekly briefing',
-                  status: 'Processing preview',
-                ),
-              if (controller.importStage.value == 'upload')
-                const _QueuedImportCard(
-                  source: 'UPLOAD',
-                  title: 'Sprint review memo.pdf',
-                  status: 'Ready to attach',
-                ),
-              if (controller.importStage.value == 'meeting')
-                const _QueuedImportCard(
-                  source: 'MEETING',
-                  title: 'Marketing sync · live capture',
-                  status: 'Ready to join',
-                ),
-            ],
-          ),
+          title: 'Queued item',
+          child: Obx(() {
+            final stage = controller.importStage.value;
+            final String title;
+            final String status;
+            if (stage == 'upload') {
+              final name = controller.pickedUploadName.value;
+              title = name ?? 'No file selected';
+              status = name == null
+                  ? 'Tap the upload area to pick a file'
+                  : 'Ready to upload and create';
+            } else if (stage == 'meeting') {
+              title = 'Live meeting';
+              status = 'Join to start capturing audio';
+            } else {
+              final url = controller.urlText.value.trim();
+              title = url.isEmpty ? 'No link yet' : url;
+              status = url.isEmpty
+                  ? 'Paste a YouTube URL above'
+                  : 'Will import and summarize';
+            }
+            return _QueuedImportCard(
+              source: stage.toUpperCase(),
+              title: title,
+              status: status,
+            );
+          }),
         ),
       ],
     );
   }
 
   Widget _buildShareMode(BuildContext context) {
-    final colors = context.colors;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,24 +294,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
               : controller.shareStage.value == 'confirm'
               ? _buildShareConfirmStage(context)
               : _buildSharePreviewStage(context),
-        ),
-        SizedBox(height: Design.spacing.md),
-        _SectionShell(
-          title: 'Preview',
-          child: Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: colors.card,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            ),
-            child: Center(
-              child: Icon(
-                Design.icons.attachment,
-                color: colors.textMuted,
-                size: Design.spacing.iconXLarge,
-              ),
-            ),
-          ),
         ),
       ],
     );
@@ -273,12 +331,20 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                 icon: Design.icons.sparkles,
                 title: 'Generate summary',
                 subtitle: 'Create a clean executive version',
+                onTap: () {
+                  controller.selectNoteStage('summary');
+                  controller.generateNoteSummary();
+                },
               ),
               SizedBox(height: Design.spacing.sm),
               _ImportActionTile(
                 icon: Design.icons.task,
                 title: 'Extract tasks',
                 subtitle: 'Turn the note into next actions',
+                onTap: () {
+                  controller.selectNoteStage('tasks');
+                  controller.extractNoteTasks();
+                },
               ),
             ],
           ),
@@ -323,6 +389,18 @@ class AtomCreatePage extends GetView<AtomCreateController> {
               ),
             ),
             SizedBox(height: Design.spacing.sm),
+            Text(
+              controller.selectedMode.value == 'import'
+                  ? 'Imported content is converted into a reusable atom workspace.'
+                  : controller.selectedMode.value == 'share'
+                  ? 'Shared payloads can be reviewed before they are saved.'
+                  : 'Draft notes can be refined into summaries and task lists first.',
+              style: context.typo.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Design.spacing.xs),
             TextButton(
               onPressed: () => AppRoutes.toAi(mode: 'ask'),
               child: Text(
@@ -503,18 +581,21 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           icon: Design.icons.folder,
           title: 'Upload a file',
           subtitle: 'Audio, video, PDFs, or documents',
+          onTap: () => controller.selectImportStage('upload'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.shareIos,
           title: 'Share from another app',
           subtitle: 'In-app handoff or OS share sheet',
+          onTap: () => controller.selectMode('share'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.clipboard,
           title: 'Paste note',
           subtitle: 'Transform raw text into an Atom',
+          onTap: () => controller.selectMode('note'),
         ),
       ],
     );
@@ -607,25 +688,15 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                spacing: Design.spacing.xs,
-                runSpacing: Design.spacing.xs,
-                children: const [
-                  _MiniMetaChip(label: 'SLACK'),
-                  _MiniMetaChip(label: 'Marketing'),
-                  _MiniMetaChip(label: 'Live capture'),
-                ],
-              ),
-              SizedBox(height: Design.spacing.md),
               Text(
-                'Add AtomicOS to live meeting',
+                'Start a live meeting',
                 style: context.typo.labelLarge.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: Design.spacing.sm),
               Text(
-                'Preview the handoff into the meeting workspace.',
+                'Record audio, then finish to generate a summarized atom from the transcript.',
                 style: context.typo.bodyMedium.copyWith(
                   color: colors.textSecondary,
                   height: 1.45,
@@ -639,15 +710,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           children: const [
             Expanded(
               child: _ChoiceCard(
-                title: 'Join Slack huddle',
-                subtitle: '3 speakers detected',
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Open recorder',
-                subtitle: 'Prepare meeting note',
+                title: 'Record meeting',
+                subtitle: 'Capture audio + transcript',
               ),
             ),
           ],
@@ -660,16 +724,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: Design.spacing.xs,
-          runSpacing: Design.spacing.xs,
-          children: const [
-            _MiniMetaChip(label: 'SHARE'),
-            _MiniMetaChip(label: 'Meeting note'),
-            _MiniMetaChip(label: 'Ready to import'),
-          ],
-        ),
-        SizedBox(height: Design.spacing.md),
         Text(
           'Shared payload',
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
@@ -729,7 +783,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         SizedBox(height: Design.spacing.sm),
         const _ChoiceCard(
           title: 'Backend route',
-          subtitle: 'Uses note ingestion until dedicated share API exists',
+          subtitle: 'Creates via POST /v1/atoms/from-share',
         ),
       ],
     );
@@ -741,16 +795,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: Design.spacing.xs,
-          runSpacing: Design.spacing.xs,
-          children: const [
-            _MiniMetaChip(label: 'SUMMARY'),
-            _MiniMetaChip(label: 'TASKS'),
-            _MiniMetaChip(label: 'PERSONAL'),
-          ],
-        ),
-        SizedBox(height: Design.spacing.md),
         Container(
           height: 220,
           padding: EdgeInsets.all(Design.spacing.lg),
@@ -780,37 +824,79 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   }
 
   Widget _buildNoteSummaryStage(BuildContext context) {
-    return Column(
-      children: const [
-        _ChoiceCard(
-          title: 'Executive summary',
-          subtitle: 'Solar System note condensed into 4 key bullets',
-        ),
-        SizedBox(height: 12),
-        _ChoiceCard(
-          title: 'Key insight',
-          subtitle: 'Scientists tracked the solar nebula collapse timeline',
-        ),
-      ],
-    );
+    return Obx(() {
+      if (controller.isGeneratingSummary.value) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(Design.spacing.lg),
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      }
+      final summary = controller.noteSummary.value;
+      if (summary == null || summary.isEmpty) {
+        return _ImportActionTile(
+          icon: Design.icons.sparkles,
+          title: 'Generate summary',
+          subtitle: 'Condense the note with AI',
+          onTap: controller.generateNoteSummary,
+        );
+      }
+      return AppToneCard(
+        title: 'Summary',
+        subtitle: summary,
+        tone: EAppToneCardTone.primary,
+      );
+    });
   }
 
   Widget _buildNoteTasksStage(BuildContext context) {
-    return Column(
-      children: [
-        _ImportActionTile(
+    return Obx(() {
+      if (controller.isExtractingTasks.value) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(Design.spacing.lg),
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      }
+      final tasks = controller.noteTaskItems;
+      if (tasks.isEmpty) {
+        return _ImportActionTile(
           icon: Design.icons.task,
-          title: 'Review research assumptions',
-          subtitle: 'Assign owner and target completion date',
-        ),
-        SizedBox(height: 12),
-        _ImportActionTile(
-          icon: Design.icons.task,
-          title: 'Prepare follow-up memo',
-          subtitle: 'Summarize the note for the next sync',
-        ),
-      ],
-    );
+          title: 'Extract tasks',
+          subtitle: 'Turn the note into next actions',
+          onTap: controller.extractNoteTasks,
+        );
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: tasks
+            .map(
+              (task) => Padding(
+                padding: EdgeInsets.only(bottom: Design.spacing.sm),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Design.icons.check,
+                      size: 16,
+                      color: context.colors.primary,
+                    ),
+                    SizedBox(width: Design.spacing.sm),
+                    Expanded(
+                      child: Text(
+                        task,
+                        style: context.typo.bodyMedium.copyWith(height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      );
+    });
   }
 }
 
@@ -877,11 +963,13 @@ class _ImportActionTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -895,6 +983,7 @@ class _ImportActionTile extends StatelessWidget {
         size: Design.spacing.iconMedium,
         color: context.colors.textMuted,
       ),
+      onTap: onTap,
     );
   }
 }
@@ -912,44 +1001,11 @@ class _QueuedImportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return AppToneCard(
       title: title,
       subtitle: status,
       eyebrow: source,
       tone: EAppToneCardTone.primary,
-      footer: LinearProgressIndicator(
-        value: 0.62,
-        minHeight: 6,
-        borderRadius: BorderRadius.circular(999),
-        backgroundColor: colors.card,
-        valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-      ),
-    );
-  }
-}
-
-class _MiniMetaChip extends StatelessWidget {
-  const _MiniMetaChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
-      decoration: BoxDecoration(
-        color: context.colors.card,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: context.typo.caption.copyWith(
-          color: context.colors.textSecondary,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
     );
   }
 }

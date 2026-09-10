@@ -6,6 +6,7 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
+import '../../ai/services/ai.service.dart';
 import '../../home/data/models/models.dart';
 import '../data/requests/requests.dart';
 import '../services/atom_create.service.dart';
@@ -13,6 +14,7 @@ import '../services/atom_create.service.dart';
 class AtomCreateController extends GetxController {
   final AtomCreateService _service = Get.find<AtomCreateService>();
   final MediaService _media = Get.find<MediaService>();
+  final AiService _ai = Get.find<AiService>();
 
   final RxString selectedMode = 'import'.obs;
   final RxString importStage = 'youtube'.obs;
@@ -21,19 +23,19 @@ class AtomCreateController extends GetxController {
   final RxnString pickedUploadPath = RxnString();
   final RxnString pickedUploadName = RxnString();
   final RxBool isSubmitting = false.obs;
+  final RxString urlText = ''.obs;
+  final RxBool isGeneratingSummary = false.obs;
+  final RxBool isExtractingTasks = false.obs;
+  final RxnString noteSummary = RxnString();
+  final RxList<String> noteTaskItems = <String>[].obs;
   final urlController = TextEditingController();
-  final shareTextController = TextEditingController(
-    text:
-        'Product launch retrospective\n\n- Align launch checklist with design review\n- Confirm owners for the next sprint checkpoint\n- Share customer feedback summary with the team',
-  );
-  final noteController = TextEditingController(
-    text:
-        'Scientists believe the Solar System formed out of a gas and dust cloud as the solar nebula.',
-  );
+  final shareTextController = TextEditingController();
+  final noteController = TextEditingController();
 
   @override
   void onInit() {
     super.onInit();
+    urlController.addListener(() => urlText.value = urlController.text);
     final args = Get.arguments;
     if (args is Map) {
       if (args['mode'] != null) {
@@ -200,6 +202,64 @@ class AtomCreateController extends GetxController {
         ),
       ),
     );
+  }
+
+  /// POST /v1/ai/summarize — real AI summary of the drafted note.
+  Future<void> generateNoteSummary() async {
+    final note = noteController.text.trim();
+    if (note.isEmpty) {
+      AppSnackbar.error('Note is empty');
+      return;
+    }
+    if (isGeneratingSummary.value) return;
+    isGeneratingSummary.value = true;
+    try {
+      final result = await _ai.summarize(note);
+      if (result.success) {
+        final summary = (result.data?['summary'] ?? '').toString().trim();
+        noteSummary.value = summary.isEmpty ? null : summary;
+        if (summary.isEmpty) AppSnackbar.error('No summary returned');
+      } else {
+        AppSnackbar.error(result.error ?? result.message);
+      }
+    } catch (e) {
+      AppSnackbar.error('Failed: $e');
+    } finally {
+      isGeneratingSummary.value = false;
+    }
+  }
+
+  /// POST /v1/ai/tasks — real task extraction from the drafted note.
+  Future<void> extractNoteTasks() async {
+    final note = noteController.text.trim();
+    if (note.isEmpty) {
+      AppSnackbar.error('Note is empty');
+      return;
+    }
+    if (isExtractingTasks.value) return;
+    isExtractingTasks.value = true;
+    try {
+      final result = await _ai.generateTasks(note);
+      if (result.success) {
+        noteTaskItems.clear();
+        final tasks = result.data?['tasks'];
+        if (tasks is List) {
+          for (final t in tasks) {
+            final title = t is Map
+                ? (t['title'] ?? '').toString().trim()
+                : t.toString().trim();
+            if (title.isNotEmpty) noteTaskItems.add(title);
+          }
+        }
+        if (noteTaskItems.isEmpty) AppSnackbar.error('No tasks returned');
+      } else {
+        AppSnackbar.error(result.error ?? result.message);
+      }
+    } catch (e) {
+      AppSnackbar.error('Failed: $e');
+    } finally {
+      isExtractingTasks.value = false;
+    }
   }
 
   Future<void> _submit(Future<ApiResponse<AtomModel>> Function() action) async {

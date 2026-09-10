@@ -13,39 +13,49 @@ class LiveActivityPage extends GetView<LiveActivityController> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return AppPage(
-      backgroundColor: colors.background,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTopBar(context),
-          SizedBox(height: Design.spacing.lg),
-          Text(
-            'Recording preview',
-            style: context.typo.headline2.copyWith(fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: Design.spacing.xs),
-          Text(
-            'Compact and expanded recording surfaces.',
-            style: context.typo.bodyMedium.copyWith(
-              color: colors.textSecondary,
+    return Obx(
+      () => AppPage(
+        backgroundColor: colors.background,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildTopBar(context),
+            SizedBox(height: Design.spacing.lg),
+            Text(
+              'Live recording',
+              style: context.typo.headline2.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          SizedBox(height: Design.spacing.lg),
-          _buildSurfacePicker(context),
-          SizedBox(height: Design.spacing.xl),
-          _buildCompactCapsule(context),
-          SizedBox(height: Design.spacing.lg),
-          Expanded(
-            child: ListView(
-              children: [
-                _buildExpandedCard(context),
-                SizedBox(height: Design.spacing.lg),
-                _buildComposerPreview(context),
-              ],
+            SizedBox(height: Design.spacing.xs),
+            Text(
+              controller.isRecording.value
+                  ? 'Capturing audio…'
+                  : 'Recording paused',
+              style: context.typo.bodyMedium.copyWith(
+                color: colors.textSecondary,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: Design.spacing.lg),
+            _buildStatusHero(context),
+            SizedBox(height: Design.spacing.lg),
+            _buildSurfacePicker(context),
+            SizedBox(height: Design.spacing.xl),
+            Expanded(
+              child: ListView(
+                children: [
+                  if (controller.selectedSurface.value == 'Compact') ...[
+                    _buildCompactCapsule(context),
+                    SizedBox(height: Design.spacing.lg),
+                  ],
+                  _buildExpandedCard(context),
+                  SizedBox(height: Design.spacing.lg),
+                  _buildComposerPreview(context),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -53,10 +63,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
   Widget _buildTopBar(BuildContext context) {
     return Row(
       children: [
-        _LiveRoundButton(
-          icon: Design.icons.backArrow,
-          onTap: Get.back,
-        ),
+        _LiveRoundButton(icon: Design.icons.backArrow, onTap: Get.back),
         const Spacer(),
         _LiveRoundButton(
           icon: Design.icons.close,
@@ -115,6 +122,49 @@ class LiveActivityPage extends GetView<LiveActivityController> {
     );
   }
 
+  Widget _buildStatusHero(BuildContext context) {
+    final colors = context.colors;
+
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
+          ),
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _LiveMetric(
+                label: 'State',
+                value: controller.isRecording.value ? 'Live' : 'Paused',
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: _LiveMetric(
+                label: 'Surface',
+                value: controller.selectedSurface.value,
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: _LiveMetric(
+                label: 'Elapsed',
+                value: controller.formattedElapsed,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCompactCapsule(BuildContext context) {
     final colors = context.colors;
 
@@ -128,6 +178,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
           color: colors.surface,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: colors.border),
+          boxShadow: Design.colors.shadows.sm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -136,16 +187,16 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               height: 8,
               width: 8,
               decoration: BoxDecoration(
-                color: colors.primary,
+                color: controller.isRecording.value
+                    ? colors.primary
+                    : colors.textMuted,
                 shape: BoxShape.circle,
               ),
             ),
             SizedBox(width: Design.spacing.xs),
             Text(
-              '20:18',
-              style: context.typo.caption.copyWith(
-                color: colors.textSecondary,
-              ),
+              controller.formattedElapsed,
+              style: context.typo.caption.copyWith(color: colors.textSecondary),
             ),
             SizedBox(width: Design.spacing.md),
             _WaveformBar(width: 54),
@@ -191,7 +242,9 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                       ),
                     ),
                     Text(
-                      '3 speakers detected',
+                      controller.isRecording.value
+                          ? 'Recording in progress'
+                          : 'Recording paused',
                       style: context.typo.bodySmall.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -207,21 +260,15 @@ class LiveActivityPage extends GetView<LiveActivityController> {
           Row(
             children: [
               Text(
-                'Recording',
+                controller.isRecording.value ? 'Recording' : 'Paused',
                 style: context.typo.bodySmall.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
               const Spacer(),
               _LiveActionPill(
-                icon: Design.icons.note,
-                label: 'Note',
-                onTap: () {},
-              ),
-              SizedBox(width: Design.spacing.sm),
-              _LiveActionPill(
                 icon: Design.icons.pause,
-                label: 'Pause',
+                label: controller.isRecording.value ? 'Pause' : 'Resume',
                 onTap: controller.toggleRecording,
               ),
               SizedBox(width: Design.spacing.sm),
@@ -229,7 +276,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                 icon: Design.icons.stop,
                 label: 'End',
                 destructive: true,
-                onTap: controller.toggleRecording,
+                onTap: controller.finishRecording,
               ),
             ],
           ),
@@ -256,35 +303,20 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               ),
               SizedBox(width: Design.spacing.xs),
               Text(
-                'SLACK',
+                'Meeting note',
                 style: context.typo.labelMedium.copyWith(
                   color: colors.textSecondary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              SizedBox(width: Design.spacing.sm),
-              Text(
-                '3 speakers detected',
-                style: context.typo.bodySmall.copyWith(
-                  color: colors.textMuted,
-                ),
-              ),
             ],
           ),
-          SizedBox(height: Design.spacing.lg),
+          SizedBox(height: Design.spacing.md),
           Text(
-            'Write a Meeting Note...',
-            style: context.typo.bodyLarge.copyWith(
-              color: colors.textMuted,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: Design.spacing.xl),
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: colors.card,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+            'The transcript and summary are generated when you end the recording.',
+            style: context.typo.bodyMedium.copyWith(
+              color: colors.textSecondary,
+              height: 1.45,
             ),
           ),
           SizedBox(height: Design.spacing.lg),
@@ -300,7 +332,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               ),
               SizedBox(width: Design.spacing.xs),
               Text(
-                '20:18',
+                controller.formattedElapsed,
                 style: context.typo.caption.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -310,7 +342,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               SizedBox(width: Design.spacing.md),
               _LiveActionPill(
                 icon: Design.icons.pause,
-                label: 'Pause',
+                label: controller.isRecording.value ? 'Pause' : 'Resume',
                 onTap: controller.toggleRecording,
               ),
               SizedBox(width: Design.spacing.sm),
@@ -318,7 +350,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                 icon: Design.icons.stop,
                 label: 'End',
                 destructive: true,
-                onTap: controller.toggleRecording,
+                onTap: controller.finishRecording,
               ),
             ],
           ),
@@ -329,10 +361,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
 }
 
 class _LiveRoundButton extends StatelessWidget {
-  const _LiveRoundButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _LiveRoundButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -438,6 +467,43 @@ class _WaveformBar extends StatelessWidget {
               ),
             )
             .toList(),
+      ),
+    );
+  }
+}
+
+class _LiveMetric extends StatelessWidget {
+  const _LiveMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(Design.spacing.md),
+      decoration: BoxDecoration(
+        color: context.colors.surface.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+        border: Border.all(color: context.colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: context.typo.labelLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: Design.spacing.xs),
+          Text(
+            label,
+            style: context.typo.caption.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
