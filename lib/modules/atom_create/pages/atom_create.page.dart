@@ -607,8 +607,50 @@ class AtomCreatePage extends GetView<AtomCreateController> {
 
     return Column(
       children: [
+        Obx(() {
+          if (!controller.isUploading.value) return const SizedBox.shrink();
+          final pct = (controller.uploadProgress.value * 100)
+              .clamp(0.0, 100.0)
+              .toStringAsFixed(0);
+          return Padding(
+            padding: EdgeInsets.only(bottom: Design.spacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Uploading…',
+                      style: context.typo.labelMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '$pct%',
+                      style: context.typo.labelMedium.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: Design.spacing.sm),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: controller.uploadProgress.value.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: colors.card,
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
         GestureDetector(
-          onTap: controller.pickUploadAsset,
+          onTap: controller.isUploading.value ? null : controller.pickUploadAsset,
           child: Container(
             height: 180,
             decoration: BoxDecoration(

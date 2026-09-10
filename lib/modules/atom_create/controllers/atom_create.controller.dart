@@ -23,6 +23,8 @@ class AtomCreateController extends GetxController {
   final RxnString pickedUploadPath = RxnString();
   final RxnString pickedUploadName = RxnString();
   final RxBool isSubmitting = false.obs;
+  final RxDouble uploadProgress = 0.0.obs;
+  final RxBool isUploading = false.obs;
   final RxString urlText = ''.obs;
   final RxBool isGeneratingSummary = false.obs;
   final RxBool isExtractingTasks = false.obs;
@@ -148,11 +150,17 @@ class AtomCreateController extends GetxController {
     }
 
     isSubmitting.value = true;
+    isUploading.value = true;
+    uploadProgress.value = 0.0;
     try {
       final upload = await _media.uploadImage(
         filePath: pickedUploadPath.value!,
         filename: pickedUploadName.value,
         folder: 'atoms',
+        showLoading: false,
+        uploadProgress: (percent) {
+          uploadProgress.value = percent / 100.0;
+        },
       );
 
       if (!upload.success) {
@@ -183,6 +191,7 @@ class AtomCreateController extends GetxController {
     } catch (e) {
       AppSnackbar.error('Failed: $e');
     } finally {
+      isUploading.value = false;
       isSubmitting.value = false;
     }
   }

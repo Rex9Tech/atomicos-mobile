@@ -26,6 +26,8 @@ class MediaService extends GetxService {
     String? assetableId,
     int? durationSecs,
     String? folder,
+    Progress? uploadProgress,
+    bool showLoading = true,
   }) async {
     final file = File(filePath);
     final bytes = await file.readAsBytes();
@@ -43,7 +45,8 @@ class MediaService extends GetxService {
     final response = await _api.postMultipart(
       ServerRoutes.uploadAsset,
       form,
-      showLoading: true,
+      showLoading: showLoading,
+      uploadProgress: uploadProgress,
     );
 
     return _api.parseResponse<AssetUploadResponse>(

@@ -845,6 +845,8 @@ class FakeMediaService extends MediaService {
     String? assetableId,
     int? durationSecs,
     String? folder,
+    Progress? uploadProgress,
+    bool showLoading = true,
   }) async {
     lastUploadedFilePath = filePath;
     lastUploadedType = type;
