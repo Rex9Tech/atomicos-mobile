@@ -35,3 +35,17 @@ class AtomFromAssetRequest {
     AtomKeys.assetId: assetId,
   };
 }
+
+class AtomFromShareRequest {
+  final String? title;
+  final String text;
+  final String? url;
+
+  const AtomFromShareRequest({this.title, required this.text, this.url});
+
+  Map<String, dynamic> toJson() => {
+    if (title != null && title!.isNotEmpty) AtomKeys.title: title,
+    AtomKeys.text: text,
+    if (url != null && url!.isNotEmpty) AtomKeys.url: url,
+  };
+}

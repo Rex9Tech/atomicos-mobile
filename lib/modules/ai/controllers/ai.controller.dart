@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/models/models.dart';
+import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../ai.dart';
@@ -36,6 +38,9 @@ class AiController extends GetxController {
   final RxnString askSelectedSource = RxnString();
   final RxnString askSubmittedPrompt = RxnString();
   final RxString askDraft = ''.obs;
+  final RxString askActionTitle = 'Summary'.obs;
+  final RxList<String> askActionLines = <String>[].obs;
+  final RxBool isRunningAskAction = false.obs;
 
   bool _isSubmitting = false;
   String _textBeforeListen = '';
@@ -60,6 +65,7 @@ class AiController extends GetxController {
     if (nonWelcome.isEmpty) return true;
     return nonWelcome.length == 1 && nonWelcome.first.isUser;
   }
+
   bool get showAskAttachmentMenu => askStage.value == 'sources';
   bool get showAskSourceResults => askStage.value == 'source_results';
   bool get showAskResultPreview => askStage.value == 'prompt_result';
@@ -317,8 +323,11 @@ class AiController extends GetxController {
     askStage.value = 'prompt_result';
     askAttachmentPreview.value = null;
     askDraft.value = '';
+    askActionTitle.value = 'Summary';
+    askActionLines.clear();
     textController.clear();
     sendMessage(text);
+    unawaited(runAskAction('Summary', prompt: text));
     scrollToBottom();
   }
 
@@ -375,6 +384,68 @@ class AiController extends GetxController {
     askSelectedSource.value = null;
     askSubmittedPrompt.value = null;
     askDraft.value = '';
+    askActionTitle.value = 'Summary';
+    askActionLines.clear();
+  }
+
+  Future<void> runAskAction(String label, {String? prompt}) async {
+    final promptText = prompt?.trim() ?? '';
+    final submittedText = askSubmittedPrompt.value?.trim() ?? '';
+    final draftText = askDraft.value.trim();
+    final inputText = textController.text.trim();
+    final sourceText = promptText.isNotEmpty
+        ? promptText
+        : submittedText.isNotEmpty
+        ? submittedText
+        : draftText.isNotEmpty
+        ? draftText
+        : inputText;
+
+    if (sourceText.isEmpty) {
+      AppSnackbar.warning('Add a prompt before running an action');
+      return;
+    }
+
+    askActionTitle.value = label;
+    isRunningAskAction.value = true;
+    askStage.value = 'prompt_result';
+
+    try {
+      late final ApiResponse<Map<String, dynamic>> response;
+      switch (label.toLowerCase()) {
+        case 'summary':
+          response = await _ai.summarize(sourceText);
+          break;
+        case 'fusion with':
+          response = await _ai.translate(sourceText);
+          break;
+        case 'generate tasks':
+          response = await _ai.generateTasks(sourceText);
+          break;
+        case 'decisions':
+          response = await _ai.extractDecisions(sourceText);
+          break;
+        default:
+          response = await _ai.generateReport(sourceText);
+          break;
+      }
+
+      if (!response.success) {
+        AppSnackbar.error(response.error ?? response.message);
+        return;
+      }
+
+      final lines = _extractResultLines(response.data ?? const {});
+      askActionLines.assignAll(
+        lines.isEmpty
+            ? ['No structured result was returned for this action yet.']
+            : lines,
+      );
+    } catch (e) {
+      AppSnackbar.error('Failed to run $label: $e');
+    } finally {
+      isRunningAskAction.value = false;
+    }
   }
 
   void setRecordingStage(String value) {
@@ -408,7 +479,9 @@ class AiController extends GetxController {
 
     final result = await _recording.start(AppLocales.ai.title.tr);
     if (!result.success || result.data == null) {
-      AppSnackbar.error(result.error ?? AppLocales.ai.aiStartRecordingFailed.tr);
+      AppSnackbar.error(
+        result.error ?? AppLocales.ai.aiStartRecordingFailed.tr,
+      );
       return;
     }
 
@@ -461,9 +534,14 @@ class AiController extends GetxController {
 
     final result = await _recording.finish(id, durationSecs: _elapsedSeconds());
     if (result.success && result.data != null) {
-      currentRecordingAtomId.value = result.data!.atomId;
+      final atomId = result.data!.atomId;
+      currentRecordingAtomId.value = atomId;
       currentRecordingId.value = null;
       setRecordingStage('complete');
+      if (atomId != null && atomId.isNotEmpty) {
+        AppSnackbar.success('Recording saved');
+        AppRoutes.toAtomDetail(atomId: atomId);
+      }
     } else {
       AppSnackbar.error(result.error ?? AppLocales.ai.aiResponseFailed.tr);
       setRecordingStage('paused');
@@ -620,5 +698,42 @@ class AiController extends GetxController {
     await _speech.stopPlayback();
     isTtsLoading.value = false;
     activeTtsMessageId.value = null;
+  }
+
+  List<String> _extractResultLines(Map<String, dynamic> data) {
+    final lines = <String>[];
+    _collectStrings(data, lines);
+    return lines
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .take(6)
+        .toList();
+  }
+
+  void _collectStrings(dynamic value, List<String> output) {
+    if (value == null) return;
+    if (value is String) {
+      output.add(value);
+      return;
+    }
+    if (value is num || value is bool) {
+      output.add(value.toString());
+      return;
+    }
+    if (value is List) {
+      for (final item in value) {
+        _collectStrings(item, output);
+      }
+      return;
+    }
+    if (value is Map) {
+      for (final entry in value.entries) {
+        if (entry.value is String) {
+          output.add(entry.value.toString());
+        } else {
+          _collectStrings(entry.value, output);
+        }
+      }
+    }
   }
 }

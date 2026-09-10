@@ -74,6 +74,9 @@ class ServerRoutes {
   static String get aiSummarize => api('/ai/summarize');
   static String get aiTranslate => api('/ai/translate');
   static String get aiAnalyze => api('/ai/analyze');
+  static String get aiDecisions => api('/ai/decisions');
+  static String get aiTasks => api('/ai/tasks');
+  static String get aiReport => api('/ai/report');
 
   // Atoms
   static String get atoms => api('/atoms');
@@ -81,6 +84,7 @@ class ServerRoutes {
   static String get atomFromNote => api('/atoms/from-note');
   static String get atomFromUrl => api('/atoms/from-url');
   static String get atomFromAsset => api('/atoms/from-asset');
+  static String get atomFromShare => api('/atoms/from-share');
   static String atomAssets(String id) => api('/atoms/$id/assets');
 
   // Recordings

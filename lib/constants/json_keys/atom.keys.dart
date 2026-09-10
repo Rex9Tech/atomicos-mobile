@@ -16,6 +16,7 @@ class AtomKeys {
   static const metadata = 'metadata';
   static const assets = 'assets';
   static const search = 'search';
+  static const text = 'text';
   static const url = 'url';
   static const assetId = 'asset_id';
   static const createdAt = 'created_at';

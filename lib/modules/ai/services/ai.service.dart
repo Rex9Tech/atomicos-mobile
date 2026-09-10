@@ -129,4 +129,44 @@ class AiService extends GetxService {
       (data) => data is Map ? Map<String, dynamic>.from(data) : {},
     );
   }
+
+  // ============================================================
+  // STRUCTURED AI ACTIONS (decisions / tasks / report)
+  // ============================================================
+  Future<ApiResponse<Map<String, dynamic>>> extractDecisions(
+    String text, {
+    String? atomId,
+  }) =>
+      _structured(ServerRoutes.aiDecisions, text, atomId: atomId);
+
+  Future<ApiResponse<Map<String, dynamic>>> generateTasks(
+    String text, {
+    String? atomId,
+  }) =>
+      _structured(ServerRoutes.aiTasks, text, atomId: atomId);
+
+  Future<ApiResponse<Map<String, dynamic>>> generateReport(
+    String text, {
+    String? atomId,
+  }) =>
+      _structured(ServerRoutes.aiReport, text, atomId: atomId);
+
+  Future<ApiResponse<Map<String, dynamic>>> _structured(
+    String url,
+    String text, {
+    String? atomId,
+  }) async {
+    final response = await _api.post(
+      url,
+      {
+        'text': text,
+        if (atomId != null && atomId.isNotEmpty) 'atom_id': atomId,
+      },
+      showLoading: false,
+    );
+    return _api.parseResponse<Map<String, dynamic>>(
+      response,
+      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+    );
+  }
 }

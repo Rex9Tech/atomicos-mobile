@@ -38,6 +38,13 @@ class AtomCreateService extends GetxService {
     return _create(ServerRoutes.atomFromAsset, request.toJson());
   }
 
+  /// POST /v1/atoms/from-share (shared-text ingestion)
+  Future<ApiResponse<AtomModel>> createFromShare(
+    AtomFromShareRequest request,
+  ) async {
+    return _create(ServerRoutes.atomFromShare, request.toJson());
+  }
+
   Future<ApiResponse<AtomModel>> _create(
     String url,
     Map<String, dynamic> body,
