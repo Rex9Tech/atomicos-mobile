@@ -244,44 +244,59 @@ class HomePage extends GetView<AuthController> {
 
   Widget _buildSectionHeader(BuildContext context) {
     final colors = context.colors;
+    final homeController = Get.find<HomeController>();
 
-    return Row(
-      children: [
-        Text('Recent', style: context.typo.labelLarge),
-        const Spacer(),
-        GestureDetector(
-          onTap: AppRoutes.toCalendar,
-          child: Container(
+    return Obx(
+      () => Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Recent atoms', style: context.typo.labelLarge),
+              SizedBox(height: 2),
+              Text(
+                '${homeController.atoms.length} items in this workspace',
+                style: context.typo.caption.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: AppRoutes.toCalendar,
+            child: Container(
+              height: 30,
+              width: 30,
+              margin: EdgeInsets.only(right: Design.spacing.sm),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: colors.border),
+              ),
+              child: Icon(
+                Design.icons.calendar,
+                size: Design.spacing.iconSmall,
+                color: colors.textSecondary,
+              ),
+            ),
+          ),
+          Container(
             height: 30,
             width: 30,
-            margin: EdgeInsets.only(right: Design.spacing.sm),
             decoration: BoxDecoration(
               color: colors.surface,
               shape: BoxShape.circle,
               border: Border.all(color: colors.border),
             ),
             child: Icon(
-              Design.icons.calendar,
+              Design.icons.search,
               size: Design.spacing.iconSmall,
               color: colors.textSecondary,
             ),
           ),
-        ),
-        Container(
-          height: 30,
-          width: 30,
-          decoration: BoxDecoration(
-            color: colors.surface,
-            shape: BoxShape.circle,
-            border: Border.all(color: colors.border),
-          ),
-          child: Icon(
-            Design.icons.search,
-            size: Design.spacing.iconSmall,
-            color: colors.textSecondary,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -335,7 +350,9 @@ class HomePage extends GetView<AuthController> {
               ),
             ),
           ],
-          if (time.isNotEmpty || duration.isNotEmpty || participants != null) ...[
+          if (time.isNotEmpty ||
+              duration.isNotEmpty ||
+              participants != null) ...[
             SizedBox(height: Design.spacing.sm),
             Text(
               [
@@ -343,20 +360,41 @@ class HomePage extends GetView<AuthController> {
                 duration,
                 participants,
               ].where((e) => e != null && e.isNotEmpty).join(' · '),
-              style: context.typo.caption.copyWith(
-                color: colors.textMuted,
-              ),
+              style: context.typo.caption.copyWith(color: colors.textMuted),
             ),
           ],
+          SizedBox(height: Design.spacing.md),
+          Row(
+            children: [
+              Icon(
+                Design.icons.sparkles,
+                size: Design.spacing.iconSmall,
+                color: colors.primary,
+              ),
+              SizedBox(width: Design.spacing.xs),
+              Expanded(
+                child: Text(
+                  'Open summary workspace',
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                Design.icons.rightArrow,
+                size: Design.spacing.iconSmall,
+                color: colors.textMuted,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _sourceBadge(String source) => AppBadge(
-        text: source.toUpperCase(),
-        type: EBadgeVariant.primary,
-      );
+  Widget _sourceBadge(String source) =>
+      AppBadge(text: source.toUpperCase(), type: EBadgeVariant.primary);
 
   Widget _statusBadge(String status) {
     final variant = switch (status.toLowerCase()) {
@@ -373,16 +411,33 @@ class HomePage extends GetView<AuthController> {
   }
 
   String _shortSummary(AtomModel atom) {
+    final String raw;
     if (atom.summaryBlocks.isNotEmpty) {
       final block = atom.summaryBlocks.first;
       if (block is Map) {
-        final text = block['text'] ?? block['content'] ?? '';
-        if (text.toString().trim().isNotEmpty) return text.toString().trim();
-      } else if (block is String && block.trim().isNotEmpty) {
-        return block.trim();
+        raw = (block['text'] ?? block['content'] ?? '').toString().trim();
+      } else if (block is String) {
+        raw = block.trim();
+      } else {
+        raw = '';
       }
+    } else {
+      raw = atom.note?.trim() ?? '';
     }
-    return atom.note?.trim() ?? '';
+    return _stripMarkdown(raw);
+  }
+
+  String _stripMarkdown(String text) {
+    if (text.isEmpty) return '';
+    return text
+        .replaceAll(RegExp(r'#{1,6}\s+'), '')
+        .replaceAll(RegExp(r'\*\*(.+?)\*\*'), r'$1')
+        .replaceAll(RegExp(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'), r'$1')
+        .replaceAll(RegExp(r'`(.+?)`'), r'$1')
+        .replaceAll(RegExp(r'^\s*[-*+]\s+', multiLine: true), '')
+        .replaceAll(RegExp(r'^\s*\d+\.\s+', multiLine: true), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
   }
 
   String _relativeTime(String? iso) {
@@ -517,6 +572,7 @@ class HomePage extends GetView<AuthController> {
         color: colors.surface,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         border: Border.all(color: colors.border),
+        boxShadow: Design.colors.shadows.sm,
       ),
       child: Row(
         children: [
@@ -569,6 +625,17 @@ class HomePage extends GetView<AuthController> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Center(
+                    child: Container(
+                      height: 4,
+                      width: 44,
+                      decoration: BoxDecoration(
+                        color: colors.border,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Design.spacing.md),
                   Container(
                     padding: EdgeInsets.all(Design.spacing.lg),
                     decoration: BoxDecoration(
@@ -581,6 +648,20 @@ class HomePage extends GetView<AuthController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        Text(
+                          'New Atom',
+                          style: context.typo.headline4.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: Design.spacing.xs),
+                        Text(
+                          'Choose the fastest way to capture context into AtomicOS.',
+                          style: context.typo.bodySmall.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: Design.spacing.lg),
                         Container(
                           padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(

@@ -70,9 +70,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         SizedBox(width: Design.spacing.sm),
         Text(
           AppLocales.atom.title.tr,
-          style: context.typo.labelMedium.copyWith(
-            color: colors.textSecondary,
-          ),
+          style: context.typo.labelMedium.copyWith(color: colors.textSecondary),
         ),
       ],
     );
@@ -92,33 +90,66 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   }
 
   Widget _buildAtomHeader(BuildContext context, AtomModel atom) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                atom.title,
-                style: context.typo.headline3.copyWith(
-                  fontWeight: FontWeight.w700,
+    return AppCard(
+      padding: EdgeInsets.all(Design.spacing.lg),
+      borderRadius: Design.spacing.radiusXLarge,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  atom.title,
+                  style: context.typo.headline3.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: Design.spacing.sm),
-            _iconAction(context, Design.icons.clipboard, () => _copyAtom(atom)),
-          ],
-        ),
-        SizedBox(height: Design.spacing.xs),
-        Row(
-          children: [
-            _badge(context, atom.source.toUpperCase()),
-            SizedBox(width: Design.spacing.sm),
-            _badge(context, atom.status),
-          ],
-        ),
-      ],
+              SizedBox(width: Design.spacing.sm),
+              _iconAction(
+                context,
+                Design.icons.clipboard,
+                () => _copyAtom(atom),
+              ),
+            ],
+          ),
+          SizedBox(height: Design.spacing.sm),
+          Row(
+            children: [
+              _badge(context, atom.source.toUpperCase()),
+              SizedBox(width: Design.spacing.sm),
+              _badge(context, atom.status),
+            ],
+          ),
+          SizedBox(height: Design.spacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _HeaderMetric(
+                  label: 'Summary',
+                  value: '${atom.summaryBlocks.length}',
+                ),
+              ),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(
+                child: _HeaderMetric(
+                  label: 'Transcript',
+                  value: '${atom.transcriptSegments.length}',
+                ),
+              ),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(
+                child: _HeaderMetric(
+                  label: 'Assets',
+                  value: '${atom.assets.length}',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -126,10 +157,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final colors = context.colors;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 4),
       decoration: BoxDecoration(
         color: colors.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
@@ -149,41 +177,48 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final colors = context.colors;
 
     return Obx(
-      () => Row(
-        children: _tabs.asMap().entries.map((entry) {
-          final index = entry.key;
-          final label = entry.value;
-          final selected = controller.activeTab.value == index;
+      () => Container(
+        padding: EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          children: _tabs.asMap().entries.map((entry) {
+            final index = entry.key;
+            final label = entry.value;
+            final selected = controller.activeTab.value == index;
 
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                right: index == _tabs.length - 1 ? 0 : Design.spacing.sm,
-              ),
-              child: GestureDetector(
-                onTap: () => controller.selectTab(index),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
-                  decoration: BoxDecoration(
-                    color: selected ? colors.primary : colors.surface,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: selected ? colors.primary : colors.border,
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: index == _tabs.length - 1 ? 0 : Design.spacing.sm,
+                ),
+                child: GestureDetector(
+                  onTap: () => controller.selectTab(index),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+                    decoration: BoxDecoration(
+                      color: selected ? colors.primary : colors.card,
+                      borderRadius: BorderRadius.circular(999),
                     ),
-                  ),
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: context.typo.labelMedium.copyWith(
-                      color: selected ? colors.background : colors.textSecondary,
-                      fontWeight: FontWeight.w700,
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: context.typo.labelMedium.copyWith(
+                        color: selected
+                            ? colors.background
+                            : colors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -204,21 +239,14 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   }
 
   Widget _buildSummary(BuildContext context, AtomModel atom) {
-    if (atom.summaryBlocks.isEmpty) {
+    final text = atom.summaryBlocks
+        .map(_blockText)
+        .where((t) => t.trim().isNotEmpty)
+        .join('\n\n');
+    if (text.isEmpty) {
       return _emptyState(context, AppLocales.atom.noSummary.tr);
     }
-    return _scrollableCard(
-      context,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: atom.summaryBlocks.map((block) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: Design.spacing.sm),
-            child: _markdown(context, _blockText(block)),
-          );
-        }).toList(),
-      ),
-    );
+    return _scrollableCard(context, _markdown(context, text));
   }
 
   Widget _buildTranscript(BuildContext context, AtomModel atom) {
@@ -248,10 +276,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     if (note == null || note.isEmpty) {
       return _emptyState(context, AppLocales.atom.noNote.tr);
     }
-    return _scrollableCard(
-      context,
-      _markdown(context, note),
-    );
+    return _scrollableCard(context, _markdown(context, note));
   }
 
   Widget _buildAssets(BuildContext context, AtomModel atom) {
@@ -262,41 +287,29 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       context,
       Column(
         children: atom.assets.map((asset) {
-          return GestureDetector(
+          return AppToneCard(
             onTap: () => _openAsset(asset),
-            child: Padding(
-              padding: EdgeInsets.only(bottom: Design.spacing.sm),
-              child: Row(
-                children: [
-                  Icon(
-                    Design.icons.attachment,
-                    size: Design.spacing.iconSmall,
+            title: asset.name,
+            subtitle:
+                '${(asset.format.isNotEmpty ? asset.format : asset.type).toUpperCase()} file attached to this atom',
+            leadingIcon: Design.icons.attachment,
+            tone: EAppToneCardTone.info,
+            trailing: Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: context.colors.textMuted,
+            ),
+            footer: Row(
+              children: [
+                Text(
+                  asset.url,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typo.caption.copyWith(
                     color: context.colors.textSecondary,
                   ),
-                  SizedBox(width: Design.spacing.sm),
-                  Expanded(
-                    child: Text(
-                      asset.name,
-                      style: context.typo.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    (asset.format.isNotEmpty ? asset.format : asset.type)
-                        .toUpperCase(),
-                    style: context.typo.caption.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
-                  ),
-                  SizedBox(width: Design.spacing.sm),
-                  Icon(
-                    Design.icons.rightArrow,
-                    size: Design.spacing.iconSmall,
-                    color: context.colors.textMuted,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -360,41 +373,32 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   }
 
   Widget _emptyState(BuildContext context, String message) {
-    return Center(
-      child: Text(
-        message,
-        style: context.typo.bodySmall.copyWith(
-          color: context.colors.textSecondary,
-        ),
-      ),
+    return AppToneCard(
+      title: 'Nothing here yet',
+      subtitle: message,
+      leadingIcon: Design.icons.emptyBox,
+      tone: EAppToneCardTone.info,
+      padding: EdgeInsets.all(Design.spacing.xl),
     );
   }
 
   Widget _buildError(BuildContext context) {
     final colors = context.colors;
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            AppLocales.atom.loadFailed.tr,
-            style: context.typo.bodyMedium.copyWith(
-              color: colors.textSecondary,
-            ),
+    return AppToneCard(
+      title: AppLocales.atom.loadFailed.tr,
+      subtitle: 'Pull to retry the detail request and restore this workspace.',
+      leadingIcon: Design.icons.warning,
+      tone: EAppToneCardTone.error,
+      footer: SizedBox(
+        width: double.infinity,
+        child: TextButton(
+          onPressed: controller.loadAtom,
+          child: Text(
+            AppLocales.atom.retry.tr,
+            style: context.typo.labelMedium.copyWith(color: colors.error),
           ),
-          SizedBox(height: Design.spacing.md),
-          GestureDetector(
-            onTap: controller.loadAtom,
-            child: Text(
-              AppLocales.atom.retry.tr,
-              style: context.typo.bodyMedium.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -412,7 +416,8 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     if (segment is String) return segment;
     if (segment is Map) {
       final speaker = segment['speaker']?.toString() ?? '';
-      final text = segment['text']?.toString() ?? segment['content']?.toString() ?? '';
+      final text =
+          segment['text']?.toString() ?? segment['content']?.toString() ?? '';
       if (speaker.isNotEmpty && text.isNotEmpty) return '$speaker: $text';
       return text.isNotEmpty ? text : segment.toString();
     }
@@ -428,6 +433,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
     return MarkdownBody(
       data: text,
+      shrinkWrap: true,
       styleSheet: MarkdownStyleSheet(
         p: base,
         strong: base.copyWith(fontWeight: FontWeight.w700),
@@ -438,6 +444,42 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         listBullet: base,
         blockquote: base.copyWith(color: colors.textSecondary),
         code: context.typo.bodySmall.copyWith(color: colors.primary),
+      ),
+    );
+  }
+}
+
+class _HeaderMetric extends StatelessWidget {
+  const _HeaderMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(Design.spacing.md),
+      decoration: BoxDecoration(
+        color: context.colors.card,
+        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: context.typo.labelLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: Design.spacing.xs),
+          Text(
+            label,
+            style: context.typo.caption.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
