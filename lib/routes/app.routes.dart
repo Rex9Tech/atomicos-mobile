@@ -78,6 +78,10 @@ class AppRoutes {
   static void toHome() => Get.offAllNamed(home);
   static void toAtomCreate({String mode = 'import'}) =>
       Get.toNamed(atomCreate, arguments: {'mode': mode});
+  static void toAtomCreateShare({required String text}) =>
+      Get.toNamed(atomCreate, arguments: {'mode': 'share', 'share_text': text});
+  static void toAtomCreateFile({required String path}) =>
+      Get.toNamed(atomCreate, arguments: {'mode': 'import', 'share_file': path});
   static void toAtomDetail({required String atomId}) =>
       Get.toNamed(atomDetail, arguments: {'atom_id': atomId});
   static void toCalendar() => Get.toNamed(calendar);

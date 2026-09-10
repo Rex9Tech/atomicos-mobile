@@ -35,8 +35,22 @@ class AtomCreateController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    if (args is Map && args['mode'] != null) {
-      selectedMode.value = args['mode'].toString();
+    if (args is Map) {
+      if (args['mode'] != null) {
+        selectedMode.value = args['mode'].toString();
+      }
+      // OS share-sheet handoff: shared text → share mode, prefilled.
+      final shareText = args['share_text']?.toString();
+      if (shareText != null && shareText.isNotEmpty) {
+        shareTextController.text = shareText;
+      }
+      // OS share-sheet handoff: shared file → upload mode, prefilled.
+      final shareFile = args['share_file']?.toString();
+      if (shareFile != null && shareFile.isNotEmpty) {
+        pickedUploadPath.value = shareFile;
+        pickedUploadName.value = shareFile.split('/').last;
+        importStage.value = 'upload';
+      }
     }
   }
 
