@@ -340,7 +340,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     ].where((e) => e.isNotEmpty);
 
     await Clipboard.setData(ClipboardData(text: parts.join('\n\n')));
-    AppSnackbar.success('Copied to clipboard');
+    AppSnackbar.success(AppLocales.atom.copiedToClipboard.tr);
   }
 
   Future<void> _openAsset(AtomAssetModel asset) async {

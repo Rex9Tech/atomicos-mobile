@@ -233,6 +233,9 @@ class _AiLocales {
   final aiTranscriptionFailed = 'ai.ai_transcription_failed';
   final aiTtsFailed = 'ai.ai_tts_failed';
   final aiTtsEmpty = 'ai.ai_tts_empty';
+  final keyPoints = 'ai.key_points';
+  final actionItems = 'ai.action_items';
+  final risks = 'ai.risks';
 }
 
 class _PaymentLocales {
@@ -314,6 +317,7 @@ class _AtomLocales {
   final noAssets = 'atom.no_assets';
   final loadFailed = 'atom.load_failed';
   final retry = 'atom.retry';
+  final copiedToClipboard = 'atom.copied_to_clipboard';
 }
 
 class _CalendarLocales {

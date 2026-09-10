@@ -193,6 +193,9 @@ class AppTranslations extends Translations {
       AppLocales.ai.aiTranscriptionFailed: 'Failed to transcribe audio',
       AppLocales.ai.aiTtsFailed: 'Failed to play speech',
       AppLocales.ai.aiTtsEmpty: 'Nothing to speak',
+      AppLocales.ai.keyPoints: 'Key points',
+      AppLocales.ai.actionItems: 'Action items',
+      AppLocales.ai.risks: 'Risks',
 
       // Feedback
       AppLocales.feedback.title: 'Share Your Feedback',
@@ -289,6 +292,7 @@ class AppTranslations extends Translations {
       AppLocales.atom.noAssets: 'No assets',
       AppLocales.atom.loadFailed: "Couldn't load this atom",
       AppLocales.atom.retry: 'Retry',
+      AppLocales.atom.copiedToClipboard: 'Copied to clipboard',
 
       // Calendar
       AppLocales.calendar.title: 'Planner',
@@ -476,6 +480,9 @@ class AppTranslations extends Translations {
       AppLocales.ai.aiTranscriptionFailed: 'အသံကို စာသားပြောင်း၍ မရပါ',
       AppLocales.ai.aiTtsFailed: 'အသံဖွင့်၍ မရပါ',
       AppLocales.ai.aiTtsEmpty: 'ဖွင့်ရန် စာသားမရှိပါ',
+      AppLocales.ai.keyPoints: 'အဓိကအချက်များ',
+      AppLocales.ai.actionItems: 'ဆောင်ရွက်ရန်အချက်များ',
+      AppLocales.ai.risks: 'အန္တရာယ်များ',
 
       // Feedback
       AppLocales.feedback.title: 'အကြံပြုချက်',
@@ -558,6 +565,7 @@ class AppTranslations extends Translations {
       AppLocales.atom.noAssets: 'ဖိုင် မရှိပါ',
       AppLocales.atom.loadFailed: 'ဤအက်တမ်ကို ရယူ၍မရပါ',
       AppLocales.atom.retry: 'ထပ်စမ်းမည်',
+      AppLocales.atom.copiedToClipboard: 'ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ',
 
       // Calendar
       AppLocales.calendar.title: 'ပြက္ခဒိန်',

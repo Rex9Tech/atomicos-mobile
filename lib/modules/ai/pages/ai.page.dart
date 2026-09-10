@@ -783,15 +783,15 @@ class AiPage extends GetView<AiController> {
           ),
         if (keyPoints is List && keyPoints.isNotEmpty) ...[
           SizedBox(height: Design.spacing.md),
-          _reportSection(context, 'Key points', keyPoints),
+          _reportSection(context, AppLocales.ai.keyPoints.tr, keyPoints),
         ],
         if (actionItems is List && actionItems.isNotEmpty) ...[
           SizedBox(height: Design.spacing.md),
-          _reportSection(context, 'Action items', actionItems),
+          _reportSection(context, AppLocales.ai.actionItems.tr, actionItems),
         ],
         if (risks is List && risks.isNotEmpty) ...[
           SizedBox(height: Design.spacing.md),
-          _reportSection(context, 'Risks', risks),
+          _reportSection(context, AppLocales.ai.risks.tr, risks),
         ],
       ],
     );
