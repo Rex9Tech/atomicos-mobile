@@ -48,10 +48,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   Widget _buildTopBar(BuildContext context) {
     return Row(
       children: [
-        _RoundTopButton(
-          icon: Design.icons.backArrow,
-          onTap: Get.back,
-        ),
+        _RoundTopButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
             'Create Atom',
@@ -61,10 +58,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             ),
           ),
         ),
-        _RoundTopButton(
-          icon: Design.icons.close,
-          onTap: Get.back,
-        ),
+        _RoundTopButton(icon: Design.icons.close, onTap: Get.back),
       ],
     );
   }
@@ -78,7 +72,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
-          'Mock the import, share, and note flows before backend wiring.',
+          'Import a link, upload media, or turn shared text into a saved atom.',
           style: context.typo.bodyMedium.copyWith(
             color: context.colors.textSecondary,
           ),
@@ -86,7 +80,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         SizedBox(height: Design.spacing.xl),
         _buildModePicker(context),
         SizedBox(height: Design.spacing.xl),
-        if (controller.selectedMode.value == 'import') _buildImportMode(context),
+        if (controller.selectedMode.value == 'import')
+          _buildImportMode(context),
         if (controller.selectedMode.value == 'share') _buildShareMode(context),
         if (controller.selectedMode.value == 'note') _buildNoteMode(context),
         SizedBox(height: Design.spacing.xl),
@@ -314,9 +309,17 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             SizedBox(
               width: double.infinity,
               height: Design.spacing.buttonHeight,
-              child: ElevatedButton(
-                onPressed: _handlePrimaryAction,
-                child: Text(_primaryLabel()),
+              child: Obx(
+                () => ElevatedButton(
+                  onPressed: controller.isSubmitting.value
+                      ? null
+                      : _handlePrimaryAction,
+                  child: Text(
+                    controller.isSubmitting.value
+                        ? 'Working...'
+                        : _primaryLabel(),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: Design.spacing.sm),
@@ -350,16 +353,20 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     switch (controller.selectedMode.value) {
       case 'share':
         return controller.shareStage.value == 'confirm'
-            ? 'Create shared Atom'
+            ? 'Create from shared text'
             : 'Continue';
       case 'note':
         return controller.noteStage.value == 'tasks'
             ? 'Turn tasks into Atom'
             : 'Save note';
       default:
-        return controller.importStage.value == 'meeting'
-            ? 'Join live meeting'
-            : 'Import';
+        if (controller.importStage.value == 'meeting') {
+          return 'Join live meeting';
+        }
+        if (controller.importStage.value == 'upload') {
+          return 'Upload and create';
+        }
+        return 'Import';
     }
   }
 
@@ -388,7 +395,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
 
     if (controller.selectedMode.value == 'import' &&
         controller.importStage.value == 'upload') {
-      AppRoutes.toAi(mode: 'details');
+      controller.createFromUpload();
       return;
     }
 
@@ -403,7 +410,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       return;
     }
 
-    AppRoutes.toAi(mode: 'details');
+    controller.createFromShare();
   }
 
   Widget _buildStagePicker(
@@ -465,9 +472,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           ),
           decoration: BoxDecoration(
             color: colors.card,
-            borderRadius: BorderRadius.circular(
-              Design.spacing.radiusLarge,
-            ),
+            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             border: Border.all(color: colors.border),
           ),
           child: Row(
@@ -517,40 +522,50 @@ class AtomCreatePage extends GetView<AtomCreateController> {
 
   Widget _buildUploadStage(BuildContext context) {
     final colors = context.colors;
+    final hasPickedFile = (controller.pickedUploadPath.value ?? '').isNotEmpty;
 
     return Column(
       children: [
-        Container(
-          height: 180,
-          decoration: BoxDecoration(
-            color: colors.card,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Design.icons.upload,
-                  color: colors.primary,
-                  size: Design.spacing.iconXLarge,
-                ),
-                SizedBox(height: Design.spacing.md),
-                Text(
-                  'Drop files here or browse device storage',
-                  style: context.typo.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
+        GestureDetector(
+          onTap: controller.pickUploadAsset,
+          child: Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: colors.card,
+              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+              border: Border.all(color: colors.border),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Design.icons.upload,
+                    color: colors.primary,
+                    size: Design.spacing.iconXLarge,
                   ),
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  'Supports audio, video, docs, and PDFs',
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
+                  SizedBox(height: Design.spacing.md),
+                  Text(
+                    hasPickedFile
+                        ? (controller.pickedUploadName.value ?? 'Attached file')
+                        : 'Tap to browse device storage',
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                  SizedBox(height: Design.spacing.xs),
+                  Text(
+                    hasPickedFile
+                        ? 'Ready to upload and create an atom'
+                        : 'Pick a file, image, video, or document',
+                    style: context.typo.bodySmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -642,62 +657,33 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   }
 
   Widget _buildSharePreviewStage(BuildContext context) {
-    final colors = context.colors;
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: colors.card,
-            borderRadius: BorderRadius.circular(
-              Design.spacing.radiusLarge,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: Design.spacing.xs,
-                runSpacing: Design.spacing.xs,
-                children: const [
-                  _MiniMetaChip(label: 'SLACK'),
-                  _MiniMetaChip(label: 'Meeting note'),
-                  _MiniMetaChip(label: '3 attachments'),
-                ],
-              ),
-              SizedBox(height: Design.spacing.md),
-              Text(
-                'Product launch retrospective',
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: Design.spacing.sm),
-              Text(
-                'Choose whether this shared payload becomes a note, an atom, or an AI prompt.',
-                style: context.typo.bodyMedium.copyWith(height: 1.45),
-              ),
-            ],
-          ),
+        Wrap(
+          spacing: Design.spacing.xs,
+          runSpacing: Design.spacing.xs,
+          children: const [
+            _MiniMetaChip(label: 'SHARE'),
+            _MiniMetaChip(label: 'Meeting note'),
+            _MiniMetaChip(label: 'Ready to import'),
+          ],
         ),
         SizedBox(height: Design.spacing.md),
-        Row(
-          children: const [
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Create note',
-                subtitle: 'Keep the raw text',
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Ask AI',
-                subtitle: 'Generate actions',
-              ),
-            ),
-          ],
+        Text(
+          'Shared payload',
+          style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: Design.spacing.md),
+        TextField(
+          controller: controller.shareTextController,
+          minLines: 6,
+          maxLines: 10,
+          decoration: const InputDecoration(
+            hintText: 'Paste shared text here...',
+            border: InputBorder.none,
+          ),
+          style: context.typo.bodyMedium.copyWith(height: 1.45),
         ),
       ],
     );
@@ -728,35 +714,24 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   }
 
   Widget _buildShareConfirmStage(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Ready to import',
-            style: context.typo.labelLarge.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: Design.spacing.md),
-          const _ChoiceCard(
-            title: 'Destination',
-            subtitle: 'New shared Atom',
-          ),
-          SizedBox(height: Design.spacing.sm),
-          const _ChoiceCard(
-            title: 'AI actions',
-            subtitle: 'Summary, tasks, report',
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ready to import',
+          style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: Design.spacing.md),
+        const _ChoiceCard(
+          title: 'Destination',
+          subtitle: 'New atom from shared text',
+        ),
+        SizedBox(height: Design.spacing.sm),
+        const _ChoiceCard(
+          title: 'Backend route',
+          subtitle: 'Uses note ingestion until dedicated share API exists',
+        ),
+      ],
     );
   }
 
@@ -781,9 +756,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           padding: EdgeInsets.all(Design.spacing.lg),
           decoration: BoxDecoration(
             color: colors.card,
-            borderRadius: BorderRadius.circular(
-              Design.spacing.radiusLarge,
-            ),
+            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           ),
           child: TextField(
             controller: controller.noteController,
@@ -842,10 +815,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
 }
 
 class _RoundTopButton extends StatelessWidget {
-  const _RoundTopButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _RoundTopButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -875,10 +845,7 @@ class _RoundTopButton extends StatelessWidget {
 }
 
 class _SectionShell extends StatelessWidget {
-  const _SectionShell({
-    required this.title,
-    required this.child,
-  });
+  const _SectionShell({required this.title, required this.child});
 
   final String title;
   final Widget child;
@@ -971,10 +938,7 @@ class _MiniMetaChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(999),
@@ -991,10 +955,7 @@ class _MiniMetaChip extends StatelessWidget {
 }
 
 class _ChoiceCard extends StatelessWidget {
-  const _ChoiceCard({
-    required this.title,
-    required this.subtitle,
-  });
+  const _ChoiceCard({required this.title, required this.subtitle});
 
   final String title;
   final String subtitle;

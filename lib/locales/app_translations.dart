@@ -276,6 +276,25 @@ class AppTranslations extends Translations {
       AppLocales.update.prompt: 'Would you like to update it now?',
       AppLocales.update.update: 'UPDATE NOW',
       AppLocales.update.later: 'LATER',
+
+      // Atom
+      AppLocales.atom.title: 'Atom',
+      AppLocales.atom.summary: 'Summary',
+      AppLocales.atom.transcript: 'Transcript',
+      AppLocales.atom.note: 'Note',
+      AppLocales.atom.assets: 'Assets',
+      AppLocales.atom.noSummary: 'No summary yet',
+      AppLocales.atom.noTranscript: 'No transcript yet',
+      AppLocales.atom.noNote: 'No note',
+      AppLocales.atom.noAssets: 'No assets',
+      AppLocales.atom.loadFailed: "Couldn't load this atom",
+      AppLocales.atom.retry: 'Retry',
+
+      // Calendar
+      AppLocales.calendar.title: 'Planner',
+      AppLocales.calendar.scheduleLoadFailed: "Couldn't load your schedule",
+      AppLocales.calendar.noEvents: 'No events for the selected range',
+      AppLocales.calendar.scheduled: 'Scheduled',
     },
     'my_MM': {
       // Common
@@ -519,6 +538,25 @@ class AppTranslations extends Translations {
       AppLocales.update.prompt: 'ယခု အပ်ဒိတ်လုပ်လိုပါသလား?',
       AppLocales.update.update: 'ယခု အပ်ဒိတ်',
       AppLocales.update.later: 'နောက်မှ',
+
+      // Atom
+      AppLocales.atom.title: 'အက်တမ်',
+      AppLocales.atom.summary: 'အနှစ်ချုပ်',
+      AppLocales.atom.transcript: 'စာသားမှတ်တမ်း',
+      AppLocales.atom.note: 'မှတ်စု',
+      AppLocales.atom.assets: 'ဖိုင်များ',
+      AppLocales.atom.noSummary: 'အနှစ်ချုပ် မရှိသေးပါ',
+      AppLocales.atom.noTranscript: 'စာသားမှတ်တမ်း မရှိသေးပါ',
+      AppLocales.atom.noNote: 'မှတ်စု မရှိပါ',
+      AppLocales.atom.noAssets: 'ဖိုင် မရှိပါ',
+      AppLocales.atom.loadFailed: 'ဤအက်တမ်ကို ရယူ၍မရပါ',
+      AppLocales.atom.retry: 'ထပ်စမ်းမည်',
+
+      // Calendar
+      AppLocales.calendar.title: 'ပြက္ခဒိန်',
+      AppLocales.calendar.scheduleLoadFailed: 'အချိန်ဇယား ရယူ၍မရပါ',
+      AppLocales.calendar.noEvents: 'ရွေးထားသော အချိန်တွင် အစီအစဉ် မရှိပါ',
+      AppLocales.calendar.scheduled: 'စီစဉ်ထားသည်',
     },
   };
 }

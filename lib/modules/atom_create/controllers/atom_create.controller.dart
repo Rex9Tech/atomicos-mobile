@@ -1,6 +1,6 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
@@ -13,7 +13,6 @@ import '../services/atom_create.service.dart';
 class AtomCreateController extends GetxController {
   final AtomCreateService _service = Get.find<AtomCreateService>();
   final MediaService _media = Get.find<MediaService>();
-  final ImagePicker _picker = ImagePicker();
 
   final RxString selectedMode = 'import'.obs;
   final RxString importStage = 'youtube'.obs;
@@ -70,8 +69,14 @@ class AtomCreateController extends GetxController {
 
   Future<void> pickUploadAsset() async {
     try {
-      final file = await _picker.pickMedia();
+      final file = await FilePickerPlatform.instance.pickFile(
+        type: FileType.any,
+      );
       if (file == null) return;
+      if (file.path == null || file.path!.isEmpty) {
+        AppSnackbar.info('No file path available');
+        return;
+      }
       pickedUploadPath.value = file.path;
       pickedUploadName.value = file.name;
       AppSnackbar.info('Attached ${file.name}');

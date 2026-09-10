@@ -14,6 +14,8 @@ class AppLocales {
   static const user = _UserLocales();
   static const notification = _NotificationLocales();
   static const update = _UpdateLocales();
+  static const atom = _AtomLocales();
+  static const calendar = _CalendarLocales();
 }
 
 class _AuthLocales {
@@ -295,4 +297,29 @@ class _NotificationLocales {
   final loadMore = 'notification.load_more';
   final deleted = 'notification.deleted';
   final failedToLoad = 'notification.failed_to_load';
+}
+
+class _AtomLocales {
+  const _AtomLocales();
+
+  final title = 'atom.title';
+  final summary = 'atom.summary';
+  final transcript = 'atom.transcript';
+  final note = 'atom.note';
+  final assets = 'atom.assets';
+  final noSummary = 'atom.no_summary';
+  final noTranscript = 'atom.no_transcript';
+  final noNote = 'atom.no_note';
+  final noAssets = 'atom.no_assets';
+  final loadFailed = 'atom.load_failed';
+  final retry = 'atom.retry';
+}
+
+class _CalendarLocales {
+  const _CalendarLocales();
+
+  final title = 'calendar.title';
+  final scheduleLoadFailed = 'calendar.schedule_load_failed';
+  final noEvents = 'calendar.no_events';
+  final scheduled = 'calendar.scheduled';
 }

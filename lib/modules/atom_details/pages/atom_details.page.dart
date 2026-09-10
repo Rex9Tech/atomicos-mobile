@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
 
@@ -8,7 +9,12 @@ import '../controllers/atom_details.controller.dart';
 class AtomDetailsPage extends GetView<AtomDetailsController> {
   const AtomDetailsPage({super.key});
 
-  static const _tabs = ['Summary', 'Transcript', 'Note', 'Assets'];
+  List<String> get _tabs => [
+    AppLocales.atom.summary.tr,
+    AppLocales.atom.transcript.tr,
+    AppLocales.atom.note.tr,
+    AppLocales.atom.assets.tr,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +66,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         ),
         SizedBox(width: Design.spacing.sm),
         Text(
-          'Atom',
+          AppLocales.atom.title.tr,
           style: context.typo.labelMedium.copyWith(
             color: colors.textSecondary,
           ),
@@ -185,7 +191,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildSummary(BuildContext context, AtomModel atom) {
     if (atom.summaryBlocks.isEmpty) {
-      return _emptyState(context, 'No summary yet');
+      return _emptyState(context, AppLocales.atom.noSummary.tr);
     }
     return _scrollableCard(
       context,
@@ -206,7 +212,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildTranscript(BuildContext context, AtomModel atom) {
     if (atom.transcriptSegments.isEmpty) {
-      return _emptyState(context, 'No transcript yet');
+      return _emptyState(context, AppLocales.atom.noTranscript.tr);
     }
     return _scrollableCard(
       context,
@@ -229,7 +235,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   Widget _buildNote(BuildContext context, AtomModel atom) {
     final note = atom.note?.trim();
     if (note == null || note.isEmpty) {
-      return _emptyState(context, 'No note');
+      return _emptyState(context, AppLocales.atom.noNote.tr);
     }
     return _scrollableCard(
       context,
@@ -242,7 +248,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildAssets(BuildContext context, AtomModel atom) {
     if (atom.assets.isEmpty) {
-      return _emptyState(context, 'No assets');
+      return _emptyState(context, AppLocales.atom.noAssets.tr);
     }
     return _scrollableCard(
       context,
@@ -315,7 +321,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Couldn't load this atom",
+            AppLocales.atom.loadFailed.tr,
             style: context.typo.bodyMedium.copyWith(
               color: colors.textSecondary,
             ),
@@ -324,7 +330,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           GestureDetector(
             onTap: controller.loadAtom,
             child: Text(
-              'Retry',
+              AppLocales.atom.retry.tr,
               style: context.typo.bodyMedium.copyWith(
                 color: colors.primary,
                 fontWeight: FontWeight.w700,

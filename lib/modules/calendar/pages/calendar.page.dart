@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
@@ -51,10 +52,7 @@ class CalendarPage extends GetView<CalendarController> {
 
     return Row(
       children: [
-        _RoundIconButton(
-          icon: Design.icons.backArrow,
-          onTap: Get.back,
-        ),
+        _RoundIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         const Spacer(),
         Container(
           padding: EdgeInsets.symmetric(
@@ -76,7 +74,7 @@ class CalendarPage extends GetView<CalendarController> {
               ),
               SizedBox(width: Design.spacing.xs),
               Text(
-                'Planner',
+                AppLocales.calendar.title.tr,
                 style: context.typo.labelMedium.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -285,40 +283,44 @@ class CalendarPage extends GetView<CalendarController> {
   Widget _buildAgendaCard(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Today schedule',
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: AppRoutes.toLiveActivity,
-                child: Text(
-                  'Open live view',
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.primary,
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          border: Border.all(color: colors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  controller.selectedRange.value == 'Month'
+                      ? 'Month schedule'
+                      : 'Schedule for ${controller.selectedDay.value}',
+                  style: context.typo.labelLarge.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: Design.spacing.md),
-          _buildAgendaList(context),
-        ],
+                const Spacer(),
+                GestureDetector(
+                  onTap: AppRoutes.toLiveActivity,
+                  child: Text(
+                    'Open live view',
+                    style: context.typo.bodySmall.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: Design.spacing.md),
+            _buildAgendaList(context),
+          ],
+        ),
       ),
     );
   }
@@ -334,36 +336,34 @@ class CalendarPage extends GetView<CalendarController> {
         return _agendaStatus(
           context,
           Text(
-            "Couldn't load your schedule",
-            style: context.typo.bodySmall.copyWith(
-              color: colors.textSecondary,
-            ),
+            AppLocales.calendar.scheduleLoadFailed.tr,
+            style: context.typo.bodySmall.copyWith(color: colors.textSecondary),
           ),
         );
       }
-      if (controller.events.isEmpty) {
+      final visibleEvents = controller.filteredEvents;
+
+      if (visibleEvents.isEmpty) {
         return _agendaStatus(
           context,
           Text(
-            'No upcoming events',
-            style: context.typo.bodySmall.copyWith(
-              color: colors.textSecondary,
-            ),
+            AppLocales.calendar.noEvents.tr,
+            style: context.typo.bodySmall.copyWith(color: colors.textSecondary),
           ),
         );
       }
 
       return Column(
         children: [
-          for (var i = 0; i < controller.events.length; i++) ...[
+          for (var i = 0; i < visibleEvents.length; i++) ...[
             if (i > 0) SizedBox(height: Design.spacing.md),
             _AgendaRow(
-              time: controller.eventTime(controller.events[i]) ?? '--:--',
-              title: controller.events[i].title,
-              subtitle:
-                  (controller.events[i].description?.isNotEmpty ?? false)
-                  ? controller.events[i].description!
-                  : 'Scheduled',
+              time: controller.eventTime(visibleEvents[i]) ?? '--:--',
+              title: visibleEvents[i].title,
+              subtitle: (visibleEvents[i].description?.isNotEmpty ?? false)
+                  ? visibleEvents[i].description!
+                  : AppLocales.calendar.scheduled.tr,
+              onTap: AppRoutes.toLiveActivity,
             ),
           ],
         ],
@@ -380,11 +380,7 @@ class CalendarPage extends GetView<CalendarController> {
 }
 
 class _RoundIconButton extends StatelessWidget {
-  const _RoundIconButton({
-    required this.icon,
-    required this.onTap,
-    this.size,
-  });
+  const _RoundIconButton({required this.icon, required this.onTap, this.size});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -419,56 +415,61 @@ class _AgendaRow extends StatelessWidget {
     required this.time,
     required this.title,
     required this.subtitle,
+    required this.onTap,
   });
 
   final String time;
   final String title;
   final String subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Row(
-      children: [
-        Container(
-          width: 56,
-          padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
-          decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            time,
-            textAlign: TextAlign.center,
-            style: context.typo.bodySmall.copyWith(
-              color: colors.primary,
-              fontWeight: FontWeight.w700,
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              time,
+              textAlign: TextAlign.center,
+              style: context.typo.bodySmall.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-        ),
-        SizedBox(width: Design.spacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: context.typo.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w700,
+          SizedBox(width: Design.spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: context.typo.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.xs),
-              Text(
-                subtitle,
-                style: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
+                SizedBox(height: Design.spacing.xs),
+                Text(
+                  subtitle,
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
