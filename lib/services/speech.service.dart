@@ -30,6 +30,10 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   final RxBool isPlaying = false.obs;
   final RxString liveText = ''.obs;
 
+  /// How long to keep the live-STT subscription open after asking the backend
+  /// to stop, so the final phrase is not lost.
+  static const Duration _finalPhraseGrace = Duration(milliseconds: 1800);
+
   bool _isStartingListen = false;
   bool _isTearingDown = false;
   bool _speechSubscribed = false;
@@ -291,6 +295,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
 
       if (_speechSubscribed) {
         _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
+        // The backend keeps the Azure socket alive briefly so the turn's
+        // final phrase — proper casing and punctuation — still reaches us.
+        await Future<void>.delayed(_finalPhraseGrace);
         _socket.unsubscribe(SpeechKeys.channel);
         _speechSubscribed = false;
       }

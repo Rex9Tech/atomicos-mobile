@@ -51,14 +51,22 @@ class RecordingService extends GetxService {
     return _parse(response);
   }
 
-  /// POST /v1/recordings/:id/finish — end and turn into an Atom.
+  /// POST /v1/recordings/:id/finish — end and turn into an Atom. The live
+  /// transcript captured on the device (and any note) ride along so the atom
+  /// is created with real content.
   Future<ApiResponse<RecordingModel>> finish(
     String id, {
     int? durationSecs,
+    String? transcript,
+    String? note,
   }) async {
     final response = await _api.post(
       ServerRoutes.recordingFinish(id),
-      {RecordingKeys.durationSecs: ?durationSecs},
+      {
+        RecordingKeys.durationSecs: ?durationSecs,
+        RecordingKeys.transcript: ?transcript,
+        RecordingKeys.note: ?note,
+      },
       showLoading: false,
     );
     return _parse(response);

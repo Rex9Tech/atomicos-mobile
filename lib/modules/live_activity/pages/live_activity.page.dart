@@ -5,7 +5,8 @@ import 'package:rexone_mobile/design/design.dart';
 import '../controllers/live_activity.controller.dart';
 
 /// Live recording sheet — matches the AtomicOS morphism design:
-/// header (logo + close), frosted note sheet, and a floating glass recording bar.
+/// header (logo + close), frosted sheet with the live transcript, and a
+/// floating glass recording bar.
 class LiveActivityPage extends GetView<LiveActivityController> {
   const LiveActivityPage({super.key});
 
@@ -105,27 +106,45 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                     color: colors.textMuted,
                   ),
                 ),
+                const Spacer(),
+                _LiveBadge(active: controller.isTranscriptLive.value),
               ],
             ),
             SizedBox(height: Design.spacing.md),
-            Expanded(
-              child: TextField(
-                controller: controller.noteController,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: 'Write a Meeting Note…',
-                  hintStyle: context.typo.bodyMedium.copyWith(
+            Expanded(child: _LiveTranscriptPanel(controller: controller)),
+            SizedBox(height: Design.spacing.md),
+            Row(
+              children: [
+                Icon(
+                  Design.icons.note,
+                  size: Design.spacing.iconSmall,
+                  color: colors.textMuted,
+                ),
+                SizedBox(width: Design.spacing.xs),
+                Text(
+                  'Note',
+                  style: context.typo.labelMedium.copyWith(
                     color: colors.textMuted,
                   ),
                 ),
-                style: context.typo.bodyMedium.copyWith(height: 1.5),
-              ),
+              ],
             ),
-            SizedBox(height: Design.spacing.md),
+            SizedBox(height: Design.spacing.xs),
+            TextField(
+              controller: controller.noteController,
+              minLines: 2,
+              maxLines: 3,
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                hintText: 'Write a Meeting Note…',
+                hintStyle: context.typo.bodyMedium.copyWith(
+                  color: colors.textMuted,
+                ),
+              ),
+              style: context.typo.bodyMedium.copyWith(height: 1.5),
+            ),
+            SizedBox(height: Design.spacing.sm),
             Row(
               children: [
                 Icon(
@@ -198,6 +217,127 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Scrollable panel that streams the live transcript and keeps the newest
+/// text in view as it arrives.
+class _LiveTranscriptPanel extends StatefulWidget {
+  const _LiveTranscriptPanel({required this.controller});
+
+  final LiveActivityController controller;
+
+  @override
+  State<_LiveTranscriptPanel> createState() => _LiveTranscriptPanelState();
+}
+
+class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
+  final ScrollController _scroll = ScrollController();
+  Worker? _transcriptWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _transcriptWorker = ever<String>(widget.controller.liveTranscript, (_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _transcriptWorker?.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(Design.spacing.md),
+      decoration: BoxDecoration(
+        color: colors.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+        border: Border.all(color: colors.glassBorder),
+      ),
+      child: Obx(() {
+        final text = widget.controller.liveTranscript.value.trim();
+        final notice = widget.controller.transcriptNotice.value;
+
+        return SingleChildScrollView(
+          controller: _scroll,
+          child: text.isEmpty
+              ? Text(
+                  notice ?? 'Live transcript will appear here as you speak…',
+                  style: context.typo.bodyMedium.copyWith(
+                    color: colors.textMuted,
+                    height: 1.5,
+                  ),
+                )
+              : Text(
+                  text,
+                  style: context.typo.bodyMedium.copyWith(
+                    color: colors.textPrimary,
+                    height: 1.5,
+                  ),
+                ),
+        );
+      }),
+    );
+  }
+}
+
+/// Small pill that shows whether the live transcript is streaming.
+class _LiveBadge extends StatelessWidget {
+  const _LiveBadge({required this.active});
+
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final color = active ? colors.primary : colors.textMuted;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.sm,
+        vertical: 3,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 6,
+            width: 6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            active ? 'LIVE' : 'OFF',
+            style: context.typo.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ],
       ),
     );
   }
