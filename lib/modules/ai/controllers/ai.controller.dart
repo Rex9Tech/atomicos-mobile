@@ -256,11 +256,13 @@ class AiController extends GetxController {
     _startProcessingWatchdog();
 
     try {
+      final context = _composeContext();
       final response = await _ai.chat(
         AiChatRequest(
-          message: _composeMessage(clean),
+          message: clean,
           roomId: currentRoomId.value,
           systemPrompt: _markdownSystemPrompt,
+          context: context.isEmpty ? null : context,
         ),
       );
       if (response.success && response.data != null) {
@@ -286,9 +288,10 @@ class AiController extends GetxController {
     }
   }
 
-  /// Builds the outbound message with any attached context, so the model
-  /// actually receives the atom/file the user pinned in the composer.
-  String _composeMessage(String text) {
+  /// Hidden context sent alongside the question — attached atom digest and/or
+  /// file name. Travels in its own field so the chat UI and stored history
+  /// only ever show what the user actually typed.
+  String _composeContext() {
     final parts = <String>[];
     final atom = contextAtom.value;
     if (atom != null) {
@@ -299,7 +302,6 @@ class AiController extends GetxController {
     if (attachment != null && attachment.isNotEmpty) {
       parts.add('Attached file: $attachment');
     }
-    parts.add(text);
     return parts.join('\n\n');
   }
 

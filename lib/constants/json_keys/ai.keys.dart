@@ -32,4 +32,5 @@ class AiKeys {
   static const assetableId = 'assetable_id';
   static const jobId = 'job_id';
   static const systemPrompt = 'system_prompt';
+  static const context = 'context';
 }
