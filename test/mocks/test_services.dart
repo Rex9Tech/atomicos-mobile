@@ -609,10 +609,17 @@ class FakeSpeechService extends GetxService
   }
 
   @override
-  Future<ESpeechListenResult> startListening({String seed = ''}) async {
+  Future<ESpeechListenResult> startListening({
+    String seed = '',
+    String? capturePath,
+    bool allowOfflineCapture = false,
+  }) async {
     isListening.value = true;
     return ESpeechListenResult.started;
   }
+
+  @override
+  Future<String?> finishCapture() async => null;
 
   @override
   Future<void> stopListening() async {

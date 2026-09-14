@@ -1,6 +1,7 @@
 // lib/services/speech.service.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
@@ -33,6 +34,14 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   /// How long to keep the live-STT subscription open after asking the backend
   /// to stop, so the final phrase is not lost.
   static const Duration _finalPhraseGrace = Duration(milliseconds: 1800);
+
+  // ===== Audio capture =====
+  // The mic stream is written to a WAV file while it is being forwarded to the
+  // live STT socket, so a recording keeps its audio too.
+  RandomAccessFile? _captureFile;
+  String? _capturePath;
+  int _captureBytes = 0;
+  bool _captureOnly = false;
 
   bool _isStartingListen = false;
   bool _isTearingDown = false;
@@ -78,6 +87,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
     unawaited(stopListening());
+    unawaited(finishCapture());
     unawaited(stopPlayback());
     unawaited(_recorder.dispose());
     unawaited(_player.dispose());
@@ -179,12 +189,21 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   // ============================================================
   // LIVE STT
   // ============================================================
-  Future<ESpeechListenResult> startListening({String seed = ''}) async {
+  Future<ESpeechListenResult> startListening({
+    String seed = '',
+    String? capturePath,
+    bool allowOfflineCapture = false,
+  }) async {
     if (isListening.value || _isStartingListen) {
       return ESpeechListenResult.alreadyListening;
     }
 
-    if (!_socket.isConnected.value) {
+    final canStream = _socket.isConnected.value;
+    final wantsCapture = capturePath != null && capturePath.isNotEmpty;
+
+    // Capture-only still makes sense offline: the audio is kept for a later
+    // transcription, only the live text is lost.
+    if (!canStream && !(wantsCapture && allowOfflineCapture)) {
       return ESpeechListenResult.disconnected;
     }
 
@@ -201,19 +220,26 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       _committedText = seed;
       _partialText = '';
       liveText.value = seed;
+      _captureOnly = !canStream;
 
-      final subscribed = await _socket.subscribe(SpeechKeys.channel);
-      if (epoch != _listenEpoch) {
-        if (subscribed) {
-          _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
-          _socket.unsubscribe(SpeechKeys.channel);
+      if (canStream) {
+        final subscribed = await _socket.subscribe(SpeechKeys.channel);
+        if (epoch != _listenEpoch) {
+          if (subscribed) {
+            _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
+            _socket.unsubscribe(SpeechKeys.channel);
+          }
+          return ESpeechListenResult.failed;
         }
-        return ESpeechListenResult.failed;
+        if (!subscribed) {
+          return ESpeechListenResult.disconnected;
+        }
+        _speechSubscribed = true;
       }
-      if (!subscribed) {
-        return ESpeechListenResult.disconnected;
+
+      if (wantsCapture) {
+        await _openCapture(capturePath);
       }
-      _speechSubscribed = true;
 
       final stream = await _recorder.startStream(
         const RecordConfig(
@@ -251,13 +277,17 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
           });
 
       await _connSub?.cancel();
-      _connSub = _socket.isConnected.listen((connected) {
-        if (!connected && (isListening.value || _speechSubscribed)) {
-          unawaited(stopListening());
-        }
-      });
+      if (canStream) {
+        _connSub = _socket.isConnected.listen((connected) {
+          if (!connected && (isListening.value || _speechSubscribed)) {
+            unawaited(stopListening());
+          }
+        });
+      }
 
-      return ESpeechListenResult.started;
+      return _captureOnly
+          ? ESpeechListenResult.capturedOffline
+          : ESpeechListenResult.started;
     } catch (e) {
       debugPrint('🎤 [SpeechService] Error starting live listen: $e');
       await stopListening();
@@ -331,10 +361,110 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   }
 
   void _onPcmChunk(Uint8List chunk) {
+    _writeCapture(chunk);
+    if (_captureOnly) return;
     _pcmBuffer.add(chunk);
     if (_pcmBuffer.length >= AppConstants.speechChunkBytes) {
       _flushPcm();
     }
+  }
+
+  // ============================================================
+  // AUDIO CAPTURE (WAV)
+  // ============================================================
+
+  /// Opens [path] for capture. Called on resume too — an already open file is
+  /// kept, so one recording produces one continuous WAV.
+  Future<void> _openCapture(String path) async {
+    if (_captureFile != null) return;
+
+    try {
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      final handle = await file.open(mode: FileMode.write);
+      handle.writeFromSync(_wavHeader(0));
+      _captureFile = handle;
+      _capturePath = path;
+      _captureBytes = 0;
+    } catch (error) {
+      debugPrint('🎤 [SpeechService] capture open error: $error');
+      _captureFile = null;
+      _capturePath = null;
+    }
+  }
+
+  void _writeCapture(Uint8List chunk) {
+    final handle = _captureFile;
+    if (handle == null) return;
+
+    try {
+      handle.writeFromSync(chunk);
+      _captureBytes += chunk.length;
+    } catch (error) {
+      debugPrint('🎤 [SpeechService] capture write error: $error');
+    }
+  }
+
+  /// Finalizes the captured WAV (real header, then close) and returns its path,
+  /// or null when nothing was captured.
+  Future<String?> finishCapture() async {
+    final handle = _captureFile;
+    final path = _capturePath;
+    final bytes = _captureBytes;
+    _captureFile = null;
+    _capturePath = null;
+    _captureBytes = 0;
+
+    if (handle == null || path == null) return null;
+
+    try {
+      if (bytes > 0) {
+        handle.setPositionSync(0);
+        handle.writeFromSync(_wavHeader(bytes));
+      }
+      await handle.flush();
+      await handle.close();
+    } catch (error) {
+      debugPrint('🎤 [SpeechService] capture close error: $error');
+      return null;
+    }
+
+    return bytes > 0 ? path : null;
+  }
+
+  /// Minimal 44-byte PCM WAV header for the captured stream format.
+  Uint8List _wavHeader(int dataBytes) {
+    const channels = AppConstants.speechNumChannels;
+    const sampleRate = AppConstants.speechSampleRate;
+    const bitsPerSample = 16;
+    const blockAlign = channels * bitsPerSample ~/ 8;
+    const byteRate = sampleRate * blockAlign;
+
+    final header = BytesBuilder();
+    void ascii(String value) => header.add(value.codeUnits);
+    void u32(int value) => header.add([
+      value & 0xFF,
+      (value >> 8) & 0xFF,
+      (value >> 16) & 0xFF,
+      (value >> 24) & 0xFF,
+    ]);
+    void u16(int value) => header.add([value & 0xFF, (value >> 8) & 0xFF]);
+
+    ascii('RIFF');
+    u32(36 + dataBytes);
+    ascii('WAVE');
+    ascii('fmt ');
+    u32(16);
+    u16(1);
+    u16(channels);
+    u32(sampleRate);
+    u32(byteRate);
+    u16(blockAlign);
+    u16(bitsPerSample);
+    ascii('data');
+    u32(dataBytes);
+
+    return header.toBytes();
   }
 
   void _flushPcm() {

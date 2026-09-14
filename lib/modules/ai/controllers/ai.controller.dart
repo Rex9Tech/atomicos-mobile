@@ -838,6 +838,7 @@ class AiController extends GetxController {
 
     switch (result) {
       case ESpeechListenResult.disconnected:
+      case ESpeechListenResult.capturedOffline:
         AppSnackbar.error(AppLocales.ai.aiTranscriptionFailed.tr);
       case ESpeechListenResult.permissionDenied:
         await _permissions.promptMicrophoneSettings();

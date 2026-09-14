@@ -30,11 +30,10 @@ class MediaService extends GetxService {
     bool showLoading = true,
   }) async {
     final file = File(filePath);
-    final bytes = await file.readAsBytes();
     final name = filename ?? file.uri.pathSegments.last;
 
     final form = FormData({
-      AssetKeys.file: MultipartFile(bytes, filename: name),
+      AssetKeys.file: MultipartFile(file, filename: name),
       AssetKeys.type: ?type,
       AssetKeys.assetableType: ?assetableType,
       AssetKeys.assetableId: ?assetableId,

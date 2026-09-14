@@ -61,6 +61,9 @@ enum ESpeechListenResult {
   disconnected,
   permissionDenied,
   failed,
+
+  /// Streaming is unavailable, but the audio is still being captured.
+  capturedOffline,
 }
 
 enum ESpeechEventType {
