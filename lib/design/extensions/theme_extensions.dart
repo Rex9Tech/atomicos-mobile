@@ -39,6 +39,27 @@ class AppThemeContextColors {
   Color get onWarning => Colors.white;
   Color get info => Design.colors.info;
   Color get onInfo => Colors.white;
+
+  // ===== GLASSMORPHISM (morphism design) =====
+  bool get isDark => _context.theme.brightness == Brightness.dark;
+
+  /// Frosted translucent surface fill.
+  Color get glass => isDark
+      ? Design.colors.glass.card
+      : Colors.white.withValues(alpha: 0.72);
+
+  /// Stronger (more opaque) frosted fill for bars/sheets.
+  Color get glassStrong => isDark
+      ? Design.colors.glass.cardHover
+      : Colors.white.withValues(alpha: 0.9);
+
+  /// Hairline light border used on glass surfaces.
+  Color get glassBorder => isDark
+      ? Design.colors.glass.border
+      : Colors.white.withValues(alpha: 0.85);
+
+  /// Soft diffuse shadow for floating glass surfaces.
+  List<BoxShadow> get softShadow => Design.colors.shadows.md;
 }
 
 extension ThemeTypography on BuildContext {

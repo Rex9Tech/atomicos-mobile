@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
@@ -302,13 +303,9 @@ class HomePage extends GetView<AuthController> {
 
   Widget _buildAtomCard(BuildContext context, AtomModel atom) {
     final colors = context.colors;
-    final duration = _formatDuration(atom.durationSecs);
-    final participants =
-        atom.participantsCount != null && atom.participantsCount! > 0
-        ? '${atom.participantsCount} speakers'
-        : null;
-    final time = _relativeTime(atom.createdAt);
-    final summary = _shortSummary(atom);
+    final date = _shortDate(atom.createdAt);
+    final duration = _compactDuration(atom.durationSecs);
+    final summary = _summaryMarkdown(atom);
 
     return AppCard(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
@@ -319,15 +316,22 @@ class HomePage extends GetView<AuthController> {
         children: [
           Row(
             children: [
-              _sourceBadge(atom.source),
-              SizedBox(width: Design.spacing.xs),
-              _statusBadge(atom.status),
-              const Spacer(),
               Icon(
-                Design.icons.more,
+                _sourceIcon(atom.source),
                 size: Design.spacing.iconSmall,
-                color: colors.textMuted,
+                color: colors.textSecondary,
               ),
+              SizedBox(width: Design.spacing.xs),
+              Text(
+                atom.source.toUpperCase(),
+                style: context.typo.caption.copyWith(
+                  color: colors.textSecondary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              _statusBadge(atom.status),
             ],
           ),
           SizedBox(height: Design.spacing.md),
@@ -340,61 +344,113 @@ class HomePage extends GetView<AuthController> {
           ),
           if (summary.isNotEmpty) ...[
             SizedBox(height: Design.spacing.xs),
-            Text(
-              summary,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: context.typo.bodySmall.copyWith(
-                color: colors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ],
-          if (time.isNotEmpty ||
-              duration.isNotEmpty ||
-              participants != null) ...[
-            SizedBox(height: Design.spacing.sm),
-            Text(
-              [
-                time,
-                duration,
-                participants,
-              ].where((e) => e != null && e.isNotEmpty).join(' · '),
-              style: context.typo.caption.copyWith(color: colors.textMuted),
-            ),
-          ],
-          SizedBox(height: Design.spacing.md),
-          Row(
-            children: [
-              Icon(
-                Design.icons.sparkles,
-                size: Design.spacing.iconSmall,
-                color: colors.primary,
-              ),
-              SizedBox(width: Design.spacing.xs),
-              Expanded(
-                child: Text(
-                  'Open summary workspace',
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+            MarkdownBody(
+              data: summary,
+              shrinkWrap: true,
+              styleSheet: MarkdownStyleSheet(
+                p: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                  height: 1.4,
                 ),
+                strong: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                  height: 1.4,
+                  fontWeight: FontWeight.w700,
+                ),
+                em: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                  height: 1.4,
+                  fontStyle: FontStyle.italic,
+                ),
+                listBullet: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                  height: 1.4,
+                ),
+                blockquote: context.typo.bodySmall.copyWith(
+                  color: colors.textMuted,
+                  height: 1.4,
+                ),
+                code: context.typo.caption.copyWith(color: colors.primary),
               ),
-              Icon(
-                Design.icons.rightArrow,
-                size: Design.spacing.iconSmall,
-                color: colors.textMuted,
-              ),
-            ],
-          ),
+            ),
+          ],
+          if (date.isNotEmpty || duration.isNotEmpty) ...[
+            SizedBox(height: Design.spacing.sm),
+            Row(
+              children: [
+                if (date.isNotEmpty) ...[
+                  Icon(
+                    Design.icons.calendar,
+                    size: 13,
+                    color: colors.textMuted,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    date,
+                    style: context.typo.caption.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
+                if (date.isNotEmpty && duration.isNotEmpty)
+                  Text(
+                    ' · ',
+                    style: context.typo.caption.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                if (duration.isNotEmpty) ...[
+                  Icon(Design.icons.clock, size: 13, color: colors.textMuted),
+                  const SizedBox(width: 4),
+                  Text(
+                    duration,
+                    style: context.typo.caption.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _sourceBadge(String source) =>
-      AppBadge(text: source.toUpperCase(), type: EBadgeVariant.primary);
+  IconData _sourceIcon(String source) {
+    switch (source.toLowerCase()) {
+      case 'url':
+        return Design.icons.link;
+      case 'share':
+        return Design.icons.shareIos;
+      case 'asset':
+        return Design.icons.attachment;
+      case 'meeting':
+        return Design.icons.mic;
+      default:
+        return Design.icons.note;
+    }
+  }
+
+  String _shortDate(String? iso) {
+    if (iso == null || iso.isEmpty) return '';
+    final dt = DateTime.tryParse(iso)?.toLocal();
+    if (dt == null) return '';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[dt.month - 1]} ${dt.day}';
+  }
+
+  String _compactDuration(int? secs) {
+    if (secs == null || secs <= 0) return '';
+    final h = secs ~/ 3600;
+    final m = (secs % 3600) ~/ 60;
+    if (h > 0) return '${h}h ${m}m';
+    if (m > 0) return '${m}m';
+    return '${secs}s';
+  }
 
   Widget _statusBadge(String status) {
     final variant = switch (status.toLowerCase()) {
@@ -410,60 +466,56 @@ class HomePage extends GetView<AuthController> {
     );
   }
 
-  String _shortSummary(AtomModel atom) {
-    final String raw;
+  String _summaryMarkdown(AtomModel atom) {
     if (atom.summaryBlocks.isNotEmpty) {
-      final block = atom.summaryBlocks.first;
-      if (block is Map) {
-        raw = (block['text'] ?? block['content'] ?? '').toString().trim();
-      } else if (block is String) {
-        raw = block.trim();
-      } else {
-        raw = '';
+      final text = _extractMarkdownText(atom.summaryBlocks.first).trim();
+      if (text.isNotEmpty) return text;
+    }
+    return atom.note?.trim() ?? '';
+  }
+
+  String _extractMarkdownText(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value;
+    if (value is num || value is bool) return value.toString();
+    if (value is List) {
+      return value
+          .map(_extractMarkdownText)
+          .where((text) => text.trim().isNotEmpty)
+          .join('\n');
+    }
+    if (value is Map) {
+      const priorityKeys = [
+        'markdown',
+        'text',
+        'content',
+        'body',
+        'summary',
+        'title',
+        'description',
+      ];
+      final parts = <String>[];
+
+      for (final key in priorityKeys) {
+        if (value.containsKey(key)) {
+          final text = _extractMarkdownText(value[key]);
+          if (text.trim().isNotEmpty) {
+            parts.add(text.trim());
+          }
+        }
       }
-    } else {
-      raw = atom.note?.trim() ?? '';
+
+      for (final entry in value.entries) {
+        if (priorityKeys.contains(entry.key)) continue;
+        final text = _extractMarkdownText(entry.value);
+        if (text.trim().isNotEmpty) {
+          parts.add(text.trim());
+        }
+      }
+
+      return parts.join('\n\n');
     }
-    return _stripMarkdown(raw);
-  }
-
-  String _stripMarkdown(String text) {
-    if (text.isEmpty) return '';
-    return text
-        .replaceAll(RegExp(r'#{1,6}\s+'), '')
-        .replaceAll(RegExp(r'\*\*(.+?)\*\*'), r'$1')
-        .replaceAll(RegExp(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'), r'$1')
-        .replaceAll(RegExp(r'`(.+?)`'), r'$1')
-        .replaceAll(RegExp(r'^\s*[-*+]\s+', multiLine: true), '')
-        .replaceAll(RegExp(r'^\s*\d+\.\s+', multiLine: true), '')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-  }
-
-  String _relativeTime(String? iso) {
-    if (iso == null || iso.isEmpty) return '';
-    final dt = DateTime.tryParse(iso)?.toLocal();
-    if (dt == null) return '';
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${dt.month}/${dt.day}';
-  }
-
-  String _formatDuration(int? secs) {
-    if (secs == null || secs <= 0) return '';
-    final h = secs ~/ 3600;
-    final m = (secs % 3600) ~/ 60;
-    final s = secs % 60;
-    if (h > 0) {
-      return '${h.toString().padLeft(2, '0')}:'
-          '${m.toString().padLeft(2, '0')}:'
-          '${s.toString().padLeft(2, '0')}';
-    }
-    return '${m.toString().padLeft(2, '0')}:'
-        '${s.toString().padLeft(2, '0')}';
+    return value.toString();
   }
 
   Widget _buildLoadingState(BuildContext context) {

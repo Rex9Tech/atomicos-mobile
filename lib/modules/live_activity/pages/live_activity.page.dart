@@ -4,10 +4,10 @@ import 'package:rexone_mobile/design/design.dart';
 
 import '../controllers/live_activity.controller.dart';
 
+/// Live recording sheet — matches the AtomicOS morphism design:
+/// header (logo + close), frosted note sheet, and a floating glass recording bar.
 class LiveActivityPage extends GetView<LiveActivityController> {
   const LiveActivityPage({super.key});
-
-  static const _surfaces = <String>['Compact', 'Expanded'];
 
   @override
   Widget build(BuildContext context) {
@@ -16,148 +16,131 @@ class LiveActivityPage extends GetView<LiveActivityController> {
     return Obx(
       () => AppPage(
         backgroundColor: colors.background,
+        padding: EdgeInsets.zero,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildTopBar(context),
-            SizedBox(height: Design.spacing.lg),
-            Text(
-              'Live recording',
-              style: context.typo.headline2.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: Design.spacing.xs),
-            Text(
-              controller.isRecording.value
-                  ? 'Capturing audio…'
-                  : 'Recording paused',
-              style: context.typo.bodyMedium.copyWith(
-                color: colors.textSecondary,
-              ),
-            ),
-            SizedBox(height: Design.spacing.lg),
-            _buildStatusHero(context),
-            SizedBox(height: Design.spacing.lg),
-            _buildSurfacePicker(context),
-            SizedBox(height: Design.spacing.xl),
-            Expanded(
-              child: ListView(
-                children: [
-                  if (controller.selectedSurface.value == 'Compact') ...[
-                    _buildCompactCapsule(context),
-                    SizedBox(height: Design.spacing.lg),
-                  ],
-                  _buildExpandedCard(context),
-                  SizedBox(height: Design.spacing.lg),
-                  _buildComposerPreview(context),
-                ],
-              ),
-            ),
+            _buildHeader(context),
+            Expanded(child: _buildSheet(context)),
+            _buildRecordingBar(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
-    return Row(
-      children: [
-        _LiveRoundButton(icon: Design.icons.backArrow, onTap: Get.back),
-        const Spacer(),
-        _LiveRoundButton(
-          icon: Design.icons.close,
-          onTap: controller.toggleRecording,
-        ),
-      ],
+  Widget _buildHeader(BuildContext context) {
+    final colors = context.colors;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        Design.spacing.screenPadding,
+        Design.spacing.md,
+        Design.spacing.screenPadding,
+        Design.spacing.sm,
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 32,
+            width: 32,
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Design.icons.atomAdd,
+              size: Design.spacing.iconSmall,
+              color: colors.primary,
+            ),
+          ),
+          SizedBox(width: Design.spacing.sm),
+          Text(
+            'AtomicOS',
+            style: context.typo.labelLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const Spacer(),
+          _GlassRoundButton(
+            icon: Design.icons.close,
+            onTap: controller.finishRecording,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildSurfacePicker(BuildContext context) {
+  Widget _buildSheet(BuildContext context) {
     final colors = context.colors;
 
-    return Obx(
-      () => Row(
-        children: _surfaces
-            .map(
-              (label) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: label == _surfaces.last ? 0 : Design.spacing.sm,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => controller.selectSurface(label),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: Design.spacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: controller.selectedSurface.value == label
-                            ? colors.primary
-                            : colors.surface,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: controller.selectedSurface.value == label
-                              ? colors.primary
-                              : colors.border,
-                        ),
-                      ),
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: context.typo.labelMedium.copyWith(
-                          color: controller.selectedSurface.value == label
-                              ? colors.background
-                              : colors.textSecondary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.screenPadding),
+      child: AppGlassCard(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        radius: Design.spacing.radiusXLarge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Design.icons.mic,
+                  size: Design.spacing.iconSmall,
+                  color: colors.textSecondary,
+                ),
+                SizedBox(width: Design.spacing.xs),
+                Text(
+                  'Live meeting',
+                  style: context.typo.labelMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colors.textPrimary,
                   ),
                 ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildStatusHero(BuildContext context) {
-    final colors = context.colors;
-
-    return Obx(
-      () => Container(
-        padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
-          ),
-          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          children: [
+                SizedBox(width: Design.spacing.sm),
+                Text(
+                  controller.isRecording.value
+                      ? 'recording in progress'
+                      : 'paused',
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: Design.spacing.md),
             Expanded(
-              child: _LiveMetric(
-                label: 'State',
-                value: controller.isRecording.value ? 'Live' : 'Paused',
+              child: TextField(
+                controller: controller.noteController,
+                maxLines: null,
+                expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  hintText: 'Write a Meeting Note…',
+                  hintStyle: context.typo.bodyMedium.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+                style: context.typo.bodyMedium.copyWith(height: 1.5),
               ),
             ),
-            SizedBox(width: Design.spacing.sm),
-            Expanded(
-              child: _LiveMetric(
-                label: 'Surface',
-                value: controller.selectedSurface.value,
-              ),
-            ),
-            SizedBox(width: Design.spacing.sm),
-            Expanded(
-              child: _LiveMetric(
-                label: 'Elapsed',
-                value: controller.formattedElapsed,
-              ),
+            SizedBox(height: Design.spacing.md),
+            Row(
+              children: [
+                Icon(
+                  Design.icons.attachment,
+                  size: Design.spacing.iconSmall,
+                  color: colors.textMuted,
+                ),
+                SizedBox(width: Design.spacing.xs),
+                Text(
+                  'Attachments',
+                  style: context.typo.labelMedium.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -165,30 +148,31 @@ class LiveActivityPage extends GetView<LiveActivityController> {
     );
   }
 
-  Widget _buildCompactCapsule(BuildContext context) {
+  Widget _buildRecordingBar(BuildContext context) {
     final colors = context.colors;
 
-    return Center(
-      child: Container(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        Design.spacing.screenPadding,
+        Design.spacing.md,
+        Design.spacing.screenPadding,
+        Design.spacing.lg,
+      ),
+      child: AppGlassCard(
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
           vertical: Design.spacing.sm,
         ),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: colors.border),
-          boxShadow: Design.colors.shadows.sm,
-        ),
+        radius: 999,
+        blur: 22,
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               height: 8,
               width: 8,
               decoration: BoxDecoration(
                 color: controller.isRecording.value
-                    ? colors.primary
+                    ? colors.error
                     : colors.textMuted,
                 shape: BoxShape.circle,
               ),
@@ -199,169 +183,28 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               style: context.typo.caption.copyWith(color: colors.textSecondary),
             ),
             SizedBox(width: Design.spacing.md),
-            _WaveformBar(width: 54),
+            Expanded(child: _WaveformBar(active: controller.isRecording.value)),
+            SizedBox(width: Design.spacing.md),
+            _GlassRoundButton(
+              icon: controller.isRecording.value
+                  ? Design.icons.pause
+                  : Design.icons.play,
+              onTap: controller.toggleRecording,
+            ),
+            SizedBox(width: Design.spacing.sm),
+            _EndPill(
+              loading: controller.isFinishing.value,
+              onTap: controller.finishRecording,
+            ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildExpandedCard(BuildContext context) {
-    final colors = context.colors;
-
-    return AppCard(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      borderRadius: Design.spacing.radiusXLarge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                height: 30,
-                width: 30,
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Design.icons.atomAdd,
-                  color: colors.primary,
-                  size: Design.spacing.iconSmall,
-                ),
-              ),
-              SizedBox(width: Design.spacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AtomicOS',
-                      style: context.typo.labelLarge.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      controller.isRecording.value
-                          ? 'Recording in progress'
-                          : 'Recording paused',
-                      style: context.typo.bodySmall.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Design.spacing.lg),
-          _WaveformBar(width: double.infinity),
-          SizedBox(height: Design.spacing.lg),
-          Row(
-            children: [
-              Text(
-                controller.isRecording.value ? 'Recording' : 'Paused',
-                style: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-              const Spacer(),
-              _LiveActionPill(
-                icon: Design.icons.pause,
-                label: controller.isRecording.value ? 'Pause' : 'Resume',
-                onTap: controller.toggleRecording,
-              ),
-              SizedBox(width: Design.spacing.sm),
-              _LiveActionPill(
-                icon: Design.icons.stop,
-                label: 'End',
-                destructive: true,
-                onTap: controller.finishRecording,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildComposerPreview(BuildContext context) {
-    final colors = context.colors;
-
-    return AppCard(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      borderRadius: Design.spacing.radiusXLarge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Design.icons.note,
-                size: Design.spacing.iconSmall,
-                color: colors.textSecondary,
-              ),
-              SizedBox(width: Design.spacing.xs),
-              Text(
-                'Meeting note',
-                style: context.typo.labelMedium.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Design.spacing.md),
-          Text(
-            'The transcript and summary are generated when you end the recording.',
-            style: context.typo.bodyMedium.copyWith(
-              color: colors.textSecondary,
-              height: 1.45,
-            ),
-          ),
-          SizedBox(height: Design.spacing.lg),
-          Row(
-            children: [
-              Container(
-                height: 8,
-                width: 8,
-                decoration: BoxDecoration(
-                  color: colors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: Design.spacing.xs),
-              Text(
-                controller.formattedElapsed,
-                style: context.typo.caption.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-              SizedBox(width: Design.spacing.md),
-              Expanded(child: _WaveformBar(width: double.infinity)),
-              SizedBox(width: Design.spacing.md),
-              _LiveActionPill(
-                icon: Design.icons.pause,
-                label: controller.isRecording.value ? 'Pause' : 'Resume',
-                onTap: controller.toggleRecording,
-              ),
-              SizedBox(width: Design.spacing.sm),
-              _LiveActionPill(
-                icon: Design.icons.stop,
-                label: 'End',
-                destructive: true,
-                onTap: controller.finishRecording,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _LiveRoundButton extends StatelessWidget {
-  const _LiveRoundButton({required this.icon, required this.onTap});
+class _GlassRoundButton extends StatelessWidget {
+  const _GlassRoundButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -373,85 +216,74 @@ class _LiveRoundButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 32,
-        width: 32,
+        height: 36,
+        width: 36,
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.glassStrong,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.border),
+          border: Border.all(color: colors.glassBorder),
         ),
         child: Icon(
           icon,
-          color: colors.textSecondary,
           size: Design.spacing.iconSmall,
+          color: colors.textSecondary,
         ),
       ),
     );
   }
 }
 
-class _LiveActionPill extends StatelessWidget {
-  const _LiveActionPill({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.destructive = false,
-  });
+class _EndPill extends StatelessWidget {
+  const _EndPill({required this.onTap, this.loading = false});
 
-  final IconData icon;
-  final String label;
   final VoidCallback onTap;
-  final bool destructive;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return GestureDetector(
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
           vertical: Design.spacing.sm,
         ),
         decoration: BoxDecoration(
-          color: destructive ? colors.error : colors.card,
+          color: context.colors.error,
           borderRadius: BorderRadius.circular(999),
         ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: Design.spacing.iconSmall,
-              color: destructive ? colors.surface : colors.textPrimary,
-            ),
-            SizedBox(width: Design.spacing.xs),
-            Text(
-              label,
-              style: context.typo.bodySmall.copyWith(
-                color: destructive ? colors.surface : colors.textPrimary,
-                fontWeight: FontWeight.w700,
+        child: loading
+            ? const SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                'End',
+                style: context.typo.labelMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
 class _WaveformBar extends StatelessWidget {
-  const _WaveformBar({required this.width});
+  const _WaveformBar({this.active = false});
 
-  final double width;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final bars = <double>[10, 14, 18, 12, 20, 24, 16, 14, 18, 12, 10, 8];
+    final bars = <double>[10, 16, 22, 14, 26, 30, 18, 16, 22, 14, 10, 8];
 
     return SizedBox(
-      width: width.isFinite ? width : null,
       height: 26,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -461,49 +293,14 @@ class _WaveformBar extends StatelessWidget {
                 width: 4,
                 height: height,
                 decoration: BoxDecoration(
-                  color: colors.primary,
+                  color: active
+                      ? colors.primary
+                      : colors.textMuted.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
             )
             .toList(),
-      ),
-    );
-  }
-}
-
-class _LiveMetric extends StatelessWidget {
-  const _LiveMetric({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(Design.spacing.md),
-      decoration: BoxDecoration(
-        color: context.colors.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: context.typo.labelLarge.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: Design.spacing.xs),
-          Text(
-            label,
-            style: context.typo.caption.copyWith(
-              color: context.colors.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }

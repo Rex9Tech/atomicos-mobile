@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
@@ -14,6 +15,7 @@ class LiveActivityController extends GetxController {
   final RxInt elapsedSeconds = 0.obs;
   final RxnString recordingId = RxnString();
   final RxBool isFinishing = false.obs;
+  final noteController = TextEditingController();
 
   Timer? _ticker;
   bool _started = false;
@@ -33,6 +35,7 @@ class LiveActivityController extends GetxController {
   @override
   void onClose() {
     _ticker?.cancel();
+    noteController.dispose();
     super.onClose();
   }
 
