@@ -91,9 +91,17 @@ class AppRoutes {
   static void toPayment() => Get.toNamed(payment);
   static void toCheckout({required String url}) =>
       Get.toNamed(checkout, arguments: {'url': url});
-  static void toAi({String mode = 'auto'}) => Get.toNamed(
+  static void toAi({
+    String mode = 'auto',
+    String? atomId,
+    String? atomTitle,
+  }) => Get.toNamed(
     ai,
-    arguments: {'mode': mode},
+    arguments: {
+      'mode': mode,
+      if (atomId != null && atomId.isNotEmpty) 'atom_id': atomId,
+      if (atomTitle != null && atomTitle.isNotEmpty) 'atom_title': atomTitle,
+    },
   );
   static void toLiveActivity() => Get.toNamed(liveActivity);
   static void toProfile() => Get.toNamed(profile);

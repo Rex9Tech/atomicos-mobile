@@ -82,6 +82,18 @@ class AiController extends GetxController {
     if (args is Map && args['mode'] != null) {
       entryMode.value = args['mode'].toString();
     }
+    // Opened from an atom: seed the composer so "Ask about this Atom" lands
+    // with a usable question the user can edit before sending.
+    if (args is Map && args['atom_title'] != null) {
+      final title = args['atom_title'].toString();
+      if (title.isNotEmpty && textController.text.trim().isEmpty) {
+        final seeded = 'What are the key points in "$title"?';
+        textController.text = seeded;
+        textController.selection = TextSelection.fromPosition(
+          TextPosition(offset: seeded.length),
+        );
+      }
+    }
     // Meeting workspace starts idle; the user taps the record control to start
     // a backend session (startRecording) + device mic.
     if (entryMode.value == 'meeting') {

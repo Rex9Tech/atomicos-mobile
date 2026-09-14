@@ -47,4 +47,26 @@ class HomeService extends GetxService {
           AtomModel.fromJson(const {});
     });
   }
+
+  /// POST /v1/atoms/:id/assets — attach an already-uploaded asset to the atom.
+  Future<ApiResponse<AtomAssetModel>> attachAsset({
+    required String atomId,
+    required String assetId,
+  }) async {
+    final response = await _api.post(
+      ServerRoutes.atomAssets(atomId),
+      {AtomKeys.assetId: assetId},
+      showLoading: false,
+    );
+    return _api.parseResponse<AtomAssetModel>(response, (data) {
+      final record = data is Map && data[AssetKeys.asset] is Map
+          ? data[AssetKeys.asset]
+          : data;
+      return ApiHelper.parseRecord<AtomAssetModel>(
+            record,
+            AtomAssetModel.fromJson,
+          ) ??
+          AtomAssetModel.fromJson(const {});
+    });
+  }
 }

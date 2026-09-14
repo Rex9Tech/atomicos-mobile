@@ -318,6 +318,7 @@ class _AtomLocales {
   final loadFailed = 'atom.load_failed';
   final retry = 'atom.retry';
   final copiedToClipboard = 'atom.copied_to_clipboard';
+  final copy = 'atom.copy';
 }
 
 class _CalendarLocales {

@@ -293,6 +293,7 @@ class AppTranslations extends Translations {
       AppLocales.atom.loadFailed: "Couldn't load this atom",
       AppLocales.atom.retry: 'Retry',
       AppLocales.atom.copiedToClipboard: 'Copied to clipboard',
+      AppLocales.atom.copy: 'Copy',
 
       // Calendar
       AppLocales.calendar.title: 'Planner',
@@ -566,6 +567,7 @@ class AppTranslations extends Translations {
       AppLocales.atom.loadFailed: 'ဤအက်တမ်ကို ရယူ၍မရပါ',
       AppLocales.atom.retry: 'ထပ်စမ်းမည်',
       AppLocales.atom.copiedToClipboard: 'ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ',
+      AppLocales.atom.copy: 'ကူးယူမည်',
 
       // Calendar
       AppLocales.calendar.title: 'ပြက္ခဒိန်',

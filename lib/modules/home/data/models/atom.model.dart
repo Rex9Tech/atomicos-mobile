@@ -6,6 +6,8 @@ class AtomAssetModel {
   final String url;
   final String type;
   final String format;
+  final int? sizeBytes;
+  final String status;
 
   const AtomAssetModel({
     required this.id,
@@ -13,7 +15,18 @@ class AtomAssetModel {
     required this.url,
     required this.type,
     required this.format,
+    this.sizeBytes,
+    this.status = '',
   });
+
+  /// The raw recording this atom was created from — it belongs in the player
+  /// card, not the supporting-files list. Audio attached on purpose
+  /// (`type: attachment`) still counts as a file.
+  bool get isSourceRecording {
+    final t = type.toLowerCase();
+    final f = format.toLowerCase();
+    return t != 'attachment' && (t == 'audio' || f == 'audio');
+  }
 
   factory AtomAssetModel.fromJson(Map<String, dynamic> json) {
     return AtomAssetModel(
@@ -22,6 +35,8 @@ class AtomAssetModel {
       url: json[AtomKeys.url]?.toString() ?? '',
       type: json[AtomKeys.type]?.toString() ?? '',
       format: json[AtomKeys.format]?.toString() ?? '',
+      sizeBytes: (json[AtomKeys.sizeBytes] as num?)?.toInt(),
+      status: json[AtomKeys.status]?.toString() ?? '',
     );
   }
 }

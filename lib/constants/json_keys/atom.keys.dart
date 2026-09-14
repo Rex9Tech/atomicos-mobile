@@ -26,4 +26,5 @@ class AtomKeys {
   static const name = 'name';
   static const type = 'type';
   static const format = 'format';
+  static const sizeBytes = 'size_bytes';
 }

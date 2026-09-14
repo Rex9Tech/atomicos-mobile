@@ -24,6 +24,7 @@ class AssetKeys {
 
   // ===== Upload constants (FormData values) =====
   static const typeAvatar = 'avatar';
+  static const typeAttachment = 'attachment';
   static const assetableUser = 'User';
   static const sourceUpload = 'upload';
 }

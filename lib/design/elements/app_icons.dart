@@ -53,6 +53,13 @@ class AppIcons {
   IconData get emptyBox => Icons.inventory_2_outlined;
   IconData get micOutline => Icons.mic_none_rounded;
   IconData get home => Icons.home_outlined;
+  IconData get history => Icons.history_rounded;
+  IconData get replay10 => Icons.replay_10_rounded;
+  IconData get forward10 => Icons.forward_10_rounded;
+  IconData get pictureAsPdf => Icons.picture_as_pdf_rounded;
+  IconData get docFile => Icons.description_outlined;
+  IconData get imageFile => Icons.image_outlined;
+  IconData get videoFile => Icons.movie_outlined;
 
   // ── User / Auth ────────────────────────────────────────────────
   IconData get logout => Icons.logout_rounded;
