@@ -60,6 +60,11 @@ class AiController extends GetxController {
   /// How much of an attached atom is sent to the model.
   static const int _contextCharLimit = 4000;
 
+  /// Keeps replies structured so the chat can render them as markdown.
+  static const String _markdownSystemPrompt =
+      'Answer in markdown. Use short bold headings, bullet points for key '
+      'points, and bold for names, numbers and decisions. Keep it concise.';
+
   bool _isSubmitting = false;
   String _textBeforeListen = '';
   Worker? _liveTextWorker;
@@ -252,7 +257,11 @@ class AiController extends GetxController {
 
     try {
       final response = await _ai.chat(
-        AiChatRequest(message: _composeMessage(clean), roomId: currentRoomId.value),
+        AiChatRequest(
+          message: _composeMessage(clean),
+          roomId: currentRoomId.value,
+          systemPrompt: _markdownSystemPrompt,
+        ),
       );
       if (response.success && response.data != null) {
         final rId = response.data![AiKeys.roomId]?.toString();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
@@ -694,12 +695,14 @@ class AiPage extends GetView<AiController> {
       }
     }
 
-    return Text(
-      lines.isEmpty
-          ? 'Run an action to generate a backend response preview.'
-          : lines.take(3).join('\n\n'),
-      style: context.typo.bodyMedium.copyWith(height: 1.45),
-    );
+    if (lines.isEmpty) {
+      return Text(
+        'Run an action to generate a backend response preview.',
+        style: context.typo.bodyMedium.copyWith(height: 1.45),
+      );
+    }
+
+    return _ChatMarkdown(data: lines.take(3).join('\n\n'));
   }
 
   Widget _buildDecisionList(BuildContext context, List<dynamic> decisions) {
@@ -1950,8 +1953,67 @@ class _TranscriptCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: Design.spacing.sm),
-          Text(content, style: context.typo.bodyMedium),
+          _ChatMarkdown(data: content),
         ],
+      ),
+    );
+  }
+}
+
+/// Renders a chat message body as markdown, sized for a bubble or card.
+class _ChatMarkdown extends StatelessWidget {
+  const _ChatMarkdown({required this.data});
+
+  final String data;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final base = context.typo.bodyMedium.copyWith(
+      color: colors.textPrimary,
+      height: 1.45,
+    );
+
+    return MarkdownBody(
+      data: data,
+      shrinkWrap: true,
+      styleSheet: MarkdownStyleSheet(
+        p: base,
+        strong: base.copyWith(fontWeight: FontWeight.w700),
+        em: base.copyWith(fontStyle: FontStyle.italic),
+        h1: context.typo.headline3.copyWith(
+          color: colors.textPrimary,
+          fontWeight: FontWeight.w700,
+        ),
+        h2: context.typo.headline4.copyWith(
+          color: colors.textPrimary,
+          fontWeight: FontWeight.w700,
+        ),
+        h3: context.typo.labelLarge.copyWith(
+          color: colors.textPrimary,
+          fontWeight: FontWeight.w700,
+        ),
+        listBullet: base,
+        blockquote: base.copyWith(color: colors.textSecondary),
+        blockquoteDecoration: BoxDecoration(
+          color: colors.primary.withValues(alpha: 0.08),
+          border: Border(left: BorderSide(color: colors.primary, width: 3)),
+        ),
+        code: context.typo.bodySmall.copyWith(
+          color: colors.primary,
+          backgroundColor: colors.primary.withValues(alpha: 0.08),
+        ),
+        codeblockDecoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+          border: Border.all(color: colors.border),
+        ),
+        codeblockPadding: EdgeInsets.all(Design.spacing.sm),
+        tableBorder: TableBorder.all(color: colors.border),
+        a: base.copyWith(
+          color: colors.primary,
+          decoration: TextDecoration.underline,
+        ),
       ),
     );
   }
@@ -2317,13 +2379,7 @@ class _ChatBubble extends StatelessWidget {
                     color: colors.primary,
                   ),
                 )
-              : Text(
-                  message.content,
-                  style: context.typo.bodyMedium.copyWith(
-                    color: colors.textPrimary,
-                    height: 1.45,
-                  ),
-                ),
+              : _ChatMarkdown(data: message.content),
         ),
         SizedBox(height: 6),
         Row(
