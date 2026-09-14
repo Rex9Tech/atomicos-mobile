@@ -20,6 +20,7 @@ class LiveActivityController extends GetxController {
   final SpeechService _speech = Get.find<SpeechService>();
   final MediaService _media = Get.find<MediaService>();
   final HomeService _home = Get.find<HomeService>();
+  final RecordingSessionService _background = Get.find<RecordingSessionService>();
 
   final RxString selectedSurface = 'Expanded'.obs;
   final RxBool isRecording = false.obs;
@@ -59,6 +60,8 @@ class LiveActivityController extends GetxController {
       (text) => liveTranscript.value = text,
     );
     liveTranscript.value = '';
+    // Notification buttons (Pause / Resume / Stop) come back here.
+    _background.onAction = _onBackgroundAction;
     startRecording();
   }
 
@@ -66,6 +69,9 @@ class LiveActivityController extends GetxController {
   void onClose() {
     _ticker?.cancel();
     _transcriptWorker?.dispose();
+    _background.onAction = null;
+    _speech.allowBackgroundListening = false;
+    unawaited(_background.stop());
     unawaited(_speech.stopListening());
     noteController.dispose();
     super.onClose();
@@ -87,7 +93,31 @@ class LiveActivityController extends GetxController {
     }
 
     _capturePath = await _newCapturePath();
+
+    // Keep the mic + live transcript alive when the user switches apps (e.g.
+    // joining the meeting in Zoom).
+    _speech.allowBackgroundListening = true;
+    await _background.start(title: 'Live meeting');
+
     await _startLiveTranscript();
+  }
+
+  /// Handles a Pause / Resume / Stop tap on the recording notification.
+  void _onBackgroundAction(String action) {
+    switch (action) {
+      case RecordingSessionService.actionPause:
+        if (isRecording.value) {
+          unawaited(pauseRecording());
+        }
+      case RecordingSessionService.actionResume:
+        if (!isRecording.value && !isFinishing.value) {
+          unawaited(resumeRecording());
+        }
+      case RecordingSessionService.actionStop:
+        if (!isFinishing.value) {
+          unawaited(finishRecording());
+        }
+    }
   }
 
   Future<void> toggleRecording() async {
@@ -114,6 +144,8 @@ class LiveActivityController extends GetxController {
         durationSecs: elapsedSeconds.value,
       );
     }
+
+    unawaited(_background.markPaused(formattedElapsed));
   }
 
   Future<void> resumeRecording() async {
@@ -125,6 +157,7 @@ class LiveActivityController extends GetxController {
       await _recording.updateRecording(id, status: 'recording');
     }
 
+    unawaited(_background.markRunning(formattedElapsed));
     await _startLiveTranscript();
   }
 
@@ -134,6 +167,10 @@ class LiveActivityController extends GetxController {
     _ticker?.cancel();
     await _speech.stopListening();
     isTranscriptLive.value = false;
+    // The session is over — drop the foreground service (and its notification)
+    // now that the mic no longer needs background access.
+    _speech.allowBackgroundListening = false;
+    await _background.stop();
     // Closes the WAV so it can be uploaded.
     final audioPath = await _speech.finishCapture();
 
@@ -218,6 +255,7 @@ class LiveActivityController extends GetxController {
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       elapsedSeconds.value++;
+      unawaited(_background.markRunning(formattedElapsed));
     });
   }
 

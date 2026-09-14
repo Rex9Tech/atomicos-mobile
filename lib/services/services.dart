@@ -5,6 +5,7 @@ export 'socket.service.dart';
 export 'permission.service.dart';
 export 'media.service.dart';
 export 'speech.service.dart';
+export 'recording_session.service.dart';
 export 'analytics.service.dart';
 export 'push_noti.service.dart';
 export 'network.service.dart';

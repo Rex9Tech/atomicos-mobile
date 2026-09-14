@@ -691,6 +691,9 @@ class FakeSpeechService extends GetxService
   @override
   bool get isBusy => isListenSessionActive || isPlaying.value;
 
+  @override
+  bool allowBackgroundListening = false;
+
   SocketMessage? lastSpeechEvent;
   ESpeechEventType? lastSpeechEventType;
 

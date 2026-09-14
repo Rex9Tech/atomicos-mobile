@@ -60,6 +60,11 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
 
   bool get isBusy => isListenSessionActive || isPlaying.value;
 
+  /// While true, an active recording keeps the mic and the live-STT stream
+  /// running when the app moves to the background. Set by the recording
+  /// session, which also runs the foreground service Android requires.
+  bool allowBackgroundListening = false;
+
   @override
   void onInit() {
     super.onInit();
@@ -74,6 +79,12 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden) {
+      // A recording owns the mic: the foreground service keeps it permitted in
+      // the background, so the stream (and live transcript) must keep running.
+      final keepAlive =
+          allowBackgroundListening && (isListening.value || _speechSubscribed);
+      if (keepAlive) return;
+
       if (isListening.value || _speechSubscribed) {
         unawaited(stopListening());
       }

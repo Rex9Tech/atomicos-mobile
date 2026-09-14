@@ -53,6 +53,9 @@ class InitialBinding extends Bindings {
     // Shared live STT + TTS (depends on ApiService + SocketService)
     Get.put(SpeechService(), permanent: true);
 
+    // Foreground service that keeps a recording alive in the background
+    Get.put(RecordingSessionService(), permanent: true);
+
     // Payment Service (depends on ApiService)
     Get.put(PaymentService(), permanent: true);
 
