@@ -5,6 +5,7 @@ import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
 import '../controllers/calendar.controller.dart';
+import '../data/models/calendar_event.model.dart';
 
 class CalendarPage extends GetView<CalendarController> {
   const CalendarPage({super.key});
@@ -416,6 +417,7 @@ class CalendarPage extends GetView<CalendarController> {
                   ? visibleEvents[i].description!
                   : AppLocales.calendar.scheduled.tr,
               onTap: AppRoutes.toLiveActivity,
+              onMore: () => _showEventMenu(context, visibleEvents[i]),
             ),
           ],
         ],
@@ -427,6 +429,145 @@ class CalendarPage extends GetView<CalendarController> {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
       child: Center(child: child),
+    );
+  }
+
+  // ===== Item popup: rename / open =====
+
+  void _showEventMenu(BuildContext context, CalendarEventModel event) {
+    Get.bottomSheet<void>(
+      Container(
+        margin: EdgeInsets.all(Design.spacing.sm),
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          color: context.colors.glassStrong,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          border: Border.all(color: context.colors.glassBorder),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                event.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: context.typo.labelLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(height: Design.spacing.lg),
+              _SheetAction(
+                icon: Design.icons.edit,
+                label: AppLocales.common.rename.tr,
+                onTap: () {
+                  Get.back();
+                  _promptRename(context, event);
+                },
+              ),
+              SizedBox(height: Design.spacing.sm),
+              _SheetAction(
+                icon: Design.icons.play,
+                label: 'Open live view',
+                onTap: () {
+                  Get.back();
+                  AppRoutes.toLiveActivity();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _promptRename(
+    BuildContext context,
+    CalendarEventModel event,
+  ) async {
+    final textController = TextEditingController(text: event.title);
+    final next = await Get.dialog<String>(
+      AlertDialog(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.common.rename.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'Atom name'),
+          onSubmitted: (value) => Get.back(result: value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(AppLocales.common.cancel.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: textController.text.trim()),
+            child: Text(AppLocales.common.save.tr),
+          ),
+        ],
+      ),
+    );
+
+    final clean = next?.trim() ?? '';
+    if (clean.isEmpty || clean == event.title) return;
+    await controller.renameEvent(event.id, clean);
+  }
+}
+
+class _SheetAction extends StatelessWidget {
+  const _SheetAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(Design.spacing.md),
+        decoration: BoxDecoration(
+          color: colors.glass,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+          border: Border.all(color: colors.glassBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: Design.spacing.iconSmall, color: colors.primary),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: Text(
+                label,
+                style: context.typo.labelMedium.copyWith(
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: colors.textMuted,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -468,12 +609,14 @@ class _AgendaRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    required this.onMore,
   });
 
   final String time;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final VoidCallback onMore;
 
   @override
   Widget build(BuildContext context) {
@@ -526,10 +669,17 @@ class _AgendaRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: Design.spacing.sm),
-          Icon(
-            Design.icons.rightArrow,
-            size: Design.spacing.iconSmall,
-            color: colors.textMuted,
+          GestureDetector(
+            onTap: onMore,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: EdgeInsets.all(Design.spacing.xs),
+              child: Icon(
+                Design.icons.more,
+                size: Design.spacing.iconSmall,
+                color: colors.textMuted,
+              ),
+            ),
           ),
         ],
       ),

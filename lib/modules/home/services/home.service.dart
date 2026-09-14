@@ -69,4 +69,25 @@ class HomeService extends GetxService {
           AtomAssetModel.fromJson(const {});
     });
   }
+
+  /// PUT /v1/atoms/:id — rename an atom.
+  Future<ApiResponse<AtomModel>> renameAtom({
+    required String atomId,
+    required String title,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.atomDetail(atomId),
+      {
+        AtomKeys.atom: {AtomKeys.title: title},
+      },
+      showLoading: false,
+    );
+    return _api.parseResponse<AtomModel>(response, (data) {
+      final record = data is Map && data[AtomKeys.atom] is Map
+          ? data[AtomKeys.atom]
+          : data;
+      return ApiHelper.parseRecord<AtomModel>(record, AtomModel.fromJson) ??
+          AtomModel.fromJson(const {});
+    });
+  }
 }

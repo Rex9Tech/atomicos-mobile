@@ -157,6 +157,7 @@ class _CommonLocales {
   final submit = 'common.submit';
   final save = 'common.save';
   final cancel = 'common.cancel';
+  final rename = 'common.rename';
   final delete = 'common.delete';
   final confirm = 'common.confirm';
   final error = 'common.error';

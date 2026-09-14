@@ -106,6 +106,15 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _SheetAction(
+                icon: Design.icons.edit,
+                label: AppLocales.common.rename.tr,
+                onTap: () {
+                  Get.back();
+                  _promptRename(context, atom);
+                },
+              ),
+              SizedBox(height: Design.spacing.sm),
+              _SheetAction(
                 icon: Design.icons.clipboard,
                 label: AppLocales.atom.copy.tr,
                 onTap: () {
@@ -698,6 +707,43 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
     await Clipboard.setData(ClipboardData(text: parts.join('\n\n')));
     AppSnackbar.success(AppLocales.atom.copiedToClipboard.tr);
+  }
+
+  Future<void> _promptRename(BuildContext context, AtomModel atom) async {
+    final textController = TextEditingController(text: atom.title);
+    final next = await Get.dialog<String>(
+      AlertDialog(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.common.rename.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'Atom name'),
+          onSubmitted: (value) => Get.back(result: value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(AppLocales.common.cancel.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: textController.text.trim()),
+            child: Text(AppLocales.common.save.tr),
+          ),
+        ],
+      ),
+    );
+
+    final clean = next?.trim() ?? '';
+    if (clean.isEmpty || clean == atom.title) return;
+    await controller.renameAtom(clean);
   }
 
   Future<void> _openAsset(AtomAssetModel asset) async {

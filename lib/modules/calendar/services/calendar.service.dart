@@ -64,6 +64,21 @@ class CalendarService extends GetxService {
     return _parse(response);
   }
 
+  /// PUT /v1/calendar/events/:id — rename a scheduled event/atom.
+  Future<ApiResponse<CalendarEventModel>> renameEvent({
+    required String id,
+    required String title,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.calendarEventDetail(id),
+      {
+        CalendarKeys.calendarEvent: {CalendarKeys.title: title},
+      },
+      showLoading: false,
+    );
+    return _parse(response);
+  }
+
   ApiResponse<CalendarEventModel> _parse(Response response) {
     return _api.parseResponse<CalendarEventModel>(response, (data) {
       final record = data is Map && data[CalendarKeys.calendarEvent] is Map

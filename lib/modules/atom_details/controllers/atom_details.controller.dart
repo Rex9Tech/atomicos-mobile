@@ -98,6 +98,27 @@ class AtomDetailsController extends GetxController {
 
   void selectTab(int index) => activeTab.value = index;
 
+  /// PUT /v1/atoms/:id — rename this atom from the details menu.
+  Future<bool> renameAtom(String title) async {
+    final id = atomId.value;
+    final clean = title.trim();
+    if (id == null || id.isEmpty || clean.isEmpty) return false;
+    try {
+      final result = await _home.renameAtom(atomId: id, title: clean);
+      if (result.success && result.data != null) {
+        atom.value = result.data;
+        _syncAudioSource();
+        AppSnackbar.success('Renamed');
+        return true;
+      }
+      AppSnackbar.error(result.error ?? 'Could not rename this atom.');
+    } catch (error) {
+      debugPrint('📝 [AtomDetailsController] rename error: $error');
+      AppSnackbar.error('Could not rename this atom.');
+    }
+    return false;
+  }
+
   /// Keeps the player's source url + duration in sync with the loaded atom.
   void _syncAudioSource() {
     final asset = sourceAudio;
