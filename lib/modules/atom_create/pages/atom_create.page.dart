@@ -186,21 +186,21 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         _ImportActionTile(
           icon: Design.icons.folder,
           title: 'Upload a file',
-          subtitle: 'Audio, Video or documents',
+          subtitle: 'Audio, video, or documents',
           onTap: () => controller.selectMode('upload'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.note,
           title: 'Note',
-          subtitle: 'Manually Type or Paste Text',
+          subtitle: 'Type or paste your text',
           onTap: () => controller.selectMode('note'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.shareIos,
           title: 'Share from another app',
-          subtitle: 'Via in-app handoff or share sheet',
+          subtitle: 'From the system share sheet',
           onTap: () => controller.selectMode('share'),
         ),
       ],
@@ -882,7 +882,7 @@ class _ImportActionTile extends StatelessWidget {
       trailing: Icon(
         Design.icons.rightArrow,
         size: Design.spacing.iconMedium,
-        color: context.colors.textMuted,
+        color: context.colors.textSecondary,
       ),
       onTap: onTap,
     );
