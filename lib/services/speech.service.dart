@@ -83,7 +83,12 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       // the background, so the stream (and live transcript) must keep running.
       final keepAlive =
           allowBackgroundListening && (isListening.value || _speechSubscribed);
-      if (keepAlive) return;
+      if (keepAlive) {
+        debugPrint(
+          '🎤 [SpeechService] backgrounded mid-recording — keeping the mic alive',
+        );
+        return;
+      }
 
       if (isListening.value || _speechSubscribed) {
         unawaited(stopListening());

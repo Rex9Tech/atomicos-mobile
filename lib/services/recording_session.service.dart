@@ -1,4 +1,6 @@
 // lib/services/recording_session.service.dart
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
@@ -20,6 +22,10 @@ class RecordingSessionService extends GetxService {
   bool _initialized = false;
   bool _active = false;
 
+  /// Bumped on every start/stop so a slow start cannot resurrect a session
+  /// that has already been stopped.
+  int _generation = 0;
+
   /// Invoked on the main isolate when a notification button is tapped.
   void Function(String action)? onAction;
 
@@ -28,14 +34,20 @@ class RecordingSessionService extends GetxService {
   /// Starts the foreground service so the mic (and the live transcript stream)
   /// keep working when the user leaves the app.
   Future<void> start({required String title}) async {
-    if (_active) return;
+    final generation = ++_generation;
 
     _initialize();
     await FlutterForegroundTask.requestNotificationPermission();
 
-    _active = true;
     FlutterForegroundTask.addTaskDataCallback(_onTaskData);
 
+    // Deliberately not awaited: on some OEM builds (MIUI) the plugin's own
+    // start check waits out a long timeout even though the service is already
+    // up, and the recording must not sit idle waiting for that verdict.
+    unawaited(_startService(title, generation));
+  }
+
+  Future<void> _startService(String title, int generation) async {
     final result = await FlutterForegroundTask.startService(
       serviceId: _serviceId,
       serviceTypes: const [ForegroundServiceTypes.microphone],
@@ -49,9 +61,42 @@ class RecordingSessionService extends GetxService {
     );
 
     if (result is ServiceRequestFailure) {
-      _active = false;
-      debugPrint('🎙️ [RecordingSession] start failed: ${result.error}');
+      // Usually a false negative: the service is up, the check just timed out.
+      debugPrint('🎙️ [RecordingSession] start reported: ${result.error}');
     }
+
+    final running = await _confirmRunning();
+    if (generation != _generation) {
+      // Stopped while we were confirming — make sure it stays stopped.
+      if (running) {
+        try {
+          await FlutterForegroundTask.stopService();
+        } catch (_) {}
+      }
+      return;
+    }
+
+    _active = running;
+    if (running) {
+      unawaited(markRunning('00:00'));
+    } else {
+      FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      debugPrint('🎙️ [RecordingSession] service did not come up');
+    }
+  }
+
+  /// Waits for the service to actually be up — OEM builds can be slow to
+  /// report it, and a wrong "not running" state leaves the notification behind.
+  Future<bool> _confirmRunning() async {
+    for (var attempt = 0; attempt < 10; attempt++) {
+      try {
+        if (await FlutterForegroundTask.isRunningService) return true;
+      } catch (error) {
+        debugPrint('🎙️ [RecordingSession] state check failed: $error');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+    }
+    return false;
   }
 
   /// Updates the notification (timer text and/or the Pause/Resume buttons).
@@ -91,13 +136,17 @@ class RecordingSessionService extends GetxService {
   );
 
   /// Stops the service — the recording UI is gone or the session ended.
+  /// Checks the real state first: a session whose start was misreported would
+  /// otherwise leave the notification running forever.
   Future<void> stop() async {
-    if (!_active) return;
-    _active = false;
+    _generation++;
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+    _active = false;
 
     try {
-      await FlutterForegroundTask.stopService();
+      if (await FlutterForegroundTask.isRunningService) {
+        await FlutterForegroundTask.stopService();
+      }
     } catch (error) {
       debugPrint('🎙️ [RecordingSession] stop failed: $error');
     }
