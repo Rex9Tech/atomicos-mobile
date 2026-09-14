@@ -181,7 +181,9 @@ class AtomCreateController extends GetxController {
         AppSnackbar.success(result.message);
         final atomId = result.data?.id ?? '';
         if (atomId.isNotEmpty) {
-          AppRoutes.toAtomDetail(atomId: atomId);
+          // Swap the create screen out: Back from the atom returns to wherever
+          // the create flow was opened from, not to a stale create form.
+          AppRoutes.toAtomDetail(atomId: atomId, replace: true);
         } else {
           AppRoutes.toHome();
         }
@@ -280,7 +282,9 @@ class AtomCreateController extends GetxController {
         AppSnackbar.success(result.message);
         final atomId = result.data?.id ?? '';
         if (atomId.isNotEmpty) {
-          AppRoutes.toAtomDetail(atomId: atomId);
+          // Swap the create screen out: Back from the atom returns to wherever
+          // the create flow was opened from, not to a stale create form.
+          AppRoutes.toAtomDetail(atomId: atomId, replace: true);
         } else {
           AppRoutes.toHome();
         }
