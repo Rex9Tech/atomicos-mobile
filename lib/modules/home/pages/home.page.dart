@@ -749,66 +749,24 @@ class HomePage extends GetView<AuthController> {
                         SizedBox(height: Design.spacing.lg),
                         if (isRecordTab) ...[
                           Text(
-                            'Add AtomicOS to live meeting',
+                            'Capture a live conversation',
                             style: context.typo.labelMedium.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: Design.spacing.sm),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Design.spacing.md,
-                              vertical: Design.spacing.md,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.card,
-                              borderRadius: BorderRadius.circular(
-                                Design.spacing.radiusLarge,
-                              ),
-                              border: Border.all(color: colors.border),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: Get.find<HomeController>()
-                                        .meetingLinkController,
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      isCollapsed: true,
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      hintText: 'Enter the meeting link here',
-                                      hintStyle: context.typo.bodySmall
-                                          .copyWith(color: colors.textMuted),
-                                    ),
-                                    style: context.typo.bodySmall,
-                                  ),
-                                ),
-                                Icon(
-                                  Design.icons.link,
-                                  size: Design.spacing.iconSmall,
-                                  color: colors.textSecondary,
-                                ),
-                              ],
+                          SizedBox(height: Design.spacing.xs),
+                          Text(
+                            'AtomicOS records, transcribes and summarizes the session into a new atom.',
+                            style: context.typo.bodySmall.copyWith(
+                              color: colors.textSecondary,
+                              height: 1.4,
                             ),
                           ),
-                          SizedBox(height: Design.spacing.sm),
-                          SizedBox(
-                            height: Design.spacing.buttonHeight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Get.back();
-                                AppRoutes.toAi(mode: 'meeting');
-                              },
-                              child: const Text('Add Now'),
-                            ),
-                          ),
-                          SizedBox(height: Design.spacing.lg),
+                          SizedBox(height: Design.spacing.md),
                           _NewAtomAction(
                             icon: Design.icons.mic,
                             title: 'Record Now',
+                            subtitle: 'Start capturing audio with AtomicOS',
                             iconColor: colors.primary,
                             onTap: () {
                               Get.back();

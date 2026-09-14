@@ -22,7 +22,6 @@ class HomeController extends GetxController {
   final RxBool isLoadingAtoms = false.obs;
   final RxBool hasAtomsError = false.obs;
   final searchController = TextEditingController();
-  final meetingLinkController = TextEditingController();
   Timer? _searchDebounce;
 
   bool get isLoading => previewState.value == 'loading';
@@ -46,7 +45,6 @@ class HomeController extends GetxController {
   void onClose() {
     _searchDebounce?.cancel();
     searchController.dispose();
-    meetingLinkController.dispose();
     super.onClose();
   }
 

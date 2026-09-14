@@ -721,46 +721,17 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Add AtomicOS to live meeting',
+          'Capture a live conversation',
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.sm),
         Text(
-          'Drop a meeting link to let AtomicOS capture and summarize it.',
+          'AtomicOS records, transcribes and summarizes the session into a new atom.',
           style: context.typo.bodyMedium.copyWith(
             color: colors.textSecondary,
             height: 1.45,
           ),
         ),
-        SizedBox(height: Design.spacing.md),
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: Design.spacing.md,
-            vertical: Design.spacing.md,
-          ),
-          decoration: BoxDecoration(
-            color: colors.card,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: TextField(
-            controller: controller.meetingLinkController,
-            decoration: InputDecoration(
-              isDense: true,
-              isCollapsed: true,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              hintText: 'Enter the meeting link here',
-              hintStyle: context.typo.bodyMedium.copyWith(
-                color: colors.textMuted,
-              ),
-            ),
-            style: context.typo.bodyMedium,
-          ),
-        ),
-        SizedBox(height: Design.spacing.lg),
-        _buildOrDivider(context),
         SizedBox(height: Design.spacing.lg),
         _ImportActionTile(
           icon: Design.icons.mic,
