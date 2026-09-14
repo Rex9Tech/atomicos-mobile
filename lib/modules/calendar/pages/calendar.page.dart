@@ -18,31 +18,38 @@ class CalendarPage extends GetView<CalendarController> {
 
     return AppPage(
       backgroundColor: colors.background,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTopBar(context),
-          SizedBox(height: Design.spacing.lg),
-          Text(
-            'Ciao, Damir!',
-            style: context.typo.headline2.copyWith(fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: Design.spacing.xs),
-          Text(
-            'Review the week and jump into live sessions.',
-            style: context.typo.bodyMedium.copyWith(
-              color: colors.textSecondary,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildTopBar(context),
+            SizedBox(height: Design.spacing.lg),
+            Text(
+              'Calendar',
+              style: context.typo.headline2.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          SizedBox(height: Design.spacing.lg),
-          _buildRangePicker(context),
-          SizedBox(height: Design.spacing.lg),
-          _buildWeekHeader(context),
-          SizedBox(height: Design.spacing.md),
-          _buildCalendarGrid(context),
-          SizedBox(height: Design.spacing.lg),
-          _buildAgendaCard(context),
-        ],
+            SizedBox(height: Design.spacing.xs),
+            Text(
+              'Review upcoming sessions, then jump straight into the live workspace.',
+              style: context.typo.bodyMedium.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            SizedBox(height: Design.spacing.lg),
+            _buildScheduleHero(context),
+            SizedBox(height: Design.spacing.lg),
+            _buildRangePicker(context),
+            SizedBox(height: Design.spacing.lg),
+            _buildWeekHeader(context),
+            SizedBox(height: Design.spacing.md),
+            _buildCalendarGrid(context),
+            SizedBox(height: Design.spacing.lg),
+            _buildAgendaCard(context),
+            SizedBox(height: Design.spacing.xl),
+          ],
+        ),
       ),
     );
   }
@@ -135,6 +142,49 @@ class CalendarPage extends GetView<CalendarController> {
     );
   }
 
+  Widget _buildScheduleHero(BuildContext context) {
+    final colors = context.colors;
+
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
+          ),
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _CalendarMetric(
+                label: 'Visible',
+                value: '${controller.filteredEvents.length}',
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: _CalendarMetric(
+                label: 'Range',
+                value: controller.selectedRange.value,
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: _CalendarMetric(
+                label: 'Day',
+                value: '${controller.selectedDay.value}',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildWeekHeader(BuildContext context) {
     final colors = context.colors;
 
@@ -185,13 +235,9 @@ class CalendarPage extends GetView<CalendarController> {
     final colors = context.colors;
     final days = List<int>.generate(35, (index) => index + 1);
 
-    return Container(
+    return AppGlassCard(
       padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.border),
-      ),
+      radius: Design.spacing.radiusXLarge,
       child: Column(
         children: [
           Row(
@@ -218,7 +264,7 @@ class CalendarPage extends GetView<CalendarController> {
               crossAxisCount: 7,
               mainAxisSpacing: Design.spacing.sm,
               crossAxisSpacing: Design.spacing.sm,
-              childAspectRatio: 0.72,
+              childAspectRatio: 0.95,
               children: days.map((day) {
                 final isActive = controller.hasEventOnDay(day);
                 final isSelected = controller.selectedDay.value == day;
@@ -250,7 +296,7 @@ class CalendarPage extends GetView<CalendarController> {
                           '$day',
                           style: context.typo.labelLarge.copyWith(
                             color: isSelected
-                                ? colors.background
+                                ? colors.onPrimary
                                 : colors.textPrimary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -262,7 +308,7 @@ class CalendarPage extends GetView<CalendarController> {
                           decoration: BoxDecoration(
                             color: isActive
                                 ? (isSelected
-                                      ? colors.background
+                                      ? colors.onPrimary
                                       : colors.primary)
                                 : colors.card.withValues(alpha: 0),
                             shape: BoxShape.circle,
@@ -284,13 +330,9 @@ class CalendarPage extends GetView<CalendarController> {
     final colors = context.colors;
 
     return Obx(
-      () => Container(
+      () => AppGlassCard(
         padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          border: Border.all(color: colors.border),
-        ),
+        radius: Design.spacing.radiusXLarge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -307,11 +349,21 @@ class CalendarPage extends GetView<CalendarController> {
                 const Spacer(),
                 GestureDetector(
                   onTap: AppRoutes.toLiveActivity,
-                  child: Text(
-                    'Open live view',
-                    style: context.typo.bodySmall.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w700,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Design.spacing.sm,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      'Open live view',
+                      style: context.typo.bodySmall.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -396,9 +448,9 @@ class _RoundIconButton extends StatelessWidget {
         height: 32,
         width: 32,
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.glass,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.border),
+          border: Border.all(color: colors.glassBorder),
         ),
         child: Icon(
           icon,
@@ -427,8 +479,10 @@ class _AgendaRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return GestureDetector(
+    return AppGlassCard(
       onTap: onTap,
+      padding: EdgeInsets.all(Design.spacing.md),
+      radius: Design.spacing.radiusLarge,
       child: Row(
         children: [
           Container(
@@ -455,17 +509,59 @@ class _AgendaRow extends StatelessWidget {
                 Text(
                   title,
                   style: context.typo.bodyMedium.copyWith(
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 SizedBox(height: Design.spacing.xs),
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: context.typo.bodySmall.copyWith(
                     color: colors.textSecondary,
                   ),
                 ),
               ],
+            ),
+          ),
+          SizedBox(width: Design.spacing.sm),
+          Icon(
+            Design.icons.rightArrow,
+            size: Design.spacing.iconSmall,
+            color: colors.textMuted,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarMetric extends StatelessWidget {
+  const _CalendarMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppGlassCard(
+      padding: EdgeInsets.all(Design.spacing.md),
+      radius: Design.spacing.radiusLarge,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: context.typo.labelLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: Design.spacing.xs),
+          Text(
+            label,
+            style: context.typo.caption.copyWith(
+              color: context.colors.textSecondary,
             ),
           ),
         ],
