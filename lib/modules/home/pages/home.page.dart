@@ -770,7 +770,7 @@ class HomePage extends GetView<AuthController> {
                             iconColor: colors.primary,
                             onTap: () {
                               Get.back();
-                              AppRoutes.toAi(mode: 'meeting');
+                              AppRoutes.toLiveActivity();
                             },
                           ),
                         ] else ...[
