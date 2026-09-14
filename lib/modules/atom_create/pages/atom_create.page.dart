@@ -72,13 +72,11 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
-          'Import a link, upload media, or turn shared text into a saved atom.',
+          'Upload media or turn shared text into a saved atom.',
           style: context.typo.bodyMedium.copyWith(
             color: context.colors.textSecondary,
           ),
         ),
-        SizedBox(height: Design.spacing.xl),
-        _buildModeHero(context),
         SizedBox(height: Design.spacing.xl),
         if (!_isSubFlow) _buildModePicker(context),
         if (!_isSubFlow) SizedBox(height: Design.spacing.xl),
@@ -126,23 +124,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildOrDivider(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      children: [
-        Expanded(child: Divider(color: colors.border, height: 1)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: Design.spacing.md),
-          child: Text(
-            'Or',
-            style: context.typo.caption.copyWith(color: colors.textMuted),
-          ),
-        ),
-        Expanded(child: Divider(color: colors.border, height: 1)),
-      ],
     );
   }
 
@@ -198,86 +179,10 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     );
   }
 
-  Widget _buildModeHero(BuildContext context) {
-    final colors = context.colors;
-    final mode = controller.selectedMode.value;
-    final title = switch (mode) {
-      'share' => 'Turn shared content into a reviewable atom',
-      'note' => 'Draft first, then refine with AI help',
-      _ => 'Capture context from links, files, and meetings',
-    };
-    final subtitle = switch (mode) {
-      'share' => 'Shared text can become a note, ask flow, or new atom.',
-      'note' => 'Use summary and task stages to shape a better final output.',
-      _ => 'Import sources feed the same structured AtomicOS workspace.',
-    };
-
-    return Container(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
-        ),
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            ),
-            child: Icon(
-              mode == 'share'
-                  ? Design.icons.shareIos
-                  : mode == 'note'
-                  ? Design.icons.clipboard
-                  : Design.icons.upload,
-              color: colors.primary,
-            ),
-          ),
-          SizedBox(width: Design.spacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: context.typo.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                    height: 1.3,
-                  ),
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  subtitle,
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildImportMode(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionShell(title: 'URL Link', child: _buildYoutubeStage(context)),
-        SizedBox(height: Design.spacing.lg),
-        _buildOrDivider(context),
-        SizedBox(height: Design.spacing.lg),
         _ImportActionTile(
           icon: Design.icons.folder,
           title: 'Upload a file',
@@ -402,33 +307,40 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: double.infinity,
-              height: Design.spacing.buttonHeight,
-              child: Obx(
-                () => ElevatedButton(
-                  onPressed: controller.isSubmitting.value
-                      ? null
-                      : _handlePrimaryAction,
-                  child: Text(
-                    controller.isSubmitting.value
-                        ? 'Working...'
-                        : _primaryLabel(),
-                  ),
-                ),
-              ),
+            // Import is a picker — each tile leads to its own create flow.
+            Obx(
+              () => controller.selectedMode.value == 'import'
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: EdgeInsets.only(bottom: Design.spacing.sm),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: Design.spacing.buttonHeight,
+                        child: ElevatedButton(
+                          onPressed: controller.isSubmitting.value
+                              ? null
+                              : _handlePrimaryAction,
+                          child: Text(
+                            controller.isSubmitting.value
+                                ? 'Working...'
+                                : _primaryLabel(),
+                          ),
+                        ),
+                      ),
+                    ),
             ),
-            SizedBox(height: Design.spacing.sm),
-            Text(
-              controller.selectedMode.value == 'import'
-                  ? 'Imported content is converted into a reusable atom workspace.'
-                  : controller.selectedMode.value == 'share'
-                  ? 'Shared payloads can be reviewed before they are saved.'
-                  : 'Draft notes can be refined into summaries and task lists first.',
-              style: context.typo.bodySmall.copyWith(
-                color: colors.textSecondary,
+            Obx(
+              () => Text(
+                controller.selectedMode.value == 'import'
+                    ? 'Pick a source above to bring it into your workspace.'
+                    : controller.selectedMode.value == 'share'
+                    ? 'Shared payloads can be reviewed before they are saved.'
+                    : 'Draft notes can be refined into summaries and task lists first.',
+                style: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
             SizedBox(height: Design.spacing.xs),
             TextButton(
@@ -508,11 +420,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       return;
     }
 
-    if (controller.selectedMode.value == 'import') {
-      controller.createFromUrl();
-      return;
-    }
-
     controller.createFromShare();
   }
 
@@ -560,44 +467,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             ),
           )
           .toList(),
-    );
-  }
-
-  Widget _buildYoutubeStage(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.md,
-        vertical: Design.spacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        border: Border.all(color: colors.border),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller.urlController,
-              decoration: const InputDecoration(
-                isDense: true,
-                isCollapsed: true,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: 'Paste youtube URL',
-              ),
-            ),
-          ),
-          Icon(
-            Design.icons.link,
-            size: Design.spacing.iconMedium,
-            color: colors.textSecondary,
-          ),
-        ],
-      ),
     );
   }
 
@@ -650,64 +519,73 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           );
         }),
         GestureDetector(
-          onTap: controller.isUploading.value ? null : controller.pickUploadAsset,
-          child: Container(
-            height: 180,
+          onTap: controller.isUploading.value
+              ? null
+              : controller.pickUploadAsset,
+          child: AnimatedContainer(
+            duration: Design.timers.short,
+            padding: EdgeInsets.all(Design.spacing.xl),
             decoration: BoxDecoration(
               color: colors.card,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.border),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Design.icons.upload,
-                    color: colors.primary,
-                    size: Design.spacing.iconXLarge,
-                  ),
-                  SizedBox(height: Design.spacing.md),
-                  Text(
-                    hasPickedFile
-                        ? (controller.pickedUploadName.value ?? 'Attached file')
-                        : 'Tap to browse device storage',
-                    style: context.typo.labelLarge.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: Design.spacing.xs),
-                  Text(
-                    hasPickedFile
-                        ? 'Ready to upload and create an atom'
-                        : 'Pick a file, image, video, or document',
-                    style: context.typo.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+              border: Border.all(
+                color: hasPickedFile
+                    ? colors.primary.withValues(alpha: 0.45)
+                    : colors.border,
+                width: hasPickedFile ? 1.5 : 1.0,
               ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  height: 64,
+                  width: 64,
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    hasPickedFile ? Design.icons.check : Design.icons.upload,
+                    color: colors.primary,
+                    size: Design.spacing.iconLarge,
+                  ),
+                ),
+                SizedBox(height: Design.spacing.md),
+                Text(
+                  hasPickedFile
+                      ? (controller.pickedUploadName.value ?? 'Attached file')
+                      : 'Tap to browse device storage',
+                  style: context.typo.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: Design.spacing.xs),
+                Text(
+                  hasPickedFile
+                      ? 'Ready to upload and create an atom · tap to change'
+                      : 'Pick a file, image, video, or document',
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
         SizedBox(height: Design.spacing.md),
-        Row(
-          children: const [
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Audio',
-                subtitle: 'Meeting recordings',
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Documents',
-                subtitle: 'PDF, DOC, slides',
-              ),
-            ),
+        Wrap(
+          spacing: Design.spacing.sm,
+          runSpacing: Design.spacing.sm,
+          alignment: WrapAlignment.center,
+          children: [
+            _SupportChip(icon: Design.icons.audioWave, label: 'Audio'),
+            _SupportChip(icon: Design.icons.videoFile, label: 'Video'),
+            _SupportChip(icon: Design.icons.pictureAsPdf, label: 'PDF'),
+            _SupportChip(icon: Design.icons.docFile, label: 'Documents'),
           ],
         ),
       ],
@@ -1023,6 +901,48 @@ class _ChoiceCard extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       tone: EAppToneCardTone.neutral,
+    );
+  }
+}
+
+class _SupportChip extends StatelessWidget {
+  const _SupportChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.md,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: Design.spacing.iconSmall,
+            color: colors.textSecondary,
+          ),
+          SizedBox(width: Design.spacing.xs),
+          Text(
+            label,
+            style: context.typo.caption.copyWith(
+              color: colors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
