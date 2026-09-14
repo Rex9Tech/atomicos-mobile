@@ -49,7 +49,9 @@ class HomePage extends GetView<AuthController> {
       return _buildLoadingState(context);
     }
 
-    if (homeController.hasAtomsError.value) {
+    // Only surface the error when there is nothing to show — a failed refresh
+    // must never blank out a workspace the user can still read.
+    if (homeController.hasAtomsError.value && homeController.atoms.isEmpty) {
       return _buildErrorState(context);
     }
 

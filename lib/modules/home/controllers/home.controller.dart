@@ -29,12 +29,17 @@ class HomeController extends GetxController {
   bool get isEmpty => previewState.value == 'empty';
   bool get isError => previewState.value == 'error';
 
+  static const int _loadAttempts = 4;
+  static const Duration _retryBackoff = Duration(milliseconds: 900);
+
   @override
   void onInit() {
     super.onInit();
     if (Get.testMode) return;
-    reportUserVersion();
     loadAtoms();
+    // Best-effort telemetry — staggered so it doesn't compete for the first
+    // socket while the workspace request is still in flight.
+    Future<void>.delayed(const Duration(seconds: 3), reportUserVersion);
   }
 
   @override
@@ -61,26 +66,43 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Loads the workspace atoms.
+  ///
+  /// The first request after a cold start can fail while the device network is
+  /// still coming up, so transient failures are retried silently before the
+  /// error state is surfaced — and already-loaded atoms are never discarded.
   Future<void> loadAtoms({String? search, String? filter}) async {
     final resolvedSearch = search ?? searchQuery.value;
     final resolvedFilter = filter ?? selectedFilter.value;
     isLoadingAtoms.value = true;
     hasAtomsError.value = false;
-    try {
-      final result = await _home.getAtoms(
-        limit: 20,
-        search: resolvedSearch,
-        status: _statusForFilter(resolvedFilter),
-      );
-      atoms.assignAll(
-        _applyLocalFilter(result.records, filter: resolvedFilter),
-      );
-    } catch (error) {
-      debugPrint('HomeController.loadAtoms error: $error');
-      hasAtomsError.value = true;
-    } finally {
-      isLoadingAtoms.value = false;
+
+    for (var attempt = 1; attempt <= _loadAttempts; attempt++) {
+      try {
+        final result = await _home.getAtoms(
+          limit: 20,
+          search: resolvedSearch,
+          status: _statusForFilter(resolvedFilter),
+        );
+        atoms.assignAll(
+          _applyLocalFilter(result.records, filter: resolvedFilter),
+        );
+        hasAtomsError.value = false;
+        isLoadingAtoms.value = false;
+        return;
+      } catch (error) {
+        debugPrint(
+          'HomeController.loadAtoms attempt $attempt/$_loadAttempts failed: $error',
+        );
+        if (attempt < _loadAttempts) {
+          await Future<void>.delayed(_retryBackoff * attempt);
+          continue;
+        }
+        hasAtomsError.value = true;
+      }
     }
+
+    isLoadingAtoms.value = false;
   }
 
   void selectFilter(String value) {
