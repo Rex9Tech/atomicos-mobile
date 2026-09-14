@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
@@ -8,8 +7,9 @@ import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
+import '../../search/search.dart';
 import '../controllers/home.controller.dart';
-import '../data/models/models.dart';
+import 'widgets/atom_card.dart';
 
 class HomePage extends GetView<AuthController> {
   const HomePage({super.key});
@@ -30,7 +30,7 @@ class HomePage extends GetView<AuthController> {
           SizedBox(height: Design.spacing.md),
           _buildGreeting(context),
           SizedBox(height: Design.spacing.md),
-          _buildSearchBar(context, homeController),
+          _buildSearchBar(context),
           SizedBox(height: Design.spacing.md),
           _buildFilterRow(context),
           SizedBox(height: Design.spacing.md),
@@ -68,7 +68,7 @@ class HomePage extends GetView<AuthController> {
         if (index == atoms.length) {
           return _buildDebugTools(context);
         }
-        return _buildAtomCard(context, atoms[index]);
+        return AtomCard(atom: atoms[index]);
       },
     );
   }
@@ -167,59 +167,56 @@ class HomePage extends GetView<AuthController> {
     });
   }
 
-  Widget _buildSearchBar(BuildContext context, HomeController homeController) {
+  /// Tapping the bar opens the dedicated search screen; the pill morphs across
+  /// with its hero tag while the route fades.
+  Widget _buildSearchBar(BuildContext context) {
     final colors = context.colors;
 
-    return Obx(
-      () => Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Design.spacing.md,
-          vertical: Design.spacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          border: Border.all(color: colors.border),
-        ),
-        child: Row(
-          children: [
-            Icon(Design.icons.search, color: colors.textMuted),
-            SizedBox(width: Design.spacing.sm),
-            Expanded(
-              child: TextField(
-                controller: homeController.searchController,
-                onChanged: homeController.updateSearch,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: 'Search atoms or meetings',
-                ),
-                style: context.typo.bodyMedium,
-              ),
+    return GestureDetector(
+      onTap: AppRoutes.toSearch,
+      behavior: HitTestBehavior.opaque,
+      child: Hero(
+        tag: kSearchBarHeroTag,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: Design.spacing.md,
+              vertical: Design.spacing.md,
             ),
-            GestureDetector(
-              onTap: homeController.searchQuery.value.isEmpty
-                  ? null
-                  : homeController.clearSearch,
-              child: Container(
-                height: 28,
-                width: 28,
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  homeController.searchQuery.value.isEmpty
-                      ? Design.icons.filter
-                      : Design.icons.close,
-                  size: Design.spacing.iconSmall,
-                  color: colors.textSecondary,
-                ),
-              ),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+              border: Border.all(color: colors.border),
             ),
-          ],
+            child: Row(
+              children: [
+                Icon(Design.icons.search, color: colors.textMuted),
+                SizedBox(width: Design.spacing.sm),
+                Expanded(
+                  child: Text(
+                    AppLocales.search.placeholder.tr,
+                    style: context.typo.bodyMedium.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 28,
+                  width: 28,
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Design.icons.filter,
+                    size: Design.spacing.iconSmall,
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -303,222 +300,6 @@ class HomePage extends GetView<AuthController> {
     );
   }
 
-  Widget _buildAtomCard(BuildContext context, AtomModel atom) {
-    final colors = context.colors;
-    final date = _shortDate(atom.createdAt);
-    final duration = _compactDuration(atom.durationSecs);
-    final summary = _summaryMarkdown(atom);
-
-    return AppGlassCard(
-      onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
-      radius: Design.spacing.radiusLarge,
-      padding: EdgeInsets.all(Design.spacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                _sourceIcon(atom.source),
-                size: Design.spacing.iconSmall,
-                color: colors.textSecondary,
-              ),
-              SizedBox(width: Design.spacing.xs),
-              Text(
-                atom.source.toUpperCase(),
-                style: context.typo.caption.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const Spacer(),
-              _statusBadge(atom.status),
-            ],
-          ),
-          SizedBox(height: Design.spacing.md),
-          Text(
-            atom.title,
-            style: context.typo.bodyLarge.copyWith(
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-            ),
-          ),
-          if (summary.isNotEmpty) ...[
-            SizedBox(height: Design.spacing.xs),
-            MarkdownBody(
-              data: summary,
-              shrinkWrap: true,
-              styleSheet: MarkdownStyleSheet(
-                p: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
-                strong: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                  fontWeight: FontWeight.w700,
-                ),
-                em: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                  fontStyle: FontStyle.italic,
-                ),
-                listBullet: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
-                blockquote: context.typo.bodySmall.copyWith(
-                  color: colors.textMuted,
-                  height: 1.4,
-                ),
-                code: context.typo.caption.copyWith(color: colors.primary),
-              ),
-            ),
-          ],
-          if (date.isNotEmpty || duration.isNotEmpty) ...[
-            SizedBox(height: Design.spacing.sm),
-            Row(
-              children: [
-                if (date.isNotEmpty) ...[
-                  Icon(
-                    Design.icons.calendar,
-                    size: 13,
-                    color: colors.textMuted,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    date,
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                ],
-                if (date.isNotEmpty && duration.isNotEmpty)
-                  Text(
-                    ' · ',
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                if (duration.isNotEmpty) ...[
-                  Icon(Design.icons.clock, size: 13, color: colors.textMuted),
-                  const SizedBox(width: 4),
-                  Text(
-                    duration,
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  IconData _sourceIcon(String source) {
-    switch (source.toLowerCase()) {
-      case 'url':
-        return Design.icons.link;
-      case 'share':
-        return Design.icons.shareIos;
-      case 'asset':
-        return Design.icons.attachment;
-      case 'meeting':
-        return Design.icons.mic;
-      default:
-        return Design.icons.note;
-    }
-  }
-
-  String _shortDate(String? iso) {
-    if (iso == null || iso.isEmpty) return '';
-    final dt = DateTime.tryParse(iso)?.toLocal();
-    if (dt == null) return '';
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${months[dt.month - 1]} ${dt.day}';
-  }
-
-  String _compactDuration(int? secs) {
-    if (secs == null || secs <= 0) return '';
-    final h = secs ~/ 3600;
-    final m = (secs % 3600) ~/ 60;
-    if (h > 0) return '${h}h ${m}m';
-    if (m > 0) return '${m}m';
-    return '${secs}s';
-  }
-
-  Widget _statusBadge(String status) {
-    final variant = switch (status.toLowerCase()) {
-      'completed' => EBadgeVariant.success,
-      'processing' => EBadgeVariant.warning,
-      'failed' => EBadgeVariant.error,
-      _ => EBadgeVariant.info,
-    };
-    final label = status.isEmpty ? 'draft' : status;
-    return AppBadge(
-      text: label[0].toUpperCase() + label.substring(1).toLowerCase(),
-      type: variant,
-    );
-  }
-
-  String _summaryMarkdown(AtomModel atom) {
-    if (atom.summaryBlocks.isNotEmpty) {
-      final text = _extractMarkdownText(atom.summaryBlocks.first).trim();
-      if (text.isNotEmpty) return text;
-    }
-    return atom.note?.trim() ?? '';
-  }
-
-  String _extractMarkdownText(dynamic value) {
-    if (value == null) return '';
-    if (value is String) return value;
-    if (value is num || value is bool) return value.toString();
-    if (value is List) {
-      return value
-          .map(_extractMarkdownText)
-          .where((text) => text.trim().isNotEmpty)
-          .join('\n');
-    }
-    if (value is Map) {
-      const priorityKeys = [
-        'markdown',
-        'text',
-        'content',
-        'body',
-        'summary',
-        'title',
-        'description',
-      ];
-      final parts = <String>[];
-
-      for (final key in priorityKeys) {
-        if (value.containsKey(key)) {
-          final text = _extractMarkdownText(value[key]);
-          if (text.trim().isNotEmpty) {
-            parts.add(text.trim());
-          }
-        }
-      }
-
-      for (final entry in value.entries) {
-        if (priorityKeys.contains(entry.key)) continue;
-        final text = _extractMarkdownText(entry.value);
-        if (text.trim().isNotEmpty) {
-          parts.add(text.trim());
-        }
-      }
-
-      return parts.join('\n\n');
-    }
-    return value.toString();
-  }
 
   Widget _buildLoadingState(BuildContext context) {
     final colors = context.colors;

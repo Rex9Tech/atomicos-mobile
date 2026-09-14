@@ -14,6 +14,7 @@ import '../modules/auth/auth.dart';
 import '../modules/calendar/calendar.dart';
 import '../modules/home/home.dart';
 import '../modules/live_activity/live_activity.dart';
+import '../modules/search/search.dart';
 import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
 import '../modules/setting/setting.dart';
@@ -45,6 +46,7 @@ class AppRoutes {
   static const String checkout = '/checkout';
   static const String ai = '/ai';
   static const String liveActivity = '/live-activity';
+  static const String search = '/search';
   static const String profile = '/profile';
   static const String notifications = '/notifications';
   static const String permissionOnboarding = '/permission-onboarding';
@@ -113,6 +115,10 @@ class AppRoutes {
     },
   );
   static void toLiveActivity() => Get.toNamed(liveActivity);
+
+  /// Dedicated search screen; the fade keeps the eye on the search bar, which
+  /// morphs across via its hero tag.
+  static void toSearch() => Get.toNamed(search);
   static void toProfile() => Get.toNamed(profile);
   static void toNotifications() => Get.toNamed(notifications);
   static void toPermissionOnboarding() => Get.toNamed(permissionOnboarding);
@@ -271,6 +277,18 @@ class AppRoutes {
       binding: BindingsBuilder(() {
         Get.put(HomeController());
       }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: search,
+      page: () => const SearchPage(),
+      binding: BindingsBuilder(() {
+        // Built eagerly (like HomeController) so onInit runs in the binding
+        // phase, not during the page's first build.
+        Get.put(AtomSearchController());
+      }),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 260),
       middlewares: [GuardRoutes()],
     ),
     GetPage(
