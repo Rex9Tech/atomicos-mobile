@@ -84,8 +84,17 @@ class AppRoutes {
       Get.toNamed(atomCreate, arguments: {'mode': 'share', 'share_text': text});
   static void toAtomCreateFile({required String path}) =>
       Get.toNamed(atomCreate, arguments: {'mode': 'import', 'share_file': path});
-  static void toAtomDetail({required String atomId}) =>
-      Get.toNamed(atomDetail, arguments: {'atom_id': atomId});
+  /// Opens atom details. Pass [replace] to swap the current screen out of the
+  /// stack — after a recording finishes, so Back returns to where the
+  /// recording started instead of the (now finished) recording sheet.
+  static void toAtomDetail({required String atomId, bool replace = false}) {
+    final arguments = {'atom_id': atomId};
+    if (replace) {
+      Get.offNamed(atomDetail, arguments: arguments);
+      return;
+    }
+    Get.toNamed(atomDetail, arguments: arguments);
+  }
   static void toCalendar() => Get.toNamed(calendar);
   static void toSettings() => Get.toNamed(settings);
   static void toPayment() => Get.toNamed(payment);

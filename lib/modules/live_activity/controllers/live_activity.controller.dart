@@ -156,7 +156,9 @@ class LiveActivityController extends GetxController {
         if (audioPath != null) {
           await _uploadAudio(atomId, audioPath);
         }
-        AppRoutes.toAtomDetail(atomId: atomId);
+        // Replace the finished recording sheet so Back lands on the screen the
+        // recording was started from, not on a dead recording session.
+        AppRoutes.toAtomDetail(atomId: atomId, replace: true);
         return;
       }
       Get.back();
