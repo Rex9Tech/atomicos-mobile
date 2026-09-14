@@ -307,9 +307,9 @@ class HomePage extends GetView<AuthController> {
     final duration = _compactDuration(atom.durationSecs);
     final summary = _summaryMarkdown(atom);
 
-    return AppCard(
+    return AppGlassCard(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
-      borderRadius: Design.spacing.radiusLarge,
+      radius: Design.spacing.radiusLarge,
       padding: EdgeInsets.all(Design.spacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -33,6 +33,7 @@ class AtomCreateController extends GetxController {
   final urlController = TextEditingController();
   final shareTextController = TextEditingController();
   final noteController = TextEditingController();
+  final meetingLinkController = TextEditingController();
 
   @override
   void onInit() {
@@ -63,6 +64,7 @@ class AtomCreateController extends GetxController {
     urlController.dispose();
     shareTextController.dispose();
     noteController.dispose();
+    meetingLinkController.dispose();
     super.onClose();
   }
 

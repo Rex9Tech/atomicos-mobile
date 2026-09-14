@@ -8,7 +8,7 @@ import '../controllers/atom_create.controller.dart';
 class AtomCreatePage extends GetView<AtomCreateController> {
   const AtomCreatePage({super.key});
 
-  static const _modes = <String>['import', 'share', 'note'];
+  static const _modes = <String>['record', 'import'];
 
   @override
   Widget build(BuildContext context) {
@@ -80,13 +80,68 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         SizedBox(height: Design.spacing.xl),
         _buildModeHero(context),
         SizedBox(height: Design.spacing.xl),
-        _buildModePicker(context),
-        SizedBox(height: Design.spacing.xl),
+        if (!_isSubFlow) _buildModePicker(context),
+        if (!_isSubFlow) SizedBox(height: Design.spacing.xl),
+        if (_isSubFlow) _buildBackRow(context),
+        if (controller.selectedMode.value == 'record')
+          _buildRecordMode(context),
         if (controller.selectedMode.value == 'import')
           _buildImportMode(context),
+        if (controller.selectedMode.value == 'upload')
+          _SectionShell(
+            title: 'Upload a file',
+            child: _buildUploadStage(context),
+          ),
         if (controller.selectedMode.value == 'share') _buildShareMode(context),
         if (controller.selectedMode.value == 'note') _buildNoteMode(context),
         SizedBox(height: Design.spacing.xl),
+      ],
+    );
+  }
+
+  bool get _isSubFlow =>
+      ['upload', 'share', 'note'].contains(controller.selectedMode.value);
+
+  Widget _buildBackRow(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: Design.spacing.md),
+      child: GestureDetector(
+        onTap: () => controller.selectMode('import'),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Design.icons.backArrow,
+              size: Design.spacing.iconSmall,
+              color: context.colors.textSecondary,
+            ),
+            SizedBox(width: Design.spacing.xs),
+            Text(
+              'Import',
+              style: context.typo.labelMedium.copyWith(
+                color: context.colors.textSecondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrDivider(BuildContext context) {
+    final colors = context.colors;
+    return Row(
+      children: [
+        Expanded(child: Divider(color: colors.border, height: 1)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: Design.spacing.md),
+          child: Text(
+            'Or',
+            style: context.typo.caption.copyWith(color: colors.textMuted),
+          ),
+        ),
+        Expanded(child: Divider(color: colors.border, height: 1)),
       ],
     );
   }
@@ -219,54 +274,29 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildStagePicker(
-          context,
-          labels: const {
-            'youtube': 'YouTube',
-            'upload': 'Upload',
-            'meeting': 'Live meeting',
-          },
-          selected: controller.importStage.value,
-          onSelect: controller.selectImportStage,
+        _SectionShell(title: 'URL Link', child: _buildYoutubeStage(context)),
+        SizedBox(height: Design.spacing.lg),
+        _buildOrDivider(context),
+        SizedBox(height: Design.spacing.lg),
+        _ImportActionTile(
+          icon: Design.icons.folder,
+          title: 'Upload a file',
+          subtitle: 'Audio, Video or documents',
+          onTap: () => controller.selectMode('upload'),
         ),
-        SizedBox(height: Design.spacing.md),
-        _SectionShell(
-          title: 'Import source',
-          child: controller.importStage.value == 'upload'
-              ? _buildUploadStage(context)
-              : controller.importStage.value == 'meeting'
-              ? _buildMeetingStage(context)
-              : _buildYoutubeStage(context),
+        SizedBox(height: Design.spacing.sm),
+        _ImportActionTile(
+          icon: Design.icons.note,
+          title: 'Note',
+          subtitle: 'Manually Type or Paste Text',
+          onTap: () => controller.selectMode('note'),
         ),
-        SizedBox(height: Design.spacing.md),
-        _SectionShell(
-          title: 'Queued item',
-          child: Obx(() {
-            final stage = controller.importStage.value;
-            final String title;
-            final String status;
-            if (stage == 'upload') {
-              final name = controller.pickedUploadName.value;
-              title = name ?? 'No file selected';
-              status = name == null
-                  ? 'Tap the upload area to pick a file'
-                  : 'Ready to upload and create';
-            } else if (stage == 'meeting') {
-              title = 'Live meeting';
-              status = 'Join to start capturing audio';
-            } else {
-              final url = controller.urlText.value.trim();
-              title = url.isEmpty ? 'No link yet' : url;
-              status = url.isEmpty
-                  ? 'Paste a YouTube URL above'
-                  : 'Will import and summarize';
-            }
-            return _QueuedImportCard(
-              source: stage.toUpperCase(),
-              title: title,
-              status: status,
-            );
-          }),
+        SizedBox(height: Design.spacing.sm),
+        _ImportActionTile(
+          icon: Design.icons.shareIos,
+          title: 'Share from another app',
+          subtitle: 'Via in-app handoff or share sheet',
+          onTap: () => controller.selectMode('share'),
         ),
       ],
     );
@@ -418,17 +448,21 @@ class AtomCreatePage extends GetView<AtomCreateController> {
 
   String _labelForMode(String mode) {
     switch (mode) {
-      case 'share':
-        return 'Share';
-      case 'note':
-        return 'Note';
-      default:
+      case 'record':
+        return 'Record';
+      case 'import':
         return 'Import';
+      default:
+        return mode;
     }
   }
 
   String _primaryLabel() {
     switch (controller.selectedMode.value) {
+      case 'record':
+        return 'Add Now';
+      case 'upload':
+        return 'Upload and create';
       case 'share':
         return controller.shareStage.value == 'confirm'
             ? 'Create from shared text'
@@ -438,20 +472,13 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             ? 'Turn tasks into Atom'
             : 'Save note';
       default:
-        if (controller.importStage.value == 'meeting') {
-          return 'Join live meeting';
-        }
-        if (controller.importStage.value == 'upload') {
-          return 'Upload and create';
-        }
         return 'Import';
     }
   }
 
   void _handlePrimaryAction() {
-    if (controller.selectedMode.value == 'import' &&
-        controller.importStage.value == 'meeting') {
-      AppRoutes.toAi(mode: 'meeting');
+    if (controller.selectedMode.value == 'record') {
+      AppRoutes.toLiveActivity();
       return;
     }
 
@@ -471,13 +498,11 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       return;
     }
 
-    if (controller.selectedMode.value == 'import' &&
-        controller.importStage.value == 'upload') {
+    if (controller.selectedMode.value == 'upload') {
       controller.createFromUpload();
       return;
     }
 
-    // Final step: actually create the atom.
     if (controller.selectedMode.value == 'note') {
       controller.createFromNote();
       return;
@@ -541,63 +566,38 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   Widget _buildYoutubeStage(BuildContext context) {
     final colors = context.colors;
 
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: Design.spacing.md,
-            vertical: Design.spacing.md,
-          ),
-          decoration: BoxDecoration(
-            color: colors.card,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller.urlController,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    isCollapsed: true,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    hintText: 'Paste youtube URL',
-                  ),
-                ),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.md,
+        vertical: Design.spacing.md,
+      ),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+        border: Border.all(color: colors.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller.urlController,
+              decoration: const InputDecoration(
+                isDense: true,
+                isCollapsed: true,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                hintText: 'Paste youtube URL',
               ),
-              Icon(
-                Design.icons.link,
-                size: Design.spacing.iconMedium,
-                color: colors.textSecondary,
-              ),
-            ],
+            ),
           ),
-        ),
-        SizedBox(height: Design.spacing.md),
-        _ImportActionTile(
-          icon: Design.icons.folder,
-          title: 'Upload a file',
-          subtitle: 'Audio, video, PDFs, or documents',
-          onTap: () => controller.selectImportStage('upload'),
-        ),
-        SizedBox(height: Design.spacing.sm),
-        _ImportActionTile(
-          icon: Design.icons.shareIos,
-          title: 'Share from another app',
-          subtitle: 'In-app handoff or OS share sheet',
-          onTap: () => controller.selectMode('share'),
-        ),
-        SizedBox(height: Design.spacing.sm),
-        _ImportActionTile(
-          icon: Design.icons.clipboard,
-          title: 'Paste note',
-          subtitle: 'Transform raw text into an Atom',
-          onTap: () => controller.selectMode('note'),
-        ),
-      ],
+          Icon(
+            Design.icons.link,
+            size: Design.spacing.iconMedium,
+            color: colors.textSecondary,
+          ),
+        ],
+      ),
     );
   }
 
@@ -714,49 +714,59 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     );
   }
 
-  Widget _buildMeetingStage(BuildContext context) {
+  Widget _buildRecordMode(BuildContext context) {
     final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Add AtomicOS to live meeting',
+          style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: Design.spacing.sm),
+        Text(
+          'Drop a meeting link to let AtomicOS capture and summarize it.',
+          style: context.typo.bodyMedium.copyWith(
+            color: colors.textSecondary,
+            height: 1.45,
+          ),
+        ),
+        SizedBox(height: Design.spacing.md),
         Container(
-          padding: EdgeInsets.all(Design.spacing.lg),
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.md,
+            vertical: Design.spacing.md,
+          ),
           decoration: BoxDecoration(
             color: colors.card,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             border: Border.all(color: colors.border),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Start a live meeting',
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: Design.spacing.sm),
-              Text(
-                'Record audio, then finish to generate a summarized atom from the transcript.',
-                style: context.typo.bodyMedium.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: Design.spacing.md),
-        Row(
-          children: const [
-            Expanded(
-              child: _ChoiceCard(
-                title: 'Record meeting',
-                subtitle: 'Capture audio + transcript',
+          child: TextField(
+            controller: controller.meetingLinkController,
+            decoration: InputDecoration(
+              isDense: true,
+              isCollapsed: true,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              hintText: 'Enter the meeting link here',
+              hintStyle: context.typo.bodyMedium.copyWith(
+                color: colors.textMuted,
               ),
             ),
-          ],
+            style: context.typo.bodyMedium,
+          ),
+        ),
+        SizedBox(height: Design.spacing.lg),
+        _buildOrDivider(context),
+        SizedBox(height: Design.spacing.lg),
+        _ImportActionTile(
+          icon: Design.icons.mic,
+          title: 'Record Now',
+          subtitle: 'Start capturing audio with AtomicOS',
+          onTap: AppRoutes.toLiveActivity,
         ),
       ],
     );
@@ -980,9 +990,9 @@ class _SectionShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return AppGlassCard(
       padding: EdgeInsets.all(Design.spacing.lg),
-      borderRadius: Design.spacing.radiusXLarge,
+      radius: Design.spacing.radiusXLarge,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1026,28 +1036,6 @@ class _ImportActionTile extends StatelessWidget {
         color: context.colors.textMuted,
       ),
       onTap: onTap,
-    );
-  }
-}
-
-class _QueuedImportCard extends StatelessWidget {
-  const _QueuedImportCard({
-    required this.source,
-    required this.title,
-    required this.status,
-  });
-
-  final String source;
-  final String title;
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppToneCard(
-      title: title,
-      subtitle: status,
-      eyebrow: source,
-      tone: EAppToneCardTone.primary,
     );
   }
 }
