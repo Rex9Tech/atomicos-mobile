@@ -10,6 +10,7 @@ import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../../ai/services/recording.service.dart';
+import '../../home/services/home.service.dart';
 
 /// Drives the live recording sheet: the backend session record, the timer, the
 /// live transcript streamed from the microphone through [SpeechService], and
@@ -18,6 +19,7 @@ class LiveActivityController extends GetxController {
   final RecordingService _recording = Get.find<RecordingService>();
   final SpeechService _speech = Get.find<SpeechService>();
   final MediaService _media = Get.find<MediaService>();
+  final HomeService _home = Get.find<HomeService>();
 
   final RxString selectedSurface = 'Expanded'.obs;
   final RxBool isRecording = false.obs;
@@ -164,7 +166,7 @@ class LiveActivityController extends GetxController {
     }
   }
 
-  /// Uploads the captured audio and binds it to the finished atom, so the
+  /// Uploads the captured audio and attaches it to the finished atom, so the
   /// recording is playable from atom details.
   Future<void> _uploadAudio(String atomId, String path) async {
     try {
@@ -172,8 +174,6 @@ class LiveActivityController extends GetxController {
         filePath: path,
         filename: 'recording.wav',
         type: AssetKeys.typeAudio,
-        assetableType: AssetKeys.assetableAtom,
-        assetableId: atomId,
         folder: 'recordings',
         durationSecs: elapsedSeconds.value,
         showLoading: false,
@@ -185,6 +185,13 @@ class LiveActivityController extends GetxController {
           '🎙️ [LiveActivity] audio upload failed: ${upload.error ?? upload.message}',
         );
         AppSnackbar.error(upload.error ?? upload.message);
+        return;
+      }
+
+      final attach = await _home.attachAsset(atomId: atomId, assetId: assetId);
+      if (!attach.success) {
+        debugPrint('🎙️ [LiveActivity] audio attach failed: ${attach.error}');
+        AppSnackbar.error(attach.error ?? attach.message);
         return;
       }
 

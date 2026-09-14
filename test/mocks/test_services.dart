@@ -9,6 +9,8 @@ import 'package:rexone_mobile/modules/ai/ai.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/modules/feedback/data/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
+import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
+import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/modules/notification/notification.dart';
 import 'package:rexone_mobile/modules/payment/payment.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -578,6 +580,96 @@ class FakeAiService extends AiService {
     return clearHistoryResponse ??
         ApiResponse.success(message: 'History cleared', statusCode: 200);
   }
+}
+
+/// Fake Home Service avoiding network calls.
+class FakeHomeService extends GetxService implements HomeService {
+  @override
+  Future<PaginatedResponse<AtomModel>> getAtoms({
+    int? page,
+    int? limit,
+    String? search,
+    String? status,
+  }) async => const PaginatedResponse<AtomModel>(
+    records: [],
+    message: 'Atoms fetched',
+    statusCode: 200,
+    success: true,
+  );
+
+  @override
+  Future<ApiResponse<AtomModel>> getAtom(String id) async =>
+      ApiResponse.success(
+        message: 'Atom fetched',
+        statusCode: 200,
+        data: AtomModel.fromJson(const {}),
+      );
+
+  @override
+  Future<ApiResponse<AtomAssetModel>> attachAsset({
+    required String atomId,
+    required String assetId,
+  }) async =>
+      ApiResponse.success(
+        message: 'Asset attached',
+        statusCode: 201,
+        data: AtomAssetModel.fromJson(const {}),
+      );
+
+  @override
+  Future<ApiResponse<AtomModel>> renameAtom({
+    required String atomId,
+    required String title,
+  }) async =>
+      ApiResponse.success(
+        message: 'Atom renamed',
+        statusCode: 200,
+        data: AtomModel.fromJson(const {}),
+      );
+}
+
+/// Fake Recording Service avoiding network calls.
+class FakeRecordingService extends GetxService implements RecordingService {
+  @override
+  Future<ApiResponse<RecordingModel>> start(String title) async =>
+      ApiResponse.success(
+        message: 'Recording started',
+        statusCode: 201,
+        data: RecordingModel.fromJson(const {}),
+      );
+
+  @override
+  Future<ApiResponse<RecordingModel>> getRecording(String id) async =>
+      ApiResponse.success(
+        message: 'Recording fetched',
+        statusCode: 200,
+        data: RecordingModel.fromJson(const {}),
+      );
+
+  @override
+  Future<ApiResponse<RecordingModel>> updateRecording(
+    String id, {
+    String? status,
+    int? durationSecs,
+  }) async =>
+      ApiResponse.success(
+        message: 'Recording updated',
+        statusCode: 200,
+        data: RecordingModel.fromJson(const {}),
+      );
+
+  @override
+  Future<ApiResponse<RecordingModel>> finish(
+    String id, {
+    int? durationSecs,
+    String? transcript,
+    String? note,
+  }) async =>
+      ApiResponse.success(
+        message: 'Recording finished',
+        statusCode: 200,
+        data: RecordingModel.fromJson(const {}),
+      );
 }
 
 /// Fake Speech Service avoiding native audio recorder / player channels.
