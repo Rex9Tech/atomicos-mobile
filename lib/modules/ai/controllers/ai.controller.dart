@@ -57,6 +57,9 @@ class AiController extends GetxController {
   Timer? _processingWatchdog;
   int _processingPolls = 0;
 
+  /// How much of an attached atom is sent to the model.
+  static const int _contextCharLimit = 4000;
+
   bool _isSubmitting = false;
   String _textBeforeListen = '';
   Worker? _liveTextWorker;
@@ -96,17 +99,17 @@ class AiController extends GetxController {
     if (args is Map && args['mode'] != null) {
       entryMode.value = args['mode'].toString();
     }
-    // Opened from an atom: seed the composer so "Ask about this Atom" lands
-    // with a usable question the user can edit before sending.
-    if (args is Map && args['atom_title'] != null) {
-      final title = args['atom_title'].toString();
-      if (title.isNotEmpty && textController.text.trim().isEmpty) {
-        final seeded = 'What are the key points in "$title"?';
-        textController.text = seeded;
-        textController.selection = TextSelection.fromPosition(
-          TextPosition(offset: seeded.length),
-        );
+    // Opened from an atom: pin that atom as conversation context, so
+    // "Ask about this Atom" actually sends its content with the question.
+    if (args is Map && args['atom_id'] != null) {
+      final id = args['atom_id'].toString();
+      if (id.isNotEmpty) {
+        unawaited(_attachAtomContext(id));
       }
+    }
+    // Fallback for callers that only pass a title.
+    if (args is Map && args['atom_title'] != null) {
+      _seedQuestion(args['atom_title'].toString());
     }
     // Meeting workspace starts idle; the user taps the record control to start
     // a backend session (startRecording) + device mic.
@@ -291,7 +294,8 @@ class AiController extends GetxController {
     return parts.join('\n\n');
   }
 
-  /// Short, model-friendly digest of an atom used as conversation context.
+  /// Short, model-friendly digest of an atom used as conversation context:
+  /// note, summary blocks and transcript, trimmed to a sane length.
   String _contextSnippet(AtomModel atom) {
     final parts = <String>[];
     final note = atom.note?.trim() ?? '';
@@ -299,12 +303,37 @@ class AiController extends GetxController {
     for (final block in atom.summaryBlocks) {
       _collectStrings(block, parts);
     }
+    for (final segment in atom.transcriptSegments) {
+      _collectStrings(segment, parts);
+    }
     final text = parts
         .map((part) => part.trim())
         .where((part) => part.isNotEmpty)
         .join(' ');
-    if (text.length <= 600) return text;
-    return '${text.substring(0, 600)}…';
+    if (text.length <= _contextCharLimit) return text;
+    return '${text.substring(0, _contextCharLimit)}…';
+  }
+
+  /// Loads the atom handed over by the details screen and pins it as context.
+  /// The composer shows it as a chip and [_composeMessage] sends its content.
+  Future<void> _attachAtomContext(String atomId) async {
+    try {
+      final result = await _home.getAtom(atomId);
+      if (!result.success || result.data == null) return;
+      contextAtom.value = result.data;
+      _seedQuestion(result.data!.title);
+    } catch (error) {
+      debugPrint('🤖 [AiController] attachAtomContext error: $error');
+    }
+  }
+
+  void _seedQuestion(String title) {
+    if (title.isEmpty || textController.text.trim().isNotEmpty) return;
+    final seeded = 'What are the key points in "$title"?';
+    textController.text = seeded;
+    textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: seeded.length),
+    );
   }
 
   // ===== Processing watchdog: never leave the composer stuck =====
