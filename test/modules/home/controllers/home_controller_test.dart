@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
-import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
 import '../../../mocks/test_services.dart';
 
