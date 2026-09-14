@@ -263,6 +263,10 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
           sampleRate: AppConstants.speechSampleRate,
           numChannels: AppConstants.speechNumChannels,
           streamBufferSize: AppConstants.speechChunkBytes,
+          // The default (pause) stops the mic whenever another app takes audio
+          // focus — joining the meeting in Zoom, media playback, a call. A
+          // recorder must keep capturing through that.
+          audioInterruption: AudioInterruptionMode.none,
         ),
       );
       if (epoch != _listenEpoch) {
