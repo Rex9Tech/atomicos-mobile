@@ -768,11 +768,20 @@ class HomePage extends GetView<AuthController> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    'https://meet.google.com/abc-defg-hij',
-                                    style: context.typo.bodySmall.copyWith(
-                                      color: colors.textSecondary,
+                                  child: TextField(
+                                    controller: Get.find<HomeController>()
+                                        .meetingLinkController,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      isCollapsed: true,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      hintText: 'Enter the meeting link here',
+                                      hintStyle: context.typo.bodySmall
+                                          .copyWith(color: colors.textMuted),
                                     ),
+                                    style: context.typo.bodySmall,
                                   ),
                                 ),
                                 Icon(
@@ -805,6 +814,13 @@ class HomePage extends GetView<AuthController> {
                             },
                           ),
                         ] else ...[
+                          Text(
+                            'URL Link',
+                            style: context.typo.labelMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: Design.spacing.sm),
                           GestureDetector(
                             onTap: () {
                               Get.back();
@@ -827,38 +843,19 @@ class HomePage extends GetView<AuthController> {
                                   Expanded(
                                     child: Text(
                                       'Paste youtube URL',
-                                      style: context.typo.bodyMedium.copyWith(
+                                      style: context.typo.bodySmall.copyWith(
                                         color: colors.textMuted,
                                       ),
                                     ),
                                   ),
                                   Icon(
                                     Design.icons.link,
+                                    size: Design.spacing.iconSmall,
                                     color: colors.textSecondary,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          SizedBox(height: Design.spacing.lg),
-                          _NewAtomAction(
-                            icon: Design.icons.folder,
-                            title: 'Upload a file',
-                            subtitle: 'Audio, Video or documents',
-                            onTap: () {
-                              Get.back();
-                              AppRoutes.toAtomCreate(mode: 'import');
-                            },
-                          ),
-                          SizedBox(height: Design.spacing.md),
-                          _NewAtomAction(
-                            icon: Design.icons.shareIos,
-                            title: 'Share from another app',
-                            subtitle: 'Via iOS share sheet',
-                            onTap: () {
-                              Get.back();
-                              AppRoutes.toAtomCreate(mode: 'share');
-                            },
                           ),
                           SizedBox(height: Design.spacing.lg),
                           Row(
@@ -880,22 +877,12 @@ class HomePage extends GetView<AuthController> {
                           ),
                           SizedBox(height: Design.spacing.lg),
                           _NewAtomAction(
-                            icon: Design.icons.mic,
-                            title: 'Record Now',
-                            iconColor: colors.primary,
+                            icon: Design.icons.folder,
+                            title: 'Upload a file',
+                            subtitle: 'Audio, Video or documents',
                             onTap: () {
                               Get.back();
-                              AppRoutes.toAi(mode: 'meeting');
-                            },
-                          ),
-                          SizedBox(height: Design.spacing.md),
-                          _NewAtomAction(
-                            icon: Design.icons.atomAdd,
-                            title: 'Add AtomicOS to live meeting',
-                            onTap: () {
-                              setSheetState(() {
-                                selectedTab = 'record';
-                              });
+                              AppRoutes.toAtomCreate(mode: 'import');
                             },
                           ),
                           SizedBox(height: Design.spacing.md),
@@ -906,6 +893,16 @@ class HomePage extends GetView<AuthController> {
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'note');
+                            },
+                          ),
+                          SizedBox(height: Design.spacing.md),
+                          _NewAtomAction(
+                            icon: Design.icons.shareIos,
+                            title: 'Share from another app',
+                            subtitle: 'Via iOS share sheet',
+                            onTap: () {
+                              Get.back();
+                              AppRoutes.toAtomCreate(mode: 'share');
                             },
                           ),
                         ],
