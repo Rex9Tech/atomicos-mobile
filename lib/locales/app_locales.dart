@@ -17,6 +17,15 @@ class AppLocales {
   static const atom = _AtomLocales();
   static const calendar = _CalendarLocales();
   static const permission = _PermissionLocales();
+  static const search = _SearchLocales();
+}
+
+class _SearchLocales {
+  const _SearchLocales();
+
+  final placeholder = 'search.placeholder';
+  final emptyTitle = 'search.empty_title';
+  final emptyMessage = 'search.empty_message';
 }
 
 class _AuthLocales {

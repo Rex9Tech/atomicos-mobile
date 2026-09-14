@@ -12,7 +12,7 @@ class AppTranslations extends Translations {
     'en_US': {
       // Common
       AppLocales.common.home: 'Home',
-      AppLocales.common.welcomeHome: 'Welcome to Rexone!',
+      AppLocales.common.welcomeHome: 'Welcome to AtomicOS!',
       AppLocales.common.loading: 'Loading...',
       AppLocales.common.signOut: 'Sign Out',
       AppLocales.common.goBack: 'Go Back',
@@ -45,7 +45,7 @@ class AppTranslations extends Translations {
           'Your session was replaced by a newer sign in on this platform.',
 
       // Auth Initial
-      AppLocales.auth.initial.title: '✨ Welcome to Rexone ✨',
+      AppLocales.auth.initial.title: 'Welcome to AtomicOS',
       AppLocales.auth.initial.subtitle:
           'Support dreams or make yours come true',
       AppLocales.auth.initial.continueWithGoogle: 'Continue with Google',
@@ -201,7 +201,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'Share Your Feedback',
       AppLocales.feedback.description:
-          'We value your thoughts and ideas to help improve Rexone.',
+          'We value your thoughts and ideas to help improve AtomicOS.',
       AppLocales.feedback.rateExperience: 'Rate your experience (1 - 10)',
       AppLocales.feedback.tellUsMore: "What's on your mind?",
       AppLocales.feedback.placeholder:
@@ -312,11 +312,17 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'Allow notifications so a recording keeps running in the background and you can pause or stop it from the notification.',
       AppLocales.permission.notificationEnable: 'Enable',
+
+      // Search
+      AppLocales.search.placeholder: 'Search atoms or meetings',
+      AppLocales.search.emptyTitle: 'No result found!',
+      AppLocales.search.emptyMessage:
+          "The atom you're looking for doesn't exist. Try searching for another atom.",
     },
     'my_MM': {
       // Common
       AppLocales.common.home: 'ပင်မ',
-      AppLocales.common.welcomeHome: 'Rexone မှ ကြိုဆိုပါတယ်!',
+      AppLocales.common.welcomeHome: 'AtomicOS မှ ကြိုဆိုပါတယ်!',
       AppLocales.common.loading: 'လုပ်ဆောင်နေဆဲ...',
       AppLocales.common.signOut: 'ထွက်မည်',
       AppLocales.common.goBack: 'နောက်သို့',
@@ -348,7 +354,7 @@ class AppTranslations extends Translations {
           'ဤစက်ပေါ်တွင် အသစ်ဝင်ရောက်မှုကြောင့် session အစားထိုးခံရပါသည်။',
 
       // Auth Initial
-      AppLocales.auth.initial.title: '✨ Rexone မှ ကြိုဆိုပါသည် ✨',
+      AppLocales.auth.initial.title: 'AtomicOS မှ ကြိုဆိုပါသည်',
       AppLocales.auth.initial.subtitle:
           'အိပ်မက်များကို အကောင်အထည်ဖော်လိုက်ပါ',
       AppLocales.auth.initial.continueWithGoogle: 'Google ဖြင့် ဆက်ရန်',
@@ -494,7 +500,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'အကြံပြုချက်',
       AppLocales.feedback.description:
-          'Rexone ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
+          'AtomicOS ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
       AppLocales.feedback.rateExperience: 'အဆင့်သတ်မှတ်ပါ (၁ - ၁၀)',
       AppLocales.feedback.tellUsMore: 'သင့်အကြံပြုချက် ရေးပါ',
       AppLocales.feedback.placeholder:
@@ -591,6 +597,12 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'အသံဖမ်းနေစဉ် နောက်ခံတွင် ဆက်လက်လည်ပတ်နိုင်ရန်နှင့် အသိပေးချက်မှ ခေတ္တရပ်/ရပ်နိုင်ရန် အသိပေးချက်များကို ခွင့်ပြုပေးပါ။',
       AppLocales.permission.notificationEnable: 'ဖွင့်မည်',
+
+      // Search
+      AppLocales.search.placeholder: 'အက်တမ်များ သို့မဟုတ် အစည်းအဝေးများ ရှာပါ',
+      AppLocales.search.emptyTitle: 'ရှာဖွေမှု မတွေ့ပါ!',
+      AppLocales.search.emptyMessage:
+          'သင်ရှာနေသော အက်တမ် မရှိပါ။ အခြားအက်တမ်တစ်ခုကို ရှာကြည့်ပါ။',
     },
   };
 }
