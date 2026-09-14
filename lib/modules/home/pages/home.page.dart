@@ -555,82 +555,20 @@ class HomePage extends GetView<AuthController> {
                             },
                           ),
                         ] else ...[
-                          Text(
-                            'URL Link',
-                            style: context.typo.labelMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: Design.spacing.sm),
-                          GestureDetector(
-                            onTap: () {
-                              Get.back();
-                              AppRoutes.toAtomCreate(mode: 'import');
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: Design.spacing.md,
-                                vertical: Design.spacing.md,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.card,
-                                borderRadius: BorderRadius.circular(
-                                  Design.spacing.radiusLarge,
-                                ),
-                                border: Border.all(color: colors.border),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Paste youtube URL',
-                                      style: context.typo.bodySmall.copyWith(
-                                        color: colors.textMuted,
-                                      ),
-                                    ),
-                                  ),
-                                  Icon(
-                                    Design.icons.link,
-                                    size: Design.spacing.iconSmall,
-                                    color: colors.textSecondary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: Design.spacing.lg),
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: colors.border)),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: Design.spacing.md,
-                                ),
-                                child: Text(
-                                  'Or',
-                                  style: context.typo.bodySmall.copyWith(
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: colors.border)),
-                            ],
-                          ),
-                          SizedBox(height: Design.spacing.lg),
                           _NewAtomAction(
                             icon: Design.icons.folder,
                             title: 'Upload a file',
-                            subtitle: 'Audio, Video or documents',
+                            subtitle: 'Audio, video, or documents',
                             onTap: () {
                               Get.back();
-                              AppRoutes.toAtomCreate(mode: 'import');
+                              AppRoutes.toAtomCreate(mode: 'upload');
                             },
                           ),
                           SizedBox(height: Design.spacing.md),
                           _NewAtomAction(
                             icon: Design.icons.clipboard,
                             title: 'Note',
-                            subtitle: 'Manually Type or Paste Text',
+                            subtitle: 'Type or paste your text',
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'note');
@@ -640,7 +578,7 @@ class HomePage extends GetView<AuthController> {
                           _NewAtomAction(
                             icon: Design.icons.shareIos,
                             title: 'Share from another app',
-                            subtitle: 'Via iOS share sheet',
+                            subtitle: 'From the system share sheet',
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'share');
