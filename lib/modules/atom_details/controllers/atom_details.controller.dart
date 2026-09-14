@@ -8,12 +8,15 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/services/services.dart';
 
+import '../../calendar/data/models/calendar_event.model.dart';
+import '../../calendar/services/calendar.service.dart';
 import '../../home/data/models/models.dart';
 import '../../home/services/home.service.dart';
 
 class AtomDetailsController extends GetxController {
   final HomeService _home = Get.find<HomeService>();
   final MediaService _media = Get.find<MediaService>();
+  final CalendarService _calendar = Get.find<CalendarService>();
   final AudioPlayer _player = AudioPlayer();
 
   final RxnString atomId = RxnString();
@@ -30,6 +33,11 @@ class AtomDetailsController extends GetxController {
 
   // ===== Supporting files =====
   final RxBool isUploadingAsset = false.obs;
+
+  // ===== Meeting date (mirrored into the planner as a calendar event) =====
+  final Rxn<DateTime> meetingAt = Rxn<DateTime>();
+  final Rxn<CalendarEventModel> linkedEvent = Rxn<CalendarEventModel>();
+  final RxBool isSavingDate = false.obs;
 
   /// Supporting files — the raw source recording is excluded (it lives in the
   /// player card instead of the file list).
@@ -85,6 +93,7 @@ class AtomDetailsController extends GetxController {
       if (result.success && result.data != null) {
         atom.value = result.data;
         _syncAudioSource();
+        unawaited(loadLinkedEvent());
       } else {
         hasError.value = true;
       }
@@ -115,6 +124,89 @@ class AtomDetailsController extends GetxController {
     } catch (error) {
       debugPrint('📝 [AtomDetailsController] rename error: $error');
       AppSnackbar.error('Could not rename this atom.');
+    }
+    return false;
+  }
+
+  /// Finds the planner event that mirrors this atom (`metadata.atom_id`) and
+  /// resolves the meeting date shown on the details header.
+  Future<void> loadLinkedEvent() async {
+    final id = atomId.value;
+    if (id == null || id.isEmpty) return;
+    try {
+      final result = await _calendar.getEvents(limit: 100);
+      if (!result.success) return;
+      CalendarEventModel? match;
+      for (final event in result.records) {
+        if (event.atomId == id) {
+          match = event;
+          break;
+        }
+      }
+      linkedEvent.value = match;
+      final start = match?.startAt;
+      final parsed = (start == null || start.isEmpty)
+          ? null
+          : DateTime.tryParse(start)?.toLocal();
+      meetingAt.value = parsed ?? _fallbackMeetingDate();
+    } catch (error) {
+      debugPrint('📅 [AtomDetailsController] loadLinkedEvent error: $error');
+    }
+  }
+
+  DateTime? _fallbackMeetingDate() {
+    final iso = atom.value?.createdAt;
+    if (iso == null || iso.isEmpty) return null;
+    return DateTime.tryParse(iso)?.toLocal();
+  }
+
+  /// Creates (or moves) the planner event for this atom, so the meeting date
+  /// picked here shows up in the Calendar.
+  Future<bool> saveMeetingDate(DateTime value) async {
+    final id = atomId.value;
+    if (id == null || id.isEmpty) return false;
+
+    final title = (atom.value?.title ?? '').trim();
+    final start = value.toUtc().toIso8601String();
+    final end = value.add(const Duration(hours: 1)).toUtc().toIso8601String();
+
+    isSavingDate.value = true;
+    try {
+      final existing = linkedEvent.value;
+      if (existing == null) {
+        final created = await _calendar.createEvent(
+          title: title.isEmpty ? 'AtomicOS meeting' : title,
+          startAt: start,
+          endAt: end,
+          metadata: {CalendarKeys.atomId: id, 'source': 'atom'},
+        );
+        if (!created.success) {
+          AppSnackbar.error(
+            created.error ?? 'Could not add this to the planner.',
+          );
+          return false;
+        }
+        linkedEvent.value = created.data;
+      } else {
+        final updated = await _calendar.updateEvent(
+          id: existing.id,
+          startAt: start,
+          endAt: end,
+        );
+        if (!updated.success) {
+          AppSnackbar.error(updated.error ?? 'Could not move this meeting.');
+          return false;
+        }
+        linkedEvent.value = updated.data;
+      }
+      meetingAt.value = value;
+      AppSnackbar.success('Meeting date updated');
+      return true;
+    } catch (error) {
+      debugPrint('📅 [AtomDetailsController] saveMeetingDate error: $error');
+      AppSnackbar.error('Could not update the meeting date.');
+    } finally {
+      isSavingDate.value = false;
     }
     return false;
   }

@@ -42,6 +42,7 @@ class CalendarService extends GetxService {
     String? startAt,
     String? endAt,
     String? description,
+    Map<String, dynamic>? metadata,
   }) async {
     final response = await _api.post(
       ServerRoutes.calendarEvents,
@@ -51,6 +52,32 @@ class CalendarService extends GetxService {
           CalendarKeys.startAt: ?startAt,
           CalendarKeys.endAt: ?endAt,
           CalendarKeys.description: ?description,
+          CalendarKeys.metadata: ?metadata,
+        },
+      },
+      showLoading: false,
+    );
+    return _parse(response);
+  }
+
+  /// PUT /v1/calendar/events/:id — move an event to a new date/time.
+  Future<ApiResponse<CalendarEventModel>> updateEvent({
+    required String id,
+    String? title,
+    String? startAt,
+    String? endAt,
+    String? description,
+    Map<String, dynamic>? metadata,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.calendarEventDetail(id),
+      {
+        CalendarKeys.calendarEvent: {
+          CalendarKeys.title: ?title,
+          CalendarKeys.startAt: ?startAt,
+          CalendarKeys.endAt: ?endAt,
+          CalendarKeys.description: ?description,
+          CalendarKeys.metadata: ?metadata,
         },
       },
       showLoading: false,

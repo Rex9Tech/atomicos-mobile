@@ -194,7 +194,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildMeta(BuildContext context, AtomModel atom) {
     final colors = context.colors;
-    final date = _shortDate(atom.createdAt);
     final duration = _compactDuration(atom.durationSecs);
     final speakers = atom.participantsCount ?? 0;
 
@@ -234,24 +233,66 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
             height: 1.2,
           ),
         ),
-        if (date.isNotEmpty || duration.isNotEmpty) ...[
-          SizedBox(height: Design.spacing.sm),
-          Row(
+        SizedBox(height: Design.spacing.sm),
+        Obx(() {
+          final meetingAt = controller.meetingAt.value;
+          final linked = controller.linkedEvent.value != null;
+          return Row(
             children: [
-              if (date.isNotEmpty) ...[
-                Icon(Design.icons.calendar, size: 13, color: colors.textMuted),
-                const SizedBox(width: 4),
-                Text(
-                  date,
-                  style: context.typo.caption.copyWith(color: colors.textMuted),
+              GestureDetector(
+                onTap: controller.isSavingDate.value
+                    ? null
+                    : () => _pickMeetingDate(context),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Design.spacing.sm,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.glass,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: colors.glassBorder),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (controller.isSavingDate.value)
+                        SizedBox(
+                          height: 12,
+                          width: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.primary,
+                          ),
+                        )
+                      else
+                        Icon(
+                          Design.icons.calendar,
+                          size: 13,
+                          color: colors.primary,
+                        ),
+                      const SizedBox(width: 5),
+                      Text(
+                        meetingAt == null
+                            ? 'Set meeting date'
+                            : _dateTimeLabel(meetingAt),
+                        style: context.typo.caption.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Design.icons.edit,
+                        size: 12,
+                        color: colors.textMuted,
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-              if (date.isNotEmpty && duration.isNotEmpty)
-                Text(
-                  ' · ',
-                  style: context.typo.caption.copyWith(color: colors.textMuted),
-                ),
+              ),
               if (duration.isNotEmpty) ...[
+                SizedBox(width: Design.spacing.sm),
                 Icon(Design.icons.clock, size: 13, color: colors.textMuted),
                 const SizedBox(width: 4),
                 Text(
@@ -259,9 +300,21 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                   style: context.typo.caption.copyWith(color: colors.textMuted),
                 ),
               ],
+              if (linked) ...[
+                SizedBox(width: Design.spacing.sm),
+                Icon(Design.icons.check, size: 13, color: colors.primary),
+                const SizedBox(width: 3),
+                Text(
+                  'In planner',
+                  style: context.typo.caption.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ],
-          ),
-        ],
+          );
+        }),
       ],
     );
   }
@@ -867,15 +920,40 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     return '$minutes:$seconds';
   }
 
-  String _shortDate(String? iso) {
-    if (iso == null || iso.isEmpty) return '';
-    final dt = DateTime.tryParse(iso)?.toLocal();
-    if (dt == null) return '';
+  Future<void> _pickMeetingDate(BuildContext context) async {
+    final current = controller.meetingAt.value ?? DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(DateTime.now().year + 3, 12, 31),
+    );
+    if (date == null || !context.mounted) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (!context.mounted) return;
+
+    final picked = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time?.hour ?? current.hour,
+      time?.minute ?? current.minute,
+    );
+    await controller.saveMeetingDate(picked);
+  }
+
+  String _dateTimeLabel(DateTime value) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
-    return '${months[dt.month - 1]} ${dt.day}';
+    final hh = value.hour.toString().padLeft(2, '0');
+    final mm = value.minute.toString().padLeft(2, '0');
+    return '${months[value.month - 1]} ${value.day} · $hh:$mm';
   }
 
   String _compactDuration(int? secs) {
