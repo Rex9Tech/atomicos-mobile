@@ -21,6 +21,7 @@ class LiveActivityController extends GetxController {
   final MediaService _media = Get.find<MediaService>();
   final HomeService _home = Get.find<HomeService>();
   final RecordingSessionService _background = Get.find<RecordingSessionService>();
+  final SocketService _socket = Get.find<SocketService>();
 
   final RxString selectedSurface = 'Expanded'.obs;
   final RxBool isRecording = false.obs;
@@ -71,6 +72,7 @@ class LiveActivityController extends GetxController {
     _transcriptWorker?.dispose();
     _background.onAction = null;
     _speech.allowBackgroundListening = false;
+    _socket.allowBackgroundReconnect = false;
     unawaited(_background.stop());
     unawaited(_speech.stopListening());
     noteController.dispose();
@@ -95,8 +97,10 @@ class LiveActivityController extends GetxController {
     _capturePath = await _newCapturePath();
 
     // Keep the mic + live transcript alive when the user switches apps (e.g.
-    // joining the meeting in Zoom).
+    // joining the meeting in Zoom). The socket must also keep reconnecting: a
+    // dropped connection would otherwise stop the transcript.
     _speech.allowBackgroundListening = true;
+    _socket.allowBackgroundReconnect = true;
     await _background.start(title: 'Live meeting');
 
     await _startLiveTranscript();
@@ -170,6 +174,7 @@ class LiveActivityController extends GetxController {
     // The session is over — drop the foreground service (and its notification)
     // now that the mic no longer needs background access.
     _speech.allowBackgroundListening = false;
+    _socket.allowBackgroundReconnect = false;
     await _background.stop();
     // Closes the WAV so it can be uploaded.
     final audioPath = await _speech.finishCapture();

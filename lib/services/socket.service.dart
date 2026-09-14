@@ -48,6 +48,10 @@ class SocketService extends GetxService with WidgetsBindingObserver {
   Timer? _reconnectTimer;
   bool _isInBackground = false;
 
+  /// While true, a dropped socket is reconnected even in the background and
+  /// the retries never give up — a live recording streams over this socket.
+  bool allowBackgroundReconnect = false;
+
   final StreamController<SocketMessage> _streamController =
       StreamController<SocketMessage>.broadcast();
 
@@ -85,6 +89,14 @@ class SocketService extends GetxService with WidgetsBindingObserver {
         // after this point (OS kills TCP asynchronously) won't schedule a
         // reconnect that times out while the browser is in the foreground.
         _isInBackground = true;
+        if (allowBackgroundReconnect) {
+          // A recording is streaming: keep the connection (and its retries)
+          // alive, otherwise the live transcript dies with the socket.
+          if (!isConnected.value && !_isConnecting) {
+            _scheduleReconnect();
+          }
+          break;
+        }
         _reconnectTimer?.cancel();
         _reconnectTimer = null;
         debugPrint('🔌 [SocketService] App backgrounded — reconnects paused');
@@ -372,7 +384,7 @@ class SocketService extends GetxService with WidgetsBindingObserver {
   }
 
   void _scheduleReconnect() {
-    if (_isInBackground) {
+    if (_isInBackground && !allowBackgroundReconnect) {
       // WebSocket closed while app is backgrounded (e.g. Stripe checkout open).
       // Don't try to reconnect — didChangeAppLifecycleState(resumed) will do it.
       debugPrint(
@@ -380,16 +392,24 @@ class SocketService extends GetxService with WidgetsBindingObserver {
       );
       return;
     }
-    if (_reconnectAttempts < _maxReconnectAttempts && _token != null) {
+
+    // A recording retries indefinitely (capped delay); otherwise give up after
+    // a few attempts so a dead network doesn't spin forever.
+    final keepTrying = allowBackgroundReconnect;
+    if ((keepTrying || _reconnectAttempts < _maxReconnectAttempts) &&
+        _token != null) {
       _reconnectAttempts++;
-      final delay = Duration(seconds: 2 * _reconnectAttempts);
+      var delay = Duration(seconds: 2 * _reconnectAttempts);
+      if (delay > const Duration(seconds: 10)) {
+        delay = const Duration(seconds: 10);
+      }
       debugPrint(
         '🔄 [SocketService] Reconnecting in ${delay.inSeconds}s (attempt $_reconnectAttempts/$_maxReconnectAttempts)...',
       );
 
       _reconnectTimer?.cancel();
       _reconnectTimer = Timer(delay, () {
-        if (_token != null && !_isInBackground) {
+        if (_token != null && (!_isInBackground || allowBackgroundReconnect)) {
           connect(_token);
         }
       });

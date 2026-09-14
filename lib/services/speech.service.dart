@@ -299,9 +299,27 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       await _connSub?.cancel();
       if (canStream) {
         _connSub = _socket.isConnected.listen((connected) {
-          if (!connected && (isListening.value || _speechSubscribed)) {
-            unawaited(stopListening());
+          if (connected) {
+            // Socket is back — re-attach the live STT session without touching
+            // the mic, so the transcript resumes where it left off.
+            unawaited(_reattachSpeechChannel());
+            return;
           }
+
+          if (!(isListening.value || _speechSubscribed)) return;
+
+          if (allowBackgroundListening) {
+            // Recording: keep the mic (and the audio capture) running and let
+            // the channel re-attach on reconnect instead of tearing the whole
+            // session down.
+            _speechSubscribed = false;
+            debugPrint(
+              '🎤 [SpeechService] socket dropped — mic kept, STT will re-attach',
+            );
+            return;
+          }
+
+          unawaited(stopListening());
         });
       }
 
@@ -487,8 +505,37 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     return header.toBytes();
   }
 
+  /// Re-attaches the live STT channel after a reconnect, leaving the mic (and
+  /// the WAV capture) untouched. The backend opens a fresh recognition session
+  /// for the new subscription; the text accumulated so far is kept client-side.
+  Future<void> _reattachSpeechChannel() async {
+    if (!isListening.value || _speechSubscribed) return;
+    if (!_socket.isConnected.value) return;
+
+    final epoch = _listenEpoch;
+    final subscribed = await _socket.subscribe(SpeechKeys.channel);
+    if (epoch != _listenEpoch) {
+      if (subscribed) {
+        _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
+        _socket.unsubscribe(SpeechKeys.channel);
+      }
+      return;
+    }
+
+    if (subscribed) {
+      _speechSubscribed = true;
+      debugPrint('🎤 [SpeechService] live STT re-attached after reconnect');
+    }
+  }
+
   void _flushPcm() {
-    if (_pcmBuffer.isEmpty || !_speechSubscribed) return;
+    if (_pcmBuffer.isEmpty) return;
+    if (!_speechSubscribed) {
+      // Detached (socket dropped / reconnecting): drop this audio instead of
+      // buffering it up — the WAV capture still has it.
+      _pcmBuffer.clear();
+      return;
+    }
     final bytes = _pcmBuffer.takeBytes();
     if (bytes.isEmpty) return;
     _socket.perform(SpeechKeys.channel, SpeechKeys.audio, {
