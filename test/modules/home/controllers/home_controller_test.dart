@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
+import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
 import '../../../mocks/test_services.dart';
 
@@ -10,6 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late FakeVersionService fakeVersion;
+  late FakeHomeService fakeHome;
   late HomeController controller;
 
   setUpAll(() {
@@ -25,7 +27,9 @@ void main() {
   setUp(() {
     Get.testMode = true;
     fakeVersion = FakeVersionService();
+    fakeHome = FakeHomeService();
     Get.put<VersionService>(fakeVersion);
+    Get.put<HomeService>(fakeHome);
     controller = Get.put(HomeController());
   });
 
