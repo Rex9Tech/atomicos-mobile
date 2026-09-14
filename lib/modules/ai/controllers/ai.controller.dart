@@ -1,6 +1,7 @@
 // lib/modules/ai/controllers/ai.controller.dart
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
@@ -10,6 +11,7 @@ import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../ai.dart';
+import '../../home/home.dart';
 
 class AiController extends GetxController {
   final AiService _ai = Get.find<AiService>();
@@ -34,7 +36,6 @@ class AiController extends GetxController {
   final RxInt currentRecordingSeconds = 0.obs;
   DateTime? _recordingStartedAt;
   Timer? _recordingTicker;
-  final RxnString askAttachmentPreview = RxnString();
   final RxnString askSelectedSource = RxnString();
   final RxnString askSubmittedPrompt = RxnString();
   final RxString askDraft = ''.obs;
@@ -42,6 +43,19 @@ class AiController extends GetxController {
   final RxList<String> askActionLines = <String>[].obs;
   final Rxn<Map<String, dynamic>> askActionData = Rxn<Map<String, dynamic>>();
   final RxBool isRunningAskAction = false.obs;
+
+  // ===== Context + attachments (real data, no placeholders) =====
+  final HomeService _home = Get.find<HomeService>();
+  final RxList<AtomModel> contextAtoms = <AtomModel>[].obs;
+  final RxBool isLoadingContext = false.obs;
+  final RxnString contextFilter = RxnString('All');
+  final Rxn<AtomModel> contextAtom = Rxn<AtomModel>();
+  final RxnString attachmentName = RxnString();
+  final RxnString attachmentPath = RxnString();
+  final searchContextController = TextEditingController();
+
+  Timer? _processingWatchdog;
+  int _processingPolls = 0;
 
   bool _isSubmitting = false;
   String _textBeforeListen = '';
@@ -118,10 +132,12 @@ class AiController extends GetxController {
     _liveTextWorker?.dispose();
     _playbackWorker?.dispose();
     _stopRecordingTicker();
+    _stopProcessingWatchdog();
     unawaited(_speech.stopListening());
     unawaited(_speech.stopPlayback());
     textController.dispose();
     scrollController.dispose();
+    searchContextController.dispose();
     super.onClose();
   }
 
@@ -195,10 +211,21 @@ class AiController extends GetxController {
         }
 
         isProcessing.value = result.records.any((m) => m.isProcessing);
+        if (!isProcessing.value) _stopProcessingWatchdog();
       }
     } catch (e) {
       debugPrint('🤖 [AiController] Error loading history: $e');
     }
+  }
+
+  String _lastAssistantContent() {
+    for (var i = messages.length - 1; i >= 0; i--) {
+      final message = messages[i];
+      if (!message.isUser && message.content.trim().isNotEmpty) {
+        return message.content.trim();
+      }
+    }
+    return '';
   }
 
   Future<void> sendMessage(String text) async {
@@ -218,28 +245,100 @@ class AiController extends GetxController {
     messages.removeWhere((m) => m.id == 'welcome');
     messages.add(optimisticMessage);
     isProcessing.value = true;
+    _startProcessingWatchdog();
 
     try {
       final response = await _ai.chat(
-        AiChatRequest(message: clean, roomId: currentRoomId.value),
+        AiChatRequest(message: _composeMessage(clean), roomId: currentRoomId.value),
       );
       if (response.success && response.data != null) {
         final rId = response.data![AiKeys.roomId]?.toString();
         if (rId != null && rId.isNotEmpty) {
           currentRoomId.value = rId;
         }
+        // Sent — the attachment has been delivered, keep the context for follow-ups.
+        clearAskAttachment();
       } else {
         AppSnackbar.error(
           response.error ?? AppLocales.ai.aiSendMessageFailed.tr,
         );
         isProcessing.value = false;
+        _stopProcessingWatchdog();
       }
     } catch (e) {
       AppSnackbar.error(AppLocales.ai.aiResponseFailed.tr);
       isProcessing.value = false;
+      _stopProcessingWatchdog();
     } finally {
       _isSubmitting = false;
     }
+  }
+
+  /// Builds the outbound message with any attached context, so the model
+  /// actually receives the atom/file the user pinned in the composer.
+  String _composeMessage(String text) {
+    final parts = <String>[];
+    final atom = contextAtom.value;
+    if (atom != null) {
+      final snippet = _contextSnippet(atom);
+      parts.add('Context — "${atom.title}" (${atom.source}):\n$snippet');
+    }
+    final attachment = attachmentName.value;
+    if (attachment != null && attachment.isNotEmpty) {
+      parts.add('Attached file: $attachment');
+    }
+    parts.add(text);
+    return parts.join('\n\n');
+  }
+
+  /// Short, model-friendly digest of an atom used as conversation context.
+  String _contextSnippet(AtomModel atom) {
+    final parts = <String>[];
+    final note = atom.note?.trim() ?? '';
+    if (note.isNotEmpty) parts.add(note);
+    for (final block in atom.summaryBlocks) {
+      _collectStrings(block, parts);
+    }
+    final text = parts
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .join(' ');
+    if (text.length <= 600) return text;
+    return '${text.substring(0, 600)}…';
+  }
+
+  // ===== Processing watchdog: never leave the composer stuck =====
+
+  void _startProcessingWatchdog() {
+    _stopProcessingWatchdog();
+    _processingPolls = 0;
+    _processingWatchdog = Timer.periodic(const Duration(seconds: 6), (timer) {
+      if (!isProcessing.value) {
+        timer.cancel();
+        return;
+      }
+      _processingPolls++;
+      if (_processingPolls > 6) {
+        timer.cancel();
+        isProcessing.value = false;
+        AppSnackbar.warning('Still working — pull down to refresh in a moment.');
+        return;
+      }
+      // The reply may have landed without a socket event reaching us.
+      unawaited(loadHistory(currentRoomId.value));
+    });
+  }
+
+  void _stopProcessingWatchdog() {
+    _processingWatchdog?.cancel();
+    _processingWatchdog = null;
+  }
+
+  /// Lets the user bail out of a stuck turn without leaving the UI blocked.
+  void stopProcessing() {
+    if (!isProcessing.value) return;
+    isProcessing.value = false;
+    _stopProcessingWatchdog();
   }
 
   // ============================================================
@@ -326,7 +425,7 @@ class AiController extends GetxController {
   void handleSend() {
     if (isRecording.value || activeTtsMessageId.value != null) return;
     final text = textController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || isProcessing.value) return;
     if (isMeetingWorkspace) {
       askDraft.value = text;
       _setInputText(text);
@@ -334,14 +433,12 @@ class AiController extends GetxController {
     }
     askSubmittedPrompt.value = text;
     askStage.value = 'prompt_result';
-    askAttachmentPreview.value = null;
     askDraft.value = '';
-    askActionTitle.value = 'Summary';
-    askActionLines.clear();
+    // A new turn clears the previous action result — actions are explicit now.
     askActionData.value = null;
+    askActionLines.clear();
     textController.clear();
     sendMessage(text);
-    unawaited(runAskAction('Summary', prompt: text));
     scrollToBottom();
   }
 
@@ -350,25 +447,101 @@ class AiController extends GetxController {
   }
 
   void closeAskAttachmentMenu() {
-    if (showAskAttachmentMenu) {
+    if (askStage.value != 'landing') {
       askStage.value = 'landing';
     }
   }
 
-  void selectAskAttachment(String previewLabel) {
-    askSelectedSource.value = previewLabel;
-    if (previewLabel == 'Add Atom') {
-      askAttachmentPreview.value = null;
-      askStage.value = 'source_results';
-      return;
+  /// Composer "+" menu: real capture paths only.
+  /// Photo/Files pick an actual file; Add Atom opens the context picker.
+  void selectAskAttachment(String label) {
+    switch (label) {
+      case 'Add Atom':
+        openContextPicker();
+        break;
+      case 'Photo':
+        unawaited(pickAskAttachment(imagesOnly: true));
+        break;
+      default:
+        unawaited(pickAskAttachment());
+        break;
     }
-
-    askAttachmentPreview.value = '${previewLabel.toLowerCase()}_capture.png';
-    askStage.value = 'landing';
   }
 
-  void clearAskAttachmentPreview() {
-    askAttachmentPreview.value = null;
+  Future<void> pickAskAttachment({bool imagesOnly = false}) async {
+    try {
+      final file = await FilePickerPlatform.instance.pickFile(
+        type: imagesOnly ? FileType.image : FileType.any,
+      );
+      if (file == null) return;
+      attachmentName.value = file.name;
+      attachmentPath.value = file.path;
+      askStage.value = 'landing';
+      AppSnackbar.info('Attached ${file.name}');
+    } catch (e) {
+      AppSnackbar.error('Could not open the file picker');
+    }
+  }
+
+  void clearAskAttachment() {
+    attachmentName.value = null;
+    attachmentPath.value = null;
+  }
+
+  // ===== Context picker (real atoms, not a placeholder) =====
+
+  void openContextPicker() {
+    askStage.value = 'source_results';
+    loadContextAtoms();
+  }
+
+  Future<void> loadContextAtoms([String? query]) async {
+    isLoadingContext.value = true;
+    try {
+      final result = await _home.getAtoms(search: query, limit: 30);
+      contextAtoms.assignAll(result.records);
+    } catch (e) {
+      debugPrint('🤖 [AiController] loadContextAtoms error: $e');
+    } finally {
+      isLoadingContext.value = false;
+    }
+  }
+
+  void setContextFilter(String filter) {
+    contextFilter.value = filter;
+  }
+
+  void attachContextAtom(AtomModel atom) {
+    contextAtom.value = atom;
+    askStage.value = 'landing';
+    AppSnackbar.success('Using "${atom.title}" as context');
+  }
+
+  void clearContextAtom() {
+    contextAtom.value = null;
+  }
+
+  /// Atoms for the picker after applying the source filter chip.
+  List<AtomModel> get filteredContextAtoms {
+    final filter = (contextFilter.value ?? 'All').toLowerCase();
+    if (filter == 'all') return contextAtoms;
+    return contextAtoms
+        .where((atom) => _matchesContextFilter(atom, filter))
+        .toList();
+  }
+
+  bool _matchesContextFilter(AtomModel atom, String filter) {
+    final source = atom.source.toLowerCase();
+    switch (filter) {
+      case 'meetings':
+        return source == 'meeting' || source == 'asset';
+      case 'links':
+        return source == 'url';
+      case 'notes':
+        return source == 'note' || source == 'share';
+      default:
+        return true;
+    }
   }
 
   void applyPromptSuggestion(String prompt) {
@@ -394,13 +567,13 @@ class AiController extends GetxController {
 
   void resetAskFlow() {
     askStage.value = 'landing';
-    askAttachmentPreview.value = null;
     askSelectedSource.value = null;
     askSubmittedPrompt.value = null;
     askDraft.value = '';
     askActionTitle.value = 'Summary';
     askActionLines.clear();
     askActionData.value = null;
+    clearAskAttachment();
   }
 
   Future<void> runAskAction(String label, {String? prompt}) async {
@@ -408,8 +581,12 @@ class AiController extends GetxController {
     final submittedText = askSubmittedPrompt.value?.trim() ?? '';
     final draftText = askDraft.value.trim();
     final inputText = textController.text.trim();
+    // Prefer what the assistant just said — actions operate on the answer.
+    final lastReply = _lastAssistantContent();
     final sourceText = promptText.isNotEmpty
         ? promptText
+        : lastReply.isNotEmpty
+        ? lastReply
         : submittedText.isNotEmpty
         ? submittedText
         : draftText.isNotEmpty

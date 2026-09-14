@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/modules/home/data/models/models.dart';
 
 import '../ai.dart';
 
@@ -9,8 +11,8 @@ class AiPage extends GetView<AiController> {
   const AiPage({super.key});
 
   static const _tabs = <String>['Summary', 'Transcript', 'Note', 'Assets'];
-  static const _askFilters = <String>['All', 'AtomOS', 'New', 'Personal'];
-  static const _askSources = <String>['Camera', 'Files', 'Add Atom'];
+  static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
+  static const _askSources = <String>['Photo', 'Files', 'Add Atom'];
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +31,7 @@ class AiPage extends GetView<AiController> {
                     Design.spacing.screenPadding,
                     0,
                   ),
-                  child: SingleChildScrollView(
-                    child: _buildAskFlow(context),
-                  ),
+                  child: SingleChildScrollView(child: _buildAskFlow(context)),
                 ),
               ),
               _buildAskComposer(context),
@@ -264,11 +264,11 @@ class AiPage extends GetView<AiController> {
 
   Widget _buildAskFlow(BuildContext context) {
     if (controller.showAskResultPreview) {
-      return _buildAskResultPreview(context);
+      return _buildAskConversation(context);
     }
 
     if (controller.showAskSourceResults) {
-      return _buildAskSourceResults(context);
+      return _buildAskContextPicker(context);
     }
 
     return _buildAskLanding(context);
@@ -282,14 +282,47 @@ class AiPage extends GetView<AiController> {
       children: [
         _buildAskTopBar(context),
         SizedBox(height: Design.spacing.xxl),
-        Text(
-          'Ask AtomicOS',
-          style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: Design.spacing.xs),
-        Text(
-          'Start with a question or pick a shortcut.',
-          style: context.typo.bodyMedium.copyWith(color: colors.textSecondary),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(Design.spacing.xl),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
+            ),
+            borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+            border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Ask AtomicOS',
+                style: context.typo.headline3.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(height: Design.spacing.xs),
+              Text(
+                'Start with a question, attach context, and turn the answer into structured next steps.',
+                style: context.typo.bodyMedium.copyWith(
+                  color: colors.textSecondary,
+                  height: 1.45,
+                ),
+              ),
+              SizedBox(height: Design.spacing.md),
+              Wrap(
+                spacing: Design.spacing.sm,
+                runSpacing: Design.spacing.sm,
+                children: const [
+                  _MiniResultChip(label: 'Summary'),
+                  _MiniResultChip(label: 'Decisions'),
+                  _MiniResultChip(label: 'Tasks'),
+                ],
+              ),
+            ],
+          ),
         ),
         SizedBox(height: Design.spacing.xxl),
         Obx(() {
@@ -330,54 +363,26 @@ class AiPage extends GetView<AiController> {
             child: _AskActionRow(
               icon: item.icon,
               label: item.label,
+              subtitle: item.subtitle,
               onTap: () => controller.applyPromptSuggestion(item.label),
             ),
           ),
         ),
         SizedBox(height: Design.spacing.lg),
         Obx(() {
-          final preview = controller.askAttachmentPreview.value;
-          if (preview == null) {
+          final preview = controller.attachmentName.value;
+          if (preview == null || preview.isEmpty) {
             return const SizedBox.shrink();
           }
 
           return Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: 116,
-              margin: EdgeInsets.only(bottom: Design.spacing.md),
-              padding: EdgeInsets.all(Design.spacing.sm),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-                border: Border.all(color: colors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: colors.card,
-                      borderRadius: BorderRadius.circular(
-                        Design.spacing.radiusMedium,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Design.icons.folder,
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: Design.spacing.sm),
-                  Text(
-                    preview,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.typo.bodySmall,
-                  ),
-                ],
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: Design.spacing.md),
+              child: _ComposerChip(
+                icon: Design.icons.attachment,
+                label: preview,
+                onRemove: controller.clearAskAttachment,
               ),
             ),
           );
@@ -386,298 +391,287 @@ class AiPage extends GetView<AiController> {
     );
   }
 
-  Widget _buildAskSourceResults(BuildContext context) {
+  Widget _buildAskContextPicker(BuildContext context) {
     final colors = context.colors;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildAskTopBar(context),
-        SizedBox(height: Design.spacing.xxl),
+        SizedBox(height: Design.spacing.xl),
         Text(
           'Choose context',
           style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
-          'Choose an atom to use as context.',
+          'Pick one of your atoms so AtomicOS answers with real context.',
           style: context.typo.bodyMedium.copyWith(color: colors.textSecondary),
         ),
-        SizedBox(height: Design.spacing.xl),
-        Container(
-          padding: EdgeInsets.all(Design.spacing.md),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
+        SizedBox(height: Design.spacing.lg),
+        AppGlassCard(
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.md,
+            vertical: Design.spacing.sm,
           ),
-          child: Column(
+          radius: Design.spacing.radiusLarge,
+          child: Row(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Design.spacing.md,
-                  vertical: Design.spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  borderRadius: BorderRadius.circular(
-                    Design.spacing.radiusLarge,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Design.icons.search,
-                      size: Design.spacing.iconSmall,
+              Icon(
+                Design.icons.search,
+                size: Design.spacing.iconSmall,
+                color: colors.textMuted,
+              ),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(
+                child: TextField(
+                  controller: controller.searchContextController,
+                  onChanged: (value) => controller.loadContextAtoms(value),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'Search your atoms…',
+                    hintStyle: context.typo.bodySmall.copyWith(
                       color: colors.textMuted,
                     ),
-                    SizedBox(width: Design.spacing.sm),
-                    Expanded(
-                      child: Text(
-                        'Search...',
-                        style: context.typo.bodySmall.copyWith(
-                          color: colors.textMuted,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Wrap(
-                spacing: Design.spacing.xs,
-                runSpacing: Design.spacing.xs,
-                children: _askFilters
-                    .map(
-                      (label) => _AskFilterChip(
-                        label: label,
-                        selected: label == 'All',
-                      ),
-                    )
-                    .toList(),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
-                child: Text(
-                  'Your atoms will appear here to use as context.',
-                  textAlign: TextAlign.center,
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
                   ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.sm),
-              Row(
-                children: [
-                  _BottomMiniButton(
-                    icon: Design.icons.backArrow,
-                    onTap: controller.closeAskAttachmentMenu,
-                  ),
-                  SizedBox(width: Design.spacing.sm),
-                  _BottomMiniButton(
-                    icon: Design.icons.sparkles,
-                    onTap: controller.closeAskAttachmentMenu,
-                    background: colors.primary,
-                    foreground: colors.background,
-                  ),
-                ],
               ),
             ],
           ),
         ),
+        SizedBox(height: Design.spacing.md),
+        Obx(() {
+          final filter = controller.contextFilter.value ?? 'All';
+          return Wrap(
+            spacing: Design.spacing.xs,
+            runSpacing: Design.spacing.xs,
+            children: _askFilters
+                .map(
+                  (label) => _AskFilterChip(
+                    label: label,
+                    selected: label == filter,
+                    onTap: () => controller.setContextFilter(label),
+                  ),
+                )
+                .toList(),
+          );
+        }),
+        SizedBox(height: Design.spacing.lg),
+        Obx(() {
+          if (controller.isLoadingContext.value) {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: Design.spacing.xxl),
+              child: const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          final atoms = controller.filteredContextAtoms;
+          if (atoms.isEmpty) {
+            return AppGlassCard(
+              padding: EdgeInsets.all(Design.spacing.xl),
+              radius: Design.spacing.radiusXLarge,
+              child: Column(
+                children: [
+                  Icon(
+                    Design.icons.atomAdd,
+                    size: 36,
+                    color: colors.textMuted,
+                  ),
+                  SizedBox(height: Design.spacing.md),
+                  Text(
+                    'No atoms here yet',
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: Design.spacing.xs),
+                  Text(
+                    'Create an atom first, then attach it as context.',
+                    textAlign: TextAlign.center,
+                    style: context.typo.bodySmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Column(
+            children: atoms
+                .map(
+                  (atom) => Padding(
+                    padding: EdgeInsets.only(bottom: Design.spacing.sm),
+                    child: _ContextAtomCard(
+                      atom: atom,
+                      onTap: () => controller.attachContextAtom(atom),
+                    ),
+                  ),
+                )
+                .toList(),
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildAskResultPreview(BuildContext context) {
-    final colors = context.colors;
-    final submittedPrompt =
-        controller.askSubmittedPrompt.value ?? controller.askDraft.value;
-    final sourceLabel = controller.askSelectedSource.value ?? '';
-
+  Widget _buildAskConversation(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildAskTopBar(context),
-        SizedBox(height: Design.spacing.xl),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 260),
-            padding: EdgeInsets.symmetric(
-              horizontal: Design.spacing.md,
-              vertical: Design.spacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.primary.withValues(alpha: 0.22)),
-            ),
-            child: Text(
-              submittedPrompt.isEmpty ? '' : submittedPrompt,
-              style: context.typo.bodySmall.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: Design.spacing.md),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Design.spacing.md,
-              vertical: 6,
-            ),
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              sourceLabel,
-              style: context.typo.labelMedium.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
         SizedBox(height: Design.spacing.lg),
-        Container(
-          padding: EdgeInsets.all(Design.spacing.md),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        Obx(() {
+          final msgs = controller.messages;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
-                  children: _buildAskActionItems()
-                      .map(
-                        (item) => Padding(
-                          padding: EdgeInsets.only(bottom: Design.spacing.sm),
-                          child: _AskActionRow(
-                            icon: item.icon,
-                            label: item.label,
-                            compact: true,
-                            onTap: () => controller.runAskAction(item.label),
-                          ),
-                        ),
-                      )
-                      .toList(),
+              ...msgs.map(
+                (message) => Padding(
+                  padding: EdgeInsets.only(bottom: Design.spacing.md),
+                  child: _ChatBubble(
+                    message: message,
+                    speaking: controller.activeTtsMessageId.value == message.id,
+                    loadingTts:
+                        controller.isTtsLoading.value &&
+                        controller.activeTtsMessageId.value == message.id,
+                    onSpeak: () => controller.speakMessage(message),
+                    onCopy: () => _copyMessage(message.content),
+                  ),
                 ),
               ),
-              SizedBox(width: Design.spacing.md),
-              const _PreviewDocumentCard(),
+              if (controller.isProcessing.value)
+                Padding(
+                  padding: EdgeInsets.only(bottom: Design.spacing.md),
+                  child: const _ThinkingBubble(),
+                ),
             ],
-          ),
-        ),
-        SizedBox(height: Design.spacing.lg),
+          );
+        }),
+        SizedBox(height: Design.spacing.sm),
+        _buildAskActionChips(context),
         Obx(() {
-          final lines = controller.askActionLines;
-          return Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(Design.spacing.md),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(Design.spacing.md),
-                  decoration: BoxDecoration(
-                    color: colors.card,
-                    borderRadius: BorderRadius.circular(
-                      Design.spacing.radiusLarge,
-                    ),
-                  ),
-                  child: controller.isRunningAskAction.value
-                      ? const Center(child: CircularProgressIndicator())
-                      : _buildActionResultContent(context),
-                ),
-                SizedBox(height: Design.spacing.md),
-                Text(
-                  controller.askActionTitle.value,
-                  style: context.typo.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  'Live result returned by the selected AI action.',
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-                SizedBox(height: Design.spacing.md),
-                Wrap(
-                  spacing: Design.spacing.sm,
-                  runSpacing: Design.spacing.sm,
-                  children: [
-                    _MiniResultChip(label: '${lines.length} lines'),
-                    _MiniResultChip(label: sourceLabel),
-                    _MiniResultChip(
-                      label: submittedPrompt.isEmpty ? 'Draft' : 'Prompt',
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          if (controller.askActionData.value == null &&
+              !controller.isRunningAskAction.value) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: EdgeInsets.only(top: Design.spacing.lg),
+            child: _buildActionResultCard(context),
           );
         }),
         SizedBox(height: Design.spacing.lg),
-        Obx(() {
-          final lines = controller.askActionLines.skip(3).take(3).toList();
-          return Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(Design.spacing.md),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Generated actions',
-                  style: context.typo.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: Design.spacing.md),
-                if (controller.isRunningAskAction.value)
-                  const Center(child: CircularProgressIndicator())
-                else if (lines.isEmpty)
-                  _ActionBullet(
-                    text:
-                        'Additional structured steps will appear here when the response includes them.',
-                  )
-                else
-                  ...lines.asMap().entries.map(
-                    (entry) => Padding(
-                      padding: EdgeInsets.only(
-                        bottom: entry.key == lines.length - 1 ? 0 : 8,
-                      ),
-                      child: _ActionBullet(text: entry.value),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
       ],
     );
+  }
+
+  Widget _buildAskActionChips(BuildContext context) {
+    final colors = context.colors;
+
+    return Obx(() {
+      final busy = controller.isRunningAskAction.value;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Work with this answer',
+            style: context.typo.labelMedium.copyWith(
+              color: colors.textSecondary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: Design.spacing.sm),
+          Wrap(
+            spacing: Design.spacing.sm,
+            runSpacing: Design.spacing.sm,
+            children: _buildAskActionItems()
+                .map(
+                  (item) => _AskActionChip(
+                    icon: item.icon,
+                    label: item.label,
+                    busy: busy,
+                    onTap: busy
+                        ? null
+                        : () => controller.runAskAction(item.label),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildActionResultCard(BuildContext context) {
+    final colors = context.colors;
+
+    return Obx(
+      () => AppGlassCard(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        radius: Design.spacing.radiusXLarge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Design.icons.sparkles,
+                  size: Design.spacing.iconSmall,
+                  color: colors.primary,
+                ),
+                SizedBox(width: Design.spacing.xs),
+                Expanded(
+                  child: Text(
+                    controller.askActionTitle.value,
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                if (controller.isRunningAskAction.value)
+                  SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.primary,
+                    ),
+                  )
+                else
+                  GestureDetector(
+                    onTap: () =>
+                        _copyMessage(controller.askActionLines.join('\n')),
+                    child: Icon(
+                      Design.icons.clipboard,
+                      size: Design.spacing.iconSmall,
+                      color: colors.textMuted,
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: Design.spacing.md),
+            if (controller.isRunningAskAction.value)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: Design.spacing.xl),
+                child: const Center(child: CircularProgressIndicator()),
+              )
+            else
+              _buildActionResultContent(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _copyMessage(String content) {
+    final text = content.trim();
+    if (text.isEmpty) return;
+    Clipboard.setData(ClipboardData(text: text));
+    AppSnackbar.success(AppLocales.atom.copiedToClipboard.tr);
   }
 
   Widget _buildActionResultContent(BuildContext context) {
@@ -777,10 +771,7 @@ class AiPage extends GetView<AiController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (summary.isNotEmpty)
-          Text(
-            summary,
-            style: context.typo.bodyMedium.copyWith(height: 1.45),
-          ),
+          Text(summary, style: context.typo.bodyMedium.copyWith(height: 1.45)),
         if (keyPoints is List && keyPoints.isNotEmpty) ...[
           SizedBox(height: Design.spacing.md),
           _reportSection(context, AppLocales.ai.keyPoints.tr, keyPoints),
@@ -807,9 +798,7 @@ class AiPage extends GetView<AiController> {
       children: [
         Text(
           title,
-          style: context.typo.labelMedium.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: context.typo.labelMedium.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         ...items.map(
@@ -857,8 +846,8 @@ class AiPage extends GetView<AiController> {
         Design.spacing.screenPadding,
       ),
       decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(top: BorderSide(color: colors.border)),
+        color: colors.glassStrong,
+        border: Border(top: BorderSide(color: colors.glassBorder)),
       ),
       child: SafeArea(
         top: false,
@@ -866,54 +855,34 @@ class AiPage extends GetView<AiController> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() {
-              final chipText = _askChipText();
-              if (chipText == null) {
+              final atom = controller.contextAtom.value;
+              final attachment = controller.attachmentName.value;
+              if (atom == null && (attachment == null || attachment.isEmpty)) {
                 return const SizedBox.shrink();
               }
 
-              return Container(
-                width: double.infinity,
-                margin: EdgeInsets.only(bottom: Design.spacing.sm),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Design.spacing.md,
-                  vertical: Design.spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  borderRadius: BorderRadius.circular(
-                    Design.spacing.radiusLarge,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'SUMM.',
-                      style: context.typo.labelMedium.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(width: Design.spacing.xs),
-                    Expanded(
-                      child: Text(
-                        chipText,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.typo.bodySmall,
-                      ),
-                    ),
-                    if (controller.askAttachmentPreview.value != null) ...[
-                      SizedBox(width: Design.spacing.sm),
-                      GestureDetector(
-                        onTap: controller.clearAskAttachmentPreview,
-                        child: Icon(
-                          Design.icons.close,
-                          size: Design.spacing.iconSmall,
-                          color: colors.textMuted,
+              return Padding(
+                padding: EdgeInsets.only(bottom: Design.spacing.sm),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: Design.spacing.sm,
+                    runSpacing: Design.spacing.sm,
+                    children: [
+                      if (atom != null)
+                        _ComposerChip(
+                          icon: Design.icons.atomAdd,
+                          label: atom.title,
+                          onRemove: controller.clearContextAtom,
                         ),
-                      ),
+                      if (attachment != null && attachment.isNotEmpty)
+                        _ComposerChip(
+                          icon: Design.icons.attachment,
+                          label: attachment,
+                          onRemove: controller.clearAskAttachment,
+                        ),
                     ],
-                  ],
+                  ),
                 ),
               );
             }),
@@ -957,22 +926,30 @@ class AiPage extends GetView<AiController> {
                     ),
                   ),
                   SizedBox(width: Design.spacing.sm),
-                  GestureDetector(
-                    onTap: controller.handleSend,
-                    child: Container(
-                      height: 22,
-                      width: 22,
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
+                  Obx(() {
+                    final busy = controller.isProcessing.value;
+                    return GestureDetector(
+                      onTap: busy
+                          ? controller.stopProcessing
+                          : controller.handleSend,
+                      child: Container(
+                        height: 34,
+                        width: 34,
+                        decoration: BoxDecoration(
+                          color: busy ? colors.surface : colors.primary,
+                          shape: BoxShape.circle,
+                          border: busy
+                              ? Border.all(color: colors.border)
+                              : null,
+                        ),
+                        child: Icon(
+                          busy ? Design.icons.stop : Design.icons.send,
+                          size: 16,
+                          color: busy ? colors.textSecondary : colors.onPrimary,
+                        ),
                       ),
-                      child: Icon(
-                        Design.icons.send,
-                        size: 12,
-                        color: colors.background,
-                      ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -982,37 +959,40 @@ class AiPage extends GetView<AiController> {
     );
   }
 
-  String? _askChipText() {
-    final submitted = controller.askSubmittedPrompt.value?.trim();
-    if (submitted != null && submitted.isNotEmpty) {
-      return submitted;
-    }
-
-    final draft = controller.askDraft.value.trim();
-    if (draft.isNotEmpty) {
-      return draft;
-    }
-
-    return null;
-  }
-
   List<_AskActionItem> _buildAskActionItems() {
     return [
-      _AskActionItem(icon: Design.icons.bolt, label: 'Summary'),
-      _AskActionItem(icon: Design.icons.route, label: 'Decisions'),
-      _AskActionItem(icon: Design.icons.sparkles, label: 'Fusion with'),
-      _AskActionItem(icon: Design.icons.task, label: 'Generate tasks'),
+      _AskActionItem(
+        icon: Design.icons.bolt,
+        label: 'Summary',
+        subtitle: 'Condense the answer into the shortest useful version',
+      ),
+      _AskActionItem(
+        icon: Design.icons.route,
+        label: 'Decisions',
+        subtitle: 'Pull out calls, approvals, and resolved questions',
+      ),
+      _AskActionItem(
+        icon: Design.icons.sparkles,
+        label: 'Fusion with',
+        subtitle: 'Translate or reshape the answer for a different audience',
+      ),
+      _AskActionItem(
+        icon: Design.icons.task,
+        label: 'Generate tasks',
+        subtitle: 'Turn the response into concrete follow-up work',
+      ),
       _AskActionItem(
         icon: Design.icons.report,
         label: 'Generate analytic report',
+        subtitle: 'Build a longer structured readout with sections',
       ),
     ];
   }
 
   IconData _iconForSource(String source) {
     switch (source) {
-      case 'Camera':
-        return Design.icons.camera;
+      case 'Photo':
+        return Design.icons.gallery;
       case 'Files':
         return Design.icons.folder;
       case 'Add Atom':
@@ -1172,9 +1152,15 @@ class AiPage extends GetView<AiController> {
             padding: EdgeInsets.only(
               bottom: entry.key == summary.length - 1 ? 0 : Design.spacing.md,
             ),
-            child: _SectionCard(
+            child: AppToneCard(
               title: block.title,
-              child: Column(
+              leadingIcon: entry.key == 0
+                  ? Design.icons.sparkles
+                  : Design.icons.task,
+              tone: entry.key == 0
+                  ? EAppToneCardTone.primary
+                  : EAppToneCardTone.info,
+              footer: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: block.lines
                     .map(
@@ -1228,13 +1214,13 @@ class AiPage extends GetView<AiController> {
   }
 
   Widget _buildNoteTab(BuildContext context) {
-    final colors = context.colors;
-
     return ListView(
       children: [
-        _SectionCard(
+        AppToneCard(
           title: 'Today',
-          child: Text(
+          leadingIcon: Design.icons.note,
+          tone: EAppToneCardTone.primary,
+          footer: Text(
             controller.textController.text.isEmpty
                 ? 'Today I went over the project timeline and flagged a few open questions for the upcoming task to keep us on track.'
                 : controller.textController.text,
@@ -1242,13 +1228,8 @@ class AiPage extends GetView<AiController> {
           ),
         ),
         SizedBox(height: Design.spacing.md),
-        Container(
+        AppCard(
           padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1280,24 +1261,12 @@ class AiPage extends GetView<AiController> {
           ),
         ),
         SizedBox(height: Design.spacing.md),
-        Container(
-          padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Ask about this Atom',
-                  style: context.typo.labelLarge,
-                ),
-              ),
-              Icon(Design.icons.sparkles, color: colors.primary),
-            ],
-          ),
+        AppToneCard(
+          title: 'Ask about this Atom',
+          subtitle:
+              'Open the AI workspace with this note as the current context.',
+          leadingIcon: Design.icons.sparkles,
+          tone: EAppToneCardTone.primary,
         ),
       ],
     );
@@ -1318,50 +1287,11 @@ class AiPage extends GetView<AiController> {
               subtitle: 'Attachments and imported files will appear here.',
             ),
             SizedBox(height: Design.spacing.md),
-            Container(
-              padding: EdgeInsets.all(Design.spacing.lg),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-                border: Border.all(color: context.colors.border),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 42,
-                    width: 42,
-                    decoration: BoxDecoration(
-                      color: context.colors.primary.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Design.icons.upload,
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  SizedBox(width: Design.spacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Add more files',
-                          style: context.typo.labelLarge.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: Design.spacing.xs),
-                        Text(
-                          'Upload and import previews will surface here next.',
-                          style: context.typo.bodySmall.copyWith(
-                            color: context.colors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            AppToneCard(
+              title: 'Add more files',
+              subtitle: 'Upload and import previews will surface here next.',
+              leadingIcon: Design.icons.upload,
+              tone: EAppToneCardTone.primary,
             ),
           ],
         );
@@ -1372,27 +1302,11 @@ class AiPage extends GetView<AiController> {
         separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
         itemBuilder: (context, index) {
           if (index == assets.length) {
-            return Container(
-              padding: EdgeInsets.all(Design.spacing.lg),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-                border: Border.all(color: context.colors.border),
-              ),
-              child: Row(
-                children: [
-                  Icon(Design.icons.upload, color: context.colors.primary),
-                  SizedBox(width: Design.spacing.md),
-                  Expanded(
-                    child: Text(
-                      'Add more files',
-                      style: context.typo.labelLarge.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            return AppToneCard(
+              title: 'Add more files',
+              subtitle: 'Keep supporting documents connected to this atom.',
+              leadingIcon: Design.icons.upload,
+              tone: EAppToneCardTone.primary,
             );
           }
 
@@ -2135,14 +2049,14 @@ class _AskActionRow extends StatelessWidget {
   const _AskActionRow({
     required this.icon,
     required this.label,
+    required this.subtitle,
     required this.onTap,
-    this.compact = false,
   });
 
   final IconData icon;
   final String label;
+  final String subtitle;
   final VoidCallback onTap;
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -2152,7 +2066,7 @@ class _AskActionRow extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
-          vertical: compact ? 10 : Design.spacing.md,
+          vertical: Design.spacing.md,
         ),
         decoration: BoxDecoration(
           color: context.colors.surface,
@@ -2168,12 +2082,32 @@ class _AskActionRow extends StatelessWidget {
             ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
-              child: Text(
-                label.toUpperCase(),
-                style: context.typo.labelMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label.toUpperCase(),
+                    style: context.typo.labelMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.caption.copyWith(
+                      color: context.colors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: context.colors.textMuted,
             ),
           ],
         ),
@@ -2207,43 +2141,15 @@ class _AskSourceCard extends StatelessWidget {
 }
 
 class _AskFilterChip extends StatelessWidget {
-  const _AskFilterChip({required this.label, required this.selected});
+  const _AskFilterChip({
+    required this.label,
+    required this.selected,
+    this.onTap,
+  });
 
   final String label;
   final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? colors.primary : colors.card,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: context.typo.labelMedium.copyWith(
-          color: selected ? colors.background : colors.textSecondary,
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomMiniButton extends StatelessWidget {
-  const _BottomMiniButton({
-    required this.icon,
-    required this.onTap,
-    this.background,
-    this.foreground,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color? background;
-  final Color? foreground;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -2252,13 +2158,24 @@ class _BottomMiniButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 28,
-        width: 28,
-        decoration: BoxDecoration(
-          color: background ?? colors.card,
-          shape: BoxShape.circle,
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.sm,
+          vertical: 6,
         ),
-        child: Icon(icon, size: 16, color: foreground ?? colors.textPrimary),
+        decoration: BoxDecoration(
+          color: selected ? colors.primary : colors.glass,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: selected ? colors.primary : colors.glassBorder,
+          ),
+        ),
+        child: Text(
+          label,
+          style: context.typo.labelMedium.copyWith(
+            color: selected ? colors.onPrimary : colors.textSecondary,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
@@ -2282,49 +2199,6 @@ class _MeetingChip extends StatelessWidget {
         style: context.typo.labelMedium.copyWith(
           color: context.colors.textSecondary,
         ),
-      ),
-    );
-  }
-}
-
-class _PreviewDocumentCard extends StatelessWidget {
-  const _PreviewDocumentCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 92,
-      height: 120,
-      padding: EdgeInsets.all(Design.spacing.sm),
-      decoration: BoxDecoration(
-        color: context.colors.card,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 54,
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-            ),
-          ),
-          SizedBox(height: Design.spacing.sm),
-          Text(
-            'Market deck',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.typo.bodySmall.copyWith(fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: Design.spacing.xs),
-          Text(
-            'PDF',
-            style: context.typo.caption.copyWith(
-              color: context.colors.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -2354,32 +2228,6 @@ class _MiniResultChip extends StatelessWidget {
   }
 }
 
-class _ActionBullet extends StatelessWidget {
-  const _ActionBullet({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.only(top: 6),
-          height: 6,
-          width: 6,
-          decoration: BoxDecoration(
-            color: context.colors.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(width: Design.spacing.sm),
-        Expanded(child: Text(text, style: context.typo.bodyMedium)),
-      ],
-    );
-  }
-}
-
 class _ContextPreviewCard extends StatelessWidget {
   const _ContextPreviewCard({required this.title, required this.subtitle});
 
@@ -2405,8 +2253,335 @@ class _SummaryBlock {
 }
 
 class _AskActionItem {
-  const _AskActionItem({required this.icon, required this.label});
+  const _AskActionItem({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+  });
 
   final IconData icon;
   final String label;
+  final String subtitle;
+}
+
+/// One conversation turn. User turns sit right and tinted; assistant turns sit
+/// left on glass, with speak + copy affordances.
+class _ChatBubble extends StatelessWidget {
+  const _ChatBubble({
+    required this.message,
+    required this.speaking,
+    required this.loadingTts,
+    required this.onSpeak,
+    required this.onCopy,
+  });
+
+  final AiMessageModel message;
+  final bool speaking;
+  final bool loadingTts;
+  final VoidCallback onSpeak;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final isUser = message.isUser;
+    final pending = message.isProcessing;
+
+    return Column(
+      crossAxisAlignment: isUser
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.78,
+          ),
+          padding: EdgeInsets.all(Design.spacing.md),
+          decoration: BoxDecoration(
+            color: isUser
+                ? colors.primary.withValues(alpha: 0.14)
+                : colors.glass,
+            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+            border: Border.all(
+              color: isUser
+                  ? colors.primary.withValues(alpha: 0.24)
+                  : colors.glassBorder,
+            ),
+          ),
+          child: pending && message.content.trim().isEmpty
+              ? SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colors.primary,
+                  ),
+                )
+              : Text(
+                  message.content,
+                  style: context.typo.bodyMedium.copyWith(
+                    color: colors.textPrimary,
+                    height: 1.45,
+                  ),
+                ),
+        ),
+        SizedBox(height: 6),
+        Row(
+          mainAxisAlignment: isUser
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
+          children: [
+            if (message.isFailed) ...[
+              Icon(Design.icons.warning, size: 13, color: colors.error),
+              SizedBox(width: 4),
+              Text(
+                'Needs retry',
+                style: context.typo.caption.copyWith(color: colors.error),
+              ),
+              SizedBox(width: Design.spacing.sm),
+            ],
+            if (!isUser && !pending) ...[
+              GestureDetector(
+                onTap: loadingTts ? null : onSpeak,
+                child: Icon(
+                  loadingTts ? Design.icons.clock : Design.icons.speaker,
+                  size: 15,
+                  color: speaking ? colors.primary : colors.textMuted,
+                ),
+              ),
+              SizedBox(width: Design.spacing.sm),
+              GestureDetector(
+                onTap: onCopy,
+                child: Icon(
+                  Design.icons.clipboard,
+                  size: 15,
+                  color: colors.textMuted,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ThinkingBubble extends StatelessWidget {
+  const _ThinkingBubble();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.md,
+            vertical: Design.spacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: colors.glass,
+            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+            border: Border.all(color: colors.glassBorder),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 12,
+                width: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: colors.primary,
+                ),
+              ),
+              SizedBox(width: Design.spacing.sm),
+              Text(
+                'AtomicOS is thinking…',
+                style: context.typo.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AskActionChip extends StatelessWidget {
+  const _AskActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.busy = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.md,
+          vertical: Design.spacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: colors.glass,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: colors.glassBorder),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: busy ? colors.textMuted : colors.primary,
+            ),
+            SizedBox(width: 6),
+            Text(
+              label,
+              style: context.typo.labelMedium.copyWith(
+                color: busy ? colors.textMuted : colors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Removable chip showing pinned context (an atom) or a picked file.
+class _ComposerChip extends StatelessWidget {
+  const _ComposerChip({
+    required this.icon,
+    required this.label,
+    required this.onRemove,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 240),
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.sm,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: colors.glass,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.24)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: colors.primary),
+          SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.typo.caption.copyWith(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(width: 6),
+          GestureDetector(
+            onTap: onRemove,
+            child: Icon(Design.icons.close, size: 14, color: colors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Row for picking one atom as conversation context.
+class _ContextAtomCard extends StatelessWidget {
+  const _ContextAtomCard({required this.atom, required this.onTap});
+
+  final AtomModel atom;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return AppGlassCard(
+      onTap: onTap,
+      padding: EdgeInsets.all(Design.spacing.md),
+      radius: Design.spacing.radiusLarge,
+      child: Row(
+        children: [
+          Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Design.icons.atomAdd,
+              size: Design.spacing.iconSmall,
+              color: colors.primary,
+            ),
+          ),
+          SizedBox(width: Design.spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  atom.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typo.labelMedium.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  [
+                    atom.source.toUpperCase(),
+                    if ((atom.note ?? '').trim().isNotEmpty)
+                      atom.note!.trim().replaceAll('\n', ' '),
+                  ].join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typo.caption.copyWith(color: colors.textMuted),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Design.icons.rightArrow,
+            size: Design.spacing.iconSmall,
+            color: colors.textMuted,
+          ),
+        ],
+      ),
+    );
+  }
 }
