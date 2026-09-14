@@ -283,7 +283,7 @@ class AppTranslations extends Translations {
       // Atom
       AppLocales.atom.title: 'Atom',
       AppLocales.atom.summary: 'Summary',
-      AppLocales.atom.transcript: 'Transcript',
+      AppLocales.atom.transcript: 'Transcripts',
       AppLocales.atom.note: 'Note',
       AppLocales.atom.assets: 'Assets',
       AppLocales.atom.noSummary: 'No summary yet',
