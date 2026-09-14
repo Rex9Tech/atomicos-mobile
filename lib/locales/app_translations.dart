@@ -308,6 +308,10 @@ class AppTranslations extends Translations {
           'Allow access so you can record meetings, capture media, and attach files.',
       AppLocales.permission.grantAll: 'Grant all',
       AppLocales.permission.done: 'Done',
+      AppLocales.permission.notificationTitle: 'Enable notifications',
+      AppLocales.permission.notificationMessage:
+          'Allow notifications so a recording keeps running in the background and you can pause or stop it from the notification.',
+      AppLocales.permission.notificationEnable: 'Enable',
     },
     'my_MM': {
       // Common
@@ -583,6 +587,10 @@ class AppTranslations extends Translations {
           'အစည်းအဝေး မှတ်တမ်းတင်ရန်၊ မီဒီယာ ရိုက်ကူးရန်နှင့် ဖိုင်ချိတ်ရန် ခွင့်ပြုပေးပါ။',
       AppLocales.permission.grantAll: 'အားလုံး ခွင့်ပြုမည်',
       AppLocales.permission.done: 'ပြီးပြီ',
+      AppLocales.permission.notificationTitle: 'အသိပေးချက်များ ဖွင့်ပါ',
+      AppLocales.permission.notificationMessage:
+          'အသံဖမ်းနေစဉ် နောက်ခံတွင် ဆက်လက်လည်ပတ်နိုင်ရန်နှင့် အသိပေးချက်မှ ခေတ္တရပ်/ရပ်နိုင်ရန် အသိပေးချက်များကို ခွင့်ပြုပေးပါ။',
+      AppLocales.permission.notificationEnable: 'ဖွင့်မည်',
     },
   };
 }

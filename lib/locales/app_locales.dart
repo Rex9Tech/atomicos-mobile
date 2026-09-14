@@ -338,4 +338,7 @@ class _PermissionLocales {
   final subtitle = 'permission.subtitle';
   final grantAll = 'permission.grant_all';
   final done = 'permission.done';
+  final notificationTitle = 'permission.notification_title';
+  final notificationMessage = 'permission.notification_message';
+  final notificationEnable = 'permission.notification_enable';
 }

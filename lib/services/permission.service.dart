@@ -50,6 +50,33 @@ class PermissionService extends GetxService {
 
   Future<bool> requestMicrophone() => request(Permission.microphone);
 
+  // ===== Notifications =====
+
+  /// Whether the notification prompt was already offered since launch, so the
+  /// user is asked once per entry and not on every screen visit.
+  bool notificationPromptShown = false;
+
+  /// Notification access (Android 13+; always granted below that).
+  Future<bool> isNotificationAllowed() => isAllowed(Permission.notification);
+
+  /// Asks for notification access — the background-recording notification and
+  /// its Pause/Stop controls need it. Falls back to Settings when it was
+  /// denied for good (where OEM builds keep the "floating notification" toggle).
+  Future<bool> ensureNotification({
+    required String title,
+    required String message,
+  }) async {
+    if (await isNotificationAllowed()) return true;
+
+    final status = await Permission.notification.request();
+    if (status.isGranted || status.isLimited) return true;
+
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      await promptSettings(title: title, message: message);
+    }
+    return false;
+  }
+
   Future<void> promptMicrophoneSettings() => promptSettings(
         title: AppLocales.ai.micPermissionTitle.tr,
         message: AppLocales.ai.micPermissionMessage.tr,

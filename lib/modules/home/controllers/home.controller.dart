@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rexone_mobile/config/config.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/services/services.dart';
 
@@ -39,6 +40,36 @@ class HomeController extends GetxController {
     // Best-effort telemetry — staggered so it doesn't compete for the first
     // socket while the workspace request is still in flight.
     Future<void>.delayed(const Duration(seconds: 3), reportUserVersion);
+    // Ask for notification access on entry: the background-recording
+    // notification (with its Pause/Stop controls) depends on it.
+    Future<void>.delayed(const Duration(milliseconds: 900), _promptNotifications);
+  }
+
+  /// One-time-per-launch prompt for notification permission. Skipped when it
+  /// is already granted, so users who said yes are never nagged.
+  Future<void> _promptNotifications() async {
+    final permissions = Get.find<PermissionService>();
+    if (permissions.notificationPromptShown) return;
+    permissions.notificationPromptShown = true;
+
+    if (await permissions.isNotificationAllowed()) return;
+
+    final context = Get.context;
+    if (context == null || !context.mounted) return;
+
+    final enable = await AppDialog.confirm(
+      context: context,
+      title: AppLocales.permission.notificationTitle.tr,
+      message: AppLocales.permission.notificationMessage.tr,
+      confirmLabel: AppLocales.permission.notificationEnable.tr,
+    );
+
+    if (enable) {
+      await permissions.ensureNotification(
+        title: AppLocales.permission.notificationTitle.tr,
+        message: AppLocales.permission.notificationMessage.tr,
+      );
+    }
   }
 
   @override
