@@ -300,9 +300,9 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
       width: double.infinity,
       padding: EdgeInsets.all(Design.spacing.md),
       decoration: BoxDecoration(
-        color: colors.card.withValues(alpha: 0.5),
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        border: Border.all(color: colors.glassBorder),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Obx(() {
         final text = widget.controller.liveTranscript.value.trim();
@@ -391,9 +391,9 @@ class _GlassRoundButton extends StatelessWidget {
         height: 36,
         width: 36,
         decoration: BoxDecoration(
-          color: colors.glassStrong,
+          color: colors.neumo,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(
           icon,

@@ -96,9 +96,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         margin: EdgeInsets.all(Design.spacing.sm),
         padding: EdgeInsets.all(Design.spacing.lg),
         decoration: BoxDecoration(
-          color: context.colors.glassStrong,
+          color: context.colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          border: Border.all(color: context.colors.glassBorder),
+          boxShadow: context.colors.neumoShadow,
         ),
         child: SafeArea(
           child: Column(
@@ -249,9 +249,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: colors.glass,
+                    color: colors.neumo,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: colors.glassBorder),
+                    boxShadow: colors.neumoShadowSoft,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -420,9 +420,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       () => Container(
         padding: EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           children: visible.map((index) {
@@ -738,7 +738,13 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 decoration: BoxDecoration(
                   color: colors.primary,
                   borderRadius: BorderRadius.circular(999),
-                  boxShadow: colors.softShadow,
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.primary.withValues(alpha: 0.30),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1088,10 +1094,9 @@ class _CircleButton extends StatelessWidget {
         height: size,
         width: size,
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.glassBorder),
-          boxShadow: colors.softShadow,
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(icon, size: Design.spacing.iconSmall, color: colors.textSecondary),
       ),
@@ -1119,9 +1124,9 @@ class _SheetAction extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           children: [

@@ -216,8 +216,16 @@ class _InteractivePrimaryButtonState extends State<_InteractivePrimaryButton> {
                   : Design.colors.primary)
               : Design.colors.primary.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          boxShadow: (_isPressed && isEnabled)
-              ? Design.colors.shadows.neon
+          boxShadow: isEnabled
+              ? (_isPressed
+                  ? Design.colors.shadows.neon
+                  : [
+                      BoxShadow(
+                        color: Design.colors.primary.withValues(alpha: 0.30),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ])
               : const [],
         ),
         child: Material(
@@ -286,17 +294,11 @@ class _InteractiveNeonButtonState extends State<_InteractiveNeonButton> {
         decoration: BoxDecoration(
           color: (_isPressed && isEnabled)
               ? Design.colors.primary
-              : Design.colors.glass.card,
+              : context.colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          border: Border.all(
-            color: (_isPressed && isEnabled)
-                ? Design.colors.primary
-                : Design.colors.glass.border,
-            width: 1,
-          ),
           boxShadow: (_isPressed && isEnabled)
               ? Design.colors.shadows.neon
-              : const [],
+              : context.colors.neumoShadowSoft,
         ),
         child: Material(
           color: Colors.transparent,

@@ -849,8 +849,8 @@ class AiPage extends GetView<AiController> {
         Design.spacing.screenPadding,
       ),
       decoration: BoxDecoration(
-        color: colors.glassStrong,
-        border: Border(top: BorderSide(color: colors.glassBorder)),
+        color: colors.neumo,
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: SafeArea(
         top: false,
@@ -2243,11 +2243,9 @@ class _AskFilterChip extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: selected ? colors.primary : colors.glass,
+          color: selected ? colors.primary : colors.neumo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected ? colors.primary : colors.glassBorder,
-          ),
+          boxShadow: selected ? null : colors.neumoShadowSoft,
         ),
         child: Text(
           label,
@@ -2380,13 +2378,9 @@ class _ChatBubble extends StatelessWidget {
           decoration: BoxDecoration(
             color: isUser
                 ? colors.primary.withValues(alpha: 0.14)
-                : colors.glass,
+                : colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(
-              color: isUser
-                  ? colors.primary.withValues(alpha: 0.24)
-                  : colors.glassBorder,
-            ),
+            boxShadow: isUser ? null : colors.neumoShadowSoft,
           ),
           child: pending && message.content.trim().isEmpty
               ? SizedBox(
@@ -2455,9 +2449,9 @@ class _ThinkingBubble extends StatelessWidget {
             vertical: Design.spacing.sm,
           ),
           decoration: BoxDecoration(
-            color: colors.glass,
+            color: colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.glassBorder),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -2510,9 +2504,9 @@ class _AskActionChip extends StatelessWidget {
           vertical: Design.spacing.sm,
         ),
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -2560,9 +2554,10 @@ class _ComposerChip extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: colors.glass,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.24)),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.30)),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

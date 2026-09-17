@@ -46,9 +46,6 @@ class AppToneCard extends StatelessWidget {
       padding: padding ?? EdgeInsets.all(Design.spacing.md),
       borderRadius: Design.spacing.radiusLarge,
       backgroundColor: background,
-      borderColor: tone == EAppToneCardTone.neutral
-          ? colors.border
-          : accent.withValues(alpha: 0.28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

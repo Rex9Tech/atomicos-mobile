@@ -1,8 +1,11 @@
 // lib/design/components/app_card.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import '../design.dart';
 
+/// Neumorphic (soft-UI) surface: the same tone as the page, lifted by a dual
+/// shadow — light from the top-left, shade to the bottom-right. Pass
+/// [borderColor] only where a hairline is genuinely needed.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -23,8 +26,6 @@ class AppCard extends StatelessWidget {
   final double? borderRadius;
   final VoidCallback? onTap;
 
-  static bool get isIOS => GetPlatform.isIOS;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -34,13 +35,10 @@ class AppCard extends StatelessWidget {
       margin: margin,
       padding: padding ?? EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
-        color: backgroundColor ?? colors.surface,
+        color: backgroundColor ?? colors.neumo,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(
-          color: borderColor ?? colors.border,
-          width: 1.0,
-        ),
-        boxShadow: isIOS ? [] : Design.colors.shadows.sm,
+        border: borderColor == null ? null : Border.all(color: borderColor!),
+        boxShadow: colors.neumoShadow,
       ),
       child: child,
     );

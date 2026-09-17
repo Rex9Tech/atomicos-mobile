@@ -1,19 +1,18 @@
 // lib/design/components/app_glass_card.dart
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../design.dart';
 
-/// Frosted-glass surface: translucent fill + backdrop blur + hairline border +
-/// soft diffuse shadow. The morphism building block used across the design.
+/// Neumorphic raised surface — formerly the frosted-glass card. Keeps the same
+/// API (radius, padding, onTap, color, borderColor, shadow) so every screen
+/// that used it picks up the soft-UI treatment in one place.
 class AppGlassCard extends StatelessWidget {
   const AppGlassCard({
     super.key,
     required this.child,
     this.padding,
     this.radius,
-    this.blur = 18,
+    this.blur = 18, // kept for API compatibility; unused in soft UI
     this.onTap,
     this.color,
     this.borderColor,
@@ -39,22 +38,16 @@ class AppGlassCard extends StatelessWidget {
       width: width,
       padding: padding ?? EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
-        color: color ?? context.colors.glass,
+        color: color ?? context.colors.neumo,
         borderRadius: BorderRadius.circular(r),
-        border: Border.all(color: borderColor ?? context.colors.glassBorder),
-        boxShadow: shadow ?? context.colors.softShadow,
+        border: borderColor == null ? null : Border.all(color: borderColor!),
+        boxShadow: shadow ?? context.colors.neumoShadow,
       ),
       child: child,
     );
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(r),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: onTap == null
-            ? content
-            : GestureDetector(onTap: onTap, child: content),
-      ),
-    );
+    return onTap == null
+        ? content
+        : GestureDetector(onTap: onTap, child: content);
   }
 }

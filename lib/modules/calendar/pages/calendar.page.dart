@@ -440,9 +440,9 @@ class CalendarPage extends GetView<CalendarController> {
         margin: EdgeInsets.all(Design.spacing.sm),
         padding: EdgeInsets.all(Design.spacing.lg),
         decoration: BoxDecoration(
-          color: context.colors.glassStrong,
+          color: context.colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          border: Border.all(color: context.colors.glassBorder),
+          boxShadow: context.colors.neumoShadow,
         ),
         child: SafeArea(
           child: Column(
@@ -543,9 +543,9 @@ class _SheetAction extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           children: [
@@ -589,9 +589,9 @@ class _RoundIconButton extends StatelessWidget {
         height: 32,
         width: 32,
         decoration: BoxDecoration(
-          color: colors.glass,
+          color: colors.neumo,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.glassBorder),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(
           icon,

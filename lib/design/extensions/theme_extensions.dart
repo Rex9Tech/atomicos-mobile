@@ -58,6 +58,68 @@ class AppThemeContextColors {
       ? Design.colors.glass.border
       : Colors.white.withValues(alpha: 0.85);
 
+  // ===== NEUMORPHISM (soft UI) =====
+  /// Neumorphic surface fill — the same tone as the page, so the dual shadow
+  /// does the lifting (theme switch keeps a slightly raised dark surface).
+  Color get neumo => isDark
+      ? _context.theme.colorScheme.surface
+      : _context.theme.scaffoldBackgroundColor;
+
+  /// Raised soft-UI surface: light falls from the top-left, shade to the
+  /// bottom-right.
+  List<BoxShadow> get neumoShadow => isDark
+      ? [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(-6, -6),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 18,
+            offset: const Offset(6, 6),
+          ),
+        ]
+      : [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.95),
+            blurRadius: 16,
+            offset: const Offset(-6, -6),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 18,
+            offset: const Offset(6, 6),
+          ),
+        ];
+
+  /// Softer dual shadow for small, tight components (chips, buttons).
+  List<BoxShadow> get neumoShadowSoft => isDark
+      ? [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(-3, -3),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.40),
+            blurRadius: 10,
+            offset: const Offset(3, 3),
+          ),
+        ]
+      : [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.9),
+            blurRadius: 8,
+            offset: const Offset(-3, -3),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(3, 3),
+          ),
+        ];
+
   /// Soft diffuse shadow for floating glass surfaces.
   List<BoxShadow> get softShadow => Design.colors.shadows.md;
 }
