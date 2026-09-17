@@ -45,8 +45,8 @@ class HomeController extends GetxController {
     Future<void>.delayed(const Duration(milliseconds: 900), _promptNotifications);
   }
 
-  /// One-time-per-launch prompt for notification permission. Skipped when it
-  /// is already granted, so users who said yes are never nagged.
+  /// Prompts for notification permission once ever (persisted) — testers saw it
+  /// on every launch. Skipped entirely when it is already granted.
   Future<void> _promptNotifications() async {
     final permissions = Get.find<PermissionService>();
     if (permissions.notificationPromptShown) return;
@@ -54,14 +54,23 @@ class HomeController extends GetxController {
 
     if (await permissions.isNotificationAllowed()) return;
 
+    // Ask once, ever: after the first prompt, the choice is the user's.
+    if (permissions.notificationPromptAskedBefore) return;
+
     final context = Get.context;
     if (context == null || !context.mounted) return;
+
+    // Persist before showing, so even a crash mid-dialog counts as asked.
+    await permissions.markNotificationPromptAsked();
+    if (!context.mounted) return;
 
     final enable = await AppDialog.confirm(
       context: context,
       title: AppLocales.permission.notificationTitle.tr,
       message: AppLocales.permission.notificationMessage.tr,
       confirmLabel: AppLocales.permission.notificationEnable.tr,
+      confirmColor: context.colors.primary,
+      cancelColor: context.colors.error,
     );
 
     if (enable) {

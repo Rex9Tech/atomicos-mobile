@@ -185,7 +185,7 @@ class AppSnackbar {
     Get.snackbar(
       title,
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: background,
       colorText: foreground,
       margin: EdgeInsets.all(Design.spacing.lg),

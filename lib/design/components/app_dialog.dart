@@ -190,6 +190,8 @@ class AppDialog {
     required String title,
     required String message,
     String? confirmLabel,
+    Color? confirmColor,
+    Color? cancelColor,
   }) async {
     Get.addTranslations(AppTranslations().keys);
     final label = confirmLabel ?? AppLocales.setting.confirmDelete.tr;
@@ -240,11 +242,13 @@ class AppDialog {
             type: EButtonType.text,
             onPressed: () => Get.back(result: false),
             text: AppLocales.common.cancel.tr,
+            color: cancelColor,
           ),
           AppButton(
             type: EButtonType.text,
             onPressed: () => Get.back(result: true),
             text: label,
+            color: confirmColor,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
@@ -55,6 +56,16 @@ class PermissionService extends GetxService {
   /// Whether the notification prompt was already offered since launch, so the
   /// user is asked once per entry and not on every screen visit.
   bool notificationPromptShown = false;
+
+  static const _askedKey = 'noti_prompt_asked_v1';
+
+  /// Whether the user has ever been asked (persisted across launches) — the
+  /// prompt is shown once, not on every app open.
+  bool get notificationPromptAskedBefore =>
+      GetStorage().read<bool>(_askedKey) ?? false;
+
+  Future<void> markNotificationPromptAsked() =>
+      GetStorage().write(_askedKey, true);
 
   /// Notification access (Android 13+; always granted below that).
   Future<bool> isNotificationAllowed() => isAllowed(Permission.notification);
