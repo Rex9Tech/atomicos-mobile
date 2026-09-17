@@ -11,7 +11,12 @@ import '../ai.dart';
 class AiPage extends GetView<AiController> {
   const AiPage({super.key});
 
-  static const _tabs = <String>['Summary', 'Transcript', 'Note', 'Assets'];
+  List<String> get _tabs => [
+        AppLocales.atom.summary.tr,
+        AppLocales.atom.transcript.tr,
+        AppLocales.atom.note.tr,
+        AppLocales.atom.assets.tr,
+      ];
   static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
   static const _askSources = <String>['Photo', 'Files', 'Add Atom'];
 
@@ -200,7 +205,7 @@ class AiPage extends GetView<AiController> {
           ),
           SizedBox(height: Design.spacing.sm),
           Text(
-            'Write a Meeting Note...',
+            AppLocales.ai.meetingNoteHint.tr,
             style: context.typo.bodyLarge.copyWith(
               color: colors.textMuted,
               fontWeight: FontWeight.w600,
@@ -216,17 +221,17 @@ class AiPage extends GetView<AiController> {
             child: controller.isRecordingProcessing
                 ? _buildRecordingStatusPanel(
                     context,
-                    title: 'Processing meeting',
+                    title: AppLocales.ai.processingMeeting.tr,
                     subtitle:
-                        'AtomicOS is building summary, transcript, and actions from the captured audio.',
+                        AppLocales.ai.processingMeetingSub.tr,
                     icon: Design.icons.sparkles,
                   )
                 : controller.isRecordingComplete
                 ? _buildRecordingStatusPanel(
                     context,
-                    title: 'Meeting ready',
+                    title: AppLocales.ai.meetingReady.tr,
                     subtitle:
-                        'Preview generated outputs, then jump into the full details view.',
+                        AppLocales.ai.meetingReadySub.tr,
                     icon: Design.icons.success,
                   )
                 : TextField(
@@ -252,9 +257,9 @@ class AiPage extends GetView<AiController> {
             SizedBox(height: Design.spacing.md),
             _buildRecordingStatusPanel(
               context,
-              title: 'Recording paused',
+              title: AppLocales.ai.recordingPausedTitle.tr,
               subtitle:
-                  'Notes stay editable while the mic is paused. Resume when the meeting continues.',
+                  AppLocales.ai.recordingPausedSub.tr,
               icon: Design.icons.pause,
             ),
           ],
@@ -299,14 +304,14 @@ class AiPage extends GetView<AiController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Ask AtomicOS',
+                AppLocales.ai.askTitle.tr,
                 style: context.typo.headline3.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: Design.spacing.xs),
               Text(
-                'Start with a question, attach context, and turn the answer into structured next steps.',
+                AppLocales.ai.askSubtitle.tr,
                 style: context.typo.bodyMedium.copyWith(
                   color: colors.textSecondary,
                   height: 1.45,
@@ -316,10 +321,10 @@ class AiPage extends GetView<AiController> {
               Wrap(
                 spacing: Design.spacing.sm,
                 runSpacing: Design.spacing.sm,
-                children: const [
-                  _MiniResultChip(label: 'Summary'),
-                  _MiniResultChip(label: 'Decisions'),
-                  _MiniResultChip(label: 'Tasks'),
+                children: [
+                  _MiniResultChip(label: AppLocales.ai.resultSummary.tr),
+                  _MiniResultChip(label: AppLocales.ai.resultDecisions.tr),
+                  _MiniResultChip(label: AppLocales.ai.resultTasks.tr),
                 ],
               ),
             ],
@@ -401,12 +406,12 @@ class AiPage extends GetView<AiController> {
         _buildAskTopBar(context),
         SizedBox(height: Design.spacing.xl),
         Text(
-          'Choose context',
+          AppLocales.ai.chooseContext.tr,
           style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
-          'Pick one of your atoms so AtomicOS answers with real context.',
+          AppLocales.ai.chooseContextSub.tr,
           style: context.typo.bodyMedium.copyWith(color: colors.textSecondary),
         ),
         SizedBox(height: Design.spacing.lg),
@@ -484,14 +489,14 @@ class AiPage extends GetView<AiController> {
                   ),
                   SizedBox(height: Design.spacing.md),
                   Text(
-                    'No atoms here yet',
+                    AppLocales.ai.noAtomsHere.tr,
                     style: context.typo.labelLarge.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: Design.spacing.xs),
                   Text(
-                    'Create an atom first, then attach it as context.',
+                    AppLocales.ai.noAtomsHereSub.tr,
                     textAlign: TextAlign.center,
                     style: context.typo.bodySmall.copyWith(
                       color: colors.textSecondary,
@@ -579,7 +584,7 @@ class AiPage extends GetView<AiController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Work with this answer',
+            AppLocales.ai.workWithAnswer.tr,
             style: context.typo.labelMedium.copyWith(
               color: colors.textSecondary,
               fontWeight: FontWeight.w700,
@@ -697,7 +702,7 @@ class AiPage extends GetView<AiController> {
 
     if (lines.isEmpty) {
       return Text(
-        'Run an action to generate a backend response preview.',
+        AppLocales.ai.runActionHint.tr,
         style: context.typo.bodyMedium.copyWith(height: 1.45),
       );
     }
@@ -823,7 +828,7 @@ class AiPage extends GetView<AiController> {
         _CircleIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
-            'Ask AtomicOS',
+            AppLocales.ai.askTitle.tr,
             textAlign: TextAlign.center,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
@@ -970,28 +975,28 @@ class AiPage extends GetView<AiController> {
     return [
       _AskActionItem(
         icon: Design.icons.bolt,
-        label: 'Summary',
-        subtitle: 'Condense the answer into the shortest useful version',
+        label: AppLocales.ai.resultSummary.tr,
+        subtitle: AppLocales.ai.actionSummarySub.tr,
       ),
       _AskActionItem(
         icon: Design.icons.route,
-        label: 'Decisions',
-        subtitle: 'Pull out calls, approvals, and resolved questions',
+        label: AppLocales.ai.resultDecisions.tr,
+        subtitle: AppLocales.ai.actionDecisionsSub.tr,
       ),
       _AskActionItem(
         icon: Design.icons.sparkles,
-        label: 'Fusion with',
-        subtitle: 'Translate or reshape the answer for a different audience',
+        label: AppLocales.ai.actionFusion.tr,
+        subtitle: AppLocales.ai.actionFusionSub.tr,
       ),
       _AskActionItem(
         icon: Design.icons.task,
-        label: 'Generate tasks',
-        subtitle: 'Turn the response into concrete follow-up work',
+        label: AppLocales.ai.actionTasks.tr,
+        subtitle: AppLocales.ai.actionTasksSub.tr,
       ),
       _AskActionItem(
         icon: Design.icons.report,
-        label: 'Generate analytic report',
-        subtitle: 'Build a longer structured readout with sections',
+        label: AppLocales.ai.actionReport.tr,
+        subtitle: AppLocales.ai.actionReportSub.tr,
       ),
     ];
   }
@@ -1029,7 +1034,7 @@ class AiPage extends GetView<AiController> {
         _CircleIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
-            'Details',
+            AppLocales.ai.detailsTab.tr,
             textAlign: TextAlign.center,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
@@ -1143,7 +1148,7 @@ class AiPage extends GetView<AiController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Overview',
+                AppLocales.ai.overview.tr,
                 style: context.typo.labelLarge.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -1208,8 +1213,8 @@ class AiPage extends GetView<AiController> {
       if (visibleMessages.isEmpty) {
         return _EmptyStateCard(
           icon: Design.icons.note,
-          title: 'No transcript yet',
-          subtitle: 'Start recording or ask a question to generate content.',
+          title: AppLocales.ai.noTranscript.tr,
+          subtitle: AppLocales.ai.noTranscriptSub.tr,
         );
       }
 
@@ -1226,7 +1231,7 @@ class AiPage extends GetView<AiController> {
             status: message.isProcessing
                 ? 'Processing'
                 : message.isFailed
-                ? 'Needs retry'
+                ? AppLocales.ai.needsRetry.tr
                 : 'Saved',
           );
         },
@@ -1238,7 +1243,7 @@ class AiPage extends GetView<AiController> {
     return ListView(
       children: [
         AppToneCard(
-          title: 'Today',
+          title: AppLocales.ai.today.tr,
           leadingIcon: Design.icons.note,
           tone: EAppToneCardTone.primary,
           footer: Text(
@@ -1255,24 +1260,24 @@ class AiPage extends GetView<AiController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Context cards',
+                AppLocales.ai.contextCards.tr,
                 style: context.typo.labelLarge.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: Design.spacing.md),
               Row(
-                children: const [
+                children: [
                   Expanded(
                     child: _ContextPreviewCard(
-                      title: 'Source',
+                      title: AppLocales.ai.source.tr,
                       subtitle: 'Slack huddle',
                     ),
                   ),
                   SizedBox(width: 12),
                   Expanded(
                     child: _ContextPreviewCard(
-                      title: 'Participants',
+                      title: AppLocales.ai.participants.tr,
                       subtitle: '4 speakers',
                     ),
                   ),
@@ -1283,9 +1288,9 @@ class AiPage extends GetView<AiController> {
         ),
         SizedBox(height: Design.spacing.md),
         AppToneCard(
-          title: 'Ask about this Atom',
+          title: AppLocales.ai.askAboutThisAtom.tr,
           subtitle:
-              'Open the AI workspace with this note as the current context.',
+              AppLocales.ai.askAboutThisAtomSub.tr,
           leadingIcon: Design.icons.sparkles,
           tone: EAppToneCardTone.primary,
         ),
@@ -1304,13 +1309,13 @@ class AiPage extends GetView<AiController> {
           children: [
             _EmptyStateCard(
               icon: Design.icons.emptyBox,
-              title: 'No assets yet',
-              subtitle: 'Attachments and imported files will appear here.',
+              title: AppLocales.ai.noAssets.tr,
+              subtitle: AppLocales.ai.noAssetsSub.tr,
             ),
             SizedBox(height: Design.spacing.md),
             AppToneCard(
-              title: 'Add more files',
-              subtitle: 'Upload and import previews will surface here next.',
+              title: AppLocales.ai.addMoreFiles.tr,
+              subtitle: AppLocales.ai.addMoreFilesSub1.tr,
               leadingIcon: Design.icons.upload,
               tone: EAppToneCardTone.primary,
             ),
@@ -1324,8 +1329,8 @@ class AiPage extends GetView<AiController> {
         itemBuilder: (context, index) {
           if (index == assets.length) {
             return AppToneCard(
-              title: 'Add more files',
-              subtitle: 'Keep supporting documents connected to this atom.',
+              title: AppLocales.ai.addMoreFiles.tr,
+              subtitle: AppLocales.ai.addMoreFilesSub2.tr,
               leadingIcon: Design.icons.upload,
               tone: EAppToneCardTone.primary,
             );
@@ -1381,7 +1386,7 @@ class AiPage extends GetView<AiController> {
                 ),
                 SizedBox(height: Design.spacing.sm),
                 Text(
-                  'Write a Meeting Note...',
+                  AppLocales.ai.meetingNoteHint.tr,
                   style: context.typo.bodyLarge.copyWith(
                     color: colors.textMuted,
                     fontWeight: FontWeight.w600,
@@ -1397,7 +1402,7 @@ class AiPage extends GetView<AiController> {
                     ),
                     SizedBox(width: Design.spacing.sm),
                     Text(
-                      'Attachments',
+                      AppLocales.ai.attachments.tr,
                       style: context.typo.bodySmall.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -1409,9 +1414,9 @@ class AiPage extends GetView<AiController> {
                   child: controller.isRecordingProcessing
                       ? _buildRecordingStatusPanel(
                           context,
-                          title: 'Generating outputs',
+                          title: AppLocales.ai.generatingOutputs.tr,
                           subtitle:
-                              'Transcript segments, summary blocks, and tasks are being prepared.',
+                              AppLocales.ai.processingPanelSub.tr,
                           icon: Design.icons.sparkles,
                         )
                       : controller.isRecordingComplete
@@ -1420,19 +1425,19 @@ class AiPage extends GetView<AiController> {
                           children: [
                             _buildRecordingStatusPanel(
                               context,
-                              title: 'Outputs ready',
+                              title: AppLocales.ai.outputsReady.tr,
                               subtitle:
-                                  'You can now review summary, transcript, note, and asset previews.',
+                                  AppLocales.ai.outputsReadySub.tr,
                               icon: Design.icons.success,
                             ),
                             SizedBox(height: Design.spacing.md),
-                            const _ContextPreviewCard(
-                              title: 'Summary',
+                            _ContextPreviewCard(
+                              title: AppLocales.ai.resultSummary.tr,
                               subtitle: '4 blocks generated',
                             ),
                             SizedBox(height: Design.spacing.sm),
-                            const _ContextPreviewCard(
-                              title: 'Tasks',
+                            _ContextPreviewCard(
+                              title: AppLocales.ai.resultTasks.tr,
                               subtitle: '5 action items extracted',
                             ),
                           ],
@@ -1484,7 +1489,7 @@ class AiPage extends GetView<AiController> {
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
-                        hintText: 'Write a Meeting Note...',
+                        hintText: AppLocales.ai.meetingNoteHint.tr,
                         prefixIcon: Icon(
                           Design.icons.note,
                           color: colors.textMuted,
@@ -1522,7 +1527,7 @@ class AiPage extends GetView<AiController> {
                                 ),
                                 SizedBox(width: Design.spacing.sm),
                                 Text(
-                                  'Attachments',
+                                  AppLocales.ai.attachments.tr,
                                   style: context.typo.bodySmall.copyWith(
                                     color: colors.textSecondary,
                                   ),
@@ -1536,7 +1541,7 @@ class AiPage extends GetView<AiController> {
                           height: Design.spacing.buttonHeight,
                           child: ElevatedButton(
                             onPressed: controller.handleSend,
-                            child: const Text('Ask about this Atom'),
+                            child: Text(AppLocales.ai.askAboutThisAtom.tr),
                           ),
                         ),
                       ],
@@ -1582,7 +1587,7 @@ class AiPage extends GetView<AiController> {
           Expanded(
             child: controller.isRecordingProcessing
                 ? Text(
-                    'Processing preview...',
+                    AppLocales.ai.processingPreview.tr,
                     style: context.typo.bodyMedium.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.w700,
@@ -1590,7 +1595,7 @@ class AiPage extends GetView<AiController> {
                   )
                 : controller.isRecordingComplete
                 ? Text(
-                    'Ready. Open details.',
+                    AppLocales.ai.readyOpenDetails.tr,
                     style: context.typo.bodyMedium.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.w700,
@@ -1698,16 +1703,16 @@ class AiPage extends GetView<AiController> {
         .toList();
 
     if (assistantMessages.isEmpty) {
-      return const [
+      return [
         _SummaryBlock(
-          title: 'Key points',
+          title: AppLocales.ai.keyPoints.tr,
           lines: [
             'Attendees aligned on next steps for the current sprint.',
             'Open questions were captured for follow-up.',
           ],
         ),
         _SummaryBlock(
-          title: 'Action items',
+          title: AppLocales.ai.actionItems.tr,
           lines: [
             'Send revised API docs.',
             'Confirm launch owners.',
@@ -1719,14 +1724,14 @@ class AiPage extends GetView<AiController> {
 
     return [
       _SummaryBlock(
-        title: 'Summary',
+        title: AppLocales.ai.resultSummary.tr,
         lines: assistantMessages
             .take(3)
             .map((message) => message.content.trim())
             .toList(),
       ),
       _SummaryBlock(
-        title: 'Action items',
+        title: AppLocales.ai.actionItems.tr,
         lines: assistantMessages
             .skip(1)
             .take(3)
@@ -2211,7 +2216,7 @@ class _AskSourceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppToneCard(
       title: label,
-      subtitle: 'Attach as context',
+      subtitle: AppLocales.ai.attachAsContext.tr,
       leadingIcon: icon,
       tone: EAppToneCardTone.primary,
       onTap: onTap,
@@ -2403,7 +2408,7 @@ class _ChatBubble extends StatelessWidget {
               Icon(Design.icons.warning, size: 13, color: colors.error),
               SizedBox(width: 4),
               Text(
-                'Needs retry',
+                AppLocales.ai.needsRetry.tr,
                 style: context.typo.caption.copyWith(color: colors.error),
               ),
               SizedBox(width: Design.spacing.sm),
@@ -2466,7 +2471,7 @@ class _ThinkingBubble extends StatelessWidget {
               ),
               SizedBox(width: Design.spacing.sm),
               Text(
-                'AtomicOS is thinking…',
+                AppLocales.ai.thinking.tr,
                 style: context.typo.bodySmall.copyWith(
                   color: colors.textSecondary,
                 ),

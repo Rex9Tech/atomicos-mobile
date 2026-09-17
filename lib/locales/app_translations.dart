@@ -251,22 +251,6 @@ class AppTranslations extends Translations {
       AppLocales.user.accountInfo: 'Account Information',
       AppLocales.user.roles: 'Roles',
       AppLocales.user.permissions: 'Permissions',
-      AppLocales.ai.micPermissionTitle: 'Se requiere acceso al micrófono',
-      AppLocales.ai.micPermissionMessage:
-          'La entrada de voz necesita acceso al micrófono. Abre Ajustes para habilitarlo en esta app.',
-      AppLocales.ai.openSettings: 'Abrir ajustes',
-      AppLocales.ai.askSourcePhoto: 'Foto',
-      AppLocales.ai.askSourceFiles: 'Archivos',
-      AppLocales.ai.askSourceAtom: 'Añadir átomo',
-      AppLocales.ai.aiSendMessageFailed: 'No se pudo enviar el mensaje',
-      AppLocales.ai.aiResponseFailed:
-          'No se pudo obtener la respuesta de la IA',
-      AppLocales.ai.aiHistoryCleared: 'Historial de chat borrado',
-      AppLocales.ai.aiClearHistoryFailed: 'No se pudo borrar el historial',
-      AppLocales.ai.aiStartRecordingFailed: 'No se pudo iniciar la grabación',
-      AppLocales.ai.aiTranscriptionFailed: 'No se pudo transcribir el audio',
-      AppLocales.ai.aiTtsFailed: 'No se pudo reproducir el audio',
-      AppLocales.ai.aiTtsEmpty: 'Nada que reproducir',
 
       // Notification
       AppLocales.notification.title: 'Notifications',
@@ -330,6 +314,79 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'This stops the recording and turns the transcript into an atom. You can read and edit it afterwards.',
       AppLocales.recording.endConfirm: 'End & create atom',
+
+      // AI workspace (ask + recording)
+      AppLocales.ai.meetingNoteHint: 'Write a Meeting Note...',
+      AppLocales.ai.processingMeeting: 'Processing meeting',
+      AppLocales.ai.processingMeetingSub:
+          'AtomicOS is building summary, transcript, and actions from the captured audio.',
+      AppLocales.ai.meetingReady: 'Meeting ready',
+      AppLocales.ai.meetingReadySub:
+          'Preview generated outputs, then jump into the full details view.',
+      AppLocales.ai.recordingPausedTitle: 'Recording paused',
+      AppLocales.ai.recordingPausedSub:
+          'Notes stay editable while the mic is paused. Resume when the meeting continues.',
+      AppLocales.ai.askTitle: 'Ask AtomicOS',
+      AppLocales.ai.askSubtitle:
+          'Start with a question, attach context, and turn the answer into structured next steps.',
+      AppLocales.ai.resultSummary: 'Summary',
+      AppLocales.ai.resultDecisions: 'Decisions',
+      AppLocales.ai.resultTasks: 'Tasks',
+      AppLocales.ai.actionSummarySub:
+          'Condense the answer into the shortest useful version',
+      AppLocales.ai.actionDecisionsSub:
+          'Pull out calls, approvals, and resolved questions',
+      AppLocales.ai.actionFusion: 'Fusion with',
+      AppLocales.ai.actionFusionSub:
+          'Translate or reshape the answer for a different audience',
+      AppLocales.ai.actionTasks: 'Generate tasks',
+      AppLocales.ai.actionTasksSub:
+          'Turn the response into concrete follow-up work',
+      AppLocales.ai.actionReport: 'Generate analytic report',
+      AppLocales.ai.actionReportSub:
+          'Build a longer structured readout with sections',
+      AppLocales.ai.noTranscript: 'No transcript yet',
+      AppLocales.ai.noTranscriptSub:
+          'Start recording or ask a question to generate content.',
+      AppLocales.ai.today: 'Today',
+      AppLocales.ai.source: 'Source',
+      AppLocales.ai.participants: 'Participants',
+      AppLocales.ai.askAboutThisAtom: 'Ask about this Atom',
+      AppLocales.ai.askAboutThisAtomSub:
+          'Open the AI workspace with this note as the current context.',
+      AppLocales.ai.noAssets: 'No assets yet',
+      AppLocales.ai.noAssetsSub:
+          'Attachments and imported files will appear here.',
+      AppLocales.ai.addMoreFiles: 'Add more files',
+      AppLocales.ai.addMoreFilesSub1:
+          'Upload and import previews will surface here next.',
+      AppLocales.ai.addMoreFilesSub2:
+          'Keep supporting documents connected to this atom.',
+      AppLocales.ai.generatingOutputs: 'Generating outputs',
+      AppLocales.ai.outputsReady: 'Outputs ready',
+      AppLocales.ai.actionItems: 'Action items',
+      AppLocales.ai.attachAsContext: 'Attach as context',
+      AppLocales.ai.chooseContext: 'Choose context',
+      AppLocales.ai.chooseContextSub:
+          'Pick one of your atoms so AtomicOS answers with real context.',
+      AppLocales.ai.noAtomsHere: 'No atoms here yet',
+      AppLocales.ai.noAtomsHereSub:
+          'Create an atom first, then attach it as context.',
+      AppLocales.ai.workWithAnswer: 'Work with this answer',
+      AppLocales.ai.runActionHint:
+          'Run an action to generate a backend response preview.',
+      AppLocales.ai.detailsTab: 'Details',
+      AppLocales.ai.overview: 'Overview',
+      AppLocales.ai.contextCards: 'Context cards',
+      AppLocales.ai.attachments: 'Attachments',
+      AppLocales.ai.processingPanelSub:
+          'Transcript segments, summary blocks, and tasks are being prepared.',
+      AppLocales.ai.outputsReadySub:
+          'You can now review summary, transcript, note, and asset previews.',
+      AppLocales.ai.processingPreview: 'Processing preview...',
+      AppLocales.ai.readyOpenDetails: 'Ready. Open details.',
+      AppLocales.ai.needsRetry: 'Needs retry',
+      AppLocales.ai.thinking: 'AtomicOS is thinking…',
     },
     'my_MM': {
       // Common
@@ -624,6 +681,79 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'ဖမ်းယူမှုကို ရပ်ပြီး စကားပြောစာသားမှ အက်တမ်တစ်ခု ဖန်တီးပါမည်။ နောက်မှ ဖတ်ရှု ပြင်ဆင်နိုင်ပါသည်။',
       AppLocales.recording.endConfirm: 'ရပ်ပြီး အက်တမ် ဖန်တီးမည်',
+
+      // AI workspace (ask + recording)
+      AppLocales.ai.meetingNoteHint: 'အစည်းအဝေး မှတ်စု ရေးသားပါ...',
+      AppLocales.ai.processingMeeting: 'အစည်းအဝေး လုပ်ဆောင်နေသည်',
+      AppLocales.ai.processingMeetingSub:
+          'ဖမ်းယူထားသော အသံမှ အနှစ်ချုပ်၊ စကားပြောစာသားနှင့် လုပ်ဆောင်ချက်များကို AtomicOS ဖန်တီးနေသည်။',
+      AppLocales.ai.meetingReady: 'အစည်းအဝေး အဆင်သင့်ဖြစ်ပြီ',
+      AppLocales.ai.meetingReadySub:
+          'ဖန်တီးထားသော ရလဒ်များကို ကြည့်ရှုပြီး အသေးစိတ်စာမျက်နှာသို့ ဆက်သွားပါ။',
+      AppLocales.ai.recordingPausedTitle: 'အသံဖမ်းခြင်း ခေတ္တရပ်ထားသည်',
+      AppLocales.ai.recordingPausedSub:
+          'မိုက်ခေတ္တရပ်ထားစဉ် မှတ်စုများ ရေးသားနိုင်သည်။ အစည်းအဝေး ဆက်လုပ်သည့်အခါ ပြန်စပါ။',
+      AppLocales.ai.askTitle: 'AtomicOS ကို မေးမြန်းပါ',
+      AppLocales.ai.askSubtitle:
+          'မေးခွန်းတစ်ခုဖြင့် စတင်ပါ၊ အကြောင်းအရာ ပူးတွဲပါ၊ အဖြေကို စနစ်တကျ နောက်ဆက်တွဲ အဆင့်များအဖြစ် ပြောင်းလဲပါ။',
+      AppLocales.ai.resultSummary: 'အနှစ်ချုပ်',
+      AppLocales.ai.resultDecisions: 'ဆုံးဖြတ်ချက်များ',
+      AppLocales.ai.resultTasks: 'လုပ်ဆောင်ချက်များ',
+      AppLocales.ai.actionSummarySub:
+          'အဖြေကို အတိုဆုံး အသုံးဝင်သည့်ပုံစံသို့ ချုံ့ပါ',
+      AppLocales.ai.actionDecisionsSub:
+          'ဆုံးဖြတ်ချက်များ၊ အတည်ပြုချက်များနှင့် ဖြေရှင်းပြီးသော မေးခွန်းများကို ထုတ်ယူပါ',
+      AppLocales.ai.actionFusion: 'ပေါင်းစပ်မည်',
+      AppLocales.ai.actionFusionSub:
+          'အဖြေကို အခြားပရိသတ်အတွက် ဘာသာပြန်ပါ သို့မဟုတ် ပြန်လည်ဖွဲ့စည်းပါ',
+      AppLocales.ai.actionTasks: 'လုပ်ဆောင်ချက်များ ဖန်တီးပါ',
+      AppLocales.ai.actionTasksSub:
+          'အဖြေကို တိကျသော နောက်ဆက်တွဲ အလုပ်များအဖြစ် ပြောင်းပါ',
+      AppLocales.ai.actionReport: 'ခွဲခြမ်းစိတ်ဖြာ အစီရင်ခံစာ ဖန်တီးပါ',
+      AppLocales.ai.actionReportSub:
+          'အခန်းများပါသော ပိုရှည်သည့် ဖွဲ့စည်းထားသော အစီရင်ခံစာ ဖန်တီးပါ',
+      AppLocales.ai.noTranscript: 'စကားပြောစာသား မရှိသေးပါ',
+      AppLocales.ai.noTranscriptSub:
+          'အကြောင်းအရာ ဖန်တီးရန် အသံဖမ်းပါ သို့မဟုတ် မေးခွန်းမေးပါ။',
+      AppLocales.ai.today: 'ယနေ့',
+      AppLocales.ai.source: 'အရင်းအမြစ်',
+      AppLocales.ai.participants: 'ပါဝင်သူများ',
+      AppLocales.ai.askAboutThisAtom: 'ဤအက်တမ်အကြောင်း မေးမည်',
+      AppLocales.ai.askAboutThisAtomSub:
+          'ဤမှတ်စုကို အကြောင်းအရာအဖြစ် ထည့်သွင်း၍ AI workspace ဖွင့်ပါ။',
+      AppLocales.ai.noAssets: 'ဖိုင်များ မရှိသေးပါ',
+      AppLocales.ai.noAssetsSub:
+          'ပူးတွဲဖိုင်များနှင့် တင်သွင်းထားသော ဖိုင်များ ဤနေရာတွင် ပေါ်လာမည်။',
+      AppLocales.ai.addMoreFiles: 'ဖိုင်များ ထပ်ထည့်ပါ',
+      AppLocales.ai.addMoreFilesSub1:
+          'တင်လိုက်သော ဖိုင်များ၏ preview များ ဤနေရာတွင် ပေါ်လာမည်။',
+      AppLocales.ai.addMoreFilesSub2:
+          'ဤအက်တမ်နှင့် ဆက်စပ်ထားသော စာရွက်စာတမ်းများကို ထိန်းသိမ်းထားပါ။',
+      AppLocales.ai.generatingOutputs: 'ရလဒ်များ ဖန်တီးနေသည်',
+      AppLocales.ai.outputsReady: 'ရလဒ်များ အဆင်သင့်ဖြစ်ပြီ',
+      AppLocales.ai.actionItems: 'လုပ်ဆောင်ရမည့် အချက်များ',
+      AppLocales.ai.attachAsContext: 'အကြောင်းအရာအဖြစ် ပူးတွဲမည်',
+      AppLocales.ai.chooseContext: 'အကြောင်းအရာ ရွေးချယ်ပါ',
+      AppLocales.ai.chooseContextSub:
+          'AtomicOS အဖြေများ တိကျစေရန် သင့်အက်တမ်တစ်ခုကို ရွေးချယ်ပါ။',
+      AppLocales.ai.noAtomsHere: 'ဤနေရာတွင် အက်တမ် မရှိသေးပါ',
+      AppLocales.ai.noAtomsHereSub:
+          'အက်တမ်တစ်ခု အရင်ဖန်တီးပြီးမှ အကြောင်းအရာအဖြစ် ပူးတွဲပါ။',
+      AppLocales.ai.workWithAnswer: 'ဤအဖြေဖြင့် ဆက်လုပ်ပါ',
+      AppLocales.ai.runActionHint:
+          'အဖြေ preview ဖန်တီးရန် လုပ်ဆောင်ချက်တစ်ခု လုပ်ဆောင်ပါ။',
+      AppLocales.ai.detailsTab: 'အသေးစိတ်',
+      AppLocales.ai.overview: 'ခြုံငုံသုံးသပ်ချက်',
+      AppLocales.ai.contextCards: 'အကြောင်းအရာ ကတ်များ',
+      AppLocales.ai.attachments: 'ပူးတွဲဖိုင်များ',
+      AppLocales.ai.processingPanelSub:
+          'စကားပြောစာသား၊ အနှစ်ချုပ်နှင့် လုပ်ဆောင်ချက်များကို ပြင်ဆင်နေသည်။',
+      AppLocales.ai.outputsReadySub:
+          'အနှစ်ချုပ်၊ စကားပြောစာသား၊ မှတ်စုနှင့် ဖိုင် preview များကို ယခု ကြည့်ရှုနိုင်ပါပြီ။',
+      AppLocales.ai.processingPreview: 'preview ပြုလုပ်နေသည်...',
+      AppLocales.ai.readyOpenDetails: 'အဆင်သင့်ဖြစ်ပြီ။ အသေးစိတ် ဖွင့်ပါ။',
+      AppLocales.ai.needsRetry: 'ပြန်စမ်းရန် လိုအပ်သည်',
+      AppLocales.ai.thinking: 'AtomicOS စဉ်းစားနေသည်…',
     },
   };
 }

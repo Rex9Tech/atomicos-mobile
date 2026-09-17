@@ -224,6 +224,57 @@ class _FeedbackLocales {
 
 class _AiLocales {
   const _AiLocales();
+  final chooseContext = 'ai.chooseContext';
+  final chooseContextSub = 'ai.chooseContextSub';
+  final noAtomsHere = 'ai.noAtomsHere';
+  final noAtomsHereSub = 'ai.noAtomsHereSub';
+  final workWithAnswer = 'ai.workWithAnswer';
+  final runActionHint = 'ai.runActionHint';
+  final detailsTab = 'ai.detailsTab';
+  final overview = 'ai.overview';
+  final contextCards = 'ai.contextCards';
+  final attachments = 'ai.attachments';
+  final processingPanelSub = 'ai.processingPanelSub';
+  final outputsReadySub = 'ai.outputsReadySub';
+  final processingPreview = 'ai.processingPreview';
+  final readyOpenDetails = 'ai.readyOpenDetails';
+  final needsRetry = 'ai.needsRetry';
+  final meetingNoteHint = 'ai.meetingNoteHint';
+  final processingMeeting = 'ai.processingMeeting';
+  final processingMeetingSub = 'ai.processingMeetingSub';
+  final meetingReady = 'ai.meetingReady';
+  final meetingReadySub = 'ai.meetingReadySub';
+  final recordingPausedTitle = 'ai.recordingPausedTitle';
+  final recordingPausedSub = 'ai.recordingPausedSub';
+  final askTitle = 'ai.askTitle';
+  final askSubtitle = 'ai.askSubtitle';
+  final resultSummary = 'ai.resultSummary';
+  final resultDecisions = 'ai.resultDecisions';
+  final resultTasks = 'ai.resultTasks';
+  final actionSummarySub = 'ai.actionSummarySub';
+  final actionDecisionsSub = 'ai.actionDecisionsSub';
+  final actionFusion = 'ai.actionFusion';
+  final actionFusionSub = 'ai.actionFusionSub';
+  final actionTasks = 'ai.actionTasks';
+  final actionTasksSub = 'ai.actionTasksSub';
+  final actionReport = 'ai.actionReport';
+  final actionReportSub = 'ai.actionReportSub';
+  final noTranscript = 'ai.noTranscript';
+  final noTranscriptSub = 'ai.noTranscriptSub';
+  final today = 'ai.today';
+  final source = 'ai.source';
+  final participants = 'ai.participants';
+  final askAboutThisAtom = 'ai.askAboutThisAtom';
+  final askAboutThisAtomSub = 'ai.askAboutThisAtomSub';
+  final noAssets = 'ai.noAssets';
+  final noAssetsSub = 'ai.noAssetsSub';
+  final addMoreFiles = 'ai.addMoreFiles';
+  final addMoreFilesSub1 = 'ai.addMoreFilesSub1';
+  final addMoreFilesSub2 = 'ai.addMoreFilesSub2';
+  final generatingOutputs = 'ai.generatingOutputs';
+  final outputsReady = 'ai.outputsReady';
+  final actionItems = 'ai.actionItems';
+  final attachAsContext = 'ai.attachAsContext';
 
   final title = 'ai.title';
   final rooms = 'ai.rooms';
@@ -258,7 +309,6 @@ class _AiLocales {
   final aiTtsFailed = 'ai.ai_tts_failed';
   final aiTtsEmpty = 'ai.ai_tts_empty';
   final keyPoints = 'ai.key_points';
-  final actionItems = 'ai.action_items';
   final risks = 'ai.risks';
 }
 
