@@ -13,6 +13,38 @@ class CalendarPage extends GetView<CalendarController> {
   static const _ranges = <String>['Day', 'Week', 'Month'];
   static const _days = <String>['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
+  String _rangeLabel(String range) {
+    switch (range) {
+      case 'Day':
+        return AppLocales.calendar.rangeDay.tr;
+      case 'Week':
+        return AppLocales.calendar.rangeWeek.tr;
+      case 'Month':
+        return AppLocales.calendar.rangeMonth.tr;
+    }
+    return range;
+  }
+
+  String _dayLabel(String day) {
+    switch (day) {
+      case 'MO':
+        return AppLocales.calendar.dayMon.tr;
+      case 'TU':
+        return AppLocales.calendar.dayTue.tr;
+      case 'WE':
+        return AppLocales.calendar.dayWed.tr;
+      case 'TH':
+        return AppLocales.calendar.dayThu.tr;
+      case 'FR':
+        return AppLocales.calendar.dayFri.tr;
+      case 'SA':
+        return AppLocales.calendar.daySat.tr;
+      case 'SU':
+        return AppLocales.calendar.daySun.tr;
+    }
+    return day;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -26,14 +58,14 @@ class CalendarPage extends GetView<CalendarController> {
             _buildTopBar(context),
             SizedBox(height: Design.spacing.lg),
             Text(
-              'Calendar',
+              AppLocales.calendar.pageHeader.tr,
               style: context.typo.headline2.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: Design.spacing.xs),
             Text(
-              'Review upcoming sessions, then jump straight into the live workspace.',
+              AppLocales.calendar.headerSub.tr,
               style: context.typo.bodyMedium.copyWith(
                 color: colors.textSecondary,
               ),
@@ -124,7 +156,7 @@ class CalendarPage extends GetView<CalendarController> {
                         ),
                       ),
                       child: Text(
-                        label,
+                        _rangeLabel(label),
                         textAlign: TextAlign.center,
                         style: context.typo.labelMedium.copyWith(
                           color: controller.selectedRange.value == label
@@ -162,21 +194,21 @@ class CalendarPage extends GetView<CalendarController> {
           children: [
             Expanded(
               child: _CalendarMetric(
-                label: 'Visible',
+                label: AppLocales.calendar.metricVisible.tr,
                 value: '${controller.filteredEvents.length}',
               ),
             ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
               child: _CalendarMetric(
-                label: 'Range',
+                label: AppLocales.calendar.metricRange.tr,
                 value: controller.selectedRange.value,
               ),
             ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
               child: _CalendarMetric(
-                label: 'Day',
+                label: AppLocales.calendar.metricDay.tr,
                 value: '${controller.selectedDay.value}',
               ),
             ),
@@ -207,7 +239,7 @@ class CalendarPage extends GetView<CalendarController> {
             child: Column(
               children: [
                 Text(
-                  'August',
+                  MaterialLocalizations.of(context).formatMonthYear(DateTime.now()),
                   style: context.typo.bodySmall.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -246,7 +278,7 @@ class CalendarPage extends GetView<CalendarController> {
                 .map(
                   (label) => Expanded(
                     child: Text(
-                      label,
+                      _dayLabel(label),
                       textAlign: TextAlign.center,
                       style: context.typo.caption.copyWith(
                         color: colors.textSecondary,
@@ -341,8 +373,9 @@ class CalendarPage extends GetView<CalendarController> {
               children: [
                 Text(
                   controller.selectedRange.value == 'Month'
-                      ? 'Month schedule'
-                      : 'Schedule for ${controller.selectedDay.value}',
+                      ? AppLocales.calendar.monthSchedule.tr
+                      : AppLocales.calendar.scheduleFor.trParams(
+                          {'day': '${controller.selectedDay.value}'}),
                   style: context.typo.labelLarge.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -360,7 +393,7 @@ class CalendarPage extends GetView<CalendarController> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'Open live view',
+                      AppLocales.calendar.openLiveView.tr,
                       style: context.typo.bodySmall.copyWith(
                         color: colors.primary,
                         fontWeight: FontWeight.w700,
@@ -469,7 +502,7 @@ class CalendarPage extends GetView<CalendarController> {
               SizedBox(height: Design.spacing.sm),
               _SheetAction(
                 icon: Design.icons.play,
-                label: 'Open live view',
+                label: AppLocales.calendar.openLiveView.tr,
                 onTap: () {
                   Get.back();
                   AppRoutes.toLiveActivity();

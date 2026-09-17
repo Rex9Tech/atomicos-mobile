@@ -89,7 +89,7 @@ class LiveActivityController extends GetxController {
     isRecording.value = true;
     _startTicker();
 
-    final result = await _recording.start('Live meeting');
+    final result = await _recording.start(AppLocales.recording.liveMeeting.tr);
     if (result.success && (result.data?.id ?? '').isNotEmpty) {
       recordingId.value = result.data!.id;
     }
@@ -101,7 +101,7 @@ class LiveActivityController extends GetxController {
     // dropped connection would otherwise stop the transcript.
     _speech.allowBackgroundListening = true;
     _socket.allowBackgroundReconnect = true;
-    await _background.start(title: 'Live meeting');
+    await _background.start(title: AppLocales.recording.liveMeeting.tr);
 
     await _startLiveTranscript();
   }
@@ -305,17 +305,17 @@ class LiveActivityController extends GetxController {
   String? _noticeFor(ESpeechListenResult result) {
     switch (result) {
       case ESpeechListenResult.disconnected:
-        return 'Live transcript is offline — reconnect to stream it.';
+        return AppLocales.recording.transcriptOffline.tr;
       case ESpeechListenResult.permissionDenied:
-        return 'Microphone permission is needed for the live transcript.';
+        return AppLocales.recording.transcriptMicNeeded.tr;
       case ESpeechListenResult.capturedOffline:
-        return 'Live transcript is offline — the audio is still being recorded.';
+        return AppLocales.recording.transcriptOfflineRecording.tr;
       case ESpeechListenResult.alreadyListening:
         return null;
       case ESpeechListenResult.started:
         return null;
       case ESpeechListenResult.failed:
-        return 'Live transcript is unavailable right now.';
+        return AppLocales.recording.transcriptUnavailable.tr;
     }
   }
 }

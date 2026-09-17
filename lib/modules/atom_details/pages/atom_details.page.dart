@@ -72,7 +72,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         _CircleButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
-            'Details',
+            AppLocales.ai.detailsTab.tr,
             textAlign: TextAlign.center,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
@@ -125,7 +125,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
               SizedBox(height: Design.spacing.sm),
               _SheetAction(
                 icon: Design.icons.sparkles,
-                label: 'Ask about this Atom',
+                label: AppLocales.ai.askAboutThisAtom.tr,
                 onTap: () {
                   Get.back();
                   AppRoutes.toAi(
@@ -274,8 +274,8 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                       const SizedBox(width: 5),
                       Text(
                         meetingAt == null
-                            ? 'Set meeting date'
-                            : _dateTimeLabel(meetingAt),
+                            ? AppLocales.atom.setMeetingDate.tr
+                            : _dateTimeLabel(context, meetingAt),
                         style: context.typo.caption.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -305,7 +305,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 Icon(Design.icons.check, size: 13, color: colors.primary),
                 const SizedBox(width: 3),
                 Text(
-                  'In planner',
+                  AppLocales.atom.inPlanner.tr,
                   style: context.typo.caption.copyWith(
                     color: colors.primary,
                     fontWeight: FontWeight.w600,
@@ -579,14 +579,14 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                   ),
                   SizedBox(height: Design.spacing.md),
                   Text(
-                    'No assets yet',
+                    AppLocales.ai.noAssets.tr,
                     style: context.typo.labelLarge.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: Design.spacing.xs),
                   Text(
-                    'Add files to support your meeting notes.',
+                    AppLocales.atom.addFilesHint.tr,
                     textAlign: TextAlign.center,
                     style: context.typo.bodySmall.copyWith(
                       color: colors.textSecondary,
@@ -638,7 +638,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     ),
                   SizedBox(width: Design.spacing.sm),
                   Text(
-                    files.isEmpty ? 'Add files' : 'Add more files',
+                    files.isEmpty ? AppLocales.atom.addFiles.tr : AppLocales.ai.addMoreFiles.tr,
                     style: context.typo.labelMedium.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -756,7 +756,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     ),
                     SizedBox(width: Design.spacing.xs),
                     Text(
-                      'Ask about this Atom',
+                      AppLocales.ai.askAboutThisAtom.tr,
                       style: context.typo.labelMedium.copyWith(
                         color: colors.onPrimary,
                         fontWeight: FontWeight.w700,
@@ -801,7 +801,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           controller: textController,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(hintText: 'Atom name'),
+          decoration: InputDecoration(hintText: AppLocales.atom.name.tr),
           onSubmitted: (value) => Get.back(result: value.trim()),
         ),
         actions: [
@@ -850,7 +850,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           Icon(Design.icons.emptyBox, size: 36, color: colors.textMuted),
           SizedBox(height: Design.spacing.md),
           Text(
-            'Nothing here yet',
+            AppLocales.atom.nothingHere.tr,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -871,7 +871,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
     return AppToneCard(
       title: AppLocales.atom.loadFailed.tr,
-      subtitle: 'Pull to retry the detail request and restore this workspace.',
+      subtitle: AppLocales.atom.pullToRetry.tr,
       leadingIcon: Design.icons.warning,
       tone: EAppToneCardTone.error,
       footer: SizedBox(
@@ -969,14 +969,11 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     await controller.saveMeetingDate(picked);
   }
 
-  String _dateTimeLabel(DateTime value) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
+  String _dateTimeLabel(BuildContext context, DateTime value) {
+    final l10n = MaterialLocalizations.of(context);
     final hh = value.hour.toString().padLeft(2, '0');
     final mm = value.minute.toString().padLeft(2, '0');
-    return '${months[value.month - 1]} ${value.day} · $hh:$mm';
+    return '${l10n.formatShortMonthDay(value)} · $hh:$mm';
   }
 
   String _compactDuration(int? secs) {

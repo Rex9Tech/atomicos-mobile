@@ -387,6 +387,60 @@ class AppTranslations extends Translations {
       AppLocales.ai.readyOpenDetails: 'Ready. Open details.',
       AppLocales.ai.needsRetry: 'Needs retry',
       AppLocales.ai.thinking: 'AtomicOS is thinking…',
+
+      // Create / details / calendar / recording (round 3)
+      AppLocales.create.stagePreview: 'Preview',
+      AppLocales.create.stageChoose: 'Choose',
+      AppLocales.create.stageDraft: 'Draft',
+      AppLocales.create.draftRefineHint:
+          'Draft notes can be refined into summaries and task lists first.',
+      AppLocales.create.working: 'Working...',
+      AppLocales.create.modeRecord: 'Record',
+      AppLocales.create.addNow: 'Add Now',
+      AppLocales.create.uploadAndCreate: 'Upload and create',
+      AppLocales.create.createFromShared: 'Create from shared text',
+      AppLocales.create.continueLabel: 'Continue',
+      AppLocales.create.turnTasksIntoAtom: 'Turn tasks into Atom',
+      AppLocales.create.saveNote: 'Save note',
+      AppLocales.create.pickSourceHint:
+          'Pick a source above to bring it into your workspace.',
+      AppLocales.create.sharedReviewHint:
+          'Shared payloads can be reviewed before they are saved.',
+      AppLocales.create.attachedFile: 'Attached file',
+      AppLocales.create.tapToBrowse: 'Tap to browse device storage',
+      AppLocales.create.readyToUploadHint:
+          'Ready to upload and create an atom · tap to change',
+      AppLocales.create.pickFileHint: 'Pick a file, image, video, or document',
+      AppLocales.create.pasteSharedHint: 'Paste shared text here...',
+      AppLocales.create.noteFieldHint: 'Type or paste a note...',
+      AppLocales.atom.setMeetingDate: 'Set meeting date',
+      AppLocales.atom.addFiles: 'Add files',
+      AppLocales.atom.name: 'Atom name',
+      AppLocales.calendar.rangeDay: 'Day',
+      AppLocales.calendar.rangeWeek: 'Week',
+      AppLocales.calendar.rangeMonth: 'Month',
+      AppLocales.calendar.dayMon: 'MO',
+      AppLocales.calendar.dayTue: 'TU',
+      AppLocales.calendar.dayWed: 'WE',
+      AppLocales.calendar.dayThu: 'TH',
+      AppLocales.calendar.dayFri: 'FR',
+      AppLocales.calendar.daySat: 'SA',
+      AppLocales.calendar.daySun: 'SU',
+      AppLocales.calendar.monthSchedule: 'Month schedule',
+      AppLocales.calendar.scheduleFor: 'Schedule for @day',
+      AppLocales.recording.noteFieldHint: 'Write a Meeting Note…',
+      AppLocales.recording.transcriptPlaceholder:
+          'Live transcript will appear here as you speak…',
+      AppLocales.recording.badgeLive: 'LIVE',
+      AppLocales.recording.badgeOff: 'OFF',
+      AppLocales.recording.transcriptOffline:
+          'Live transcript is offline — reconnect to stream it.',
+      AppLocales.recording.transcriptMicNeeded:
+          'Microphone permission is needed for the live transcript.',
+      AppLocales.recording.transcriptOfflineRecording:
+          'Live transcript is offline — the audio is still being recorded.',
+      AppLocales.recording.transcriptUnavailable:
+          'Live transcript is unavailable right now.',
     },
     'my_MM': {
       // Common
@@ -754,6 +808,63 @@ class AppTranslations extends Translations {
       AppLocales.ai.readyOpenDetails: 'အဆင်သင့်ဖြစ်ပြီ။ အသေးစိတ် ဖွင့်ပါ။',
       AppLocales.ai.needsRetry: 'ပြန်စမ်းရန် လိုအပ်သည်',
       AppLocales.ai.thinking: 'AtomicOS စဉ်းစားနေသည်…',
+
+      // Create / details / calendar / recording (round 3)
+      AppLocales.create.stagePreview: 'အစမ်းကြည့်',
+      AppLocales.create.stageChoose: 'ရွေးပါ',
+      AppLocales.create.stageDraft: 'မူကြမ်း',
+      AppLocales.create.draftRefineHint:
+          'မူကြမ်းများကို အနှစ်ချုပ်နှင့် လုပ်ဆောင်ချက်စာရင်းများအဖြစ် အရင်ပြင်နိုင်သည်။',
+      AppLocales.create.working: 'လုပ်ဆောင်နေသည်...',
+      AppLocales.create.modeRecord: 'ဖမ်းယူမည်',
+      AppLocales.create.addNow: 'ယခု ထည့်မည်',
+      AppLocales.create.uploadAndCreate: 'တင်ပြီး ဖန်တီးမည်',
+      AppLocales.create.createFromShared: 'မျှဝေစာသားမှ ဖန်တီးမည်',
+      AppLocales.create.continueLabel: 'ဆက်လုပ်မည်',
+      AppLocales.create.turnTasksIntoAtom:
+          'လုပ်ဆောင်ချက်များကို အက်တမ်အဖြစ် ပြောင်းမည်',
+      AppLocales.create.saveNote: 'မှတ်စု သိမ်းမည်',
+      AppLocales.create.pickSourceHint:
+          'အထက်မှ ရင်းမြစ်တစ်ခု ရွေးပြီး သင့် workspace ထဲ ထည့်ပါ။',
+      AppLocales.create.sharedReviewHint:
+          'မျှဝေထားသော အကြောင်းအရာများကို မသိမ်းမီ ပြန်စစ်နိုင်သည်။',
+      AppLocales.create.attachedFile: 'ပူးတွဲဖိုင်',
+      AppLocales.create.tapToBrowse: 'စက်ထဲမှ ရွေးရန် နှိပ်ပါ',
+      AppLocales.create.readyToUploadHint:
+          'တင်ရန် အသင့်ဖြစ်ပြီ · ပြောင်းရန် နှိပ်ပါ',
+      AppLocales.create.pickFileHint:
+          'ဖိုင်၊ ပုံ၊ ဗီဒီယို သို့မဟုတ် စာရွက်စာတမ်း ရွေးပါ',
+      AppLocales.create.pasteSharedHint:
+          'မျှဝေစာသားကို ဤနေရာတွင် paste လုပ်ပါ...',
+      AppLocales.create.noteFieldHint: 'မှတ်စု ရေးပါ သို့မဟုတ် paste လုပ်ပါ...',
+      AppLocales.atom.setMeetingDate: 'အစည်းအဝေး ရက်စွဲ သတ်မှတ်ပါ',
+      AppLocales.atom.addFiles: 'ဖိုင်များ ထည့်ပါ',
+      AppLocales.atom.name: 'အက်တမ် အမည်',
+      AppLocales.calendar.rangeDay: 'နေ့',
+      AppLocales.calendar.rangeWeek: 'အပတ်',
+      AppLocales.calendar.rangeMonth: 'လ',
+      AppLocales.calendar.dayMon: 'တန',
+      AppLocales.calendar.dayTue: 'အင်္ဂါ',
+      AppLocales.calendar.dayWed: 'ဗုဒ္ဓ',
+      AppLocales.calendar.dayThu: 'ကြာ',
+      AppLocales.calendar.dayFri: 'သော',
+      AppLocales.calendar.daySat: 'စနေ',
+      AppLocales.calendar.daySun: 'နွေ',
+      AppLocales.calendar.monthSchedule: 'လအလိုက် အစီအစဉ်',
+      AppLocales.calendar.scheduleFor: '@day အတွက် အစီအစဉ်',
+      AppLocales.recording.noteFieldHint: 'အစည်းအဝေး မှတ်စု ရေးပါ…',
+      AppLocales.recording.transcriptPlaceholder:
+          'သင်ပြောနေစဉ် တိုက်ရိုက်စာသား ဤနေရာတွင် ပေါ်လာမည်…',
+      AppLocales.recording.badgeLive: 'တိုက်ရိုက်',
+      AppLocales.recording.badgeOff: 'ပိတ်',
+      AppLocales.recording.transcriptOffline:
+          'တိုက်ရိုက်စာသား အော့ဖ်လိုင်း — ပြန်ချိတ်ဆက်ပါ။',
+      AppLocales.recording.transcriptMicNeeded:
+          'တိုက်ရိုက်စာသားအတွက် မိုက်ခရိုဖုန်း ခွင့်ပြုချက် လိုအပ်သည်။',
+      AppLocales.recording.transcriptOfflineRecording:
+          'တိုက်ရိုက်စာသား အော့ဖ်လိုင်း — အသံကို ဆက်လက်ဖမ်းယူနေသည်။',
+      AppLocales.recording.transcriptUnavailable:
+          'တိုက်ရိုက်စာသား ယခုအချိန် မရနိုင်ပါ။',
     },
   };
 }

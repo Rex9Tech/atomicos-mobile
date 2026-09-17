@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
@@ -51,7 +52,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         _RoundTopButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
           child: Text(
-            'Create Atom',
+            AppLocales.create.title.tr,
             textAlign: TextAlign.center,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
@@ -67,12 +68,12 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     return ListView(
       children: [
         Text(
-          'Bring anything into AtomicOS',
+          AppLocales.create.heading.tr,
           style: context.typo.headline2.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.xs),
         Text(
-          'Upload media or turn shared text into a saved atom.',
+          AppLocales.create.headingSub.tr,
           style: context.typo.bodyMedium.copyWith(
             color: context.colors.textSecondary,
           ),
@@ -87,7 +88,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           _buildImportMode(context),
         if (controller.selectedMode.value == 'upload')
           _SectionShell(
-            title: 'Upload a file',
+            title: AppLocales.create.uploadFile.tr,
             child: _buildUploadStage(context),
           ),
         if (controller.selectedMode.value == 'share') _buildShareMode(context),
@@ -115,7 +116,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             ),
             SizedBox(width: Design.spacing.xs),
             Text(
-              'Import',
+              AppLocales.create.import.tr,
               style: context.typo.labelMedium.copyWith(
                 color: context.colors.textSecondary,
                 fontWeight: FontWeight.w700,
@@ -185,22 +186,22 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       children: [
         _ImportActionTile(
           icon: Design.icons.folder,
-          title: 'Upload a file',
-          subtitle: 'Audio, video, or documents',
+          title: AppLocales.create.uploadFile.tr,
+          subtitle: AppLocales.create.uploadFileSub.tr,
           onTap: () => controller.selectMode('upload'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.note,
-          title: 'Note',
-          subtitle: 'Type or paste your text',
+          title: AppLocales.create.noteTitle.tr,
+          subtitle: AppLocales.create.noteSub.tr,
           onTap: () => controller.selectMode('note'),
         ),
         SizedBox(height: Design.spacing.sm),
         _ImportActionTile(
           icon: Design.icons.shareIos,
-          title: 'Share from another app',
-          subtitle: 'From the system share sheet',
+          title: AppLocales.create.shareTitle.tr,
+          subtitle: AppLocales.create.shareSub.tr,
           onTap: () => controller.selectMode('share'),
         ),
       ],
@@ -213,17 +214,17 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       children: [
         _buildStagePicker(
           context,
-          labels: const {
-            'preview': 'Preview',
-            'choose': 'Choose',
-            'confirm': 'Confirm',
+          labels: {
+            'preview': AppLocales.create.stagePreview.tr,
+            'choose': AppLocales.create.stageChoose.tr,
+            'confirm': AppLocales.common.confirm.tr,
           },
           selected: controller.shareStage.value,
           onSelect: controller.selectShareStage,
         ),
         SizedBox(height: Design.spacing.md),
         _SectionShell(
-          title: 'Shared item',
+          title: AppLocales.create.sharedItem.tr,
           child: controller.shareStage.value == 'choose'
               ? _buildShareChoiceStage(context)
               : controller.shareStage.value == 'confirm'
@@ -240,17 +241,17 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       children: [
         _buildStagePicker(
           context,
-          labels: const {
-            'draft': 'Draft',
-            'summary': 'Summary',
-            'tasks': 'Tasks',
+          labels: {
+            'draft': AppLocales.create.stageDraft.tr,
+            'summary': AppLocales.atom.summary.tr,
+            'tasks': AppLocales.ai.resultTasks.tr,
           },
           selected: controller.noteStage.value,
           onSelect: controller.selectNoteStage,
         ),
         SizedBox(height: Design.spacing.md),
         _SectionShell(
-          title: 'Note draft',
+          title: AppLocales.create.noteDraft.tr,
           child: controller.noteStage.value == 'summary'
               ? _buildNoteSummaryStage(context)
               : controller.noteStage.value == 'tasks'
@@ -259,13 +260,13 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         ),
         SizedBox(height: Design.spacing.md),
         _SectionShell(
-          title: 'Next steps',
+          title: AppLocales.create.nextSteps.tr,
           child: Column(
             children: [
               _ImportActionTile(
                 icon: Design.icons.sparkles,
-                title: 'Generate summary',
-                subtitle: 'Create a clean executive version',
+                title: AppLocales.create.generateSummary.tr,
+                subtitle: AppLocales.create.generateSummarySub.tr,
                 onTap: () {
                   controller.selectNoteStage('summary');
                   controller.generateNoteSummary();
@@ -274,8 +275,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
               SizedBox(height: Design.spacing.sm),
               _ImportActionTile(
                 icon: Design.icons.task,
-                title: 'Extract tasks',
-                subtitle: 'Turn the note into next actions',
+                title: AppLocales.create.extractTasks.tr,
+                subtitle: AppLocales.create.extractTasksSub.tr,
                 onTap: () {
                   controller.selectNoteStage('tasks');
                   controller.extractNoteTasks();
@@ -322,7 +323,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                               : _handlePrimaryAction,
                           child: Text(
                             controller.isSubmitting.value
-                                ? 'Working...'
+                                ? AppLocales.create.working.tr
                                 : _primaryLabel(),
                           ),
                         ),
@@ -332,10 +333,10 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             Obx(
               () => Text(
                 controller.selectedMode.value == 'import'
-                    ? 'Pick a source above to bring it into your workspace.'
+                    ? AppLocales.create.pickSourceHint.tr
                     : controller.selectedMode.value == 'share'
-                    ? 'Shared payloads can be reviewed before they are saved.'
-                    : 'Draft notes can be refined into summaries and task lists first.',
+                    ? AppLocales.create.sharedReviewHint.tr
+                    : AppLocales.create.draftRefineHint.tr,
                 style: context.typo.bodySmall.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -346,7 +347,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             TextButton(
               onPressed: () => AppRoutes.toAi(mode: 'ask'),
               child: Text(
-                'Open Ask AtomicOS',
+                AppLocales.create.openAsk.tr,
                 style: context.typo.labelMedium.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -361,9 +362,9 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   String _labelForMode(String mode) {
     switch (mode) {
       case 'record':
-        return 'Record';
+        return AppLocales.create.modeRecord.tr;
       case 'import':
-        return 'Import';
+        return AppLocales.create.import.tr;
       default:
         return mode;
     }
@@ -372,19 +373,19 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   String _primaryLabel() {
     switch (controller.selectedMode.value) {
       case 'record':
-        return 'Add Now';
+        return AppLocales.create.addNow.tr;
       case 'upload':
-        return 'Upload and create';
+        return AppLocales.create.uploadAndCreate.tr;
       case 'share':
         return controller.shareStage.value == 'confirm'
-            ? 'Create from shared text'
-            : 'Continue';
+            ? AppLocales.create.createFromShared.tr
+            : AppLocales.create.continueLabel.tr;
       case 'note':
         return controller.noteStage.value == 'tasks'
-            ? 'Turn tasks into Atom'
-            : 'Save note';
+            ? AppLocales.create.turnTasksIntoAtom.tr
+            : AppLocales.create.saveNote.tr;
       default:
-        return 'Import';
+        return AppLocales.create.import.tr;
     }
   }
 
@@ -489,7 +490,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                 Row(
                   children: [
                     Text(
-                      'Uploading…',
+                      AppLocales.create.uploading.tr,
                       style: context.typo.labelMedium.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -553,8 +554,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                 SizedBox(height: Design.spacing.md),
                 Text(
                   hasPickedFile
-                      ? (controller.pickedUploadName.value ?? 'Attached file')
-                      : 'Tap to browse device storage',
+                      ? (controller.pickedUploadName.value ?? AppLocales.create.attachedFile.tr)
+                      : AppLocales.create.tapToBrowse.tr,
                   style: context.typo.labelLarge.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -565,8 +566,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                 SizedBox(height: Design.spacing.xs),
                 Text(
                   hasPickedFile
-                      ? 'Ready to upload and create an atom · tap to change'
-                      : 'Pick a file, image, video, or document',
+                      ? AppLocales.create.readyToUploadHint.tr
+                      : AppLocales.create.pickFileHint.tr,
                   style: context.typo.bodySmall.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -582,10 +583,10 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           runSpacing: Design.spacing.sm,
           alignment: WrapAlignment.center,
           children: [
-            _SupportChip(icon: Design.icons.audioWave, label: 'Audio'),
-            _SupportChip(icon: Design.icons.videoFile, label: 'Video'),
+            _SupportChip(icon: Design.icons.audioWave, label: AppLocales.create.chipAudio.tr),
+            _SupportChip(icon: Design.icons.videoFile, label: AppLocales.create.chipVideo.tr),
             _SupportChip(icon: Design.icons.pictureAsPdf, label: 'PDF'),
-            _SupportChip(icon: Design.icons.docFile, label: 'Documents'),
+            _SupportChip(icon: Design.icons.docFile, label: AppLocales.create.chipDocuments.tr),
           ],
         ),
       ],
@@ -599,12 +600,12 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Capture a live conversation',
+          AppLocales.create.captureLive.tr,
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.sm),
         Text(
-          'AtomicOS records, transcribes and summarizes the session into a new atom.',
+          AppLocales.create.captureLiveSub.tr,
           style: context.typo.bodyMedium.copyWith(
             color: colors.textSecondary,
             height: 1.45,
@@ -613,8 +614,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         SizedBox(height: Design.spacing.lg),
         _ImportActionTile(
           icon: Design.icons.mic,
-          title: 'Record Now',
-          subtitle: 'Start capturing audio with AtomicOS',
+          title: AppLocales.create.recordNow.tr,
+          subtitle: AppLocales.create.recordNowSub.tr,
           onTap: AppRoutes.toLiveActivity,
         ),
       ],
@@ -626,7 +627,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Shared payload',
+          AppLocales.create.sharedPayload.tr,
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.md),
@@ -634,8 +635,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           controller: controller.shareTextController,
           minLines: 6,
           maxLines: 10,
-          decoration: const InputDecoration(
-            hintText: 'Paste shared text here...',
+          decoration: InputDecoration(
+            hintText: AppLocales.create.pasteSharedHint.tr,
             border: InputBorder.none,
           ),
           style: context.typo.bodyMedium.copyWith(height: 1.45),
@@ -649,20 +650,20 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       children: [
         _ImportActionTile(
           icon: Design.icons.clipboard,
-          title: 'Create note from share',
-          subtitle: 'Convert the raw text into a structured note',
+          title: AppLocales.create.noteFromShare.tr,
+          subtitle: AppLocales.create.noteFromShareSub.tr,
         ),
         SizedBox(height: 12),
         _ImportActionTile(
           icon: Design.icons.sparkles,
-          title: 'Ask AtomicOS about this',
-          subtitle: 'Generate summary, decisions, and tasks',
+          title: AppLocales.create.askAboutThis.tr,
+          subtitle: AppLocales.create.askAboutThisSub.tr,
         ),
         SizedBox(height: 12),
         _ImportActionTile(
           icon: Design.icons.folder,
-          title: 'Attach to existing Atom',
-          subtitle: 'Merge with a previous meeting workspace',
+          title: AppLocales.create.attachExisting.tr,
+          subtitle: AppLocales.create.attachExistingSub.tr,
         ),
       ],
     );
@@ -673,18 +674,18 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ready to import',
+          AppLocales.create.readyToImport.tr,
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.md),
-        const _ChoiceCard(
-          title: 'Destination',
-          subtitle: 'New atom from shared text',
+        _ChoiceCard(
+          title: AppLocales.create.destination.tr,
+          subtitle: AppLocales.create.destinationSub.tr,
         ),
         SizedBox(height: Design.spacing.sm),
-        const _ChoiceCard(
-          title: 'Backend route',
-          subtitle: 'Creates via POST /v1/atoms/from-share',
+        _ChoiceCard(
+          title: AppLocales.create.backendRoute.tr,
+          subtitle: AppLocales.create.backendRouteSub.tr,
         ),
       ],
     );
@@ -709,13 +710,13 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             minLines: null,
             maxLines: null,
             textAlignVertical: TextAlignVertical.top,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
               isCollapsed: true,
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
-              hintText: 'Type or paste a note...',
+              hintText: AppLocales.create.noteFieldHint.tr,
             ),
             style: context.typo.bodyMedium.copyWith(height: 1.5),
           ),
@@ -738,13 +739,13 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       if (summary == null || summary.isEmpty) {
         return _ImportActionTile(
           icon: Design.icons.sparkles,
-          title: 'Generate summary',
+          title: AppLocales.create.generateSummary.tr,
           subtitle: 'Condense the note with AI',
           onTap: controller.generateNoteSummary,
         );
       }
       return AppToneCard(
-        title: 'Summary',
+        title: AppLocales.atom.summary.tr,
         subtitle: summary,
         tone: EAppToneCardTone.primary,
       );
@@ -765,8 +766,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       if (tasks.isEmpty) {
         return _ImportActionTile(
           icon: Design.icons.task,
-          title: 'Extract tasks',
-          subtitle: 'Turn the note into next actions',
+          title: AppLocales.create.extractTasks.tr,
+          subtitle: AppLocales.create.extractTasksSub.tr,
           onTap: controller.extractNoteTasks,
         );
       }

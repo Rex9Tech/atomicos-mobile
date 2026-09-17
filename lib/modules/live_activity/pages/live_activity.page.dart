@@ -123,7 +123,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                 ),
                 SizedBox(width: Design.spacing.xs),
                 Text(
-                  'Live meeting',
+                  AppLocales.recording.liveMeeting.tr,
                   style: context.typo.labelMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: colors.textPrimary,
@@ -154,7 +154,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                 ),
                 SizedBox(width: Design.spacing.xs),
                 Text(
-                  'Note',
+                  AppLocales.atom.note.tr,
                   style: context.typo.labelMedium.copyWith(
                     color: colors.textMuted,
                   ),
@@ -169,7 +169,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: 'Write a Meeting Note…',
+                hintText: AppLocales.recording.noteFieldHint.tr,
                 hintStyle: context.typo.bodyMedium.copyWith(
                   color: colors.textMuted,
                 ),
@@ -186,7 +186,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                 ),
                 SizedBox(width: Design.spacing.xs),
                 Text(
-                  'Attachments',
+                  AppLocales.ai.attachments.tr,
                   style: context.typo.labelMedium.copyWith(
                     color: colors.textMuted,
                   ),
@@ -312,7 +312,7 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
           controller: _scroll,
           child: text.isEmpty
               ? Text(
-                  notice ?? 'Live transcript will appear here as you speak…',
+                  notice ?? AppLocales.recording.transcriptPlaceholder.tr,
                   style: context.typo.bodyMedium.copyWith(
                     color: colors.textMuted,
                     height: 1.5,
@@ -362,7 +362,7 @@ class _LiveBadge extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            active ? 'LIVE' : 'OFF',
+            active ? AppLocales.recording.badgeLive.tr : AppLocales.recording.badgeOff.tr,
             style: context.typo.caption.copyWith(
               color: color,
               fontWeight: FontWeight.w700,
@@ -434,7 +434,7 @@ class _EndPill extends StatelessWidget {
                 ),
               )
             : Text(
-                'End',
+                AppLocales.recording.end.tr,
                 style: context.typo.labelMedium.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

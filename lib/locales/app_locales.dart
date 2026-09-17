@@ -19,10 +19,21 @@ class AppLocales {
   static const permission = _PermissionLocales();
   static const search = _SearchLocales();
   static const recording = _RecordingLocales();
+  static const create = _CreateLocales();
 }
 
 class _RecordingLocales {
   const _RecordingLocales();
+  final liveMeeting = 'recording.liveMeeting';
+  final end = 'recording.end';
+  final noteFieldHint = 'recording.noteFieldHint';
+  final transcriptPlaceholder = 'recording.transcriptPlaceholder';
+  final badgeLive = 'recording.badgeLive';
+  final badgeOff = 'recording.badgeOff';
+  final transcriptOffline = 'recording.transcriptOffline';
+  final transcriptMicNeeded = 'recording.transcriptMicNeeded';
+  final transcriptOfflineRecording = 'recording.transcriptOfflineRecording';
+  final transcriptUnavailable = 'recording.transcriptUnavailable';
 
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
@@ -379,6 +390,13 @@ class _NotificationLocales {
 
 class _AtomLocales {
   const _AtomLocales();
+  final inPlanner = 'atom.inPlanner';
+  final addFilesHint = 'atom.addFilesHint';
+  final nothingHere = 'atom.nothingHere';
+  final pullToRetry = 'atom.pullToRetry';
+  final setMeetingDate = 'atom.setMeetingDate';
+  final addFiles = 'atom.addFiles';
+  final name = 'atom.name';
 
   final title = 'atom.title';
   final summary = 'atom.summary';
@@ -397,6 +415,24 @@ class _AtomLocales {
 
 class _CalendarLocales {
   const _CalendarLocales();
+  final pageHeader = 'calendar.pageHeader';
+  final headerSub = 'calendar.headerSub';
+  final metricVisible = 'calendar.metricVisible';
+  final metricRange = 'calendar.metricRange';
+  final metricDay = 'calendar.metricDay';
+  final openLiveView = 'calendar.openLiveView';
+  final rangeDay = 'calendar.rangeDay';
+  final rangeWeek = 'calendar.rangeWeek';
+  final rangeMonth = 'calendar.rangeMonth';
+  final dayMon = 'calendar.dayMon';
+  final dayTue = 'calendar.dayTue';
+  final dayWed = 'calendar.dayWed';
+  final dayThu = 'calendar.dayThu';
+  final dayFri = 'calendar.dayFri';
+  final daySat = 'calendar.daySat';
+  final daySun = 'calendar.daySun';
+  final monthSchedule = 'calendar.monthSchedule';
+  final scheduleFor = 'calendar.scheduleFor';
 
   final title = 'calendar.title';
   final scheduleLoadFailed = 'calendar.schedule_load_failed';
@@ -414,4 +450,66 @@ class _PermissionLocales {
   final notificationTitle = 'permission.notification_title';
   final notificationMessage = 'permission.notification_message';
   final notificationEnable = 'permission.notification_enable';
+}
+
+class _CreateLocales {
+  const _CreateLocales();
+  final title = 'create.title';
+  final heading = 'create.heading';
+  final headingSub = 'create.headingSub';
+  final import = 'create.import';
+  final openAsk = 'create.openAsk';
+  final uploading = 'create.uploading';
+  final captureLive = 'create.captureLive';
+  final captureLiveSub = 'create.captureLiveSub';
+  final sharedPayload = 'create.sharedPayload';
+  final readyToImport = 'create.readyToImport';
+  final uploadFile = 'create.uploadFile';
+  final uploadFileSub = 'create.uploadFileSub';
+  final noteTitle = 'create.noteTitle';
+  final noteSub = 'create.noteSub';
+  final shareTitle = 'create.shareTitle';
+  final shareSub = 'create.shareSub';
+  final sharedItem = 'create.sharedItem';
+  final noteDraft = 'create.noteDraft';
+  final nextSteps = 'create.nextSteps';
+  final generateSummary = 'create.generateSummary';
+  final generateSummarySub = 'create.generateSummarySub';
+  final extractTasks = 'create.extractTasks';
+  final extractTasksSub = 'create.extractTasksSub';
+  final chipAudio = 'create.chipAudio';
+  final chipVideo = 'create.chipVideo';
+  final chipDocuments = 'create.chipDocuments';
+  final recordNow = 'create.recordNow';
+  final recordNowSub = 'create.recordNowSub';
+  final noteFromShare = 'create.noteFromShare';
+  final noteFromShareSub = 'create.noteFromShareSub';
+  final askAboutThis = 'create.askAboutThis';
+  final askAboutThisSub = 'create.askAboutThisSub';
+  final attachExisting = 'create.attachExisting';
+  final attachExistingSub = 'create.attachExistingSub';
+  final destination = 'create.destination';
+  final destinationSub = 'create.destinationSub';
+  final backendRoute = 'create.backendRoute';
+  final backendRouteSub = 'create.backendRouteSub';
+  final stagePreview = 'create.stagePreview';
+  final stageChoose = 'create.stageChoose';
+  final stageDraft = 'create.stageDraft';
+  final draftRefineHint = 'create.draftRefineHint';
+  final working = 'create.working';
+  final modeRecord = 'create.modeRecord';
+  final addNow = 'create.addNow';
+  final uploadAndCreate = 'create.uploadAndCreate';
+  final createFromShared = 'create.createFromShared';
+  final continueLabel = 'create.continueLabel';
+  final turnTasksIntoAtom = 'create.turnTasksIntoAtom';
+  final saveNote = 'create.saveNote';
+  final attachedFile = 'create.attachedFile';
+  final tapToBrowse = 'create.tapToBrowse';
+  final readyToUploadHint = 'create.readyToUploadHint';
+  final pickFileHint = 'create.pickFileHint';
+  final pasteSharedHint = 'create.pasteSharedHint';
+  final noteFieldHint = 'create.noteFieldHint';
+  final pickSourceHint = 'create.pickSourceHint';
+  final sharedReviewHint = 'create.sharedReviewHint';
 }
