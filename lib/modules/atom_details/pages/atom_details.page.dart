@@ -175,7 +175,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 _buildPlayerCard(context),
               ],
               SizedBox(height: Design.spacing.lg),
-              _buildTabs(context),
+              _buildTabs(context, atom),
             ],
           ),
         ),
@@ -395,8 +395,26 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   // ===== Tabs =====
 
-  Widget _buildTabs(BuildContext context) {
+  /// Tabs that actually have content, in canonical order:
+  /// 0 Summary · 1 Transcript · 2 Note · 3 Assets. Empty Summary/Transcript
+  /// tabs are hidden — testers asked for note atoms to drop them.
+  List<int> _visibleTabIndexes(AtomModel atom) => [
+        if (atom.summaryBlocks.isNotEmpty) 0,
+        if (atom.transcriptSegments.isNotEmpty) 1,
+        2,
+        3,
+      ];
+
+  int _effectiveTab(AtomModel atom) {
+    final visible = _visibleTabIndexes(atom);
+    final active = controller.activeTab.value;
+    if (visible.contains(active)) return active;
+    return 2; // Note is always available.
+  }
+
+  Widget _buildTabs(BuildContext context, AtomModel atom) {
     final colors = context.colors;
+    final visible = _visibleTabIndexes(atom);
 
     return Obx(
       () => Container(
@@ -407,15 +425,14 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           border: Border.all(color: colors.glassBorder),
         ),
         child: Row(
-          children: _tabs.asMap().entries.map((entry) {
-            final index = entry.key;
-            final label = entry.value;
-            final selected = controller.activeTab.value == index;
+          children: visible.map((index) {
+            final label = _tabs[index];
+            final selected = _effectiveTab(atom) == index;
 
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
-                  right: index == _tabs.length - 1 ? 0 : Design.spacing.xs,
+                  right: index == visible.last ? 0 : Design.spacing.xs,
                 ),
                 child: GestureDetector(
                   onTap: () => controller.selectTab(index),
@@ -447,7 +464,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildTabBody(BuildContext context, AtomModel atom) {
     return Obx(() {
-      switch (controller.activeTab.value) {
+      switch (_effectiveTab(atom)) {
         case 1:
           return _buildTranscript(context, atom);
         case 2:

@@ -347,7 +347,7 @@ class AiPage extends GetView<AiController> {
                         ),
                         child: _AskSourceCard(
                           icon: _iconForSource(entry.value),
-                          label: entry.value,
+                          label: _labelForSource(entry.value),
                           onTap: () =>
                               controller.selectAskAttachment(entry.value),
                         ),
@@ -916,6 +916,10 @@ class AiPage extends GetView<AiController> {
                     child: TextField(
                       controller: controller.textController,
                       onChanged: controller.updateAskDraft,
+                      // Tapping anywhere outside drops the keyboard — testers
+                      // could not dismiss it before sending.
+                      onTapOutside: (_) =>
+                          FocusScope.of(context).unfocus(),
                       minLines: 1,
                       maxLines: 2,
                       decoration: const InputDecoration(
@@ -1002,6 +1006,20 @@ class AiPage extends GetView<AiController> {
         return Design.icons.atomAdd;
       default:
         return Design.icons.add;
+    }
+  }
+
+  /// Localized label for the composer's source cards ('Photo', 'Files', …).
+  String _labelForSource(String source) {
+    switch (source) {
+      case 'Photo':
+        return AppLocales.ai.askSourcePhoto.tr;
+      case 'Files':
+        return AppLocales.ai.askSourceFiles.tr;
+      case 'Add Atom':
+        return AppLocales.ai.askSourceAtom.tr;
+      default:
+        return source;
     }
   }
 

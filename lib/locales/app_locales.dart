@@ -18,6 +18,15 @@ class AppLocales {
   static const calendar = _CalendarLocales();
   static const permission = _PermissionLocales();
   static const search = _SearchLocales();
+  static const recording = _RecordingLocales();
+}
+
+class _RecordingLocales {
+  const _RecordingLocales();
+
+  final endTitle = 'recording.end_title';
+  final endMessage = 'recording.end_message';
+  final endConfirm = 'recording.end_confirm';
 }
 
 class _SearchLocales {
@@ -233,6 +242,11 @@ class _AiLocales {
   final micPermissionTitle = 'ai.mic_permission_title';
   final micPermissionMessage = 'ai.mic_permission_message';
   final openSettings = 'ai.open_settings';
+
+  // Ask composer source cards
+  final askSourcePhoto = 'ai.ask_source_photo';
+  final askSourceFiles = 'ai.ask_source_files';
+  final askSourceAtom = 'ai.ask_source_atom';
 
   // AI chat
   String get aiSendMessageFailed => 'ai_send_message_failed';

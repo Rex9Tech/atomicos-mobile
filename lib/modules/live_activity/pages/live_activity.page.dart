@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 
 import '../controllers/live_activity.controller.dart';
@@ -14,19 +15,50 @@ class LiveActivityPage extends GetView<LiveActivityController> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Obx(
-      () => AppPage(
-        backgroundColor: colors.background,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(child: _buildSheet(context)),
-            _buildRecordingBar(context),
-          ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmFinish(context);
+      },
+      child: Obx(
+        () => AppPage(
+          backgroundColor: colors.background,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(child: _buildSheet(context)),
+              _buildRecordingBar(context),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Guards End / system-Back while a session is live — testers stopped
+  /// recordings by accident and asked for a warning.
+  Future<void> _confirmFinish(BuildContext context) async {
+    if (controller.isFinishing.value) return;
+
+    final hasSession = controller.isRecording.value ||
+        (controller.recordingId.value ?? '').isNotEmpty;
+    if (!hasSession) {
+      Get.back();
+      return;
+    }
+
+    final confirmed = await AppDialog.confirm(
+      context: context,
+      title: AppLocales.recording.endTitle.tr,
+      message: AppLocales.recording.endMessage.tr,
+      confirmLabel: AppLocales.recording.endConfirm.tr,
+      confirmColor: context.colors.error,
+      cancelColor: context.colors.textSecondary,
+    );
+    if (confirmed) {
+      await controller.finishRecording();
+    }
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -64,7 +96,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
           const Spacer(),
           _GlassRoundButton(
             icon: Design.icons.close,
-            onTap: controller.finishRecording,
+            onTap: () => _confirmFinish(context),
           ),
         ],
       ),
@@ -213,7 +245,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             SizedBox(width: Design.spacing.sm),
             _EndPill(
               loading: controller.isFinishing.value,
-              onTap: controller.finishRecording,
+              onTap: () => _confirmFinish(context),
             ),
           ],
         ),

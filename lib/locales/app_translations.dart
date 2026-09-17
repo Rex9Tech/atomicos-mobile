@@ -186,6 +186,9 @@ class AppTranslations extends Translations {
       AppLocales.ai.micPermissionMessage:
           'Voice input needs microphone access. Open Settings to enable it for this app.',
       AppLocales.ai.openSettings: 'Open Settings',
+      AppLocales.ai.askSourcePhoto: 'Photo',
+      AppLocales.ai.askSourceFiles: 'Files',
+      AppLocales.ai.askSourceAtom: 'Add Atom',
       AppLocales.ai.aiSendMessageFailed: 'Failed to send message',
       AppLocales.ai.aiResponseFailed: 'Failed to get AI response',
       AppLocales.ai.aiHistoryCleared: 'Chat history cleared',
@@ -252,6 +255,9 @@ class AppTranslations extends Translations {
       AppLocales.ai.micPermissionMessage:
           'La entrada de voz necesita acceso al micrófono. Abre Ajustes para habilitarlo en esta app.',
       AppLocales.ai.openSettings: 'Abrir ajustes',
+      AppLocales.ai.askSourcePhoto: 'Foto',
+      AppLocales.ai.askSourceFiles: 'Archivos',
+      AppLocales.ai.askSourceAtom: 'Añadir átomo',
       AppLocales.ai.aiSendMessageFailed: 'No se pudo enviar el mensaje',
       AppLocales.ai.aiResponseFailed:
           'No se pudo obtener la respuesta de la IA',
@@ -318,6 +324,12 @@ class AppTranslations extends Translations {
       AppLocales.search.emptyTitle: 'No result found!',
       AppLocales.search.emptyMessage:
           "The atom you're looking for doesn't exist. Try searching for another atom.",
+
+      // Recording
+      AppLocales.recording.endTitle: 'End recording?',
+      AppLocales.recording.endMessage:
+          'This stops the recording and turns the transcript into an atom. You can read and edit it afterwards.',
+      AppLocales.recording.endConfirm: 'End & create atom',
     },
     'my_MM': {
       // Common
@@ -485,6 +497,9 @@ class AppTranslations extends Translations {
       AppLocales.ai.micPermissionMessage:
           'အသံဖြင့် ရိုက်ထည့်ရန် မိုက်ခရိုဖုန်း ခွင့်ပြုချက် လိုအပ်ပါသည်။ Settings မှ ဖွင့်ပေးပါ။',
       AppLocales.ai.openSettings: 'Settings ဖွင့်မည်',
+      AppLocales.ai.askSourcePhoto: 'ဓာတ်ပုံ',
+      AppLocales.ai.askSourceFiles: 'ဖိုင်များ',
+      AppLocales.ai.askSourceAtom: 'အက်တမ် ထည့်မည်',
       AppLocales.ai.aiSendMessageFailed: 'မက်ဆေ့ဂျ် ပို့၍မရပါ',
       AppLocales.ai.aiResponseFailed: 'AI အဖြေ မရပါ',
       AppLocales.ai.aiHistoryCleared: 'မှတ်တမ်း ရှင်းပြီးပါပြီ',
@@ -603,6 +618,12 @@ class AppTranslations extends Translations {
       AppLocales.search.emptyTitle: 'ရှာဖွေမှု မတွေ့ပါ!',
       AppLocales.search.emptyMessage:
           'သင်ရှာနေသော အက်တမ် မရှိပါ။ အခြားအက်တမ်တစ်ခုကို ရှာကြည့်ပါ။',
+
+      // Recording
+      AppLocales.recording.endTitle: 'အသံဖမ်းခြင်း ရပ်မည်လား?',
+      AppLocales.recording.endMessage:
+          'ဖမ်းယူမှုကို ရပ်ပြီး စကားပြောစာသားမှ အက်တမ်တစ်ခု ဖန်တီးပါမည်။ နောက်မှ ဖတ်ရှု ပြင်ဆင်နိုင်ပါသည်။',
+      AppLocales.recording.endConfirm: 'ရပ်ပြီး အက်တမ် ဖန်တီးမည်',
     },
   };
 }

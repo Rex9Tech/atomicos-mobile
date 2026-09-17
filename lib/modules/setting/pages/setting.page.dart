@@ -58,6 +58,7 @@ class SettingPage extends GetView<SettingController> {
 
   Widget _buildFeedbackTile(BuildContext context) {
     return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.zero,
       child: AppListTile(
         leading: Icon(Icons.feedback_outlined, color: context.colors.primary),
@@ -90,6 +91,7 @@ class SettingPage extends GetView<SettingController> {
   Widget _buildThemeTile(BuildContext context) {
     return Obx(
       () => AppCard(
+        borderRadius: Design.spacing.radiusLarge,
         padding: EdgeInsets.zero,
         child: AppListTile(
           leading: Icon(controller.themeIcon, color: context.colors.primary),
@@ -108,6 +110,7 @@ class SettingPage extends GetView<SettingController> {
 
   Widget _buildLanguageTile(BuildContext context) {
     return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.zero,
       child: AppListTile(
         leading: _buildFlagIcon(context),
@@ -166,6 +169,7 @@ class SettingPage extends GetView<SettingController> {
     AuthController authController,
   ) {
     return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.zero,
       child: Column(
         children: [
@@ -215,6 +219,7 @@ class SettingPage extends GetView<SettingController> {
 
   Widget _buildAppInfoTile(BuildContext context) {
     return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.zero,
       child: AppListTile(
         leading: Icon(Design.icons.info, color: context.colors.textSecondary),

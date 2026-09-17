@@ -133,6 +133,24 @@ class LiveActivityController extends GetxController {
     }
   }
 
+  /// Real length of the captured WAV in seconds (null when unavailable).
+  /// 16-bit PCM mono at [AppConstants.speechSampleRate] → the byte rate is
+  /// sampleRate × channels × 2; the 44-byte RIFF header is not audio.
+  int? capturedAudioSeconds(String? path) {
+    if (path == null || path.isEmpty) return null;
+    try {
+      final file = File(path);
+      if (!file.existsSync()) return null;
+      final dataBytes = file.lengthSync() - 44;
+      if (dataBytes <= 0) return null;
+      final bytesPerSecond =
+          AppConstants.speechSampleRate * AppConstants.speechNumChannels * 2;
+      return (dataBytes / bytesPerSecond).round().clamp(1, 24 * 3600);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> pauseRecording() async {
     isRecording.value = false;
     _ticker?.cancel();
@@ -178,6 +196,9 @@ class LiveActivityController extends GetxController {
     await _background.stop();
     // Closes the WAV so it can be uploaded.
     final audioPath = await _speech.finishCapture();
+    // Report the file's real length, not the timer — background chunks can be
+    // dropped, which made the atom show more time than the audio actually has.
+    final capturedSecs = capturedAudioSeconds(audioPath);
 
     final id = recordingId.value;
     if (id == null || id.isEmpty) {
@@ -188,7 +209,7 @@ class LiveActivityController extends GetxController {
 
     final result = await _recording.finish(
       id,
-      durationSecs: elapsedSeconds.value,
+      durationSecs: capturedSecs ?? elapsedSeconds.value,
       transcript: liveTranscript.value.trim(),
       note: noteController.text.trim(),
     );
