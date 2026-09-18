@@ -374,6 +374,7 @@ class _AiPageState extends State<AiPage> {
                         child: _AskSourceCard(
                           icon: _iconForSource(entry.value),
                           label: _labelForSource(entry.value),
+                          subtitle: _subtitleForSource(entry.value),
                           onTap: () =>
                               controller.selectAskAttachment(entry.value),
                         ),
@@ -1047,6 +1048,17 @@ class _AiPageState extends State<AiPage> {
         return AppLocales.ai.askSourceAtom.tr;
       default:
         return source;
+    }
+  }
+
+  String _subtitleForSource(String source) {
+    switch (source) {
+      case 'Photo':
+        return AppLocales.ai.sourcePhotoSub.tr;
+      case 'Files':
+        return AppLocales.ai.sourceFilesSub.tr;
+      default:
+        return AppLocales.ai.attachAsContext.tr;
     }
   }
 
@@ -2228,18 +2240,20 @@ class _AskSourceCard extends StatelessWidget {
   const _AskSourceCard({
     required this.icon,
     required this.label,
+    required this.subtitle,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppToneCard(
       title: label,
-      subtitle: AppLocales.ai.attachAsContext.tr,
+      subtitle: subtitle,
       leadingIcon: icon,
       tone: EAppToneCardTone.primary,
       onTap: onTap,

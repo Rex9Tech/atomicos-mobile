@@ -527,9 +527,11 @@ class AiController extends GetxController {
       attachmentName.value = file.name;
       attachmentPath.value = file.path;
       askStage.value = 'landing';
-      AppSnackbar.info('Attached ${file.name}');
+      AppSnackbar.info(
+        AppLocales.ai.attachedFile.trParams({'name': file.name}),
+      );
     } catch (e) {
-      AppSnackbar.error('Could not open the file picker');
+      AppSnackbar.error(AppLocales.ai.filePickerFailed.tr);
     }
   }
 

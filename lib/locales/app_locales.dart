@@ -236,6 +236,10 @@ class _FeedbackLocales {
 
 class _AiLocales {
   const _AiLocales();
+  final sourcePhotoSub = 'ai.sourcePhotoSub';
+  final sourceFilesSub = 'ai.sourceFilesSub';
+  final attachedFile = 'ai.attachedFile';
+  final filePickerFailed = 'ai.filePickerFailed';
   final chooseContext = 'ai.chooseContext';
   final chooseContextSub = 'ai.chooseContextSub';
   final noAtomsHere = 'ai.noAtomsHere';

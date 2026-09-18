@@ -487,6 +487,10 @@ class AppTranslations extends Translations {
       AppLocales.payment.paymentLabel: 'Payment',
       AppLocales.payment.paid: 'Paid',
       AppLocales.payment.checkout: 'Checkout',
+      AppLocales.ai.sourcePhotoSub: 'Attach a photo',
+      AppLocales.ai.sourceFilesSub: 'Attach a file',
+      AppLocales.ai.attachedFile: 'Attached @name',
+      AppLocales.ai.filePickerFailed: 'Could not open the file picker',
     },
     'my_MM': {
       // Common
@@ -957,6 +961,10 @@ class AppTranslations extends Translations {
       AppLocales.payment.paymentLabel: 'ငွေပေးချေမှု',
       AppLocales.payment.paid: 'ပေးပြီး',
       AppLocales.payment.checkout: 'ငွေရှင်းရန်',
+      AppLocales.ai.sourcePhotoSub: 'ဓာတ်ပုံ ပူးတွဲပါ',
+      AppLocales.ai.sourceFilesSub: 'ဖိုင် ပူးတွဲပါ',
+      AppLocales.ai.attachedFile: '@name ပူးတွဲပြီးပါပြီ',
+      AppLocales.ai.filePickerFailed: 'ဖိုင်ရွေးချယ်ရေး ကို ဖွင့်၍မရပါ',
     },
   };
 }
