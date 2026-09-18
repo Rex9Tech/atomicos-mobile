@@ -8,8 +8,22 @@ import 'package:rexone_mobile/modules/home/data/models/models.dart';
 
 import '../ai.dart';
 
-class AiPage extends GetView<AiController> {
+class AiPage extends StatefulWidget {
   const AiPage({super.key});
+
+  @override
+  State<AiPage> createState() => _AiPageState();
+}
+
+class _AiPageState extends State<AiPage> {
+  // The controller is OWNED by this page instance — deliberately not a GetX
+  // route registration. GetX tears popped routes down lazily, so a fast
+  // exit -> re-enter reused the dying instance and its disposal killed the
+  // live composer (tester report: "Ask Atomic stuck on re-entry"). An owned
+  // instance cannot be touched by route cleanup.
+  late final AiController controller = AiController()
+    ..onInit()
+    ..onReady();
 
   List<String> get _tabs => [
         AppLocales.atom.summary.tr,
@@ -19,6 +33,12 @@ class AiPage extends GetView<AiController> {
       ];
   static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
   static const _askSources = <String>['Photo', 'Files', 'Add Atom'];
+
+  @override
+  void dispose() {
+    controller.onClose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

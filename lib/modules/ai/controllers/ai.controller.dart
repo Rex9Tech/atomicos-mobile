@@ -14,6 +14,13 @@ import '../ai.dart';
 import '../../home/home.dart';
 
 class AiController extends GetxController {
+  /// The live instance while the AI workspace page is open. The page owns its
+  /// controller (not a GetX route registration) because GetX tears popped
+  /// routes down lazily — a fast exit -> re-enter reused the dying instance
+  /// and its disposal froze the composer (tester report). Socket events reach
+  /// the page through this handle instead of Get.find.
+  static AiController? active;
+
   final AiService _ai = Get.find<AiService>();
   final SpeechService _speech = Get.find<SpeechService>();
   final PermissionService _permissions = Get.find<PermissionService>();
@@ -100,6 +107,8 @@ class AiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    active = this;
+
     final args = Get.arguments;
     if (args is Map && args['mode'] != null) {
       entryMode.value = args['mode'].toString();
@@ -137,6 +146,7 @@ class AiController extends GetxController {
 
   @override
   void onClose() {
+    if (identical(active, this)) active = null;
     _liveTextWorker?.dispose();
     _playbackWorker?.dispose();
     _stopRecordingTicker();

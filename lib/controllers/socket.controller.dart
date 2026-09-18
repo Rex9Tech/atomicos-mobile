@@ -137,11 +137,12 @@ class SocketController extends GetxController {
       );
     }
 
-    // --- AI ---
-    if (Get.isRegistered<AiController>()) {
+    // --- AI (owned by the ai page instance, not a route registration) ---
+    final ai = AiController.active;
+    if (ai != null) {
       final roomId = event.data?[AiKeys.roomId]?.toString();
       final messageId = event.data?[AiKeys.messageId]?.toString();
-      await Get.find<AiController>().onSocketEvent(
+      await ai.onSocketEvent(
         eventType,
         roomId,
         messageId: messageId,

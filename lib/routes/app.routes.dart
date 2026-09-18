@@ -339,9 +339,6 @@ class AppRoutes {
     GetPage(
       name: ai,
       page: () => const AiPage(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<AiController>(() => AiController());
-      }),
       middlewares: [GuardRoutes()],
     ),
     GetPage(
