@@ -20,6 +20,7 @@ class AppLocales {
   static const search = _SearchLocales();
   static const recording = _RecordingLocales();
   static const create = _CreateLocales();
+  static const home = _HomeLocales();
 }
 
 class _RecordingLocales {
@@ -325,6 +326,25 @@ class _AiLocales {
 
 class _PaymentLocales {
   const _PaymentLocales();
+  final plansPricing = 'payment.plansPricing';
+  final choosePlan = 'payment.choosePlan';
+  final choosePlanSub = 'payment.choosePlanSub';
+  final noProducts = 'payment.noProducts';
+  final orderHistory = 'payment.orderHistory';
+  final claimed = 'payment.claimed';
+  final expiring = 'payment.expiring';
+  final ended = 'payment.ended';
+  final claimNow = 'payment.claimNow';
+  final renewsOn = 'payment.renewsOn';
+  final accessUntil = 'payment.accessUntil';
+  final subscribeAgain = 'payment.subscribeAgain';
+  final buyAgain = 'payment.buyAgain';
+  final purchasedOnce = 'payment.purchasedOnce';
+  final purchasedTimes = 'payment.purchasedTimes';
+  final buyNow = 'payment.buyNow';
+  final paymentLabel = 'payment.paymentLabel';
+  final paid = 'payment.paid';
+  final checkout = 'payment.checkout';
 
   final title = 'payment.title';
   final subscriptions = 'payment.subscriptions';
@@ -512,4 +532,30 @@ class _CreateLocales {
   final noteFieldHint = 'create.noteFieldHint';
   final pickSourceHint = 'create.pickSourceHint';
   final sharedReviewHint = 'create.sharedReviewHint';
+}
+
+class _HomeLocales {
+  const _HomeLocales();
+  final greeting = 'home.greeting';
+  final weekInAtoms = 'home.weekInAtoms';
+  final recentAtoms = 'home.recentAtoms';
+  final noAtoms = 'home.noAtoms';
+  final noAtomsFilterSub = 'home.noAtomsFilterSub';
+  final noAtomsEmptySub = 'home.noAtomsEmptySub';
+  final newAtom = 'home.newAtom';
+  final loadFailed = 'home.loadFailed';
+  final loadFailedSub = 'home.loadFailedSub';
+  final askAtom = 'home.askAtom';
+  final newAtomSheetSub = 'home.newAtomSheetSub';
+  final devTools = 'home.devTools';
+  final debugContent = 'home.debugContent';
+  final debugLoading = 'home.debugLoading';
+  final debugEmpty = 'home.debugEmpty';
+  final openCalendar = 'home.openCalendar';
+  final openLiveActivity = 'home.openLiveActivity';
+  final sendTestLog = 'home.sendTestLog';
+  final testLogSent = 'home.testLogSent';
+  final filterAll = 'home.filterAll';
+  final filterNew = 'home.filterNew';
+  final filterPersonal = 'home.filterPersonal';
 }

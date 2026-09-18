@@ -16,6 +16,18 @@ class HomePage extends GetView<AuthController> {
 
   static const _filters = <String>['All', 'AtomOS', 'New', 'Personal'];
 
+  String _filterLabel(String filter) {
+    switch (filter) {
+      case 'All':
+        return AppLocales.home.filterAll.tr;
+      case 'New':
+        return AppLocales.home.filterNew.tr;
+      case 'Personal':
+        return AppLocales.home.filterPersonal.tr;
+    }
+    return filter;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -152,12 +164,12 @@ class HomePage extends GetView<AuthController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hello, $displayName!',
+            AppLocales.home.greeting.trParams({'name': displayName}),
             style: context.typo.headline2.copyWith(fontWeight: FontWeight.w700),
           ),
           SizedBox(height: Design.spacing.xs),
           Text(
-            'Your week, in atoms',
+            AppLocales.home.weekInAtoms.tr,
             style: context.typo.bodyMedium.copyWith(
               color: colors.textSecondary,
             ),
@@ -232,7 +244,7 @@ class HomePage extends GetView<AuthController> {
         children: _filters
             .map(
               (label) => _FilterChip(
-                label: label,
+                label: _filterLabel(label),
                 selected: label == homeController.selectedFilter.value,
                 onTap: () => homeController.selectFilter(label),
               ),
@@ -252,7 +264,7 @@ class HomePage extends GetView<AuthController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Recent atoms', style: context.typo.labelLarge),
+              Text(AppLocales.home.recentAtoms.tr, style: context.typo.labelLarge),
               SizedBox(height: 2),
               Text(
                 '${homeController.atoms.length} items in this workspace',
@@ -375,13 +387,13 @@ class HomePage extends GetView<AuthController> {
 
     return _StatusCard(
       icon: Design.icons.emptyBox,
-      title: 'No Atoms found',
+      title: AppLocales.home.noAtoms.tr,
       subtitle:
           homeController.searchQuery.value.isNotEmpty ||
               homeController.selectedFilter.value != 'All'
-          ? 'Try a different search or filter.'
-          : 'Create a new atom to populate this workspace.',
-      primaryLabel: 'New Atom',
+          ? AppLocales.home.noAtomsFilterSub.tr
+          : AppLocales.home.noAtomsEmptySub.tr,
+      primaryLabel: AppLocales.home.newAtom.tr,
       onPrimaryTap: () => _showCreateSheet(context),
     );
   }
@@ -391,9 +403,9 @@ class HomePage extends GetView<AuthController> {
 
     return _StatusCard(
       icon: Design.icons.warning,
-      title: 'Could not load your workspace',
-      subtitle: 'Check your connection and try again.',
-      primaryLabel: 'Retry',
+      title: AppLocales.home.loadFailed.tr,
+      subtitle: AppLocales.home.loadFailedSub.tr,
+      primaryLabel: AppLocales.atom.retry.tr,
       onPrimaryTap: () => homeController.loadAtoms(),
     );
   }
@@ -419,7 +431,7 @@ class HomePage extends GetView<AuthController> {
                 padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
               ),
               icon: Icon(Design.icons.sparkles, size: Design.spacing.iconSmall),
-              label: const Text('Ask Atom'),
+              label: Text(AppLocales.home.askAtom.tr),
             ),
           ),
           SizedBox(width: Design.spacing.sm),
@@ -428,7 +440,7 @@ class HomePage extends GetView<AuthController> {
               height: Design.spacing.buttonHeight,
               child: ElevatedButton(
                 onPressed: () => _showCreateSheet(context),
-                child: const Text('New Atom'),
+                child: Text(AppLocales.home.newAtom.tr),
               ),
             ),
           ),
@@ -484,14 +496,14 @@ class HomePage extends GetView<AuthController> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'New Atom',
+                          AppLocales.home.newAtom.tr,
                           style: context.typo.headline4.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(height: Design.spacing.xs),
                         Text(
-                          'Choose the fastest way to capture context into AtomicOS.',
+                          AppLocales.home.newAtomSheetSub.tr,
                           style: context.typo.bodySmall.copyWith(
                             color: colors.textSecondary,
                           ),
@@ -507,7 +519,7 @@ class HomePage extends GetView<AuthController> {
                             children: [
                               Expanded(
                                 child: _SheetTabButton(
-                                  label: 'Record',
+                                  label: AppLocales.create.modeRecord.tr,
                                   selected: isRecordTab,
                                   onTap: () => setSheetState(() {
                                     selectedTab = 'record';
@@ -517,7 +529,7 @@ class HomePage extends GetView<AuthController> {
                               SizedBox(width: Design.spacing.xs),
                               Expanded(
                                 child: _SheetTabButton(
-                                  label: 'Import',
+                                  label: AppLocales.create.import.tr,
                                   selected: !isRecordTab,
                                   onTap: () => setSheetState(() {
                                     selectedTab = 'import';
@@ -530,14 +542,14 @@ class HomePage extends GetView<AuthController> {
                         SizedBox(height: Design.spacing.lg),
                         if (isRecordTab) ...[
                           Text(
-                            'Capture a live conversation',
+                            AppLocales.create.captureLive.tr,
                             style: context.typo.labelMedium.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(height: Design.spacing.xs),
                           Text(
-                            'AtomicOS records, transcribes and summarizes the session into a new atom.',
+                            AppLocales.create.captureLiveSub.tr,
                             style: context.typo.bodySmall.copyWith(
                               color: colors.textSecondary,
                               height: 1.4,
@@ -546,8 +558,8 @@ class HomePage extends GetView<AuthController> {
                           SizedBox(height: Design.spacing.md),
                           _NewAtomAction(
                             icon: Design.icons.mic,
-                            title: 'Record Now',
-                            subtitle: 'Start capturing audio with AtomicOS',
+                            title: AppLocales.create.recordNow.tr,
+                            subtitle: AppLocales.create.recordNowSub.tr,
                             iconColor: colors.primary,
                             onTap: () {
                               Get.back();
@@ -557,8 +569,8 @@ class HomePage extends GetView<AuthController> {
                         ] else ...[
                           _NewAtomAction(
                             icon: Design.icons.folder,
-                            title: 'Upload a file',
-                            subtitle: 'Audio, video, or documents',
+                            title: AppLocales.create.uploadFile.tr,
+                            subtitle: AppLocales.create.uploadFileSub.tr,
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'upload');
@@ -567,8 +579,8 @@ class HomePage extends GetView<AuthController> {
                           SizedBox(height: Design.spacing.md),
                           _NewAtomAction(
                             icon: Design.icons.clipboard,
-                            title: 'Note',
-                            subtitle: 'Type or paste your text',
+                            title: AppLocales.create.noteTitle.tr,
+                            subtitle: AppLocales.create.noteSub.tr,
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'note');
@@ -577,8 +589,8 @@ class HomePage extends GetView<AuthController> {
                           SizedBox(height: Design.spacing.md),
                           _NewAtomAction(
                             icon: Design.icons.shareIos,
-                            title: 'Share from another app',
-                            subtitle: 'From the system share sheet',
+                            title: AppLocales.create.shareTitle.tr,
+                            subtitle: AppLocales.create.shareSub.tr,
                             onTap: () {
                               Get.back();
                               AppRoutes.toAtomCreate(mode: 'share');
@@ -626,7 +638,7 @@ class HomePage extends GetView<AuthController> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Dev tools',
+          AppLocales.home.devTools.tr,
           style: context.typo.caption.copyWith(
             color: context.colors.textSecondary,
             fontWeight: FontWeight.w600,
@@ -638,22 +650,22 @@ class HomePage extends GetView<AuthController> {
           runSpacing: Design.spacing.sm,
           children: [
             _StateChip(
-              label: 'Content',
+              label: AppLocales.home.debugContent.tr,
               selected: homeController.previewState.value == 'content',
               onTap: () => homeController.setPreviewState('content'),
             ),
             _StateChip(
-              label: 'Loading',
+              label: AppLocales.home.debugLoading.tr,
               selected: homeController.previewState.value == 'loading',
               onTap: () => homeController.setPreviewState('loading'),
             ),
             _StateChip(
-              label: 'Empty',
+              label: AppLocales.home.debugEmpty.tr,
               selected: homeController.previewState.value == 'empty',
               onTap: () => homeController.setPreviewState('empty'),
             ),
             _StateChip(
-              label: 'Error',
+              label: AppLocales.common.error.tr,
               selected: homeController.previewState.value == 'error',
               onTap: () => homeController.setPreviewState('error'),
             ),
@@ -662,19 +674,19 @@ class HomePage extends GetView<AuthController> {
         SizedBox(height: Design.spacing.sm),
         AppButton(
           type: EButtonType.secondary,
-          text: 'Open Calendar',
+          text: AppLocales.home.openCalendar.tr,
           onPressed: AppRoutes.toCalendar,
         ),
         SizedBox(height: Design.spacing.sm),
         AppButton(
           type: EButtonType.secondary,
-          text: 'Open Live Activity',
+          text: AppLocales.home.openLiveActivity.tr,
           onPressed: AppRoutes.toLiveActivity,
         ),
         SizedBox(height: Design.spacing.sm),
         AppButton(
           type: EButtonType.secondary,
-          text: 'Send manual test log',
+          text: AppLocales.home.sendTestLog.tr,
           onPressed: _sendTestLog,
         ),
       ],
@@ -693,7 +705,7 @@ class HomePage extends GetView<AuthController> {
         },
         severity: 'info',
       );
-      AppSnackbar.success('Test log sent to backend');
+      AppSnackbar.success(AppLocales.home.testLogSent.tr);
     } catch (e) {
       AppSnackbar.error('Failed: $e');
     }

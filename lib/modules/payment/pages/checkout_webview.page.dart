@@ -24,7 +24,7 @@ class CheckoutWebViewPage extends GetView<CheckoutController> {
           final colors = themeContext.colors;
 
           return AppPage(
-            title: 'Checkout',
+            title: AppLocales.payment.checkout.tr,
             showBackButton: false,
             padding: EdgeInsets.zero,
             backgroundColor: colors.background,

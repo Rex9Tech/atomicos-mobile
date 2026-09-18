@@ -12,7 +12,7 @@ class PaymentPage extends GetView<PaymentController> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      title: 'Plans & Pricing',
+      title: AppLocales.payment.plansPricing.tr,
       showBackButton: true,
       child: Obx(() {
         return RefreshIndicator(
@@ -24,13 +24,13 @@ class PaymentPage extends GetView<PaymentController> {
               children: [
                 // Header
                 Text(
-                  'Choose Your Plan',
+                  AppLocales.payment.choosePlan.tr,
                   style: context.typo.headline1,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: Design.spacing.xs),
                 Text(
-                  'Select the option that works best for you',
+                  AppLocales.payment.choosePlanSub.tr,
                   style: context.typo.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -42,7 +42,7 @@ class PaymentPage extends GetView<PaymentController> {
                     child: Padding(
                       padding: EdgeInsets.all(Design.spacing.xl),
                       child: Text(
-                        'No products available right now.',
+                        AppLocales.payment.noProducts.tr,
                         style: context.typo.bodyMedium,
                       ),
                     ),
@@ -56,7 +56,7 @@ class PaymentPage extends GetView<PaymentController> {
                 // Transactions History
                 if (controller.transactions.isNotEmpty) ...[
                   SizedBox(height: Design.spacing.xxxl),
-                  Text('Order History', style: context.typo.headline3),
+                  Text(AppLocales.payment.orderHistory.tr, style: context.typo.headline3),
                   SizedBox(height: Design.spacing.md),
                   ...controller.transactions.map(
                     (tx) => _buildTransactionTile(context, tx),
@@ -98,31 +98,31 @@ class PaymentPage extends GetView<PaymentController> {
               ),
               if (isFree && hasAccess)
                 AppBadge(
-                  text: 'Claimed',
+                  text: AppLocales.payment.claimed.tr,
                   type: BadgeType.success,
                   icon: Design.icons.activeSubscription,
                 )
               else if (!product.recurring && hasAccess)
                 AppBadge(
-                  text: 'Active',
+                  text: AppLocales.payment.active.tr,
                   type: BadgeType.success,
                   icon: Design.icons.activeSubscription,
                 )
               else if (activeSub != null)
                 AppBadge(
-                  text: 'Active',
+                  text: AppLocales.payment.active.tr,
                   type: BadgeType.success,
                   icon: Design.icons.activeSubscription,
                 )
               else if (canceledSub != null)
                 AppBadge(
-                  text: 'Expiring',
+                  text: AppLocales.payment.expiring.tr,
                   type: BadgeType.warning,
                   icon: Design.icons.scheduledCancel,
                 )
               else if (fullyCanceledSub != null)
                 AppBadge(
-                  text: 'Ended',
+                  text: AppLocales.payment.ended.tr,
                   type: BadgeType.error,
                   icon: Design.icons.canceledSubscription,
                 ),
@@ -186,13 +186,13 @@ class PaymentPage extends GetView<PaymentController> {
       if (hasAccess) {
         return AppButton(
           type: EButtonType.secondary,
-          text: 'Claimed',
+          text: AppLocales.payment.claimed.tr,
           onPressed: null,
         );
       }
 
       return AppButton(
-        text: 'Claim Now',
+        text: AppLocales.payment.claimNow.tr,
         onPressed: () => controller.startCheckout(product.id),
       );
     }
@@ -207,14 +207,14 @@ class PaymentPage extends GetView<PaymentController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Renews automatically on $periodEnd',
+            AppLocales.payment.renewsOn.trParams({'date': periodEnd}),
             style: context.typo.caption,
             textAlign: TextAlign.center,
           ),
           SizedBox(height: Design.spacing.md),
           AppButton(
             type: EButtonType.secondary,
-            text: 'Cancel Subscription',
+            text: AppLocales.payment.cancelSubscription.tr,
             onPressed: () async {
               final ok = await AppDialog.confirm(
                 context: context,
@@ -239,7 +239,7 @@ class PaymentPage extends GetView<PaymentController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Access remains active until $periodEnd',
+            AppLocales.payment.accessUntil.trParams({'date': periodEnd}),
             style: context.typo.caption.copyWith(
               color: Design.colors.warning,
             ),
@@ -248,7 +248,7 @@ class PaymentPage extends GetView<PaymentController> {
           SizedBox(height: Design.spacing.md),
           AppButton(
             type: EButtonType.secondary,
-            text: 'Resume Subscription',
+            text: AppLocales.payment.resumeSubscription.tr,
             onPressed: () => controller.resumeSubscription(canceledSub.id),
           ),
         ],
@@ -258,7 +258,7 @@ class PaymentPage extends GetView<PaymentController> {
     // 4. Fully canceled / ended -> Subscribe again
     if (fullyCanceledSub != null) {
       return AppButton(
-        text: 'Subscribe Again',
+        text: AppLocales.payment.subscribeAgain.tr,
         onPressed: () => controller.startCheckout(product.id),
       );
     }
@@ -269,13 +269,16 @@ class PaymentPage extends GetView<PaymentController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppButton(
-            text: 'Buy Again',
+            text: AppLocales.payment.buyAgain.tr,
             onPressed: () => controller.startCheckout(product.id),
           ),
           if (purchaseCount > 0) ...[
             SizedBox(height: Design.spacing.xs),
             Text(
-              'Purchased $purchaseCount time${purchaseCount > 1 ? "s" : ""}',
+              purchaseCount > 1
+                  ? AppLocales.payment.purchasedTimes
+                      .trParams({'count': '$purchaseCount'})
+                  : AppLocales.payment.purchasedOnce.tr,
               style: context.typo.caption,
               textAlign: TextAlign.center,
             ),
@@ -290,12 +293,15 @@ class PaymentPage extends GetView<PaymentController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppButton(
-            text: 'Buy Again',
+            text: AppLocales.payment.buyAgain.tr,
             onPressed: () => controller.startCheckout(product.id),
           ),
           SizedBox(height: Design.spacing.xs),
           Text(
-            'Purchased $purchaseCount time${purchaseCount > 1 ? "s" : ""}',
+            purchaseCount > 1
+                  ? AppLocales.payment.purchasedTimes
+                      .trParams({'count': '$purchaseCount'})
+                  : AppLocales.payment.purchasedOnce.tr,
             style: context.typo.caption,
             textAlign: TextAlign.center,
           ),
@@ -305,7 +311,7 @@ class PaymentPage extends GetView<PaymentController> {
 
     // 7. Default Subscribe / Buy button
     return AppButton(
-      text: product.recurring ? 'Subscribe Now' : 'Buy Now',
+      text: product.recurring ? AppLocales.payment.subscribeNow.tr : AppLocales.payment.buyNow.tr,
       onPressed: () => controller.startCheckout(product.id),
     );
   }
@@ -323,7 +329,7 @@ class PaymentPage extends GetView<PaymentController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tx.productName ?? 'Payment', style: context.typo.bodyLarge),
+              Text(tx.productName ?? AppLocales.payment.paymentLabel.tr, style: context.typo.bodyLarge),
               if (tx.createdAt != null)
                 Text(
                   tx.createdAt!.split('T').first,
@@ -332,7 +338,7 @@ class PaymentPage extends GetView<PaymentController> {
             ],
           ),
           AppBadge(
-            text: tx.paid ? 'Paid' : tx.status,
+            text: tx.paid ? AppLocales.payment.paid.tr : tx.status,
             type: tx.paid ? BadgeType.success : BadgeType.warning,
           ),
         ],
