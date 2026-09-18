@@ -476,6 +476,10 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     final hasPickedFile = (controller.pickedUploadPath.value ?? '').isNotEmpty;
 
     return Column(
+      // Stretch: without it the drop target hugs its content and sits
+      // flush-left with a dead zone on the right (tester: "upload file is
+      // not centered"). Full width keeps the box + chip rows centered.
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Obx(() {
           if (!controller.isUploading.value) return const SizedBox.shrink();
@@ -527,14 +531,18 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             duration: Design.timers.short,
             padding: EdgeInsets.all(Design.spacing.xl),
             decoration: BoxDecoration(
-              color: colors.card,
+              // Soft-UI drop target: same-tone raised surface, no hairline;
+              // a picked file paints a soft primary glow instead of a border.
+              color: colors.neumo,
               borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-              border: Border.all(
-                color: hasPickedFile
-                    ? colors.primary.withValues(alpha: 0.45)
-                    : colors.border,
-                width: hasPickedFile ? 1.5 : 1.0,
-              ),
+              boxShadow: <BoxShadow>[
+                ...colors.neumoShadowSoft,
+                if (hasPickedFile)
+                  BoxShadow(
+                    color: colors.primary.withValues(alpha: 0.35),
+                    blurRadius: 18,
+                  ),
+              ],
             ),
             child: Column(
               children: [
