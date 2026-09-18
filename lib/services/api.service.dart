@@ -76,10 +76,14 @@ class ApiService extends GetConnect {
     Future<Response<T>> Function() fn,
     bool showLoading,
   ) async {
-    if (showLoading) _showLoading();
     try {
+      if (showLoading) _showLoading();
       return await fn();
     } finally {
+      // Always rebalance when a show was requested — the show may have failed
+      // partway (e.g. an Rx write during a build phase), and it can already
+      // have incremented the counter; leaking it leaves the app stuck behind
+      // the blocking overlay forever.
       if (showLoading) _hideLoading();
     }
   }

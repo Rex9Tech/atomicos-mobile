@@ -45,23 +45,52 @@ class AppLoading extends StatelessWidget {
 
   static void show([String? message]) {
     _activeCount++;
-    globalLoadingMessage.value = message;
-    isGlobalLoading.value = true;
+    _applyState(() {
+      // A matching hide may already have run (request finished before the
+      // deferred retry below) — never resurrect a cleared overlay.
+      if (_activeCount <= 0) return;
+      globalLoadingMessage.value = message;
+      isGlobalLoading.value = true;
+    });
   }
 
   static void hide() {
     if (_activeCount > 0) _activeCount--;
     if (_activeCount <= 0) {
       _activeCount = 0;
-      isGlobalLoading.value = false;
-      globalLoadingMessage.value = null;
+      _applyState(() {
+        // A newer show is active — keep its overlay up.
+        if (_activeCount > 0) return;
+        isGlobalLoading.value = false;
+        globalLoadingMessage.value = null;
+      });
     }
   }
 
   static void reset() {
     _activeCount = 0;
-    isGlobalLoading.value = false;
-    globalLoadingMessage.value = null;
+    _applyState(() {
+      isGlobalLoading.value = false;
+      globalLoadingMessage.value = null;
+    });
+  }
+
+  /// Applies a loading-state update without ever letting an Rx notification
+  /// escape. Setting an Rx during a build phase trips flutter's
+  /// "markNeedsBuild during build" guard; if that happens the same (guarded)
+  /// update is retried after the frame, so the counter and the overlay can
+  /// never wedge apart — a stuck overlay blocks the whole app.
+  static void _applyState(VoidCallback apply) {
+    try {
+      apply();
+    } catch (error) {
+      debugPrint('AppLoading: deferred state update ($error)');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          apply();
+        } catch (_) {}
+      });
+    }
   }
 
   /// Mounts the global blocking overlay at the app root.

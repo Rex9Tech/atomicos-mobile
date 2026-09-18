@@ -36,7 +36,12 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.testMode) return;
-    loadAtoms();
+    // Deferred one frame: the controller is constructed lazily while the
+    // first HomePage build is still running, and starting the request (plus
+    // its global-loading Rx writes) inside a build phase trips flutter's
+    // markNeedsBuild guard. Post-frame keeps the whole load lifecycle
+    // outside the build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadAtoms());
     // Best-effort telemetry — staggered so it doesn't compete for the first
     // socket while the workspace request is still in flight.
     Future<void>.delayed(const Duration(seconds: 3), reportUserVersion);
