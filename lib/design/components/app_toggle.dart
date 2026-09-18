@@ -4,6 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../design.dart';
 
+/// Brand toggle switch (theme-aware, neumorphism friendly).
+///
+/// Every state resolves from centralized tokens so the control is visible on
+/// both light and dark surfaces:
+/// - selected: primary track, white knob, no ring.
+/// - unselected: muted track with a soft ring, white knob.
+///
+/// Note: flutter resolves `Switch.trackColor` (the WidgetStateProperty) with
+/// priority over `activeTrackColor`/`inactiveTrackColor` in EVERY state — a
+/// single `WidgetStateProperty.all(...)` would paint the selected track with
+/// the unselected color too (previous bug: border-gray track + default
+/// outline-gray knob on a white card = an invisible "blank" switch in light
+/// theme).
 class AppToggle extends StatelessWidget {
   const AppToggle({
     super.key,
@@ -16,6 +29,9 @@ class AppToggle extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
   final Color? activeColor;
+
+  /// Overrides the unselected track color (fill and ring). Defaults to a
+  /// muted token so the switch never blends into light surfaces.
   final Color? trackColor;
 
   static bool get isIOS => GetPlatform.isIOS;
@@ -28,7 +44,10 @@ class AppToggle extends StatelessWidget {
       value: value,
       onChanged: onChanged,
       activeColor: activeColor ?? colors.primary,
-      trackColor: trackColor ?? colors.border,
+      inactiveTrackColor:
+          trackColor ?? colors.textMuted.withValues(alpha: 0.35),
+      inactiveOutlineColor:
+          trackColor ?? colors.textMuted.withValues(alpha: 0.7),
     );
   }
 
@@ -36,24 +55,31 @@ class AppToggle extends StatelessWidget {
     required bool value,
     required ValueChanged<bool> onChanged,
     Color? activeColor,
-    Color? trackColor,
+    Color? inactiveTrackColor,
+    Color? inactiveOutlineColor,
   }) {
     if (isIOS) {
       return CupertinoSwitch(
         value: value,
         onChanged: onChanged,
         activeTrackColor: activeColor ?? CupertinoColors.systemBlue,
-        inactiveTrackColor: trackColor ?? CupertinoColors.systemGrey4,
+        inactiveTrackColor: inactiveTrackColor ?? CupertinoColors.systemGrey4,
       );
     }
     return Switch(
       value: value,
       onChanged: onChanged,
-      activeThumbColor: activeColor,
-      activeTrackColor: activeColor,
-      trackColor: trackColor != null
-          ? WidgetStateProperty.all(trackColor)
-          : null,
+      thumbColor: const WidgetStatePropertyAll(Colors.white),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? activeColor
+            : inactiveTrackColor,
+      ),
+      trackOutlineColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.transparent
+            : inactiveOutlineColor,
+      ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
