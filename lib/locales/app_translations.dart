@@ -491,6 +491,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.sourceFilesSub: 'Attach a file',
       AppLocales.ai.attachedFile: 'Attached @name',
       AppLocales.ai.filePickerFailed: 'Could not open the file picker',
+      AppLocales.home.itemsCount: '@count items in this workspace',
     },
     'my_MM': {
       // Common
@@ -965,6 +966,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.sourceFilesSub: 'ဖိုင် ပူးတွဲပါ',
       AppLocales.ai.attachedFile: '@name ပူးတွဲပြီးပါပြီ',
       AppLocales.ai.filePickerFailed: 'ဖိုင်ရွေးချယ်ရေး ကို ဖွင့်၍မရပါ',
+      AppLocales.home.itemsCount: 'ဤ workspace တွင် @count ခု',
     },
   };
 }

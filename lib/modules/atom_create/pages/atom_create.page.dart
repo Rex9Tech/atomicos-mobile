@@ -134,9 +134,9 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Obx(
         () => Row(
@@ -300,7 +300,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         Design.spacing.screenPadding,
       ),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         border: Border(top: BorderSide(color: colors.border)),
       ),
       child: SafeArea(
@@ -820,9 +820,9 @@ class _RoundTopButton extends StatelessWidget {
         height: 36,
         width: 36,
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.neumo,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.border),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(
           icon,
@@ -924,9 +924,9 @@ class _SupportChip extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

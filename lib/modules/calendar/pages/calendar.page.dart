@@ -100,9 +100,9 @@ class CalendarPage extends GetView<CalendarController> {
             vertical: Design.spacing.sm,
           ),
           decoration: BoxDecoration(
-            color: colors.surface,
+            color: colors.neumo,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: colors.border),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

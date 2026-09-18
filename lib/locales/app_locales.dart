@@ -540,6 +540,7 @@ class _CreateLocales {
 
 class _HomeLocales {
   const _HomeLocales();
+  final itemsCount = 'home.itemsCount';
   final greeting = 'home.greeting';
   final weekInAtoms = 'home.weekInAtoms';
   final recentAtoms = 'home.recentAtoms';

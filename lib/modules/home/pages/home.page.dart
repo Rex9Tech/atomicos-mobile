@@ -96,9 +96,9 @@ class HomePage extends GetView<AuthController> {
             vertical: Design.spacing.sm,
           ),
           decoration: BoxDecoration(
-            color: colors.surface,
+            color: colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -197,9 +197,9 @@ class HomePage extends GetView<AuthController> {
               vertical: Design.spacing.md,
             ),
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadow,
             ),
             child: Row(
               children: [
@@ -217,8 +217,9 @@ class HomePage extends GetView<AuthController> {
                   height: 28,
                   width: 28,
                   decoration: BoxDecoration(
-                    color: colors.card,
+                    color: colors.neumo,
                     shape: BoxShape.circle,
+                    boxShadow: colors.neumoShadowSoft,
                   ),
                   child: Icon(
                     Design.icons.filter,
@@ -267,7 +268,9 @@ class HomePage extends GetView<AuthController> {
               Text(AppLocales.home.recentAtoms.tr, style: context.typo.labelLarge),
               SizedBox(height: 2),
               Text(
-                '${homeController.atoms.length} items in this workspace',
+                AppLocales.home.itemsCount.trParams({
+                  'count': '${homeController.atoms.length}',
+                }),
                 style: context.typo.caption.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -282,9 +285,9 @@ class HomePage extends GetView<AuthController> {
               width: 30,
               margin: EdgeInsets.only(right: Design.spacing.sm),
               decoration: BoxDecoration(
-                color: colors.surface,
+                color: colors.neumo,
                 shape: BoxShape.circle,
-                border: Border.all(color: colors.border),
+                boxShadow: colors.neumoShadowSoft,
               ),
               child: Icon(
                 Design.icons.calendar,
@@ -297,9 +300,9 @@ class HomePage extends GetView<AuthController> {
             height: 30,
             width: 30,
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               shape: BoxShape.circle,
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Icon(
               Design.icons.search,
@@ -329,9 +332,9 @@ class HomePage extends GetView<AuthController> {
           height: 132,
           padding: EdgeInsets.all(Design.spacing.lg),
           decoration: BoxDecoration(
-            color: colors.surface,
+            color: colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,10 +419,9 @@ class HomePage extends GetView<AuthController> {
     return Container(
       padding: EdgeInsets.all(Design.spacing.sm),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.border),
-        boxShadow: Design.colors.shadows.sm,
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Row(
         children: [
@@ -462,10 +464,11 @@ class HomePage extends GetView<AuthController> {
             margin: EdgeInsets.all(Design.spacing.sm),
             padding: EdgeInsets.all(Design.spacing.md),
             decoration: BoxDecoration(
-              color: colors.card,
+              color: colors.neumo,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(Design.spacing.radiusXLarge),
               ),
+              boxShadow: colors.neumoShadow,
             ),
             child: SafeArea(
               child: Column(
@@ -486,11 +489,11 @@ class HomePage extends GetView<AuthController> {
                   Container(
                     padding: EdgeInsets.all(Design.spacing.lg),
                     decoration: BoxDecoration(
-                      color: colors.surface,
+                      color: colors.neumo,
                       borderRadius: BorderRadius.circular(
                         Design.spacing.radiusXLarge,
                       ),
-                      border: Border.all(color: colors.border),
+                      boxShadow: colors.neumoShadowSoft,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -512,8 +515,9 @@ class HomePage extends GetView<AuthController> {
                         Container(
                           padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: colors.card,
+                            color: colors.neumo,
                             borderRadius: BorderRadius.circular(999),
+                            boxShadow: colors.neumoShadowSoft,
                           ),
                           child: Row(
                             children: [
@@ -735,9 +739,9 @@ class _FilterChip extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: selected ? colors.primary : colors.surface,
+          color: selected ? colors.primary : colors.neumo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? colors.primary : colors.border),
+          boxShadow: selected ? null : colors.neumoShadowSoft,
         ),
         child: Text(
           label,
@@ -775,9 +779,9 @@ class _StateChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? colors.primary.withValues(alpha: 0.16)
-              : colors.card,
+              : colors.neumo,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? colors.primary : colors.border),
+          boxShadow: selected ? null : colors.neumoShadowSoft,
         ),
         child: Text(
           label,
@@ -864,7 +868,7 @@ class _NewAtomAction extends StatelessWidget {
               height: 34,
               width: 34,
               decoration: BoxDecoration(
-                color: colors.surface,
+                color: colors.neumo,
                 shape: BoxShape.circle,
               ),
               child: Icon(

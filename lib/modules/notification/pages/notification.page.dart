@@ -96,7 +96,7 @@ class _NotificationPageState extends State<NotificationPage> {
               vertical: Design.spacing.md,
             ),
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               border: Border(
                 bottom: BorderSide(color: colors.border, width: 1),
               ),

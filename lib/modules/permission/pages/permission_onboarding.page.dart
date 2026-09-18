@@ -83,9 +83,9 @@ class PermissionOnboardingPage extends GetView<PermissionOnboardingController> {
             height: 32,
             width: 32,
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               shape: BoxShape.circle,
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Icon(
               Design.icons.backArrow,
@@ -134,9 +134,9 @@ class PermissionOnboardingPage extends GetView<PermissionOnboardingController> {
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
                 decoration: BoxDecoration(
-                  color: colors.surface,
+                  color: colors.neumo,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: colors.border),
+                  boxShadow: colors.neumoShadowSoft,
                 ),
                 child: Center(
                   child: Text(
@@ -178,9 +178,9 @@ class _PermissionRow extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Row(
         children: [

@@ -184,9 +184,9 @@ class _AiPageState extends State<AiPage> {
             height: 28,
             width: 28,
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               shape: BoxShape.circle,
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Icon(
               Design.icons.close,
@@ -206,9 +206,9 @@ class _AiPageState extends State<AiPage> {
       width: double.infinity,
       padding: EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1090,9 +1090,9 @@ class _AiPageState extends State<AiPage> {
     return Container(
       padding: EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: Column(
         children: [
@@ -1131,9 +1131,9 @@ class _AiPageState extends State<AiPage> {
     return Container(
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.neumo,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: colors.border),
+        boxShadow: colors.neumoShadowSoft,
       ),
       child: TabBar(
         isScrollable: false,
@@ -1403,9 +1403,9 @@ class _AiPageState extends State<AiPage> {
           child: Container(
             padding: EdgeInsets.all(Design.spacing.lg),
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1506,7 +1506,7 @@ class _AiPageState extends State<AiPage> {
           Design.spacing.screenPadding,
         ),
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.neumo,
           border: Border(top: BorderSide(color: colors.border)),
         ),
         child: SafeArea(
@@ -1891,9 +1891,9 @@ class _CircleIconButton extends StatelessWidget {
         height: 36,
         width: 36,
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.neumo,
           shape: BoxShape.circle,
-          border: Border.all(color: colors.border),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(
           icon,
@@ -2096,9 +2096,9 @@ class _EmptyStateCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(Design.spacing.xl),
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          border: Border.all(color: colors.border),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

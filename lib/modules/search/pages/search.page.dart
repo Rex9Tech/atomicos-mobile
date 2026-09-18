@@ -46,9 +46,9 @@ class SearchPage extends GetView<AtomSearchController> {
             height: 44,
             width: 44,
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: colors.neumo,
               shape: BoxShape.circle,
-              border: Border.all(color: colors.border),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Icon(
               Design.icons.backArrow,
@@ -76,9 +76,9 @@ class SearchPage extends GetView<AtomSearchController> {
             vertical: Design.spacing.sm,
           ),
           decoration: BoxDecoration(
-            color: colors.surface,
+            color: colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: colors.border),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             children: [
