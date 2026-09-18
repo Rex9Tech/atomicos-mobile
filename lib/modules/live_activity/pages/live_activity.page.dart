@@ -163,6 +163,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             ),
             SizedBox(height: Design.spacing.xs),
             TextField(
+              onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
               controller: controller.noteController,
               minLines: 2,
               maxLines: 3,

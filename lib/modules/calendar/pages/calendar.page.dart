@@ -531,6 +531,7 @@ class CalendarPage extends GetView<CalendarController> {
           style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
         ),
         content: TextField(
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
           controller: textController,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,

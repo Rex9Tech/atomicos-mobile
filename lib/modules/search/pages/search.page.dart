@@ -86,6 +86,7 @@ class SearchPage extends GetView<AtomSearchController> {
               SizedBox(width: Design.spacing.sm),
               Expanded(
                 child: TextField(
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   controller: controller.searchController,
                   onChanged: controller.onQueryChanged,
                   autofocus: true,

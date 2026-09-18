@@ -632,6 +632,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
         ),
         SizedBox(height: Design.spacing.md),
         TextField(
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
           controller: controller.shareTextController,
           minLines: 6,
           maxLines: 10,
@@ -705,6 +706,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           ),
           child: TextField(
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             controller: controller.noteController,
             expands: true,
             minLines: null,

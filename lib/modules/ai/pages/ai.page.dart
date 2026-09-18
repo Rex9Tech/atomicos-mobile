@@ -255,6 +255,7 @@ class _AiPageState extends State<AiPage> {
                     icon: Design.icons.success,
                   )
                 : TextField(
+                    onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                     controller: controller.textController,
                     onChanged: controller.updateAskDraft,
                     expands: true,
@@ -451,6 +452,7 @@ class _AiPageState extends State<AiPage> {
               SizedBox(width: Design.spacing.sm),
               Expanded(
                 child: TextField(
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                   controller: controller.searchContextController,
                   onChanged: (value) => controller.loadContextAtoms(value),
                   decoration: InputDecoration(
@@ -1503,6 +1505,7 @@ class _AiPageState extends State<AiPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
+                      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                       controller: controller.textController,
                       onChanged: controller.updateAskDraft,
                       minLines: 3,
