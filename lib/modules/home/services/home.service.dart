@@ -29,7 +29,13 @@ class HomeService extends GetxService {
     if (search != null && search.isNotEmpty) query[AtomKeys.search] = search;
     if (status != null && status.isNotEmpty) query[AtomKeys.status] = status;
 
-    final response = await _api.get(ServerRoutes.atoms, query: query);
+    final response = await _api.get(
+      ServerRoutes.atoms,
+      query: query,
+      // Silent: the home surface renders its own skeleton, and socket-driven
+      // refreshes (atom_updated etc.) must never flash a blocking overlay.
+      showLoading: false,
+    );
     return _api.parsePaginatedResponse<AtomModel>(
       response,
       (data) => AtomModel.fromJson(Map<String, dynamic>.from(data as Map)),
@@ -38,7 +44,12 @@ class HomeService extends GetxService {
 
   /// GET /v1/atoms/:id — single atom.
   Future<ApiResponse<AtomModel>> getAtom(String id) async {
-    final response = await _api.get(ServerRoutes.atomDetail(id));
+    final response = await _api.get(
+      ServerRoutes.atomDetail(id),
+      // Silent: the details surface has its own states; reloading the atom
+      // after an upload must not cover the page with the global scrim.
+      showLoading: false,
+    );
     return _api.parseResponse<AtomModel>(response, (data) {
       final record = data is Map && data[AtomKeys.atom] is Map
           ? data[AtomKeys.atom]

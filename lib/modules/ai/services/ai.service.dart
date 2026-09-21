@@ -41,7 +41,14 @@ class AiService extends GetxService {
   }) async {
     final query = <String, dynamic>{};
     if (roomId != null && roomId.isNotEmpty) query[AiKeys.roomId] = roomId;
-    final response = await _api.get(ServerRoutes.aiHistory, query: query);
+    final response = await _api.get(
+      ServerRoutes.aiHistory,
+      query: query,
+      // Silent: the chat owns its inline states (thinking bubble / message
+      // list). A global blocking scrim on every reload "craps" the chat UI
+      // right as the AI response lands.
+      showLoading: false,
+    );
     return _api.parsePaginatedResponse(
       response,
       (data) => AiMessageModel.fromJson(Map<String, dynamic>.from(data as Map)),
@@ -51,7 +58,11 @@ class AiService extends GetxService {
   Future<ApiResponse<dynamic>> clearHistory({String? roomId}) async {
     final query = <String, dynamic>{};
     if (roomId != null && roomId.isNotEmpty) query[AiKeys.roomId] = roomId;
-    final response = await _api.delete(ServerRoutes.aiClear, query: query);
+    final response = await _api.delete(
+      ServerRoutes.aiClear,
+      query: query,
+      showLoading: false,
+    );
     return _api.parseResponse(response, (data) => data);
   }
 
@@ -62,7 +73,11 @@ class AiService extends GetxService {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
-    final response = await _api.get(ServerRoutes.aiRooms, query: query);
+    final response = await _api.get(
+      ServerRoutes.aiRooms,
+      query: query,
+      showLoading: false,
+    );
     return _api.parsePaginatedResponse<AiRoomModel>(
       response,
       (data) => AiRoomModel.fromJson(data),
@@ -70,7 +85,11 @@ class AiService extends GetxService {
   }
 
   Future<ApiResponse<AiRoomModel>> createRoom(CreateRoomRequest request) async {
-    final response = await _api.post(ServerRoutes.aiRooms, request.toJson());
+    final response = await _api.post(
+      ServerRoutes.aiRooms,
+      request.toJson(),
+      showLoading: false,
+    );
     return _api.parseResponse<AiRoomModel>(response, (data) {
       final record = data is Map && data[AiKeys.room] is Map
           ? data[AiKeys.room]
@@ -81,7 +100,10 @@ class AiService extends GetxService {
   }
 
   Future<ApiResponse<dynamic>> deleteRoom(String roomId) async {
-    final response = await _api.delete(ServerRoutes.aiDeleteRoom(roomId));
+    final response = await _api.delete(
+      ServerRoutes.aiDeleteRoom(roomId),
+      showLoading: false,
+    );
     return _api.parseResponse(response, (data) => data);
   }
 
