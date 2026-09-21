@@ -44,9 +44,8 @@ class AppThemeContextColors {
   bool get isDark => _context.theme.brightness == Brightness.dark;
 
   /// Frosted translucent surface fill.
-  Color get glass => isDark
-      ? Design.colors.glass.card
-      : Colors.white.withValues(alpha: 0.72);
+  Color get glass =>
+      isDark ? Design.colors.glass.card : Colors.white.withValues(alpha: 0.72);
 
   /// Stronger (more opaque) frosted fill for bars/sheets.
   Color get glassStrong => isDark
@@ -66,30 +65,33 @@ class AppThemeContextColors {
       : _context.theme.scaffoldBackgroundColor;
 
   /// Raised soft-UI surface: light falls from the top-left, shade to the
-  /// bottom-right.
+  /// bottom-right. Tuned stronger by tester request — the dual shadow should
+  /// read clearly as raised relief on both themes.
   List<BoxShadow> get neumoShadow => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.05),
-            blurRadius: 16,
+            color: Colors.white.withValues(alpha: 0.16),
+            blurRadius: 14,
             offset: const Offset(-6, -6),
           ),
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 18,
+            blurRadius: 50,
             offset: const Offset(6, 6),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.95),
+            color: Colors.white.withValues(alpha: 1.0),
             blurRadius: 16,
             offset: const Offset(-6, -6),
           ),
+          // Wider blur keeps the shade a diffuse falloff rather than a
+          // visible gray band (reviewed via golden previews).
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
-            blurRadius: 18,
-            offset: const Offset(6, 6),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 30,
+            offset: const Offset(7, 7),
           ),
         ];
 
@@ -97,26 +99,26 @@ class AppThemeContextColors {
   List<BoxShadow> get neumoShadowSoft => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(-3, -3),
+            color: Colors.white.withValues(alpha: 0.14),
+            blurRadius: 9,
+            offset: const Offset(-4, -4),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.40),
-            blurRadius: 10,
-            offset: const Offset(3, 3),
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 20,
+            offset: const Offset(4, 4),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.9),
-            blurRadius: 8,
-            offset: const Offset(-3, -3),
+            color: Colors.white.withValues(alpha: 1.0),
+            blurRadius: 9,
+            offset: const Offset(-4, -4),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(3, 3),
+            color: Colors.black.withValues(alpha: 0.13),
+            blurRadius: 16,
+            offset: const Offset(4, 4),
           ),
         ];
 

@@ -75,24 +75,90 @@ void main() {
       expect(AppLetterSpacings.wider, 1.2);
     });
 
-    test('AppTypography getters produce expected styles with correct token values', () {
-      expect(Design.typo.headline1.fontSize, AppFontSizes.h1);
-      expect(Design.typo.headline1.fontWeight, AppFontWeights.bold);
-      expect(Design.typo.headline1.height, AppLineHeights.tight);
-      expect(Design.typo.headline1.letterSpacing, AppLetterSpacings.tight);
+    test(
+      'AppTypography getters produce expected styles with correct token values',
+      () {
+        expect(Design.typo.headline1.fontSize, AppFontSizes.h1);
+        expect(Design.typo.headline1.fontWeight, AppFontWeights.bold);
+        expect(Design.typo.headline1.height, AppLineHeights.tight);
+        expect(Design.typo.headline1.letterSpacing, AppLetterSpacings.tight);
 
-      expect(Design.typo.bodyLarge.fontSize, AppFontSizes.bodyLarge);
-      expect(Design.typo.bodyLarge.fontWeight, AppFontWeights.regular);
-      expect(Design.typo.bodyLarge.height, AppLineHeights.relaxed);
+        expect(Design.typo.bodyLarge.fontSize, AppFontSizes.bodyLarge);
+        expect(Design.typo.bodyLarge.fontWeight, AppFontWeights.regular);
+        expect(Design.typo.bodyLarge.height, AppLineHeights.relaxed);
 
-      expect(Design.typo.button.fontSize, AppFontSizes.button);
-      expect(Design.typo.button.fontWeight, AppFontWeights.semiBold);
-      expect(Design.typo.button.height, AppLineHeights.tight);
-      expect(Design.typo.button.letterSpacing, AppLetterSpacings.wide);
+        expect(Design.typo.button.fontSize, AppFontSizes.button);
+        expect(Design.typo.button.fontWeight, AppFontWeights.semiBold);
+        expect(Design.typo.button.height, AppLineHeights.tight);
+        expect(Design.typo.button.letterSpacing, AppLetterSpacings.wide);
 
-      expect(Design.typo.caption.fontSize, AppFontSizes.caption);
-      expect(Design.typo.caption.fontWeight, AppFontWeights.regular);
-      expect(Design.typo.caption.height, AppLineHeights.normal);
+        expect(Design.typo.caption.fontSize, AppFontSizes.caption);
+        expect(Design.typo.caption.fontWeight, AppFontWeights.regular);
+        expect(Design.typo.caption.height, AppLineHeights.normal);
+      },
+    );
+
+    testWidgets('neumo shadow tokens stay pronounced (light)', (tester) async {
+      late List<BoxShadow> raised;
+      late List<BoxShadow> soft;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: Design.theme.light,
+          home: Builder(
+            builder: (context) {
+              raised = context.colors.neumoShadow;
+              soft = context.colors.neumoShadowSoft;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(raised, hasLength(2));
+      expect(soft, hasLength(2));
+
+      // Highlight from the top-left, shade to the bottom-right — both halves
+      // must stay strong enough to read as raised relief (tester request:
+      // 'add more shadow to look Neumorphism theme more').
+      expect(raised[0].offset.dx, lessThanOrEqualTo(-5.0));
+      expect(raised[0].color.a, greaterThanOrEqualTo(0.9));
+      expect(raised[1].offset.dx, greaterThanOrEqualTo(6.0));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(26.0));
+      expect(raised[1].color.a, greaterThanOrEqualTo(0.12));
+
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(12.0));
+      expect(soft[1].color.a, greaterThanOrEqualTo(0.10));
+    });
+
+    testWidgets('neumo shadow tokens stay pronounced (dark)', (tester) async {
+      late List<BoxShadow> raised;
+      late List<BoxShadow> soft;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: Design.theme.dark,
+          home: Builder(
+            builder: (context) {
+              raised = context.colors.neumoShadow;
+              soft = context.colors.neumoShadowSoft;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(raised, hasLength(2));
+      expect(soft, hasLength(2));
+
+      expect(raised[0].offset.dx, lessThanOrEqualTo(-5.0));
+      expect(raised[0].color.a, greaterThanOrEqualTo(0.10));
+      expect(raised[1].offset.dx, greaterThanOrEqualTo(5.0));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(36.0));
+      expect(raised[1].color.a, greaterThanOrEqualTo(0.35));
+
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(14.0));
+      expect(soft[1].color.a, greaterThanOrEqualTo(0.30));
     });
   });
 }
