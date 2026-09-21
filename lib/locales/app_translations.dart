@@ -270,6 +270,7 @@ class AppTranslations extends Translations {
       AppLocales.notification.loadMore: 'Load more',
       AppLocales.notification.deleted: 'Notification deleted',
       AppLocales.notification.failedToLoad: 'Failed to load notifications',
+      AppLocales.notification.viewAll: 'View all',
 
       // Update
       AppLocales.update.title: 'Update App?',
@@ -807,6 +808,7 @@ class AppTranslations extends Translations {
       AppLocales.notification.loadMore: 'ထပ်မံကြည့်ရှုရန်',
       AppLocales.notification.deleted: 'အသိပေးချက် ဖျက်ပြီးပါပြီ',
       AppLocales.notification.failedToLoad: 'အသိပေးချက်များ ရယူ၍မရပါ',
+      AppLocales.notification.viewAll: 'အားလုံးကြည့်ရန်',
 
       // Update
       AppLocales.update.title: 'အက်ပ်ကို အပ်ဒိတ်လုပ်မလား?',

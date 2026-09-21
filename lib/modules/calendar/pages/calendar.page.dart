@@ -75,7 +75,7 @@ class CalendarPage extends GetView<CalendarController> {
             SizedBox(height: Design.spacing.lg),
             _buildRangePicker(context),
             SizedBox(height: Design.spacing.lg),
-            _buildWeekHeader(context),
+            _buildMonthHeader(context),
             SizedBox(height: Design.spacing.md),
             _buildCalendarGrid(context),
             SizedBox(height: Design.spacing.lg),
@@ -218,55 +218,61 @@ class CalendarPage extends GetView<CalendarController> {
     );
   }
 
-  Widget _buildWeekHeader(BuildContext context) {
+  Widget _buildMonthHeader(BuildContext context) {
     final colors = context.colors;
+    final lm = MaterialLocalizations.of(context);
 
-    return Container(
-      padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        border: Border.all(color: context.colors.border),
-      ),
-      child: Row(
-        children: [
-          _RoundIconButton(
-            icon: Design.icons.backArrow,
-            size: 14,
-            onTap: () {},
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  MaterialLocalizations.of(context).formatMonthYear(DateTime.now()),
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  '5 - 11',
-                  style: context.typo.headline3.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+    return Obx(() {
+      final viewMonth = controller.viewMonth.value;
+      final weekStart = controller.weekStart;
+      final weekEnd = controller.weekEnd;
+
+      return Container(
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Row(
+          children: [
+            _RoundIconButton(
+              icon: Design.icons.backArrow,
+              size: 14,
+              onTap: controller.goToPreviousMonth,
             ),
-          ),
-          _RoundIconButton(
-            icon: Design.icons.rightArrow,
-            size: 14,
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
+            Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    lm.formatMonthYear(viewMonth),
+                    style: context.typo.bodySmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                  SizedBox(height: Design.spacing.xs),
+                  Text(
+                    '${lm.formatShortMonthDay(weekStart)} – ${lm.formatShortMonthDay(weekEnd)}',
+                    style: context.typo.headline3.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _RoundIconButton(
+              icon: Design.icons.rightArrow,
+              size: 14,
+              onTap: controller.goToNextMonth,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildCalendarGrid(BuildContext context) {
     final colors = context.colors;
-    final days = List<int>.generate(35, (index) => index + 1);
 
     return AppGlassCard(
       padding: EdgeInsets.all(Design.spacing.lg),
@@ -290,17 +296,24 @@ class CalendarPage extends GetView<CalendarController> {
                 .toList(),
           ),
           SizedBox(height: Design.spacing.md),
-          Obx(
-            () => GridView.count(
+          Obx(() {
+            final blanks = controller.leadingBlanks;
+            final dayCount = controller.daysInMonth;
+
+            return GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 7,
               mainAxisSpacing: Design.spacing.sm,
               crossAxisSpacing: Design.spacing.sm,
               childAspectRatio: 0.95,
-              children: days.map((day) {
+              children: List.generate(blanks + dayCount, (index) {
+                if (index < blanks) return const SizedBox.shrink();
+
+                final day = index - blanks + 1;
                 final isActive = controller.hasEventOnDay(day);
                 final isSelected = controller.selectedDay.value == day;
+                final isToday = controller.isToday(day);
 
                 return GestureDetector(
                   onTap: () => controller.selectDay(day),
@@ -317,9 +330,12 @@ class CalendarPage extends GetView<CalendarController> {
                       border: Border.all(
                         color: isSelected
                             ? colors.primary
+                            : isToday
+                            ? colors.primary.withValues(alpha: 0.55)
                             : isActive
                             ? colors.primary.withValues(alpha: 0.24)
                             : colors.border,
+                        width: isToday && !isSelected ? 1.4 : 1.0,
                       ),
                     ),
                     child: Column(
@@ -351,9 +367,9 @@ class CalendarPage extends GetView<CalendarController> {
                     ),
                   ),
                 );
-              }).toList(),
-            ),
-          ),
+              }),
+            );
+          }),
         ],
       ),
     );
@@ -371,16 +387,24 @@ class CalendarPage extends GetView<CalendarController> {
           children: [
             Row(
               children: [
-                Text(
-                  controller.selectedRange.value == 'Month'
-                      ? AppLocales.calendar.monthSchedule.tr
-                      : AppLocales.calendar.scheduleFor.trParams(
-                          {'day': '${controller.selectedDay.value}'}),
-                  style: context.typo.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Text(
+                    controller.selectedRange.value == 'Month'
+                        ? AppLocales.calendar.monthSchedule.tr
+                        : AppLocales.calendar.scheduleFor.trParams({
+                            'day': _formatMediumDate(
+                              context,
+                              controller.selectedDate,
+                            ),
+                          }),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                SizedBox(width: Design.spacing.sm),
                 GestureDetector(
                   onTap: AppRoutes.toLiveActivity,
                   child: Container(
@@ -445,6 +469,7 @@ class CalendarPage extends GetView<CalendarController> {
             if (i > 0) SizedBox(height: Design.spacing.md),
             _AgendaRow(
               time: controller.eventTime(visibleEvents[i]) ?? '--:--',
+              meta: _eventMeta(context, visibleEvents[i]),
               title: visibleEvents[i].title,
               subtitle: (visibleEvents[i].description?.isNotEmpty ?? false)
                   ? visibleEvents[i].description!
@@ -463,6 +488,18 @@ class CalendarPage extends GetView<CalendarController> {
       padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
       child: Center(child: child),
     );
+  }
+
+  /// Locale-aware medium date, e.g. "Wed, Sep 17".
+  String _formatMediumDate(BuildContext context, DateTime date) =>
+      MaterialLocalizations.of(context).formatMediumDate(date);
+
+  /// "Wed, Sep 17 · 14:30 – 15:30" — the date + time line for agenda rows.
+  String _eventMeta(BuildContext context, CalendarEventModel event) {
+    final start = controller.eventStart(event);
+    final dateLabel = start == null ? '--' : _formatMediumDate(context, start);
+    final range = controller.eventTimeRange(event);
+    return range == null ? dateLabel : '$dateLabel · $range';
   }
 
   // ===== Item popup: rename / open =====
@@ -640,6 +677,7 @@ class _RoundIconButton extends StatelessWidget {
 class _AgendaRow extends StatelessWidget {
   const _AgendaRow({
     required this.time,
+    required this.meta,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -647,6 +685,7 @@ class _AgendaRow extends StatelessWidget {
   });
 
   final String time;
+  final String meta;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -687,6 +726,14 @@ class _AgendaRow extends StatelessWidget {
                   title,
                   style: context.typo.bodyMedium.copyWith(
                     color: colors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: Design.spacing.xs),
+                Text(
+                  meta,
+                  style: context.typo.bodySmall.copyWith(
+                    color: colors.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

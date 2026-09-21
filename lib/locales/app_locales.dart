@@ -417,6 +417,7 @@ class _NotificationLocales {
   final loadMore = 'notification.load_more';
   final deleted = 'notification.deleted';
   final failedToLoad = 'notification.failed_to_load';
+  final viewAll = 'notification.view_all';
 }
 
 class _AtomLocales {

@@ -10,6 +10,7 @@ import '../../auth/auth.dart';
 import '../../search/search.dart';
 import '../controllers/home.controller.dart';
 import 'widgets/atom_card.dart';
+import 'widgets/notification_bell.dart';
 
 class HomePage extends GetView<AuthController> {
   const HomePage({super.key});
@@ -119,6 +120,8 @@ class HomePage extends GetView<AuthController> {
           ),
         ),
         const Spacer(),
+        const NotificationBell(),
+        SizedBox(width: Design.spacing.sm),
         GestureDetector(
           onTap: AppRoutes.toSettings,
           child: Obx(() {
@@ -265,7 +268,10 @@ class HomePage extends GetView<AuthController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocales.home.recentAtoms.tr, style: context.typo.labelLarge),
+              Text(
+                AppLocales.home.recentAtoms.tr,
+                style: context.typo.labelLarge,
+              ),
               SizedBox(height: 2),
               Text(
                 AppLocales.home.itemsCount.trParams({
@@ -314,7 +320,6 @@ class HomePage extends GetView<AuthController> {
       ),
     );
   }
-
 
   Widget _buildLoadingState(BuildContext context) {
     final colors = context.colors;

@@ -7,6 +7,8 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/ai/ai.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
+import 'package:rexone_mobile/modules/calendar/data/models/calendar_event.model.dart';
+import 'package:rexone_mobile/modules/calendar/services/calendar.service.dart';
 import 'package:rexone_mobile/modules/feedback/data/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
@@ -228,7 +230,8 @@ class FakeAuthService extends GetxService implements AuthService {
 
   @override
   Future<ApiResponse<AuthResponse>> signInWithToken(
-      SignInTokenRequest request) async {
+    SignInTokenRequest request,
+  ) async {
     return ApiResponse.success(
       message: 'OK',
       statusCode: 200,
@@ -241,7 +244,8 @@ class FakeAuthService extends GetxService implements AuthService {
 
   @override
   Future<ApiResponse<GoogleResponse>> signInWithGoogle(
-      SignInGoogleRequest request) async {
+    SignInGoogleRequest request,
+  ) async {
     return googleSignInResponse ??
         ApiResponse.success(
           message: 'OK',
@@ -256,7 +260,8 @@ class FakeAuthService extends GetxService implements AuthService {
 
   @override
   Future<ApiResponse<AuthResponse>> googleSignInComplete(
-      GoogleSignInCompleteRequest request) async {
+    GoogleSignInCompleteRequest request,
+  ) async {
     return googleSignInCompleteResponse ??
         ApiResponse.success(
           message: 'OK',
@@ -280,14 +285,16 @@ class FakeAuthService extends GetxService implements AuthService {
 
   @override
   Future<ApiResponse<void>> sendConfirmationOTPCode(
-      SendConfirmationOtpRequest request) async {
+    SendConfirmationOtpRequest request,
+  ) async {
     return sendOtpResponse ??
         ApiResponse.success(message: 'Code sent', statusCode: 200);
   }
 
   @override
   Future<ApiResponse<AuthResponse>> confirmOTPCode(
-      ConfirmOtpRequest request) async {
+    ConfirmOtpRequest request,
+  ) async {
     return confirmOtpResponse ??
         ApiResponse.success(
           message: 'Verified',
@@ -311,7 +318,8 @@ class FakeAuthService extends GetxService implements AuthService {
 
   @override
   Future<ApiResponse<void>> forgotPassword(
-      ForgotPasswordRequest request) async {
+    ForgotPasswordRequest request,
+  ) async {
     return forgotPasswordResponse ??
         ApiResponse.success(message: 'Reset sent', statusCode: 200);
   }
@@ -381,6 +389,103 @@ class FakeNotificationService extends NotificationService {
   }
 }
 
+/// Fake Calendar Service with an in-memory event list.
+class FakeCalendarService extends GetxService implements CalendarService {
+  List<CalendarEventModel> eventsResponse = const [];
+
+  @override
+  void onInit() {}
+
+  @override
+  Future<PaginatedResponse<CalendarEventModel>> getEvents({
+    int? page,
+    int? limit,
+    bool upcoming = false,
+  }) async => PaginatedResponse<CalendarEventModel>(
+    records: List<CalendarEventModel>.from(eventsResponse),
+    message: 'OK',
+    statusCode: 200,
+    success: true,
+  );
+
+  @override
+  Future<ApiResponse<CalendarEventModel>> createEvent({
+    required String title,
+    String? startAt,
+    String? endAt,
+    String? description,
+    Map<String, dynamic>? metadata,
+  }) async => ApiResponse.success(
+    message: 'Created',
+    statusCode: 201,
+    data: CalendarEventModel(
+      id: 'ev_new',
+      title: title,
+      startAt: startAt,
+      endAt: endAt,
+      description: description,
+      status: 'scheduled',
+      metadata: metadata ?? const {},
+      createdAt: '',
+      updatedAt: '',
+    ),
+  );
+
+  @override
+  Future<ApiResponse<CalendarEventModel>> updateEvent({
+    required String id,
+    String? title,
+    String? startAt,
+    String? endAt,
+    String? description,
+    Map<String, dynamic>? metadata,
+  }) async => ApiResponse.success(
+    message: 'Updated',
+    statusCode: 200,
+    data: CalendarEventModel(
+      id: id,
+      title: title ?? '',
+      startAt: startAt,
+      endAt: endAt,
+      description: description,
+      status: 'scheduled',
+      metadata: metadata ?? const {},
+      createdAt: '',
+      updatedAt: '',
+    ),
+  );
+
+  @override
+  Future<ApiResponse<CalendarEventModel>> getEvent(String id) async =>
+      ApiResponse.success(
+        message: 'Fetched',
+        statusCode: 200,
+        data: CalendarEventModel(
+          id: id,
+          title: 'Event',
+          status: 'scheduled',
+          createdAt: '',
+          updatedAt: '',
+        ),
+      );
+
+  @override
+  Future<ApiResponse<CalendarEventModel>> renameEvent({
+    required String id,
+    required String title,
+  }) async => ApiResponse.success(
+    message: 'Renamed',
+    statusCode: 200,
+    data: CalendarEventModel(
+      id: id,
+      title: title,
+      status: 'scheduled',
+      createdAt: '',
+      updatedAt: '',
+    ),
+  );
+}
+
 /// Fake Feedback Service.
 class FakeFeedbackService extends FeedbackService {
   ApiResponse<FeedbackModel>? submitResponse;
@@ -391,7 +496,8 @@ class FakeFeedbackService extends FeedbackService {
 
   @override
   Future<ApiResponse<FeedbackModel>> submitFeedback(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     lastSubmittedData = data;
     return submitResponse ??
         ApiResponse.success(
@@ -520,8 +626,10 @@ class FakeAiService extends AiService {
   void onInit() {}
 
   @override
-  Future<PaginatedResponse<AiRoomModel>> getRooms(
-      {int? page, int? limit}) async {
+  Future<PaginatedResponse<AiRoomModel>> getRooms({
+    int? page,
+    int? limit,
+  }) async {
     return roomsResponse ??
         const PaginatedResponse<AiRoomModel>(
           records: [],
@@ -609,23 +717,21 @@ class FakeHomeService extends GetxService implements HomeService {
   Future<ApiResponse<AtomAssetModel>> attachAsset({
     required String atomId,
     required String assetId,
-  }) async =>
-      ApiResponse.success(
-        message: 'Asset attached',
-        statusCode: 201,
-        data: AtomAssetModel.fromJson(const {}),
-      );
+  }) async => ApiResponse.success(
+    message: 'Asset attached',
+    statusCode: 201,
+    data: AtomAssetModel.fromJson(const {}),
+  );
 
   @override
   Future<ApiResponse<AtomModel>> renameAtom({
     required String atomId,
     required String title,
-  }) async =>
-      ApiResponse.success(
-        message: 'Atom renamed',
-        statusCode: 200,
-        data: AtomModel.fromJson(const {}),
-      );
+  }) async => ApiResponse.success(
+    message: 'Atom renamed',
+    statusCode: 200,
+    data: AtomModel.fromJson(const {}),
+  );
 }
 
 /// Fake Recording Service avoiding network calls.
@@ -651,12 +757,11 @@ class FakeRecordingService extends GetxService implements RecordingService {
     String id, {
     String? status,
     int? durationSecs,
-  }) async =>
-      ApiResponse.success(
-        message: 'Recording updated',
-        statusCode: 200,
-        data: RecordingModel.fromJson(const {}),
-      );
+  }) async => ApiResponse.success(
+    message: 'Recording updated',
+    statusCode: 200,
+    data: RecordingModel.fromJson(const {}),
+  );
 
   @override
   Future<ApiResponse<RecordingModel>> finish(
@@ -664,12 +769,11 @@ class FakeRecordingService extends GetxService implements RecordingService {
     int? durationSecs,
     String? transcript,
     String? note,
-  }) async =>
-      ApiResponse.success(
-        message: 'Recording finished',
-        statusCode: 200,
-        data: RecordingModel.fromJson(const {}),
-      );
+  }) async => ApiResponse.success(
+    message: 'Recording finished',
+    statusCode: 200,
+    data: RecordingModel.fromJson(const {}),
+  );
 }
 
 /// Fake Speech Service avoiding native audio recorder / player channels.
@@ -893,10 +997,7 @@ class FakeVersionService extends VersionService {
         ApiResponse.success(
           message: 'OK',
           statusCode: 200,
-          data: VersionModel(
-            id: 'av1',
-            number: '1.0.0',
-          ),
+          data: VersionModel(id: 'av1', number: '1.0.0'),
         );
   }
 
@@ -1008,4 +1109,3 @@ class FakeProfileService extends ProfileService {
         );
   }
 }
-
