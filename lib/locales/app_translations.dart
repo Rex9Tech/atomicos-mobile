@@ -416,7 +416,7 @@ class AppTranslations extends Translations {
       AppLocales.category.title: 'Categories',
       AppLocales.category.manage: 'Manage Categories',
       AppLocales.category.manageSub:
-          'Admin-created categories your atoms can be grouped under',
+          'Create categories to organise your own atoms',
       AppLocales.category.nameHint: 'New category name',
       AppLocales.category.add: 'Add',
       AppLocales.category.empty: 'No categories yet',
@@ -984,7 +984,7 @@ class AppTranslations extends Translations {
       AppLocales.category.title: 'အမျိုးအစားများ',
       AppLocales.category.manage: 'အမျိုးအစားများ စီမံရန်',
       AppLocales.category.manageSub:
-          'အက်တမ်များကို အုပ်စုဖွဲ့နိုင်သည့် အမျိုးအစားများ (admin ဖန်တီးသည်)',
+          'သင့်အက်တမ်များကို စီစဉ်ရန် အမျိုးအစားများ ဖန်တီးပါ',
       AppLocales.category.nameHint: 'အမျိုးအစား အမည်သစ်',
       AppLocales.category.add: 'ထည့်မည်',
       AppLocales.category.empty: 'အမျိုးအစား မရှိသေးပါ',

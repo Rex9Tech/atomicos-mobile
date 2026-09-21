@@ -103,17 +103,13 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     );
   }
 
-  /// Tap-to-attach category picker for the atom being created; admins also
-  /// get a quick-add chip so a missing category never blocks the flow.
+  /// Tap-to-attach category picker for the atom being created (every user has
+  /// their own list); the "＋ New" chip quick-adds a missing category.
   Widget _buildCategoryPicker(BuildContext context) {
     final categoryService = Get.find<CategoryService>();
 
     return Obx(() {
       final categories = categoryService.categories;
-      final isAdmin = categoryService.isAdmin.value;
-      if (categories.isEmpty && !isAdmin) {
-        return const SizedBox.shrink();
-      }
 
       return Padding(
         padding: EdgeInsets.only(top: Design.spacing.xl),
@@ -129,13 +125,12 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                   selected: controller.selectedCategoryId.value == category.id,
                   onTap: () => controller.selectCategory(category.id),
                 ),
-              if (isAdmin)
-                _CategoryChip(
-                  label: AppLocales.category.quickAdd.tr,
-                  leadingIcon: Design.icons.add,
-                  selected: false,
-                  onTap: () => _showQuickAddCategory(context),
-                ),
+              _CategoryChip(
+                label: AppLocales.category.quickAdd.tr,
+                leadingIcon: Design.icons.add,
+                selected: false,
+                onTap: () => _showQuickAddCategory(context),
+              ),
             ],
           ),
         ),
@@ -144,7 +139,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   }
 
   /// Admin quick-add: name the category in a small dialog; it is created via
-  /// the admin endpoint and selected for the atom being created.
+  /// the user endpoint and selected for the atom being created.
   Future<void> _showQuickAddCategory(BuildContext context) async {
     final textController = TextEditingController();
     final name = await Get.dialog<String>(

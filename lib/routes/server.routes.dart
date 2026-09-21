@@ -89,6 +89,7 @@ class ServerRoutes {
 
   // ===== CATEGORIES =====
   static String get categories => api('/categories');
+  static String category(String id) => api('/categories/$id');
   static String get adminCategories => adminApi('/categories');
   static String adminCategory(String id) => adminApi('/categories/$id');
 

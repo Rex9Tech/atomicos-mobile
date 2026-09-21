@@ -6,7 +6,6 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
-import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../feedback/feedback.dart';
@@ -18,13 +17,6 @@ class SettingPage extends GetView<SettingController> {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    final categoryService = Get.find<CategoryService>();
-
-    // Lazy admin check: gates the (admin-only) Categories entry. The service
-    // caches the result, so repeated builds don't refetch.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      categoryService.loadIam();
-    });
 
     return AppPage(
       title: AppLocales.setting.settings.tr,
@@ -50,21 +42,11 @@ class SettingPage extends GetView<SettingController> {
 
           SizedBox(height: Design.spacing.xxl),
 
-          // Admin Section (categories management — admin accounts only)
-          Obx(() {
-            if (!categoryService.isAdmin.value) {
-              return const SizedBox.shrink();
-            }
+          // Categories (personal — every user manages their own)
+          _buildSectionHeader(context, AppLocales.category.title.tr),
+          _buildCategoriesTile(context),
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildSectionHeader(context, AppLocales.category.title.tr),
-                _buildCategoriesTile(context),
-                SizedBox(height: Design.spacing.xxl),
-              ],
-            );
-          }),
+          SizedBox(height: Design.spacing.xxl),
 
           // Feedback Section
           _buildSectionHeader(context, AppLocales.feedback.title.tr),

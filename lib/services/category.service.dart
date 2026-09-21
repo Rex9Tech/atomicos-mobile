@@ -79,10 +79,11 @@ class CategoryService extends GetxService {
     }
   }
 
-  /// POST /v1/admin/categories
+  /// POST /v1/categories — the CURRENT USER's own list (every user manages
+  /// their own; no admin gate).
   Future<ApiResponse<CategoryModel>> create(String name) async {
     final response = await _api.post(
-      ServerRoutes.adminCategories,
+      ServerRoutes.categories,
       {
         CategoryKeys.category: {CategoryKeys.name: name},
       },
@@ -100,10 +101,10 @@ class CategoryService extends GetxService {
     });
   }
 
-  /// DELETE /v1/admin/categories/:id (soft discard server-side).
+  /// DELETE /v1/categories/:id (soft discard server-side).
   Future<ApiResponse<CategoryModel>> delete(String id) async {
     final response = await _api.delete(
-      ServerRoutes.adminCategory(id),
+      ServerRoutes.category(id),
       showLoading: false,
     );
     return _api.parseResponse<CategoryModel>(

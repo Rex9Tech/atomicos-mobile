@@ -41,10 +41,8 @@ class AtomCreateController extends GetxController {
   void onInit() {
     super.onInit();
     urlController.addListener(() => urlText.value = urlController.text);
-    // Category picker data — silent best-effort refresh + admin check for the
-    // quick-add chip (both cached/cheap).
+    // Category picker data — silent best-effort refresh.
     _categories.refresh();
-    _categories.loadIam();
     final args = Get.arguments;
     if (args is Map) {
       if (args['mode'] != null) {
