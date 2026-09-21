@@ -679,9 +679,9 @@ class _AiPageState extends State<AiPage> {
   /// the whole conversation out for a cramped row on the landing screen —
   /// the sheet keeps the chat behind, offers Photo / Files / context-atom as
   /// full rows, and hosts the atom picker as a second panel.
-  void _showAttachSheet({bool openContext = false}) {
+  void _showAttachSheet() {
     Get.bottomSheet<void>(
-      _AskAttachSheet(controller: controller, openContext: openContext),
+      _AskAttachSheet(controller: controller),
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
     );
@@ -910,14 +910,6 @@ class _AiPageState extends State<AiPage> {
                 _ComposerIconButton(
                   icon: Design.icons.add,
                   onTap: () => _showAttachSheet(),
-                ),
-                SizedBox(width: Design.spacing.sm),
-                Obx(
-                  () => _ComposerIconButton(
-                    icon: Design.icons.atomAdd,
-                    onTap: () => _showAttachSheet(openContext: true),
-                    active: controller.contextAtom.value != null,
-                  ),
                 ),
                 SizedBox(width: Design.spacing.sm),
                 Expanded(
@@ -2617,10 +2609,9 @@ class _AskActionChip extends StatelessWidget {
 /// Bottom sheet for the composer attach flow: Photo / Files / context-atom
 /// as full rows over the chat, with the atom picker as a second panel.
 class _AskAttachSheet extends StatefulWidget {
-  const _AskAttachSheet({required this.controller, this.openContext = false});
+  const _AskAttachSheet({required this.controller});
 
   final AiController controller;
-  final bool openContext;
 
   @override
   State<_AskAttachSheet> createState() => _AskAttachSheetState();
@@ -2629,15 +2620,9 @@ class _AskAttachSheet extends StatefulWidget {
 class _AskAttachSheetState extends State<_AskAttachSheet> {
   static const _filters = <String>['All', 'Meetings', 'Links', 'Notes'];
 
-  late bool _showContext = widget.openContext;
+  bool _showContext = false;
 
   AiController get controller => widget.controller;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_showContext) controller.loadContextAtoms();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -2961,17 +2946,15 @@ class _AttachOption extends StatelessWidget {
   }
 }
 
-/// Soft circular composer action (attach / context). Tints when active.
+/// Soft circular composer action (attach). 
 class _ComposerIconButton extends StatelessWidget {
   const _ComposerIconButton({
     required this.icon,
     required this.onTap,
-    this.active = false,
   });
 
   final IconData icon;
   final VoidCallback onTap;
-  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -2983,14 +2966,14 @@ class _ComposerIconButton extends StatelessWidget {
         height: 40,
         width: 40,
         decoration: BoxDecoration(
-          color: active ? colors.primary.withValues(alpha: 0.16) : colors.neumo,
+          color: colors.neumo,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),
         child: Icon(
           icon,
           size: Design.spacing.iconMedium,
-          color: active ? colors.primary : colors.textSecondary,
+          color: colors.textSecondary,
         ),
       ),
     );
