@@ -82,12 +82,13 @@ class SplashController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 10));
 
     if (_auth.isLoggedIn.value) {
-      final stack = _storage.getRouteStack();
-      if (stack.isNotEmpty) {
-        Get.offAllNamed(stack.last);
-      } else {
-        AppRoutes.toHome();
-      }
+      // Always land on HOME after a relaunch. The old route-stack restore
+      // resumed the last tracked route — e.g. /ai, which at cold start loads
+      // the last conversation and renders the details canvas, so testers
+      // reopened into "atom details" (or settings/payment). Killed per
+      // tester report: authenticated relaunch must go home.
+      _storage.clearRouteStack();
+      AppRoutes.toHome();
     } else {
       _storage.clearRouteStack();
       AppRoutes.toAuth();
