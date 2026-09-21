@@ -77,8 +77,8 @@ class AppThemeContextColors {
             Colors.white.withValues(alpha: 0.07),
           ]
         : [
-            Colors.black.withValues(alpha: 0.05),
-            Colors.white.withValues(alpha: 0.35),
+            Colors.black.withValues(alpha: 0.025),
+            Colors.white.withValues(alpha: 0.25),
           ],
     stops: const [0, 0.78],
   );
@@ -102,14 +102,14 @@ class AppThemeContextColors {
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.85),
-            blurRadius: 10,
-            offset: const Offset(-3, -3),
+            color: Colors.white.withValues(alpha: 0.65),
+            blurRadius: 8,
+            offset: const Offset(-1.5, -1.5),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(3, 3),
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 8,
+            offset: const Offset(1.5, 1.5),
           ),
         ];
 
@@ -129,14 +129,14 @@ class AppThemeContextColors {
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.85),
-            blurRadius: 7,
-            offset: const Offset(-3, -3),
+            color: Colors.white.withValues(alpha: 0.65),
+            blurRadius: 5,
+            offset: const Offset(-1.5, -1.5),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.065),
-            blurRadius: 9,
-            offset: const Offset(3, 3),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(1.5, 1.5),
           ),
         ];
 

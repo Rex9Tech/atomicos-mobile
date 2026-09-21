@@ -120,18 +120,16 @@ void main() {
       expect(raised, hasLength(2));
       expect(soft, hasLength(2));
 
-      // Highlight from the top-left, shade to the bottom-right — tight,
-      // defined dual shadows in the flutter_neumorphic proportions, plus a
-      // convex surface wash. Kept deliberately gentle (tester feedback:
-      // "still too much") — floors guard the minimum presence, not strength.
-      expect(raised[0].offset.dx, lessThanOrEqualTo(-3.0));
-      expect(raised[0].color.a, greaterThanOrEqualTo(0.8));
-      expect(raised[1].offset.dx, greaterThanOrEqualTo(3.0));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(10.0));
-      expect(raised[1].color.a, greaterThanOrEqualTo(0.07));
+      // Airy light theme (tester: "still a little shadow"): whisper floors
+      // only — a hint of highlight/shade, nothing more.
+      expect(raised[0].offset.dx, lessThanOrEqualTo(-1.5));
+      expect(raised[0].color.a, greaterThanOrEqualTo(0.6));
+      expect(raised[1].offset.dx, greaterThanOrEqualTo(1.5));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(8.0));
+      expect(raised[1].color.a, greaterThanOrEqualTo(0.03));
 
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(7.0));
-      expect(soft[1].color.a, greaterThanOrEqualTo(0.06));
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(5.0));
+      expect(soft[1].color.a, greaterThanOrEqualTo(0.03));
 
       expect(gradient.colors, hasLength(2));
       expect(gradient.begin, equals(Alignment.bottomRight));
