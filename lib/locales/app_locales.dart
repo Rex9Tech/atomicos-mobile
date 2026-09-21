@@ -305,6 +305,9 @@ class _AiLocales {
   final composerHint = 'ai.composerHint';
   final retry = 'ai.retry';
   final searchAtomsHint = 'ai.searchAtomsHint';
+  final attachSheetTitle = 'ai.attachSheetTitle';
+  final sourceAtomSub = 'ai.sourceAtomSub';
+  final usingAsContext = 'ai.usingAsContext';
   final processing = 'ai.processing';
   final clearHistory = 'ai.clear_history';
 

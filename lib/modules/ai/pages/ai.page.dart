@@ -32,7 +32,6 @@ class _AiPageState extends State<AiPage> {
         AppLocales.atom.assets.tr,
       ];
   static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
-  static const _askSources = <String>['Photo', 'Files', 'Add Atom'];
 
   @override
   void dispose() {
@@ -357,39 +356,6 @@ class _AiPageState extends State<AiPage> {
           ),
         ),
         SizedBox(height: Design.spacing.xxl),
-        Obx(() {
-          if (!controller.showAskAttachmentMenu) {
-            return const SizedBox.shrink();
-          }
-
-          return Padding(
-            padding: EdgeInsets.only(bottom: Design.spacing.md),
-            child: Row(
-              children: _askSources
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          right: entry.key == _askSources.length - 1
-                              ? 0
-                              : Design.spacing.sm,
-                        ),
-                        child: _AskSourceCard(
-                          icon: _iconForSource(entry.value),
-                          label: _labelForSource(entry.value),
-                          subtitle: _subtitleForSource(entry.value),
-                          onTap: () =>
-                              controller.selectAskAttachment(entry.value),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          );
-        }),
         ..._buildAskActionItems().map(
           (item) => Padding(
             padding: EdgeInsets.only(bottom: Design.spacing.sm),
@@ -709,6 +675,18 @@ class _AiPageState extends State<AiPage> {
     AppSnackbar.success(AppLocales.atom.copiedToClipboard.tr);
   }
 
+  /// Composer attach flow: a soft-UI sheet over the chat. The old "+" swapped
+  /// the whole conversation out for a cramped row on the landing screen —
+  /// the sheet keeps the chat behind, offers Photo / Files / context-atom as
+  /// full rows, and hosts the atom picker as a second panel.
+  void _showAttachSheet({bool openContext = false}) {
+    Get.bottomSheet<void>(
+      _AskAttachSheet(controller: controller, openContext: openContext),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+    );
+  }
+
   Widget _buildActionResultContent(BuildContext context) {
     final data = controller.askActionData.value;
     final lines = controller.askActionLines;
@@ -931,14 +909,13 @@ class _AiPageState extends State<AiPage> {
               children: [
                 _ComposerIconButton(
                   icon: Design.icons.add,
-                  onTap: controller.toggleAskAttachmentMenu,
-                  active: controller.showAskAttachmentMenu,
+                  onTap: () => _showAttachSheet(),
                 ),
                 SizedBox(width: Design.spacing.sm),
                 Obx(
                   () => _ComposerIconButton(
                     icon: Design.icons.atomAdd,
-                    onTap: controller.openContextPicker,
+                    onTap: () => _showAttachSheet(openContext: true),
                     active: controller.contextAtom.value != null,
                   ),
                 ),
@@ -1048,44 +1025,6 @@ class _AiPageState extends State<AiPage> {
         subtitle: AppLocales.ai.actionReportSub.tr,
       ),
     ];
-  }
-
-  IconData _iconForSource(String source) {
-    switch (source) {
-      case 'Photo':
-        return Design.icons.gallery;
-      case 'Files':
-        return Design.icons.folder;
-      case 'Add Atom':
-        return Design.icons.atomAdd;
-      default:
-        return Design.icons.add;
-    }
-  }
-
-  /// Localized label for the composer's source cards ('Photo', 'Files', …).
-  String _labelForSource(String source) {
-    switch (source) {
-      case 'Photo':
-        return AppLocales.ai.askSourcePhoto.tr;
-      case 'Files':
-        return AppLocales.ai.askSourceFiles.tr;
-      case 'Add Atom':
-        return AppLocales.ai.askSourceAtom.tr;
-      default:
-        return source;
-    }
-  }
-
-  String _subtitleForSource(String source) {
-    switch (source) {
-      case 'Photo':
-        return AppLocales.ai.sourcePhotoSub.tr;
-      case 'Files':
-        return AppLocales.ai.sourceFilesSub.tr;
-      default:
-        return AppLocales.ai.attachAsContext.tr;
-    }
   }
 
   Widget _buildDetailsTopBar(BuildContext context) {
@@ -2262,32 +2201,6 @@ class _AskActionRow extends StatelessWidget {
   }
 }
 
-class _AskSourceCard extends StatelessWidget {
-  const _AskSourceCard({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppToneCard(
-      title: label,
-      subtitle: subtitle,
-      leadingIcon: icon,
-      tone: EAppToneCardTone.primary,
-      onTap: onTap,
-      padding: EdgeInsets.all(Design.spacing.md),
-    );
-  }
-}
-
 class _AskFilterChip extends StatelessWidget {
   const _AskFilterChip({
     required this.label,
@@ -2693,6 +2606,353 @@ class _AskActionChip extends StatelessWidget {
                 color: busy ? colors.textMuted : colors.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet for the composer attach flow: Photo / Files / context-atom
+/// as full rows over the chat, with the atom picker as a second panel.
+class _AskAttachSheet extends StatefulWidget {
+  const _AskAttachSheet({required this.controller, this.openContext = false});
+
+  final AiController controller;
+  final bool openContext;
+
+  @override
+  State<_AskAttachSheet> createState() => _AskAttachSheetState();
+}
+
+class _AskAttachSheetState extends State<_AskAttachSheet> {
+  static const _filters = <String>['All', 'Meetings', 'Links', 'Notes'];
+
+  late bool _showContext = widget.openContext;
+
+  AiController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_showContext) controller.loadContextAtoms();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      child: _showContext
+          ? _buildContextPanel(context)
+          : _buildOptionsPanel(context),
+    );
+  }
+
+  Widget _buildOptionsPanel(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          AppLocales.ai.attachSheetTitle.tr,
+          style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: Design.spacing.md),
+        _AttachOption(
+          icon: Design.icons.gallery,
+          title: AppLocales.ai.askSourcePhoto.tr,
+          subtitle: AppLocales.ai.sourcePhotoSub.tr,
+          onTap: () {
+            Get.back();
+            controller.selectAskAttachment('Photo');
+          },
+        ),
+        SizedBox(height: Design.spacing.sm),
+        _AttachOption(
+          icon: Design.icons.folder,
+          title: AppLocales.ai.askSourceFiles.tr,
+          subtitle: AppLocales.ai.sourceFilesSub.tr,
+          onTap: () {
+            Get.back();
+            controller.selectAskAttachment('Files');
+          },
+        ),
+        SizedBox(height: Design.spacing.sm),
+        _AttachOption(
+          icon: Design.icons.atomAdd,
+          title: AppLocales.ai.askSourceAtom.tr,
+          subtitle: AppLocales.ai.sourceAtomSub.tr,
+          onTap: () {
+            setState(() => _showContext = true);
+            controller.loadContextAtoms();
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContextPanel(BuildContext context) {
+    final colors = context.colors;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () => setState(() => _showContext = false),
+              child: Icon(
+                Design.icons.backArrow,
+                size: Design.spacing.iconSmall,
+                color: colors.textSecondary,
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Text(
+              AppLocales.ai.chooseContext.tr,
+              style:
+                  context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        SizedBox(height: Design.spacing.xs),
+        Text(
+          AppLocales.ai.chooseContextSub.tr,
+          style: context.typo.caption.copyWith(color: colors.textSecondary),
+        ),
+        SizedBox(height: Design.spacing.md),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.md,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: colors.neumo,
+            borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+            boxShadow: colors.neumoShadowSoft,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Design.icons.search,
+                size: Design.spacing.iconSmall,
+                color: colors.textMuted,
+              ),
+              SizedBox(width: Design.spacing.sm),
+              Expanded(
+                child: TextField(
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
+                  controller: controller.searchContextController,
+                  onChanged: (value) => controller.loadContextAtoms(value),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: AppLocales.ai.searchAtomsHint.tr,
+                    hintStyle: context.typo.bodySmall.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: Design.spacing.md),
+        Obx(() {
+          final filter = controller.contextFilter.value ?? 'All';
+          return Wrap(
+            spacing: Design.spacing.xs,
+            runSpacing: Design.spacing.xs,
+            children: _filters
+                .map(
+                  (label) => _AskFilterChip(
+                    label: label,
+                    selected: label == filter,
+                    onTap: () => controller.setContextFilter(label),
+                  ),
+                )
+                .toList(),
+          );
+        }),
+        SizedBox(height: Design.spacing.md),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.40,
+          ),
+          child: Obx(() {
+            if (controller.isLoadingContext.value) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: Design.spacing.xxl),
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            final atoms = controller.filteredContextAtoms;
+            if (atoms.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: Design.spacing.xl),
+                child: Column(
+                  children: [
+                    Icon(
+                      Design.icons.atomAdd,
+                      size: 32,
+                      color: colors.textMuted,
+                    ),
+                    SizedBox(height: Design.spacing.sm),
+                    Text(
+                      AppLocales.ai.noAtomsHere.tr,
+                      style: context.typo.bodySmall.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.separated(
+              shrinkWrap: true,
+              itemCount: atoms.length,
+              separatorBuilder: (_, _) => SizedBox(height: Design.spacing.sm),
+              itemBuilder: (context, index) => _ContextAtomCard(
+                atom: atoms[index],
+                onTap: () {
+                  controller.attachContextAtom(atoms[index]);
+                  Get.back();
+                },
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+/// Shared soft-UI chrome for the attach sheets (handle, rounded top, rising
+/// with the keyboard).
+class _SheetShell extends StatelessWidget {
+  const _SheetShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      margin: EdgeInsets.all(Design.spacing.sm),
+      padding: EdgeInsets.all(Design.spacing.md),
+      decoration: BoxDecoration(
+        color: colors.neumo,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Design.spacing.radiusXLarge),
+        ),
+        boxShadow: colors.neumoShadow,
+      ),
+      child: SafeArea(
+        child: AnimatedPadding(
+          duration: Design.timers.short,
+          curve: Design.timers.easeInOut,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  height: 4,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: colors.textMuted.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              SizedBox(height: Design.spacing.md),
+              child,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tappable row inside the attach sheet.
+class _AttachOption extends StatelessWidget {
+  const _AttachOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(Design.spacing.md),
+        decoration: BoxDecoration(
+          color: colors.neumo,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+          boxShadow: colors.neumoShadowSoft,
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: Design.spacing.iconMedium,
+                color: colors.primary,
+              ),
+            ),
+            SizedBox(width: Design.spacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: context.typo.caption.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: colors.textMuted,
             ),
           ],
         ),

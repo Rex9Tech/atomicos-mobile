@@ -539,7 +539,6 @@ class AiController extends GetxController {
       if (file == null) return;
       attachmentName.value = file.name;
       attachmentPath.value = file.path;
-      askStage.value = 'landing';
       AppSnackbar.info(
         AppLocales.ai.attachedFile.trParams({'name': file.name}),
       );
@@ -578,8 +577,9 @@ class AiController extends GetxController {
 
   void attachContextAtom(AtomModel atom) {
     contextAtom.value = atom;
-    askStage.value = 'landing';
-    AppSnackbar.success('Using "${atom.title}" as context');
+    AppSnackbar.success(
+      AppLocales.ai.usingAsContext.trParams({'name': atom.title}),
+    );
   }
 
   void clearContextAtom() {
