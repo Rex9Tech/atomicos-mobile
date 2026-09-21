@@ -33,6 +33,26 @@ class _AiPageState extends State<AiPage> {
   ];
   static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
 
+  /// Tabs that actually have content — mirrors the atom-details page so a
+  /// note atom's canvas shows Note + Assets only (tester: 'hide the summary
+  /// and transcripts' when creating an atom from a note).
+  List<int> _visibleDetailsTabIndexes() {
+    final atom = controller.contextAtom.value;
+    final messages = controller.messages;
+
+    final hasSummary = atom != null
+        ? atom.summaryBlocks.isNotEmpty
+        : messages.any(
+            (m) =>
+                !m.isUser && m.id != 'welcome' && m.content.trim().isNotEmpty,
+          );
+    final hasTranscript = atom != null
+        ? atom.transcriptSegments.isNotEmpty
+        : messages.any((m) => m.id != 'welcome');
+
+    return [if (hasSummary) 0, if (hasTranscript) 1, 2, 3];
+  }
+
   @override
   void dispose() {
     controller.onClose();
@@ -125,8 +145,13 @@ class _AiPageState extends State<AiPage> {
         );
       }
 
+      // Only tabs with real content — note atoms drop Summary/Transcript
+      // (mirrors the atom-details page; testers: 'hide the summary and
+      // transcripts' when creating an atom from a note).
+      final visibleTabs = _visibleDetailsTabIndexes();
+
       return DefaultTabController(
-        length: _tabs.length,
+        length: visibleTabs.length,
         child: AppPage(
           backgroundColor: context.colors.background,
           padding: EdgeInsets.zero,
@@ -145,7 +170,7 @@ class _AiPageState extends State<AiPage> {
                     SizedBox(height: Design.spacing.lg),
                     _buildAudioCard(context),
                     SizedBox(height: Design.spacing.lg),
-                    _buildTabs(context),
+                    _buildTabs(context, visibleTabs),
                     SizedBox(height: Design.spacing.lg),
                   ],
                 ),
@@ -157,7 +182,7 @@ class _AiPageState extends State<AiPage> {
                   ),
                   child: _showRecordingPreviewState
                       ? _buildRecordingCanvas(context)
-                      : _buildTabContent(context),
+                      : _buildTabContent(context, visibleTabs),
                 ),
               ),
               _buildDetailsComposer(context),
@@ -1079,7 +1104,7 @@ class _AiPageState extends State<AiPage> {
     );
   }
 
-  Widget _buildTabs(BuildContext context) {
+  Widget _buildTabs(BuildContext context, List<int> visibleTabs) {
     final colors = context.colors;
 
     return Container(
@@ -1104,62 +1129,45 @@ class _AiPageState extends State<AiPage> {
         labelStyle: context.typo.labelMedium.copyWith(
           fontWeight: FontWeight.w700,
         ),
-        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+        tabs: visibleTabs.map((index) => Tab(text: _tabs[index])).toList(),
       ),
     );
   }
 
-  Widget _buildTabContent(BuildContext context) {
+  Widget _buildTabContent(BuildContext context, List<int> visibleTabs) {
     return TabBarView(
-      children: [
-        _buildSummaryTab(context),
-        _buildTranscriptTab(context),
-        _buildNoteTab(context),
-        _buildAssetsTab(context),
-      ],
+      children: visibleTabs.map((index) {
+        switch (index) {
+          case 0:
+            return _buildSummaryTab(context);
+          case 1:
+            return _buildTranscriptTab(context);
+          case 2:
+            return _buildNoteTab(context);
+          default:
+            return _buildAssetsTab(context);
+        }
+      }).toList(),
     );
   }
 
   Widget _buildSummaryTab(BuildContext context) {
     final summary = _summaryBlocks();
 
+    if (summary.isEmpty) {
+      return ListView(
+        children: [
+          _EmptyStateCard(
+            icon: Design.icons.sparkles,
+            title: AppLocales.atom.noSummary.tr,
+            subtitle: AppLocales.ai.noTranscriptSub.tr,
+          ),
+        ],
+      );
+    }
+
     return ListView(
       children: [
-        Container(
-          padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            border: Border.all(color: context.colors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocales.ai.overview.tr,
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Text(
-                'Attendees aligned on goals, surfaced a few delivery blockers, and assigned follow-up owners for the next sprint checkpoint.',
-                style: context.typo.bodyMedium.copyWith(height: 1.45),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Wrap(
-                spacing: Design.spacing.sm,
-                runSpacing: Design.spacing.sm,
-                children: const [
-                  _MiniResultChip(label: '4 speakers'),
-                  _MiniResultChip(label: '54 min'),
-                  _MiniResultChip(label: '2 blockers'),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: Design.spacing.md),
         ...summary.asMap().entries.map((entry) {
           final block = entry.value;
           return Padding(
@@ -1194,6 +1202,31 @@ class _AiPageState extends State<AiPage> {
 
   Widget _buildTranscriptTab(BuildContext context) {
     return Obx(() {
+      // A pinned atom's own transcript wins over the chat log.
+      final atomSegments = controller.contextAtom.value?.transcriptSegments;
+      if (atomSegments != null && atomSegments.isNotEmpty) {
+        final lines = <String>[];
+        for (final raw in atomSegments) {
+          final map = raw is Map
+              ? Map<String, dynamic>.from(raw)
+              : <String, dynamic>{};
+          final text = (map['text'] ?? map['content'] ?? '').toString().trim();
+          if (text.isNotEmpty) lines.add(text);
+        }
+        if (lines.isNotEmpty) {
+          return ListView.separated(
+            itemCount: lines.length,
+            separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
+            itemBuilder: (context, index) => _TranscriptCard(
+              isUser: false,
+              label: 'AtomicOS',
+              content: lines[index],
+              status: 'Saved',
+            ),
+          );
+        }
+      }
+
       final visibleMessages = controller.messages
           .where((message) => message.id != 'welcome')
           .toList();
@@ -1234,46 +1267,50 @@ class _AiPageState extends State<AiPage> {
           title: AppLocales.ai.today.tr,
           leadingIcon: Design.icons.note,
           tone: EAppToneCardTone.primary,
-          footer: Text(
-            controller.textController.text.isEmpty
-                ? 'Today I went over the project timeline and flagged a few open questions for the upcoming task to keep us on track.'
-                : controller.textController.text,
-            style: context.typo.bodyMedium,
-          ),
+          footer: Text(_canvasNoteText(), style: context.typo.bodyMedium),
         ),
         SizedBox(height: Design.spacing.md),
-        AppCard(
-          padding: EdgeInsets.all(Design.spacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocales.ai.contextCards.tr,
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
+        // Real context only — this card used to show demo values ('Slack
+        // huddle' / '4 speakers'); it hides entirely without a pinned atom.
+        Obx(() {
+          final atom = controller.contextAtom.value;
+          if (atom == null) return const SizedBox.shrink();
+
+          return AppCard(
+            padding: EdgeInsets.all(Design.spacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocales.ai.contextCards.tr,
+                  style: context.typo.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              SizedBox(height: Design.spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ContextPreviewCard(
-                      title: AppLocales.ai.source.tr,
-                      subtitle: 'Slack huddle',
+                SizedBox(height: Design.spacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ContextPreviewCard(
+                        title: AppLocales.ai.source.tr,
+                        subtitle: atom.source,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: _ContextPreviewCard(
-                      title: AppLocales.ai.participants.tr,
-                      subtitle: '4 speakers',
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+                    if (atom.participantsCount != null) ...[
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _ContextPreviewCard(
+                          title: AppLocales.ai.participants.tr,
+                          subtitle: '${atom.participantsCount}',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          );
+        }),
         SizedBox(height: Design.spacing.md),
         AppToneCard(
           title: AppLocales.ai.askAboutThisAtom.tr,
@@ -1283,6 +1320,16 @@ class _AiPageState extends State<AiPage> {
         ),
       ],
     );
+  }
+
+  /// Real note content for the canvas Note tab: the context atom's note when
+  /// present, otherwise the ask draft (no demo filler).
+  String _canvasNoteText() {
+    final atomNote = controller.contextAtom.value?.note?.trim() ?? '';
+    if (atomNote.isNotEmpty) return atomNote;
+    final draft = controller.textController.text.trim();
+    if (draft.isNotEmpty) return draft;
+    return AppLocales.atom.nothingHere.tr;
   }
 
   Widget _buildAssetsTab(BuildContext context) {
@@ -1513,10 +1560,14 @@ class _AiPageState extends State<AiPage> {
                                   color: colors.textSecondary,
                                 ),
                                 SizedBox(width: Design.spacing.sm),
-                                Text(
-                                  AppLocales.ai.attachments.tr,
-                                  style: context.typo.bodySmall.copyWith(
-                                    color: colors.textSecondary,
+                                Flexible(
+                                  child: Text(
+                                    AppLocales.ai.attachments.tr,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.typo.bodySmall.copyWith(
+                                      color: colors.textSecondary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1524,11 +1575,27 @@ class _AiPageState extends State<AiPage> {
                           ),
                         ),
                         SizedBox(width: Design.spacing.sm),
-                        SizedBox(
-                          height: Design.spacing.buttonHeight,
-                          child: ElevatedButton(
-                            onPressed: controller.handleSend,
-                            child: Text(AppLocales.ai.askAboutThisAtom.tr),
+                        Flexible(
+                          child: SizedBox(
+                            height: Design.spacing.buttonHeight,
+                            child: ElevatedButton(
+                              // The app theme styles buttons full-width
+                              // (minWidth: infinity), which cannot lay out
+                              // inside a Row — hug the content and shrink
+                              // gracefully instead.
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size.zero,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Design.spacing.md,
+                                ),
+                              ),
+                              onPressed: controller.handleSend,
+                              child: Text(
+                                AppLocales.ai.askAboutThisAtom.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -1683,6 +1750,23 @@ class _AiPageState extends State<AiPage> {
   }
 
   List<_SummaryBlock> _summaryBlocks() {
+    // A pinned atom shows its real summary blocks first.
+    final atom = controller.contextAtom.value;
+    if (atom != null && atom.summaryBlocks.isNotEmpty) {
+      final blocks = <_SummaryBlock>[];
+      for (final raw in atom.summaryBlocks) {
+        final map = raw is Map
+            ? Map<String, dynamic>.from(raw)
+            : <String, dynamic>{};
+        final text = (map['text'] ?? map['content'] ?? '').toString().trim();
+        if (text.isEmpty) continue;
+        blocks.add(
+          _SummaryBlock(title: AppLocales.ai.resultSummary.tr, lines: [text]),
+        );
+      }
+      if (blocks.isNotEmpty) return blocks;
+    }
+
     final assistantMessages = controller.messages
         .where(
           (message) => !message.isUser && message.content.trim().isNotEmpty,
@@ -1690,23 +1774,7 @@ class _AiPageState extends State<AiPage> {
         .toList();
 
     if (assistantMessages.isEmpty) {
-      return [
-        _SummaryBlock(
-          title: AppLocales.ai.keyPoints.tr,
-          lines: [
-            'Attendees aligned on next steps for the current sprint.',
-            'Open questions were captured for follow-up.',
-          ],
-        ),
-        _SummaryBlock(
-          title: AppLocales.ai.actionItems.tr,
-          lines: [
-            'Send revised API docs.',
-            'Confirm launch owners.',
-            'Share product showcase draft.',
-          ],
-        ),
-      ];
+      return const [];
     }
 
     return [
