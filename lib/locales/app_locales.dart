@@ -308,6 +308,7 @@ class _AiLocales {
   final attachSheetTitle = 'ai.attachSheetTitle';
   final sourceAtomSub = 'ai.sourceAtomSub';
   final usingAsContext = 'ai.usingAsContext';
+  final selected = 'ai.selected';
   final processing = 'ai.processing';
   final clearHistory = 'ai.clear_history';
 

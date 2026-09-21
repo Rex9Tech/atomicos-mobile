@@ -2669,6 +2669,9 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
           subtitle: AppLocales.ai.sourceAtomSub.tr,
           onTap: () {
             setState(() => _showContext = true);
+            // Fresh canvas every time: drop any stale search so the picker
+            // shows the current selection alongside the full list.
+            controller.searchContextController.clear();
             controller.loadContextAtoms();
           },
         ),
@@ -2806,6 +2809,7 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
               separatorBuilder: (_, _) => SizedBox(height: Design.spacing.sm),
               itemBuilder: (context, index) => _ContextAtomCard(
                 atom: atoms[index],
+                selected: controller.contextAtom.value?.id == atoms[index].id,
                 onTap: () {
                   controller.attachContextAtom(atoms[index]);
                   Get.back();
@@ -3037,10 +3041,15 @@ class _ComposerChip extends StatelessWidget {
 
 /// Row for picking one atom as conversation context.
 class _ContextAtomCard extends StatelessWidget {
-  const _ContextAtomCard({required this.atom, required this.onTap});
+  const _ContextAtomCard({
+    required this.atom,
+    required this.onTap,
+    this.selected = false,
+  });
 
   final AtomModel atom;
   final VoidCallback onTap;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -3050,6 +3059,17 @@ class _ContextAtomCard extends StatelessWidget {
       onTap: onTap,
       padding: EdgeInsets.all(Design.spacing.md),
       radius: Design.spacing.radiusLarge,
+      // The attached atom wears a soft primary glow so the picker always
+      // reflects what the conversation is currently grounded in.
+      shadow: selected
+          ? <BoxShadow>[
+              ...colors.neumoShadow,
+              BoxShadow(
+                color: colors.primary.withValues(alpha: 0.30),
+                blurRadius: 16,
+              ),
+            ]
+          : null,
       child: Row(
         children: [
           Container(
@@ -3075,7 +3095,7 @@ class _ContextAtomCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.typo.labelMedium.copyWith(
-                    color: colors.textPrimary,
+                    color: selected ? colors.primary : colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -3093,11 +3113,37 @@ class _ContextAtomCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Design.icons.rightArrow,
-            size: Design.spacing.iconSmall,
-            color: colors.textMuted,
-          ),
+          if (selected)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: Design.spacing.sm,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Design.icons.check, size: 13, color: colors.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    AppLocales.ai.selected.tr,
+                    style: context.typo.caption.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: colors.textMuted,
+            ),
         ],
       ),
     );
