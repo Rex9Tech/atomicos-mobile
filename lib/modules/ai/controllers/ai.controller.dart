@@ -390,7 +390,9 @@ class AiController extends GetxController {
       if (_processingPolls > 6) {
         timer.cancel();
         isProcessing.value = false;
-        AppSnackbar.warning('Still working — pull down to refresh in a moment.');
+        AppSnackbar.warning(
+          'Still working — pull down to refresh in a moment.',
+        );
         return;
       }
       // The reply may have landed without a socket event reaching us.

@@ -83,9 +83,9 @@ class AtomModel {
     final rawAssets = json[AtomKeys.assets];
     final assets = rawAssets is List
         ? rawAssets
-            .whereType<Map>()
-            .map((e) => AtomAssetModel.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
+              .whereType<Map>()
+              .map((e) => AtomAssetModel.fromJson(Map<String, dynamic>.from(e)))
+              .toList()
         : <AtomAssetModel>[];
 
     return AtomModel(
