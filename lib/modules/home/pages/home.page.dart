@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
-import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../search/search.dart';
@@ -73,16 +71,49 @@ class HomePage extends GetView<AuthController> {
       return _buildEmptyState(context);
     }
 
-    return ListView.separated(
-      padding: EdgeInsets.only(bottom: Design.spacing.lg),
-      itemCount: atoms.length + (kDebugMode ? 1 : 0),
-      separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
-      itemBuilder: (context, index) {
-        if (index == atoms.length) {
-          return _buildDebugTools(context);
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        // Infinite scroll: pull the next page as the user nears the end.
+        if (notification.metrics.extentAfter < 320) {
+          homeController.loadMore();
         }
-        return AtomCard(atom: atoms[index]);
+        return false;
       },
+      child: ListView.separated(
+        padding: EdgeInsets.only(bottom: Design.spacing.lg),
+        itemCount: atoms.length + (homeController.hasMoreAtoms.value ? 1 : 0),
+        separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
+        itemBuilder: (context, index) {
+          if (index == atoms.length) {
+            return _buildLoadMoreFooter(context, homeController);
+          }
+          return AtomCard(atom: atoms[index]);
+        },
+      ),
+    );
+  }
+
+  /// Footer slot of the atoms list while the next page is being fetched.
+  Widget _buildLoadMoreFooter(
+    BuildContext context,
+    HomeController homeController,
+  ) {
+    if (!homeController.isLoadingMore.value) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
+      child: Center(
+        child: SizedBox(
+          height: 22,
+          width: 22,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: context.colors.primary,
+          ),
+        ),
+      ),
     );
   }
 
@@ -331,13 +362,9 @@ class HomePage extends GetView<AuthController> {
 
     return ListView.separated(
       padding: EdgeInsets.only(bottom: Design.spacing.lg),
-      itemCount: 3 + (kDebugMode ? 1 : 0),
+      itemCount: 3,
       separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
       itemBuilder: (context, index) {
-        if (kDebugMode && index == 3) {
-          return _buildDebugTools(context);
-        }
-
         return Container(
           height: 132,
           padding: EdgeInsets.all(Design.spacing.lg),
@@ -649,86 +676,6 @@ class HomePage extends GetView<AuthController> {
       isScrollControlled: true,
     );
   }
-
-  Widget _buildDebugTools(BuildContext context) {
-    final homeController = Get.find<HomeController>();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          AppLocales.home.devTools.tr,
-          style: context.typo.caption.copyWith(
-            color: context.colors.textSecondary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Design.spacing.sm),
-        Wrap(
-          spacing: Design.spacing.sm,
-          runSpacing: Design.spacing.sm,
-          children: [
-            _StateChip(
-              label: AppLocales.home.debugContent.tr,
-              selected: homeController.previewState.value == 'content',
-              onTap: () => homeController.setPreviewState('content'),
-            ),
-            _StateChip(
-              label: AppLocales.home.debugLoading.tr,
-              selected: homeController.previewState.value == 'loading',
-              onTap: () => homeController.setPreviewState('loading'),
-            ),
-            _StateChip(
-              label: AppLocales.home.debugEmpty.tr,
-              selected: homeController.previewState.value == 'empty',
-              onTap: () => homeController.setPreviewState('empty'),
-            ),
-            _StateChip(
-              label: AppLocales.common.error.tr,
-              selected: homeController.previewState.value == 'error',
-              onTap: () => homeController.setPreviewState('error'),
-            ),
-          ],
-        ),
-        SizedBox(height: Design.spacing.sm),
-        AppButton(
-          type: EButtonType.secondary,
-          text: AppLocales.home.openCalendar.tr,
-          onPressed: AppRoutes.toCalendar,
-        ),
-        SizedBox(height: Design.spacing.sm),
-        AppButton(
-          type: EButtonType.secondary,
-          text: AppLocales.home.openLiveActivity.tr,
-          onPressed: AppRoutes.toLiveActivity,
-        ),
-        SizedBox(height: Design.spacing.sm),
-        AppButton(
-          type: EButtonType.secondary,
-          text: AppLocales.home.sendTestLog.tr,
-          onPressed: _sendTestLog,
-        ),
-      ],
-    );
-  }
-
-  Future<void> _sendTestLog() async {
-    try {
-      final log = Get.find<LogService>();
-      await log.logError(
-        'Manual test log from HomePage',
-        context: {
-          'source': 'dev_button',
-          'route': Get.currentRoute,
-          'user': controller.currentUser.value?.email ?? 'unknown',
-        },
-        severity: 'info',
-      );
-      AppSnackbar.success(AppLocales.home.testLogSent.tr);
-    } catch (e) {
-      AppSnackbar.error('Failed: $e');
-    }
-  }
 }
 
 class _FilterChip extends StatelessWidget {
@@ -762,47 +709,6 @@ class _FilterChip extends StatelessWidget {
           label,
           style: context.typo.labelMedium.copyWith(
             color: selected ? colors.background : colors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StateChip extends StatelessWidget {
-  const _StateChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Design.spacing.md,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? colors.primary.withValues(alpha: 0.16)
-              : colors.neumo,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: selected ? null : colors.neumoShadowSoft,
-        ),
-        child: Text(
-          label,
-          style: context.typo.bodySmall.copyWith(
-            color: selected ? colors.primary : colors.textSecondary,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),

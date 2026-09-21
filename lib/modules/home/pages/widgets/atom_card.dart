@@ -17,7 +17,9 @@ class AtomCard extends StatelessWidget {
     final colors = context.colors;
     final date = _shortDate(atom.createdAt);
     final duration = _compactDuration(atom.durationSecs);
-    final summary = _summaryMarkdown(atom);
+    // Cards have a fixed size budget: the body is capped to a few lines'
+    // worth of text (first paragraph, collapsed, word-safe ellipsis).
+    final summary = _cardSummary(atom);
 
     return AppGlassCard(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
@@ -49,6 +51,8 @@ class AtomCard extends StatelessWidget {
           SizedBox(height: Design.spacing.md),
           Text(
             atom.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: context.typo.bodyLarge.copyWith(
               fontWeight: FontWeight.w700,
               height: 1.2,
@@ -185,6 +189,24 @@ String _summaryMarkdown(AtomModel atom) {
     if (text.isNotEmpty) return text;
   }
   return atom.note?.trim() ?? '';
+}
+
+/// Card size budget: max characters of body text kept on an atom card.
+const int _maxSummaryChars = 150;
+
+/// Collapses whitespace/newlines and truncates at a word boundary so home
+/// and search cards stay a predictable height regardless of how long the
+/// atom's summary or note is.
+String _cardSummary(AtomModel atom) {
+  final raw = _summaryMarkdown(atom).replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (raw.length <= _maxSummaryChars) return raw;
+
+  final cut = raw.substring(0, _maxSummaryChars);
+  final lastSpace = cut.lastIndexOf(' ');
+  final body = lastSpace >= _maxSummaryChars ~/ 2
+      ? cut.substring(0, lastSpace)
+      : cut;
+  return '${body.trimRight()}…';
 }
 
 String _extractMarkdownText(dynamic value) {

@@ -692,18 +692,58 @@ class FakeAiService extends AiService {
 
 /// Fake Home Service avoiding network calls.
 class FakeHomeService extends GetxService implements HomeService {
+  /// Paged atom responses: `pages[0]` = page 1. When empty, every call
+  /// returns an empty page (previous behavior).
+  final List<List<AtomModel>> pages = [];
+
+  /// Every requested page number, in call order (pagination assertions).
+  final List<int?> requestedPages = [];
+
+  /// When true, [getAtoms] throws — exercises load-more failure paths.
+  bool throwOnGetAtoms = false;
+
   @override
   Future<PaginatedResponse<AtomModel>> getAtoms({
     int? page,
     int? limit,
     String? search,
     String? status,
-  }) async => const PaginatedResponse<AtomModel>(
-    records: [],
-    message: 'Atoms fetched',
-    statusCode: 200,
-    success: true,
-  );
+  }) async {
+    final current = page ?? 1;
+    requestedPages.add(current);
+
+    if (throwOnGetAtoms) throw Exception('offline');
+
+    if (pages.isEmpty) {
+      return const PaginatedResponse<AtomModel>(
+        records: [],
+        message: 'Atoms fetched',
+        statusCode: 200,
+        success: true,
+      );
+    }
+
+    final index = current - 1;
+    final records = index >= 0 && index < pages.length
+        ? pages[index]
+        : <AtomModel>[];
+    final hasNext = current < pages.length;
+
+    return PaginatedResponse<AtomModel>(
+      records: records,
+      pagination: PaginationMeta(
+        currentPage: current,
+        totalPages: pages.length,
+        totalCount: pages.fold(0, (sum, page) => sum + page.length),
+        limit: limit ?? 20,
+        nextPage: hasNext ? current + 1 : null,
+        prevPage: current > 1 ? current - 1 : null,
+      ),
+      message: 'Atoms fetched',
+      statusCode: 200,
+      success: true,
+    );
+  }
 
   @override
   Future<ApiResponse<AtomModel>> getAtom(String id) async =>

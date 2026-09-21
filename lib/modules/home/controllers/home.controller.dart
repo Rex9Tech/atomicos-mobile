@@ -16,19 +16,18 @@ class HomeController extends GetxController {
   final HomeService _home = Get.find<HomeService>();
 
   final RxString selectedFilter = 'All'.obs;
-  final RxString previewState = 'content'.obs;
   final RxString searchQuery = ''.obs;
 
   final RxList<AtomModel> atoms = <AtomModel>[].obs;
   final RxBool isLoadingAtoms = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMoreAtoms = true.obs;
   final RxBool hasAtomsError = false.obs;
   final searchController = TextEditingController();
   Timer? _searchDebounce;
 
-  bool get isLoading => previewState.value == 'loading';
-  bool get isEmpty => previewState.value == 'empty';
-  bool get isError => previewState.value == 'error';
-
+  int _currentPage = 1;
+  static const int _pageSize = 20;
   static const int _loadAttempts = 4;
   static const Duration _retryBackoff = Duration(milliseconds: 900);
 
@@ -123,13 +122,18 @@ class HomeController extends GetxController {
     for (var attempt = 1; attempt <= _loadAttempts; attempt++) {
       try {
         final result = await _home.getAtoms(
-          limit: 20,
+          page: 1,
+          limit: _pageSize,
           search: resolvedSearch,
           status: _statusForFilter(resolvedFilter),
         );
         atoms.assignAll(
           _applyLocalFilter(result.records, filter: resolvedFilter),
         );
+        _currentPage = 1;
+        hasMoreAtoms.value =
+            result.pagination?.hasNextPage ??
+            (result.records.length >= _pageSize);
         hasAtomsError.value = false;
         isLoadingAtoms.value = false;
         return;
@@ -146,6 +150,43 @@ class HomeController extends GetxController {
     }
 
     isLoadingAtoms.value = false;
+  }
+
+  /// Appends the next page of atoms — driven by infinite scroll on Home.
+  ///
+  /// Never touches the global loading overlay and never blanks the list: a
+  /// failed page simply leaves [hasMoreAtoms] as it was, so the next scroll
+  /// retries.
+  Future<void> loadMore() async {
+    if (isLoadingAtoms.value || isLoadingMore.value || !hasMoreAtoms.value) {
+      return;
+    }
+
+    isLoadingMore.value = true;
+    final nextPage = _currentPage + 1;
+    final resolvedFilter = selectedFilter.value;
+
+    try {
+      final result = await _home.getAtoms(
+        page: nextPage,
+        limit: _pageSize,
+        search: searchQuery.value,
+        status: _statusForFilter(resolvedFilter),
+      );
+
+      // Guard against a refresh that landed while this page was in flight.
+      if (nextPage == _currentPage + 1) {
+        atoms.addAll(_applyLocalFilter(result.records, filter: resolvedFilter));
+        _currentPage = nextPage;
+      }
+      hasMoreAtoms.value =
+          result.pagination?.hasNextPage ??
+          (result.records.length >= _pageSize);
+    } catch (error) {
+      debugPrint('HomeController.loadMore page $nextPage failed: $error');
+    } finally {
+      isLoadingMore.value = false;
+    }
   }
 
   void selectFilter(String value) {
@@ -165,10 +206,6 @@ class HomeController extends GetxController {
     searchQuery.value = '';
     _searchDebounce?.cancel();
     loadAtoms(search: '');
-  }
-
-  void setPreviewState(String value) {
-    previewState.value = value;
   }
 
   String? _statusForFilter(String filter) {
