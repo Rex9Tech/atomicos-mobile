@@ -17,6 +17,7 @@ class AtomDetailsController extends GetxController {
   final HomeService _home = Get.find<HomeService>();
   final MediaService _media = Get.find<MediaService>();
   final CalendarService _calendar = Get.find<CalendarService>();
+  final CategoryService _categories = Get.find<CategoryService>();
   final AudioPlayer _player = AudioPlayer();
 
   final RxnString atomId = RxnString();
@@ -68,6 +69,10 @@ class AtomDetailsController extends GetxController {
     } else {
       hasError.value = true;
     }
+
+    // The category chip / picker need the current user's list — silent
+    // refresh keeps whatever is already loaded on failure.
+    unawaited(_categories.refresh());
 
     _player.playingStream.listen((value) => isPlaying.value = value);
     _player.positionStream.listen((value) => position.value = value);
@@ -124,6 +129,29 @@ class AtomDetailsController extends GetxController {
     } catch (error) {
       debugPrint('📝 [AtomDetailsController] rename error: $error');
       AppSnackbar.error('Could not rename this atom.');
+    }
+    return false;
+  }
+
+  /// PUT /v1/atoms/:id — sets (or clears, with null) this atom's category
+  /// from the details menu / category chip.
+  Future<bool> updateCategory(String? categoryId) async {
+    final id = atomId.value;
+    if (id == null || id.isEmpty) return false;
+    try {
+      final result = await _home.setCategory(
+        atomId: id,
+        categoryId: categoryId,
+      );
+      if (result.success && result.data != null) {
+        atom.value = result.data;
+        AppSnackbar.success(AppLocales.category.updated.tr);
+        return true;
+      }
+      AppSnackbar.error(result.error ?? 'Could not update the category.');
+    } catch (error) {
+      debugPrint('🏷️ [AtomDetailsController] category error: $error');
+      AppSnackbar.error('Could not update the category.');
     }
     return false;
   }

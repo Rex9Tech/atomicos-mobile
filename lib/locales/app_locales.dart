@@ -38,6 +38,9 @@ class _CategoryLocales {
   final created = 'category.created';
   final deleted = 'category.deleted';
   final quickAdd = 'category.quickAdd';
+  final none = 'category.none';
+  final selectTitle = 'category.selectTitle';
+  final updated = 'category.updated';
 }
 
 class _RecordingLocales {
@@ -447,6 +450,7 @@ class _AtomLocales {
   final nothingHere = 'atom.nothingHere';
   final pullToRetry = 'atom.pullToRetry';
   final setMeetingDate = 'atom.setMeetingDate';
+  final setCategory = 'atom.setCategory';
   final addFiles = 'atom.addFiles';
   final name = 'atom.name';
 

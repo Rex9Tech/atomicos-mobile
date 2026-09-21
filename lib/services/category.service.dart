@@ -58,6 +58,16 @@ class CategoryService extends GetxService {
     }
   }
 
+  /// The category with [id] from the current list, or null when it is not
+  /// loaded/known (foreign ids and the uncategorized case both return null).
+  CategoryModel? byId(String? id) {
+    if (id == null || id.isEmpty) return null;
+    for (final category in categories) {
+      if (category.id == id) return category;
+    }
+    return null;
+  }
+
   /// GET /v1/users/current/iam — gates the admin-only management screen.
   /// Cached: subsequent calls are no-ops unless [force] is set.
   bool _iamLoaded = false;

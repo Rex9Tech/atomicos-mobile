@@ -105,4 +105,26 @@ class HomeService extends GetxService {
           AtomModel.fromJson(const {});
     });
   }
+
+  /// PUT /v1/atoms/:id — sets (or clears, with a null [categoryId]) this
+  /// atom's category. Explicit null is sent so the server sees the change.
+  Future<ApiResponse<AtomModel>> setCategory({
+    required String atomId,
+    required String? categoryId,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.atomDetail(atomId),
+      {
+        AtomKeys.atom: {CategoryKeys.categoryId: categoryId},
+      },
+      showLoading: false,
+    );
+    return _api.parseResponse<AtomModel>(response, (data) {
+      final record = data is Map && data[AtomKeys.atom] is Map
+          ? data[AtomKeys.atom]
+          : data;
+      return ApiHelper.parseRecord<AtomModel>(record, AtomModel.fromJson) ??
+          AtomModel.fromJson(const {});
+    });
+  }
 }

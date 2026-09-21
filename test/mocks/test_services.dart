@@ -779,6 +779,25 @@ class FakeHomeService extends GetxService implements HomeService {
     statusCode: 200,
     data: AtomModel.fromJson(const {}),
   );
+
+  /// Every category id sent to [setCategory], in call order (null = cleared).
+  final List<String?> requestedCategoryUpdates = [];
+
+  @override
+  Future<ApiResponse<AtomModel>> setCategory({
+    required String atomId,
+    required String? categoryId,
+  }) async {
+    requestedCategoryUpdates.add(categoryId);
+    return ApiResponse.success(
+      message: 'Category updated',
+      statusCode: 200,
+      data: AtomModel.fromJson({
+        ApiKeys.id: atomId,
+        CategoryKeys.categoryId: ?categoryId,
+      }),
+    );
+  }
 }
 
 /// Fake Recording Service avoiding network calls.

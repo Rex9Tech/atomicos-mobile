@@ -426,6 +426,9 @@ class AppTranslations extends Translations {
       AppLocales.category.created: 'Category added',
       AppLocales.category.deleted: 'Category deleted',
       AppLocales.category.quickAdd: 'New',
+      AppLocales.category.none: 'No category',
+      AppLocales.category.selectTitle: 'Select category',
+      AppLocales.category.updated: 'Category updated',
       AppLocales.create.pickSourceHint:
           'Pick a source above to bring it into your workspace.',
       AppLocales.create.sharedReviewHint:
@@ -438,6 +441,7 @@ class AppTranslations extends Translations {
       AppLocales.create.pasteSharedHint: 'Paste shared text here...',
       AppLocales.create.noteFieldHint: 'Type or paste a note...',
       AppLocales.atom.setMeetingDate: 'Set meeting date',
+      AppLocales.atom.setCategory: 'Set category',
       AppLocales.atom.addFiles: 'Add files',
       AppLocales.atom.name: 'Atom name',
       AppLocales.calendar.rangeDay: 'Day',
@@ -994,6 +998,9 @@ class AppTranslations extends Translations {
       AppLocales.category.created: 'အမျိုးအစား ထည့်ပြီးပါပြီ',
       AppLocales.category.deleted: 'အမျိုးအစား ဖျက်ပြီးပါပြီ',
       AppLocales.category.quickAdd: 'အသစ်',
+      AppLocales.category.none: 'အမျိုးအစား မရှိ',
+      AppLocales.category.selectTitle: 'အမျိုးအစား ရွေးချယ်ပါ',
+      AppLocales.category.updated: 'အမျိုးအစား ပြောင်းလဲပြီးပါပြီ',
       AppLocales.create.pickSourceHint:
           'အထက်မှ ရင်းမြစ်တစ်ခု ရွေးပြီး သင့် workspace ထဲ ထည့်ပါ။',
       AppLocales.create.sharedReviewHint:
@@ -1008,6 +1015,7 @@ class AppTranslations extends Translations {
           'မျှဝေစာသားကို ဤနေရာတွင် paste လုပ်ပါ...',
       AppLocales.create.noteFieldHint: 'မှတ်စု ရေးပါ သို့မဟုတ် paste လုပ်ပါ...',
       AppLocales.atom.setMeetingDate: 'အစည်းအဝေး ရက်စွဲ သတ်မှတ်ပါ',
+      AppLocales.atom.setCategory: 'အမျိုးအစား သတ်မှတ်ပါ',
       AppLocales.atom.addFiles: 'ဖိုင်များ ထည့်ပါ',
       AppLocales.atom.name: 'အက်တမ် အမည်',
       AppLocales.calendar.rangeDay: 'နေ့',

@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
 import 'package:rexone_mobile/routes/routes.dart';
+import 'package:rexone_mobile/services/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/atom_details.controller.dart';
@@ -116,6 +117,15 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
               ),
               SizedBox(height: Design.spacing.sm),
               _SheetAction(
+                icon: Design.icons.category,
+                label: AppLocales.atom.setCategory.tr,
+                onTap: () {
+                  Get.back();
+                  _pickCategory(context, atom);
+                },
+              ),
+              SizedBox(height: Design.spacing.sm),
+              _SheetAction(
                 icon: Design.icons.clipboard,
                 label: AppLocales.atom.copy.tr,
                 onTap: () {
@@ -150,6 +160,117 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         ),
       ),
     );
+  }
+
+  /// Category picker — 'No category' plus the current user's own list, with
+  /// the atom's current choice checked. Mirrors the create-flow picker.
+  void _pickCategory(BuildContext context, AtomModel atom) {
+    final categoryService = Get.find<CategoryService>();
+
+    Get.bottomSheet<void>(
+      Container(
+        margin: EdgeInsets.all(Design.spacing.sm),
+        padding: EdgeInsets.all(Design.spacing.lg),
+        decoration: BoxDecoration(
+          color: context.colors.neumo,
+          gradient: context.colors.neumoGradient,
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+          boxShadow: context.colors.neumoShadow,
+        ),
+        child: SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  AppLocales.category.selectTitle.tr,
+                  style: context.typo.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: Design.spacing.lg),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Obx(
+                      () => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _SheetAction(
+                            icon: Design.icons.close,
+                            label: AppLocales.category.none.tr,
+                            selected: atom.categoryId == null,
+                            onTap: () async {
+                              Get.back();
+                              await controller.updateCategory(null);
+                            },
+                          ),
+                          for (final category
+                              in categoryService.categories) ...[
+                            SizedBox(height: Design.spacing.sm),
+                            _SheetAction(
+                              icon: Design.icons.category,
+                              label: category.name,
+                              selected: atom.categoryId == category.id,
+                              onTap: () async {
+                                Get.back();
+                                await controller.updateCategory(category.id);
+                              },
+                            ),
+                          ],
+                          if (categoryService.categories.isEmpty) ...[
+                            SizedBox(height: Design.spacing.md),
+                            Text(
+                              AppLocales.category.empty.tr,
+                              textAlign: TextAlign.center,
+                              style: context.typo.caption.copyWith(
+                                color: context.colors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Tappable chip showing the atom's category — hidden while uncategorized
+  /// or until the category list resolves it.
+  Widget _buildCategoryChip(BuildContext context, AtomModel atom) {
+    final categoryService = Get.find<CategoryService>();
+
+    return Obx(() {
+      final category = categoryService.byId(atom.categoryId);
+      if (category == null) return const SizedBox.shrink();
+      final colors = context.colors;
+
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: Design.spacing.sm),
+          Icon(Design.icons.category, size: 13, color: colors.primary),
+          const SizedBox(width: 4),
+          Text(
+            category.name,
+            style: context.typo.caption.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ===== Content =====
@@ -302,6 +423,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                   style: context.typo.caption.copyWith(color: colors.textMuted),
                 ),
               ],
+              _buildCategoryChip(context, atom),
               if (linked) ...[
                 SizedBox(width: Design.spacing.sm),
                 Icon(Design.icons.check, size: 13, color: colors.primary),
@@ -796,7 +918,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final textController = TextEditingController(text: atom.title);
     final next = await Get.dialog<String>(
       AlertDialog(
-        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         ),
@@ -1123,11 +1244,15 @@ class _SheetAction extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.selected = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+
+  /// Shows a check instead of the chevron — used by the category picker.
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -1156,9 +1281,9 @@ class _SheetAction extends StatelessWidget {
               ),
             ),
             Icon(
-              Design.icons.rightArrow,
+              selected ? Design.icons.check : Design.icons.rightArrow,
               size: Design.spacing.iconSmall,
-              color: colors.textMuted,
+              color: selected ? colors.primary : colors.textMuted,
             ),
           ],
         ),
