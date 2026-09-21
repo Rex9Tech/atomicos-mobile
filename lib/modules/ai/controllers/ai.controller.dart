@@ -340,6 +340,12 @@ class AiController extends GetxController {
     for (final segment in atom.transcriptSegments) {
       _collectStrings(segment, parts);
     }
+    // Attached documents (PDF/DOCX/text) ship their extracted text from the
+    // backend — include it so the AI can read uploaded files too.
+    for (final asset in atom.assets) {
+      final text = asset.extractedText?.trim() ?? '';
+      if (text.isNotEmpty) parts.add(text);
+    }
     final text = parts
         .map((part) => part.trim())
         .where((part) => part.isNotEmpty)

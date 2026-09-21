@@ -8,6 +8,7 @@ class AtomAssetModel {
   final String format;
   final int? sizeBytes;
   final String status;
+  final String? extractedText;
 
   const AtomAssetModel({
     required this.id,
@@ -17,6 +18,7 @@ class AtomAssetModel {
     required this.format,
     this.sizeBytes,
     this.status = '',
+    this.extractedText,
   });
 
   /// The raw recording this atom was created from — it belongs in the player
@@ -37,6 +39,7 @@ class AtomAssetModel {
       format: json[AtomKeys.format]?.toString() ?? '',
       sizeBytes: (json[AtomKeys.sizeBytes] as num?)?.toInt(),
       status: json[AtomKeys.status]?.toString() ?? '',
+      extractedText: json['extracted_text']?.toString(),
     );
   }
 }
