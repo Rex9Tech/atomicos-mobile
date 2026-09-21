@@ -54,6 +54,50 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
+  /// Flat list of [_DayHeader] separators + notifications for the ListView.
+  List<Object> _buildRows() {
+    final rows = <Object>[];
+    DateTime? currentDay;
+
+    for (final item in _controller.notifications) {
+      final created = item.createdAt.toLocal();
+      final day = DateTime(created.year, created.month, created.day);
+
+      if (currentDay == null || day != currentDay) {
+        rows.add(_DayHeader(day));
+        currentDay = day;
+      }
+      rows.add(item);
+    }
+    return rows;
+  }
+
+  Widget _buildDayHeader(BuildContext context, DateTime day) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: Design.spacing.xs,
+        bottom: Design.spacing.xs,
+      ),
+      child: Text(
+        _dayLabel(context, day),
+        style: context.typo.labelMedium.copyWith(
+          color: context.colors.textSecondary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  String _dayLabel(BuildContext context, DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = today.difference(day).inDays;
+
+    if (diff == 0) return AppLocales.notification.today.tr;
+    if (diff == 1) return AppLocales.notification.yesterday.tr;
+    return MaterialLocalizations.of(context).formatMediumDate(day);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -93,9 +137,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             decoration: BoxDecoration(
               color: colors.neumo,
-              border: Border(
-                bottom: BorderSide(color: colors.border, width: 1),
-              ),
+              boxShadow: colors.neumoShadowSoft,
             ),
             child: Obx(
               () => Row(
@@ -177,6 +219,8 @@ class _NotificationPageState extends State<NotificationPage> {
                 );
               }
 
+              final rows = _buildRows();
+
               return RefreshIndicator(
                 onRefresh: () => _controller.fetchNotifications(refresh: true),
                 color: colors.primary,
@@ -188,12 +232,16 @@ class _NotificationPageState extends State<NotificationPage> {
                     vertical: Design.spacing.md,
                   ),
                   itemCount:
-                      _controller.notifications.length +
-                      (_controller.isLoadingMore.value ? 1 : 0),
-                  separatorBuilder: (_, _) =>
-                      SizedBox(height: Design.spacing.sm),
+                      rows.length + (_controller.isLoadingMore.value ? 1 : 0),
+                  separatorBuilder: (context, index) {
+                    final hasNext = index + 1 < rows.length;
+                    if (hasNext && rows[index + 1] is _DayHeader) {
+                      return SizedBox(height: Design.spacing.lg);
+                    }
+                    return SizedBox(height: Design.spacing.sm);
+                  },
                   itemBuilder: (context, index) {
-                    if (index == _controller.notifications.length) {
+                    if (index == rows.length) {
                       return Padding(
                         padding: EdgeInsets.symmetric(
                           vertical: Design.spacing.lg,
@@ -211,8 +259,14 @@ class _NotificationPageState extends State<NotificationPage> {
                       );
                     }
 
-                    final item = _controller.notifications[index];
-                    return _buildNotificationCard(context, item);
+                    final row = rows[index];
+                    if (row is _DayHeader) {
+                      return _buildDayHeader(context, row.day);
+                    }
+                    return _buildNotificationCard(
+                      context,
+                      row as NotificationModel,
+                    );
                   },
                 ),
               );
@@ -240,22 +294,29 @@ class _NotificationPageState extends State<NotificationPage> {
           padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
           decoration: BoxDecoration(
             color: isActive
-                ? colors.primary.withValues(alpha: 0.15)
-                : colors.surface,
+                ? colors.primary.withValues(alpha: 0.16)
+                : colors.neumo,
             borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-            border: Border.all(
-              color: isActive ? colors.primary : colors.border,
-              width: isActive ? 1.5 : 1.0,
-            ),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                label,
-                style: typo.labelLarge.copyWith(
-                  color: isActive ? colors.primary : colors.textSecondary,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              // Flexible + scale-down: long labels (Burmese) and big badges
+              // must shrink instead of overflowing the tab.
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: typo.labelLarge.copyWith(
+                      color: isActive ? colors.primary : colors.textSecondary,
+                      fontWeight: isActive
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
               if (badgeCount != null && badgeCount > 0) ...[
@@ -273,6 +334,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                   child: Text(
                     badgeCount > 99 ? '99+' : '$badgeCount',
+                    maxLines: 1,
                     style: typo.caption.copyWith(
                       color: colors.onPrimary,
                       fontSize: 10,
@@ -314,9 +376,6 @@ class _NotificationPageState extends State<NotificationPage> {
         backgroundColor: item.read
             ? colors.surface
             : colors.primary.withValues(alpha: 0.05),
-        borderColor: item.read
-            ? colors.border
-            : colors.primary.withValues(alpha: 0.3),
         onTap: () => _handleNotificationTap(item),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,11 +452,16 @@ class _NotificationPageState extends State<NotificationPage> {
                           color: colors.primary,
                         ),
                         SizedBox(width: Design.spacing.xs),
-                        Text(
-                          item.link!,
-                          style: typo.caption.copyWith(
-                            color: colors.primary,
-                            decoration: TextDecoration.underline,
+                        // Long deep links must ellipsize, not overflow.
+                        Expanded(
+                          child: Text(
+                            item.link!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: typo.caption.copyWith(
+                              color: colors.primary,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
                       ],
@@ -427,4 +491,11 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
+}
+
+/// Date separator row in the notifications list ("Today" / "Yesterday" / date).
+class _DayHeader {
+  const _DayHeader(this.day);
+
+  final DateTime day;
 }

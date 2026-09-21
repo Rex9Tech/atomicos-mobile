@@ -143,7 +143,8 @@ class _AuthSignUpInfoLocales {
   final creatingAccount = 'auth.signup_info.actions.creating_account';
   final enterFullName = 'auth.signup_info.validation.full_name_required';
   final fullNameMaxLength = 'auth.signup_info.validation.full_name_max_length';
-  final fullNameForbiddenChars = 'auth.signup_info.validation.full_name_forbidden';
+  final fullNameForbiddenChars =
+      'auth.signup_info.validation.full_name_forbidden';
   final usernameMinLength = 'auth.signup_info.validation.username_length';
   final usernameMaxLength = 'auth.signup_info.validation.username_max_length';
   final usernameCharset = 'auth.signup_info.validation.username_format';
@@ -418,6 +419,8 @@ class _NotificationLocales {
   final deleted = 'notification.deleted';
   final failedToLoad = 'notification.failed_to_load';
   final viewAll = 'notification.view_all';
+  final today = 'notification.today';
+  final yesterday = 'notification.yesterday';
 }
 
 class _AtomLocales {
