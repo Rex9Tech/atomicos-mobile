@@ -2648,6 +2648,10 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
           title: AppLocales.ai.askSourcePhoto.tr,
           subtitle: AppLocales.ai.sourcePhotoSub.tr,
           onTap: () {
+            // GetX quirk: Get.back() closes an OPEN SNACKBAR instead of the
+            // route (get 4.7.3 back() returns early while a snackbar shows).
+            // Clear any lingering snackbar so the sheet always dismisses.
+            Get.closeAllSnackbars();
             Get.back();
             controller.selectAskAttachment('Photo');
           },
@@ -2658,6 +2662,7 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
           title: AppLocales.ai.askSourceFiles.tr,
           subtitle: AppLocales.ai.sourceFilesSub.tr,
           onTap: () {
+            Get.closeAllSnackbars();
             Get.back();
             controller.selectAskAttachment('Files');
           },
@@ -2811,8 +2816,12 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
                 atom: atoms[index],
                 selected: controller.contextAtom.value?.id == atoms[index].id,
                 onTap: () {
-                  controller.attachContextAtom(atoms[index]);
+                  // Close the sheet BEFORE attaching: attachContextAtom fires a
+                  // snackbar, and Get.back() while a snackbar is open closes the
+                  // SNACKBAR and returns — the sheet used to stay hanging open.
+                  Get.closeAllSnackbars();
                   Get.back();
+                  controller.attachContextAtom(atoms[index]);
                 },
               ),
             );
