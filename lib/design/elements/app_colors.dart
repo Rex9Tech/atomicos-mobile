@@ -40,10 +40,14 @@ class AppColors {
 class AppDayColors {
   const AppDayColors();
 
-  Color get background => const Color(0xFFFAFAF8);
-  Color get surface => const Color(0xFFFFFFFF);
+  // Soft-UI light base: a gentle gray-green rather than near-white, so the
+  // white highlight and dark shade of neumorphic surfaces both read.
+  Color get background => const Color(0xFFEDF0EE);
+  // Surfaces sit just a hair above the background — same material, layered
+  // by light instead of color contrast (flutter_neumorphic rule).
+  Color get surface => const Color(0xFFF3F6F3);
   Color get card => const Color(0xFFF5F5F3);
-  Color get border => const Color(0xFFE5E7EB);
+  Color get border => const Color(0xFFE0E5E1);
   Color get divider => const Color(0xFFF3F4F6);
   Color get textPrimary => const Color(0xFF111827);
   Color get textSecondary => const Color(0xFF4B5563);
@@ -53,8 +57,9 @@ class AppDayColors {
 class AppNightColors {
   const AppNightColors();
 
-  Color get background => const Color(0xFF08130D);
-  Color get surface => const Color(0xFF0F1D14);
+  // Soft-UI dark base: lifted from near-black so the dual shadows have room.
+  Color get background => const Color(0xFF0F2118);
+  Color get surface => const Color(0xFF10231A);
   Color get card => const Color(0xFF13261A);
   Color get border => const Color(0xFF23412E);
   Color get divider => const Color(0xFF193222);
@@ -128,44 +133,21 @@ class Shadows {
   ];
 
   List<BoxShadow> get neon => const [
-    BoxShadow(
-      color: Color(0xFF22C55E),
-      blurRadius: 8,
-    ),
-    BoxShadow(
-      color: Color(0xFF15803D),
-      blurRadius: 25,
-    ),
+    BoxShadow(color: Color(0xFF22C55E), blurRadius: 8),
+    BoxShadow(color: Color(0xFF15803D), blurRadius: 25),
   ];
 
   List<BoxShadow> get neonLg => const [
-    BoxShadow(
-      color: Color(0xFF22C55E),
-      blurRadius: 8,
-    ),
-    BoxShadow(
-      color: Color(0xFF15803D),
-      blurRadius: 25,
-    ),
-    BoxShadow(
-      color: Color(0xFF14532D),
-      blurRadius: 50,
-    ),
+    BoxShadow(color: Color(0xFF22C55E), blurRadius: 8),
+    BoxShadow(color: Color(0xFF15803D), blurRadius: 25),
+    BoxShadow(color: Color(0xFF14532D), blurRadius: 50),
   ];
 
   List<BoxShadow> get glassCard => const [
-    BoxShadow(
-      color: Color(0x5922C55E),
-      blurRadius: 30,
-      offset: Offset(0, 6),
-    ),
+    BoxShadow(color: Color(0x5922C55E), blurRadius: 30, offset: Offset(0, 6)),
   ];
 
   List<BoxShadow> get glassHover => const [
-    BoxShadow(
-      color: Color(0x7322C55E),
-      blurRadius: 32,
-      offset: Offset(0, 8),
-    ),
+    BoxShadow(color: Color(0x7322C55E), blurRadius: 32, offset: Offset(0, 8)),
   ];
 }

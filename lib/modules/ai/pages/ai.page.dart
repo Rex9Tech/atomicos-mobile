@@ -226,6 +226,7 @@ class _AiPageState extends State<AiPage> {
             width: 28,
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               shape: BoxShape.circle,
               boxShadow: colors.neumoShadowSoft,
             ),
@@ -248,6 +249,7 @@ class _AiPageState extends State<AiPage> {
       padding: EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -888,6 +890,7 @@ class _AiPageState extends State<AiPage> {
       ),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Design.spacing.radiusXLarge),
         ),
@@ -946,6 +949,7 @@ class _AiPageState extends State<AiPage> {
                     ),
                     decoration: BoxDecoration(
                       color: colors.neumo,
+                      gradient: colors.neumoGradient,
                       borderRadius: BorderRadius.circular(
                         Design.spacing.radiusXLarge,
                       ),
@@ -1070,6 +1074,7 @@ class _AiPageState extends State<AiPage> {
       padding: EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -1111,6 +1116,7 @@ class _AiPageState extends State<AiPage> {
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -1404,6 +1410,7 @@ class _AiPageState extends State<AiPage> {
             padding: EdgeInsets.all(Design.spacing.lg),
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
               boxShadow: colors.neumoShadowSoft,
             ),
@@ -1912,6 +1919,7 @@ class _CircleIconButton extends StatelessWidget {
         width: 36,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -2117,6 +2125,7 @@ class _EmptyStateCard extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.xl),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -2210,6 +2219,7 @@ class _AskActionRow extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: context.colors.neumo,
+          gradient: context.colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: context.colors.neumoShadowSoft,
         ),
@@ -2329,6 +2339,7 @@ class _MiniResultChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: context.colors.neumo,
+        gradient: context.colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         boxShadow: context.colors.neumoShadowSoft,
       ),
@@ -2392,6 +2403,7 @@ class _AssistantAvatar extends StatelessWidget {
       width: 28,
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         shape: BoxShape.circle,
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -2580,6 +2592,7 @@ class _ThinkingBubble extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -2628,6 +2641,7 @@ class _AskActionChip extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(999),
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -2777,6 +2791,7 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
           ),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -2903,6 +2918,7 @@ class _SheetShell extends StatelessWidget {
       padding: EdgeInsets.all(Design.spacing.md),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Design.spacing.radiusXLarge),
         ),
@@ -2963,6 +2979,7 @@ class _AttachOption extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -3032,6 +3049,7 @@ class _ComposerIconButton extends StatelessWidget {
         width: 40,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -3066,6 +3084,7 @@ class _ComposerChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: colors.primary.withValues(alpha: 0.30)),
         boxShadow: colors.neumoShadowSoft,

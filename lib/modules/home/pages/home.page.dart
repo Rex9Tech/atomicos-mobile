@@ -98,6 +98,7 @@ class HomePage extends GetView<AuthController> {
           ),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -201,6 +202,7 @@ class HomePage extends GetView<AuthController> {
             ),
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
               boxShadow: colors.neumoShadow,
             ),
@@ -221,6 +223,7 @@ class HomePage extends GetView<AuthController> {
                   width: 28,
                   decoration: BoxDecoration(
                     color: colors.neumo,
+                    gradient: colors.neumoGradient,
                     shape: BoxShape.circle,
                     boxShadow: colors.neumoShadowSoft,
                   ),
@@ -292,6 +295,7 @@ class HomePage extends GetView<AuthController> {
               margin: EdgeInsets.only(right: Design.spacing.sm),
               decoration: BoxDecoration(
                 color: colors.neumo,
+                gradient: colors.neumoGradient,
                 shape: BoxShape.circle,
                 boxShadow: colors.neumoShadowSoft,
               ),
@@ -307,6 +311,7 @@ class HomePage extends GetView<AuthController> {
             width: 30,
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               shape: BoxShape.circle,
               boxShadow: colors.neumoShadowSoft,
             ),
@@ -338,6 +343,7 @@ class HomePage extends GetView<AuthController> {
           padding: EdgeInsets.all(Design.spacing.lg),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -425,6 +431,7 @@ class HomePage extends GetView<AuthController> {
       padding: EdgeInsets.all(Design.spacing.sm),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -470,6 +477,7 @@ class HomePage extends GetView<AuthController> {
             padding: EdgeInsets.all(Design.spacing.md),
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(Design.spacing.radiusXLarge),
               ),
@@ -495,6 +503,7 @@ class HomePage extends GetView<AuthController> {
                     padding: EdgeInsets.all(Design.spacing.lg),
                     decoration: BoxDecoration(
                       color: colors.neumo,
+                      gradient: colors.neumoGradient,
                       borderRadius: BorderRadius.circular(
                         Design.spacing.radiusXLarge,
                       ),
@@ -521,6 +530,7 @@ class HomePage extends GetView<AuthController> {
                           padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             color: colors.neumo,
+                            gradient: colors.neumoGradient,
                             borderRadius: BorderRadius.circular(999),
                             boxShadow: colors.neumoShadowSoft,
                           ),

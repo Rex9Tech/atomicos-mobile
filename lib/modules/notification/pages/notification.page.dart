@@ -137,6 +137,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               boxShadow: colors.neumoShadowSoft,
             ),
             child: Obx(
@@ -376,8 +377,10 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       child: AppCard(
         padding: EdgeInsets.all(Design.spacing.md),
+        // Read items sit on the default neumo fill (with its convex wash);
+        // unread keeps a soft green tint as the distinction.
         backgroundColor: item.read
-            ? colors.surface
+            ? null
             : colors.primary.withValues(alpha: 0.05),
         onTap: () => _handleNotificationTap(item),
         child: Row(

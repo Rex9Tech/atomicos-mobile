@@ -36,6 +36,8 @@ class AppCard extends StatelessWidget {
       padding: padding ?? EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
         color: backgroundColor ?? colors.neumo,
+        // Convex surface wash (skip for custom tone fills).
+        gradient: backgroundColor == null ? colors.neumoGradient : null,
         borderRadius: BorderRadius.circular(radius),
         border: borderColor == null ? null : Border.all(color: borderColor!),
         boxShadow: colors.neumoShadow,

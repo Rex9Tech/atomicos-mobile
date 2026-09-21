@@ -212,20 +212,20 @@ class _InteractivePrimaryButtonState extends State<_InteractivePrimaryButton> {
         decoration: BoxDecoration(
           color: isEnabled
               ? (_isPressed
-                  ? Design.colors.primary.withValues(alpha: 0.9)
-                  : Design.colors.primary)
+                    ? Design.colors.primary.withValues(alpha: 0.9)
+                    : Design.colors.primary)
               : Design.colors.primary.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
           boxShadow: isEnabled
               ? (_isPressed
-                  ? Design.colors.shadows.neon
-                  : [
-                      BoxShadow(
-                        color: Design.colors.primary.withValues(alpha: 0.30),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ])
+                    ? Design.colors.shadows.neon
+                    : [
+                        BoxShadow(
+                          color: Design.colors.primary.withValues(alpha: 0.30),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ])
               : const [],
         ),
         child: Material(
@@ -265,10 +265,7 @@ class _InteractivePrimaryButtonState extends State<_InteractivePrimaryButton> {
 
 /// Interactive Neon Button with touch Press & Hold animated glow reaction
 class _InteractiveNeonButton extends StatefulWidget {
-  const _InteractiveNeonButton({
-    required this.onPressed,
-    required this.child,
-  });
+  const _InteractiveNeonButton({required this.onPressed, required this.child});
 
   final VoidCallback? onPressed;
   final Widget child;
@@ -295,6 +292,9 @@ class _InteractiveNeonButtonState extends State<_InteractiveNeonButton> {
           color: (_isPressed && isEnabled)
               ? Design.colors.primary
               : context.colors.neumo,
+          gradient: (_isPressed && isEnabled)
+              ? null
+              : context.colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
           boxShadow: (_isPressed && isEnabled)
               ? Design.colors.shadows.neon

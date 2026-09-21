@@ -135,6 +135,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -534,6 +535,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
               // Soft-UI drop target: same-tone raised surface, no hairline;
               // a picked file paints a soft primary glow instead of a border.
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
               boxShadow: <BoxShadow>[
                 ...colors.neumoShadowSoft,
@@ -562,7 +564,8 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                 SizedBox(height: Design.spacing.md),
                 Text(
                   hasPickedFile
-                      ? (controller.pickedUploadName.value ?? AppLocales.create.attachedFile.tr)
+                      ? (controller.pickedUploadName.value ??
+                            AppLocales.create.attachedFile.tr)
                       : AppLocales.create.tapToBrowse.tr,
                   style: context.typo.labelLarge.copyWith(
                     fontWeight: FontWeight.w700,
@@ -591,10 +594,19 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           runSpacing: Design.spacing.sm,
           alignment: WrapAlignment.center,
           children: [
-            _SupportChip(icon: Design.icons.audioWave, label: AppLocales.create.chipAudio.tr),
-            _SupportChip(icon: Design.icons.videoFile, label: AppLocales.create.chipVideo.tr),
+            _SupportChip(
+              icon: Design.icons.audioWave,
+              label: AppLocales.create.chipAudio.tr,
+            ),
+            _SupportChip(
+              icon: Design.icons.videoFile,
+              label: AppLocales.create.chipVideo.tr,
+            ),
             _SupportChip(icon: Design.icons.pictureAsPdf, label: 'PDF'),
-            _SupportChip(icon: Design.icons.docFile, label: AppLocales.create.chipDocuments.tr),
+            _SupportChip(
+              icon: Design.icons.docFile,
+              label: AppLocales.create.chipDocuments.tr,
+            ),
           ],
         ),
       ],
@@ -829,6 +841,7 @@ class _RoundTopButton extends StatelessWidget {
         width: 36,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -927,12 +940,10 @@ class _SupportChip extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.md,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.md, vertical: 6),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         boxShadow: colors.neumoShadowSoft,
       ),

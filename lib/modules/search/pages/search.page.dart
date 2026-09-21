@@ -47,6 +47,7 @@ class SearchPage extends GetView<AtomSearchController> {
             width: 44,
             decoration: BoxDecoration(
               color: colors.neumo,
+              gradient: colors.neumoGradient,
               shape: BoxShape.circle,
               boxShadow: colors.neumoShadowSoft,
             ),
@@ -77,6 +78,7 @@ class SearchPage extends GetView<AtomSearchController> {
           ),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -86,7 +88,8 @@ class SearchPage extends GetView<AtomSearchController> {
               SizedBox(width: Design.spacing.sm),
               Expanded(
                 child: TextField(
-                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                   controller: controller.searchController,
                   onChanged: controller.onQueryChanged,
                   autofocus: true,

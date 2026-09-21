@@ -97,6 +97,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         padding: EdgeInsets.all(Design.spacing.lg),
         decoration: BoxDecoration(
           color: context.colors.neumo,
+          gradient: context.colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
           boxShadow: context.colors.neumoShadow,
         ),
@@ -250,6 +251,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                   ),
                   decoration: BoxDecoration(
                     color: colors.neumo,
+                    gradient: colors.neumoGradient,
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: colors.neumoShadowSoft,
                   ),
@@ -399,11 +401,11 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   /// 0 Summary · 1 Transcript · 2 Note · 3 Assets. Empty Summary/Transcript
   /// tabs are hidden — testers asked for note atoms to drop them.
   List<int> _visibleTabIndexes(AtomModel atom) => [
-        if (atom.summaryBlocks.isNotEmpty) 0,
-        if (atom.transcriptSegments.isNotEmpty) 1,
-        2,
-        3,
-      ];
+    if (atom.summaryBlocks.isNotEmpty) 0,
+    if (atom.transcriptSegments.isNotEmpty) 1,
+    2,
+    3,
+  ];
 
   int _effectiveTab(AtomModel atom) {
     final visible = _visibleTabIndexes(atom);
@@ -421,6 +423,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         padding: EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(999),
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -638,7 +641,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     ),
                   SizedBox(width: Design.spacing.sm),
                   Text(
-                    files.isEmpty ? AppLocales.atom.addFiles.tr : AppLocales.ai.addMoreFiles.tr,
+                    files.isEmpty
+                        ? AppLocales.atom.addFiles.tr
+                        : AppLocales.ai.addMoreFiles.tr,
                     style: context.typo.labelMedium.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -694,8 +699,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  [if (size.isNotEmpty) size, if (ext.isNotEmpty) ext]
-                      .join(' . '),
+                  [
+                    if (size.isNotEmpty) size,
+                    if (ext.isNotEmpty) ext,
+                  ].join(' . '),
                   style: context.typo.caption.copyWith(color: colors.textMuted),
                 ),
               ],
@@ -1076,7 +1083,11 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 }
 
 class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon, required this.onTap, this.size = 36});
+  const _CircleButton({
+    required this.icon,
+    required this.onTap,
+    this.size = 36,
+  });
 
   final IconData icon;
   final VoidCallback onTap;
@@ -1093,10 +1104,15 @@ class _CircleButton extends StatelessWidget {
         width: size,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),
-        child: Icon(icon, size: Design.spacing.iconSmall, color: colors.textSecondary),
+        child: Icon(
+          icon,
+          size: Design.spacing.iconSmall,
+          color: colors.textSecondary,
+        ),
       ),
     );
   }
@@ -1123,6 +1139,7 @@ class _SheetAction extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: colors.neumoShadowSoft,
         ),

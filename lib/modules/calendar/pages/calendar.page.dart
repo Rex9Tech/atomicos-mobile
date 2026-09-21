@@ -101,6 +101,7 @@ class CalendarPage extends GetView<CalendarController> {
           ),
           decoration: BoxDecoration(
             color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(999),
             boxShadow: colors.neumoShadowSoft,
           ),
@@ -511,6 +512,7 @@ class CalendarPage extends GetView<CalendarController> {
         padding: EdgeInsets.all(Design.spacing.lg),
         decoration: BoxDecoration(
           color: context.colors.neumo,
+          gradient: context.colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
           boxShadow: context.colors.neumoShadow,
         ),
@@ -615,6 +617,7 @@ class _SheetAction extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: colors.neumoShadowSoft,
         ),
@@ -661,6 +664,7 @@ class _RoundIconButton extends StatelessWidget {
         width: 32,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),

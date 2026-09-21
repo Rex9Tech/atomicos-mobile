@@ -41,7 +41,8 @@ class LiveActivityPage extends GetView<LiveActivityController> {
   Future<void> _confirmFinish(BuildContext context) async {
     if (controller.isFinishing.value) return;
 
-    final hasSession = controller.isRecording.value ||
+    final hasSession =
+        controller.isRecording.value ||
         (controller.recordingId.value ?? '').isNotEmpty;
     if (!hasSession) {
       Get.back();
@@ -163,7 +164,8 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             ),
             SizedBox(height: Design.spacing.xs),
             TextField(
-              onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+              onTapOutside: (_) =>
+                  FocusManager.instance.primaryFocus?.unfocus(),
               controller: controller.noteController,
               minLines: 2,
               maxLines: 3,
@@ -302,6 +304,7 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
       padding: EdgeInsets.all(Design.spacing.md),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -344,10 +347,7 @@ class _LiveBadge extends StatelessWidget {
     final color = active ? colors.primary : colors.textMuted;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 3,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
@@ -363,7 +363,9 @@ class _LiveBadge extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            active ? AppLocales.recording.badgeLive.tr : AppLocales.recording.badgeOff.tr,
+            active
+                ? AppLocales.recording.badgeLive.tr
+                : AppLocales.recording.badgeOff.tr,
             style: context.typo.caption.copyWith(
               color: color,
               fontWeight: FontWeight.w700,
@@ -393,6 +395,7 @@ class _GlassRoundButton extends StatelessWidget {
         width: 36,
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           shape: BoxShape.circle,
           boxShadow: colors.neumoShadowSoft,
         ),

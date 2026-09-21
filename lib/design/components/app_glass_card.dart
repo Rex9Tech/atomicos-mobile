@@ -39,6 +39,8 @@ class AppGlassCard extends StatelessWidget {
       padding: padding ?? EdgeInsets.all(Design.spacing.lg),
       decoration: BoxDecoration(
         color: color ?? context.colors.neumo,
+        // Convex surface wash (skip for custom tone fills).
+        gradient: color == null ? context.colors.neumoGradient : null,
         borderRadius: BorderRadius.circular(r),
         border: borderColor == null ? null : Border.all(color: borderColor!),
         boxShadow: shadow ?? context.colors.neumoShadow,

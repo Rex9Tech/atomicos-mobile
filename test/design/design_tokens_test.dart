@@ -101,6 +101,7 @@ void main() {
     testWidgets('neumo shadow tokens stay pronounced (light)', (tester) async {
       late List<BoxShadow> raised;
       late List<BoxShadow> soft;
+      late LinearGradient gradient;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -109,6 +110,7 @@ void main() {
             builder: (context) {
               raised = context.colors.neumoShadow;
               soft = context.colors.neumoShadowSoft;
+              gradient = context.colors.neumoGradient;
               return const SizedBox();
             },
           ),
@@ -118,22 +120,21 @@ void main() {
       expect(raised, hasLength(2));
       expect(soft, hasLength(2));
 
-      // Highlight from the top-left, shade to the bottom-right — both halves
-      // must stay strong enough to read as raised relief (tester request:
-      // 'add more shadow to look Neumorphism theme more').
-      expect(raised[0].offset.dx, lessThanOrEqualTo(-5.0));
+      // Highlight from the top-left, shade to the bottom-right — tight,
+      // defined dual shadows in the flutter_neumorphic proportions, plus a
+      // convex surface wash.
+      expect(raised[0].offset.dx, lessThanOrEqualTo(-4.0));
       expect(raised[0].color.a, greaterThanOrEqualTo(0.9));
-      expect(raised[1].offset.dx, greaterThanOrEqualTo(6.0));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(26.0));
-      expect(raised[1].color.a, greaterThanOrEqualTo(0.12));
+      expect(raised[1].offset.dx, greaterThanOrEqualTo(4.0));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(12.0));
+      expect(raised[1].color.a, greaterThanOrEqualTo(0.10));
 
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(12.0));
-      expect(soft[1].color.a, greaterThanOrEqualTo(0.10));
-    });
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(10.0));
+      expect(soft[1].color.a, greaterThanOrEqualTo(0.08));
 
-    testWidgets('neumo shadow tokens stay pronounced (dark)', (tester) async {
-      late List<BoxShadow> raised;
-      late List<BoxShadow> soft;
+      expect(gradient.colors, hasLength(2));
+      expect(gradient.begin, equals(Alignment.bottomRight));
+      expect(gradient.end, equals(Alignment.topLeft));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -148,16 +149,13 @@ void main() {
         ),
       );
 
-      expect(raised, hasLength(2));
-      expect(soft, hasLength(2));
+      // Let the theme transition settle before reading dark tokens.
+      await tester.pumpAndSettle();
 
-      expect(raised[0].offset.dx, lessThanOrEqualTo(-5.0));
-      expect(raised[0].color.a, greaterThanOrEqualTo(0.10));
-      expect(raised[1].offset.dx, greaterThanOrEqualTo(5.0));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(36.0));
+      expect(raised[0].color.a, greaterThanOrEqualTo(0.08));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(12.0));
       expect(raised[1].color.a, greaterThanOrEqualTo(0.35));
-
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(14.0));
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(10.0));
       expect(soft[1].color.a, greaterThanOrEqualTo(0.30));
     });
   });

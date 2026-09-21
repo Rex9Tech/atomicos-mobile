@@ -59,39 +59,56 @@ class AppThemeContextColors {
 
   // ===== NEUMORPHISM (soft UI) =====
   /// Neumorphic surface fill — the same tone as the page, so the dual shadow
-  /// does the lifting (theme switch keeps a slightly raised dark surface).
+  /// and gradient do the lifting (theme switch keeps a slightly raised dark
+  /// surface).
   Color get neumo => isDark
       ? _context.theme.colorScheme.surface
       : _context.theme.scaffoldBackgroundColor;
 
+  /// Convex soft-UI surface wash, mirroring flutter_neumorphic's convex
+  /// shader: translucent dark at the bottom-right fading to a light wash
+  /// toward the top-left (the light source). Draw it OVER [neumo].
+  LinearGradient get neumoGradient => LinearGradient(
+    begin: Alignment.bottomRight,
+    end: Alignment.topLeft,
+    colors: isDark
+        ? [
+            Colors.black.withValues(alpha: 0.32),
+            Colors.white.withValues(alpha: 0.09),
+          ]
+        : [
+            Colors.black.withValues(alpha: 0.07),
+            Colors.white.withValues(alpha: 0.55),
+          ],
+    stops: const [0, 0.78],
+  );
+
   /// Raised soft-UI surface: light falls from the top-left, shade to the
-  /// bottom-right. Tuned stronger by tester request — the dual shadow should
-  /// read clearly as raised relief on both themes.
+  /// bottom-right — tight, defined dual shadows in the flutter_neumorphic
+  /// proportions (their blur scales with depth, ~1:2 offset:blur).
   List<BoxShadow> get neumoShadow => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.16),
+            color: Colors.white.withValues(alpha: 0.18),
             blurRadius: 14,
-            offset: const Offset(-6, -6),
+            offset: const Offset(-5, -5),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 50,
-            offset: const Offset(6, 6),
+            color: Colors.black.withValues(alpha: 0.62),
+            blurRadius: 18,
+            offset: const Offset(5, 5),
           ),
         ]
       : [
           BoxShadow(
             color: Colors.white.withValues(alpha: 1.0),
-            blurRadius: 16,
-            offset: const Offset(-6, -6),
+            blurRadius: 12,
+            offset: const Offset(-5, -5),
           ),
-          // Wider blur keeps the shade a diffuse falloff rather than a
-          // visible gray band (reviewed via golden previews).
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 30,
-            offset: const Offset(7, 7),
+            color: Colors.black.withValues(alpha: 0.13),
+            blurRadius: 16,
+            offset: const Offset(5, 5),
           ),
         ];
 
@@ -99,26 +116,26 @@ class AppThemeContextColors {
   List<BoxShadow> get neumoShadowSoft => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.14),
-            blurRadius: 9,
-            offset: const Offset(-4, -4),
+            color: Colors.white.withValues(alpha: 0.13),
+            blurRadius: 10,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 20,
-            offset: const Offset(4, 4),
+            color: Colors.black.withValues(alpha: 0.55),
+            blurRadius: 13,
+            offset: const Offset(3, 3),
           ),
         ]
       : [
           BoxShadow(
             color: Colors.white.withValues(alpha: 1.0),
-            blurRadius: 9,
-            offset: const Offset(-4, -4),
+            blurRadius: 8,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.13),
-            blurRadius: 16,
-            offset: const Offset(4, 4),
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 11,
+            offset: const Offset(3, 3),
           ),
         ];
 

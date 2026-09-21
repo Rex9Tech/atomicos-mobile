@@ -33,6 +33,7 @@ class NotificationBell extends StatelessWidget {
               width: 32,
               decoration: BoxDecoration(
                 color: colors.neumo,
+                gradient: colors.neumoGradient,
                 shape: BoxShape.circle,
                 boxShadow: colors.neumoShadowSoft,
               ),
@@ -112,6 +113,7 @@ class _NotificationsSheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: colors.neumo,
+        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         boxShadow: colors.neumoShadow,
       ),
@@ -168,6 +170,7 @@ class _NotificationsSheet extends StatelessWidget {
               padding: EdgeInsets.all(Design.spacing.xs + 2),
               decoration: BoxDecoration(
                 color: colors.neumo,
+                gradient: colors.neumoGradient,
                 shape: BoxShape.circle,
                 boxShadow: colors.neumoShadowSoft,
               ),
@@ -307,6 +310,7 @@ class _NotificationRow extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.md),
         decoration: BoxDecoration(
           color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
           boxShadow: colors.neumoShadowSoft,
         ),
