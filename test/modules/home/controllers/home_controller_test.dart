@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
+import 'package:rexone_mobile/services/category.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
 import '../../../mocks/test_services.dart';
 
@@ -29,6 +30,7 @@ void main() {
     fakeHome = FakeHomeService();
     Get.put<VersionService>(fakeVersion);
     Get.put<HomeService>(fakeHome);
+    Get.put<CategoryService>(FakeCategoryService());
     controller = Get.put(HomeController());
   });
 

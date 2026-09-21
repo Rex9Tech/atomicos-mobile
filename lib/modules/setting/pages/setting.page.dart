@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../feedback/feedback.dart';
@@ -17,6 +18,13 @@ class SettingPage extends GetView<SettingController> {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
+    final categoryService = Get.find<CategoryService>();
+
+    // Lazy admin check: gates the (admin-only) Categories entry. The service
+    // caches the result, so repeated builds don't refetch.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      categoryService.loadIam();
+    });
 
     return AppPage(
       title: AppLocales.setting.settings.tr,
@@ -41,6 +49,22 @@ class SettingPage extends GetView<SettingController> {
           _buildAccountTile(context, authController),
 
           SizedBox(height: Design.spacing.xxl),
+
+          // Admin Section (categories management — admin accounts only)
+          Obx(() {
+            if (!categoryService.isAdmin.value) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSectionHeader(context, AppLocales.category.title.tr),
+                _buildCategoriesTile(context),
+                SizedBox(height: Design.spacing.xxl),
+              ],
+            );
+          }),
 
           // Feedback Section
           _buildSectionHeader(context, AppLocales.feedback.title.tr),
@@ -67,6 +91,22 @@ class SettingPage extends GetView<SettingController> {
         trailing:
             Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
         onTap: () => FeedbackBottomSheet.show(),
+      ),
+    );
+  }
+
+  /// Admin-only entry: create/remove the categories users attach to atoms.
+  Widget _buildCategoriesTile(BuildContext context) {
+    return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
+      padding: EdgeInsets.zero,
+      child: AppListTile(
+        leading: Icon(Design.icons.category, color: context.colors.primary),
+        title: Text(AppLocales.category.manage.tr),
+        subtitle: Text(AppLocales.category.manageSub.tr),
+        trailing:
+            Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
+        onTap: AppRoutes.toAdminCategories,
       ),
     );
   }

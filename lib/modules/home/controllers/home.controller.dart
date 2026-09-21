@@ -14,8 +14,9 @@ import '../services/home.service.dart';
 class HomeController extends GetxController {
   final VersionService _version = Get.find<VersionService>();
   final HomeService _home = Get.find<HomeService>();
+  final CategoryService _categories = Get.find<CategoryService>();
 
-  final RxString selectedFilter = 'All'.obs;
+  final RxString selectedFilter = 'all'.obs;
   final RxString searchQuery = ''.obs;
 
   final RxList<AtomModel> atoms = <AtomModel>[].obs;
@@ -40,7 +41,11 @@ class HomeController extends GetxController {
     // its global-loading Rx writes) inside a build phase trips flutter's
     // markNeedsBuild guard. Post-frame keeps the whole load lifecycle
     // outside the build phase.
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadAtoms());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadAtoms();
+      // Dynamic chips: admin-managed categories, refreshed silently.
+      _categories.refresh();
+    });
     // Best-effort telemetry — staggered so it doesn't compete for the first
     // socket while the workspace request is still in flight.
     Future<void>.delayed(const Duration(seconds: 3), reportUserVersion);
@@ -125,11 +130,9 @@ class HomeController extends GetxController {
           page: 1,
           limit: _pageSize,
           search: resolvedSearch,
-          status: _statusForFilter(resolvedFilter),
+          categoryId: _categoryIdFor(resolvedFilter),
         );
-        atoms.assignAll(
-          _applyLocalFilter(result.records, filter: resolvedFilter),
-        );
+        atoms.assignAll(result.records);
         _currentPage = 1;
         hasMoreAtoms.value =
             result.pagination?.hasNextPage ??
@@ -171,12 +174,12 @@ class HomeController extends GetxController {
         page: nextPage,
         limit: _pageSize,
         search: searchQuery.value,
-        status: _statusForFilter(resolvedFilter),
+        categoryId: _categoryIdFor(resolvedFilter),
       );
 
       // Guard against a refresh that landed while this page was in flight.
       if (nextPage == _currentPage + 1) {
-        atoms.addAll(_applyLocalFilter(result.records, filter: resolvedFilter));
+        atoms.addAll(result.records);
         _currentPage = nextPage;
       }
       hasMoreAtoms.value =
@@ -190,6 +193,7 @@ class HomeController extends GetxController {
   }
 
   void selectFilter(String value) {
+    if (selectedFilter.value == value) return;
     selectedFilter.value = value;
     loadAtoms();
   }
@@ -208,36 +212,7 @@ class HomeController extends GetxController {
     loadAtoms(search: '');
   }
 
-  String? _statusForFilter(String filter) {
-    switch (filter.toLowerCase()) {
-      case 'new':
-        return 'new';
-      default:
-        return null;
-    }
-  }
-
-  List<AtomModel> _applyLocalFilter(
-    List<AtomModel> source, {
-    required String filter,
-  }) {
-    switch (filter.toLowerCase()) {
-      case 'atomos':
-        return source
-            .where((atom) => atom.source.toLowerCase().contains('atom'))
-            .toList();
-      case 'personal':
-        return source.where((atom) {
-          final haystack = [
-            atom.source,
-            atom.title,
-            atom.status,
-            atom.note ?? '',
-          ].join(' ').toLowerCase();
-          return haystack.contains('personal');
-        }).toList();
-      default:
-        return source;
-    }
-  }
+  /// 'all' → no category filter; anything else is a category id.
+  String? _categoryIdFor(String filter) =>
+      filter == 'all' || filter.isEmpty ? null : filter;
 }

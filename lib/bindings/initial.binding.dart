@@ -67,6 +67,7 @@ class InitialBinding extends Bindings {
     Get.put(AtomCreateService(), permanent: true);
     Get.put(RecordingService(), permanent: true);
     Get.put(CalendarService(), permanent: true);
+    Get.put(CategoryService(), permanent: true);
 
     // Auth Service (depends on ApiService)
     Get.put(AuthService(), permanent: true);

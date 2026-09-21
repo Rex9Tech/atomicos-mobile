@@ -12,3 +12,4 @@ export 'speech.keys.dart';
 export 'feedback.keys.dart';
 export 'notification.keys.dart';
 export 'version.keys.dart';
+export 'category.keys.dart';

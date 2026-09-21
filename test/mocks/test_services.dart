@@ -12,12 +12,14 @@ import 'package:rexone_mobile/modules/calendar/services/calendar.service.dart';
 import 'package:rexone_mobile/modules/feedback/data/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
+import 'package:rexone_mobile/modules/home/data/models/category.model.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/modules/notification/notification.dart';
 import 'package:rexone_mobile/modules/payment/payment.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rexone_mobile/modules/profile/profile.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
+import 'package:rexone_mobile/services/category.service.dart';
 import 'package:rexone_mobile/services/media.service.dart';
 import 'package:rexone_mobile/services/network.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
@@ -708,6 +710,7 @@ class FakeHomeService extends GetxService implements HomeService {
     int? limit,
     String? search,
     String? status,
+    String? categoryId,
   }) async {
     final current = page ?? 1;
     requestedPages.add(current);
@@ -1147,5 +1150,57 @@ class FakeProfileService extends ProfileService {
             photo: 'https://example.com/new_avatar.png',
           ),
         );
+  }
+}
+
+/// Fake Category Service — in-memory taxonomy for chips / pickers / admin UI.
+class FakeCategoryService extends CategoryService {
+  @override
+  void onInit() {}
+
+  /// Categories returned by [refresh]; set before use in tests.
+  List<CategoryModel> seed = [];
+
+  bool iamIsAdmin = false;
+  bool iamLoaded = false;
+
+  @override
+  Future<ApiResponse<List<CategoryModel>>> list() async =>
+      ApiResponse.success(
+        message: 'Categories',
+        statusCode: 200,
+        data: categories.toList(),
+      );
+
+  @override
+  Future<void> refresh() async {
+    if (seed.isNotEmpty) categories.assignAll(seed);
+  }
+
+  @override
+  Future<void> loadIam({bool force = false}) async {
+    isAdmin.value = iamIsAdmin;
+    iamLoaded = true;
+  }
+
+  @override
+  Future<ApiResponse<CategoryModel>> create(String name) async {
+    final model = CategoryModel(id: 'cat-${categories.length + 1}', name: name);
+    categories.add(model);
+    return ApiResponse.success(
+      message: 'Created',
+      statusCode: 201,
+      data: model,
+    );
+  }
+
+  @override
+  Future<ApiResponse<CategoryModel>> delete(String id) async {
+    categories.removeWhere((category) => category.id == id);
+    return ApiResponse.success(
+      message: 'Deleted',
+      statusCode: 200,
+      data: CategoryModel(id: id, name: ''),
+    );
   }
 }

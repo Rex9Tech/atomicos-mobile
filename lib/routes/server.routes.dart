@@ -87,6 +87,11 @@ class ServerRoutes {
   static String get atomFromShare => api('/atoms/from-share');
   static String atomAssets(String id) => api('/atoms/$id/assets');
 
+  // ===== CATEGORIES =====
+  static String get categories => api('/categories');
+  static String get adminCategories => adminApi('/categories');
+  static String adminCategory(String id) => adminApi('/categories/$id');
+
   // Recordings
   static String get recordings => api('/recordings');
   static String recordingDetail(String id) => api('/recordings/$id');

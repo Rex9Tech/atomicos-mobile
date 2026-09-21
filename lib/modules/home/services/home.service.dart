@@ -22,12 +22,16 @@ class HomeService extends GetxService {
     int? limit,
     String? search,
     String? status,
+    String? categoryId,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
     if (search != null && search.isNotEmpty) query[AtomKeys.search] = search;
     if (status != null && status.isNotEmpty) query[AtomKeys.status] = status;
+    if (categoryId != null && categoryId.isNotEmpty) {
+      query[CategoryKeys.categoryId] = categoryId;
+    }
 
     final response = await _api.get(
       ServerRoutes.atoms,

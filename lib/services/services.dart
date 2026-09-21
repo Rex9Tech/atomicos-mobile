@@ -11,3 +11,4 @@ export 'push_noti.service.dart';
 export 'network.service.dart';
 export 'version.service.dart';
 export 'share_intent.service.dart';
+export 'category.service.dart';

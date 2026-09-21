@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../search/search.dart';
@@ -12,20 +13,6 @@ import 'widgets/notification_bell.dart';
 
 class HomePage extends GetView<AuthController> {
   const HomePage({super.key});
-
-  static const _filters = <String>['All', 'AtomOS', 'New', 'Personal'];
-
-  String _filterLabel(String filter) {
-    switch (filter) {
-      case 'All':
-        return AppLocales.home.filterAll.tr;
-      case 'New':
-        return AppLocales.home.filterNew.tr;
-      case 'Personal':
-        return AppLocales.home.filterPersonal.tr;
-    }
-    return filter;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -274,20 +261,26 @@ class HomePage extends GetView<AuthController> {
 
   Widget _buildFilterRow(BuildContext context) {
     final homeController = Get.find<HomeController>();
+    final categoryService = Get.find<CategoryService>();
 
     return Obx(
       () => Wrap(
         spacing: Design.spacing.sm,
         runSpacing: Design.spacing.sm,
-        children: _filters
-            .map(
-              (label) => _FilterChip(
-                label: _filterLabel(label),
-                selected: label == homeController.selectedFilter.value,
-                onTap: () => homeController.selectFilter(label),
-              ),
-            )
-            .toList(),
+        children: [
+          // 'All' is fixed; the rest are admin-managed categories.
+          _FilterChip(
+            label: AppLocales.home.filterAll.tr,
+            selected: homeController.selectedFilter.value == 'all',
+            onTap: () => homeController.selectFilter('all'),
+          ),
+          for (final category in categoryService.categories)
+            _FilterChip(
+              label: category.name,
+              selected: homeController.selectedFilter.value == category.id,
+              onTap: () => homeController.selectFilter(category.id),
+            ),
+        ],
       ),
     );
   }

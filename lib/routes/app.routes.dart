@@ -50,6 +50,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String notifications = '/notifications';
   static const String permissionOnboarding = '/permission-onboarding';
+  static const String adminCategories = '/admin-categories';
 
   // ===== PUBLIC NAVIGATION =====
   static void toSplash() => Get.offAllNamed(splash);
@@ -122,6 +123,9 @@ class AppRoutes {
   static void toProfile() => Get.toNamed(profile);
   static void toNotifications() => Get.toNamed(notifications);
   static void toPermissionOnboarding() => Get.toNamed(permissionOnboarding);
+
+  /// Admin-only category management (Settings → Categories).
+  static void toAdminCategories() => Get.toNamed(adminCategories);
 
   /// Resolves and routes a notification or deep link.
   ///
@@ -318,6 +322,11 @@ class AppRoutes {
     GetPage(
       name: settings,
       page: () => const SettingPage(),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: adminCategories,
+      page: () => const AdminCategoriesPage(),
       middlewares: [GuardRoutes()],
     ),
     GetPage(

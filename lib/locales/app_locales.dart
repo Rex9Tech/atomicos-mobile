@@ -21,6 +21,23 @@ class AppLocales {
   static const recording = _RecordingLocales();
   static const create = _CreateLocales();
   static const home = _HomeLocales();
+  static const category = _CategoryLocales();
+}
+
+class _CategoryLocales {
+  const _CategoryLocales();
+
+  final title = 'category.title';
+  final manage = 'category.manage';
+  final manageSub = 'category.manageSub';
+  final nameHint = 'category.nameHint';
+  final add = 'category.add';
+  final empty = 'category.empty';
+  final deleteTitle = 'category.deleteTitle';
+  final deleteMessage = 'category.deleteMessage';
+  final created = 'category.created';
+  final deleted = 'category.deleted';
+  final quickAdd = 'category.quickAdd';
 }
 
 class _RecordingLocales {
@@ -547,6 +564,7 @@ class _CreateLocales {
   final noteFieldHint = 'create.noteFieldHint';
   final pickSourceHint = 'create.pickSourceHint';
   final sharedReviewHint = 'create.sharedReviewHint';
+  final category = 'create.category';
 }
 
 class _HomeLocales {

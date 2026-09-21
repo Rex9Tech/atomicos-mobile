@@ -412,6 +412,20 @@ class AppTranslations extends Translations {
       AppLocales.create.continueLabel: 'Continue',
       AppLocales.create.turnTasksIntoAtom: 'Turn tasks into Atom',
       AppLocales.create.saveNote: 'Save note',
+      AppLocales.create.category: 'Category',
+      AppLocales.category.title: 'Categories',
+      AppLocales.category.manage: 'Manage Categories',
+      AppLocales.category.manageSub:
+          'Admin-created categories your atoms can be grouped under',
+      AppLocales.category.nameHint: 'New category name',
+      AppLocales.category.add: 'Add',
+      AppLocales.category.empty: 'No categories yet',
+      AppLocales.category.deleteTitle: 'Delete category',
+      AppLocales.category.deleteMessage:
+          'Atoms keep their content — they only lose this category.',
+      AppLocales.category.created: 'Category added',
+      AppLocales.category.deleted: 'Category deleted',
+      AppLocales.category.quickAdd: 'New',
       AppLocales.create.pickSourceHint:
           'Pick a source above to bring it into your workspace.',
       AppLocales.create.sharedReviewHint:
@@ -966,6 +980,20 @@ class AppTranslations extends Translations {
       AppLocales.create.turnTasksIntoAtom:
           'လုပ်ဆောင်ချက်များကို အက်တမ်အဖြစ် ပြောင်းမည်',
       AppLocales.create.saveNote: 'မှတ်စု သိမ်းမည်',
+      AppLocales.create.category: 'အမျိုးအစား',
+      AppLocales.category.title: 'အမျိုးအစားများ',
+      AppLocales.category.manage: 'အမျိုးအစားများ စီမံရန်',
+      AppLocales.category.manageSub:
+          'အက်တမ်များကို အုပ်စုဖွဲ့နိုင်သည့် အမျိုးအစားများ (admin ဖန်တီးသည်)',
+      AppLocales.category.nameHint: 'အမျိုးအစား အမည်သစ်',
+      AppLocales.category.add: 'ထည့်မည်',
+      AppLocales.category.empty: 'အမျိုးအစား မရှိသေးပါ',
+      AppLocales.category.deleteTitle: 'အမျိုးအစား ဖျက်မည်',
+      AppLocales.category.deleteMessage:
+          'အက်တမ်များ၏ အကြောင်းအရာ ကျန်ရှိမည် — ဤအမျိုးအစားသာ ဖြုတ်ခံရမည်။',
+      AppLocales.category.created: 'အမျိုးအစား ထည့်ပြီးပါပြီ',
+      AppLocales.category.deleted: 'အမျိုးအစား ဖျက်ပြီးပါပြီ',
+      AppLocales.category.quickAdd: 'အသစ်',
       AppLocales.create.pickSourceHint:
           'အထက်မှ ရင်းမြစ်တစ်ခု ရွေးပြီး သင့် workspace ထဲ ထည့်ပါ။',
       AppLocales.create.sharedReviewHint:

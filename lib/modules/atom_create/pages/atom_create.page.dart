@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../controllers/atom_create.controller.dart';
 
@@ -93,9 +94,95 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           ),
         if (controller.selectedMode.value == 'share') _buildShareMode(context),
         if (controller.selectedMode.value == 'note') _buildNoteMode(context),
+        // Category attach: admin-managed chips, hidden while none exist or
+        // during recording (recordings can be categorized after finishing).
+        if (controller.selectedMode.value != 'record')
+          _buildCategoryPicker(context),
         SizedBox(height: Design.spacing.xl),
       ],
     );
+  }
+
+  /// Tap-to-attach category picker for the atom being created; admins also
+  /// get a quick-add chip so a missing category never blocks the flow.
+  Widget _buildCategoryPicker(BuildContext context) {
+    final categoryService = Get.find<CategoryService>();
+
+    return Obx(() {
+      final categories = categoryService.categories;
+      final isAdmin = categoryService.isAdmin.value;
+      if (categories.isEmpty && !isAdmin) {
+        return const SizedBox.shrink();
+      }
+
+      return Padding(
+        padding: EdgeInsets.only(top: Design.spacing.xl),
+        child: _SectionShell(
+          title: AppLocales.create.category.tr,
+          child: Wrap(
+            spacing: Design.spacing.sm,
+            runSpacing: Design.spacing.sm,
+            children: [
+              for (final category in categories)
+                _CategoryChip(
+                  label: category.name,
+                  selected: controller.selectedCategoryId.value == category.id,
+                  onTap: () => controller.selectCategory(category.id),
+                ),
+              if (isAdmin)
+                _CategoryChip(
+                  label: AppLocales.category.quickAdd.tr,
+                  leadingIcon: Design.icons.add,
+                  selected: false,
+                  onTap: () => _showQuickAddCategory(context),
+                ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  /// Admin quick-add: name the category in a small dialog; it is created via
+  /// the admin endpoint and selected for the atom being created.
+  Future<void> _showQuickAddCategory(BuildContext context) async {
+    final textController = TextEditingController();
+    final name = await Get.dialog<String>(
+      AlertDialog(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.category.quickAdd.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: AppLocales.category.nameHint.tr,
+          ),
+          onSubmitted: (value) => Get.back(result: value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(AppLocales.common.cancel.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: textController.text.trim()),
+            child: Text(AppLocales.category.add.tr),
+          ),
+        ],
+      ),
+    );
+
+    final clean = name?.trim() ?? '';
+    if (clean.isEmpty) return;
+    await controller.quickAddCategory(clean);
   }
 
   bool get _isSubFlow =>
@@ -849,6 +936,64 @@ class _RoundTopButton extends StatelessWidget {
           icon,
           size: Design.spacing.iconMedium,
           color: colors.textPrimary,
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.leadingIcon,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? leadingIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.md,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? colors.primary.withValues(alpha: 0.16)
+              : colors.neumo,
+          gradient: selected ? null : colors.neumoGradient,
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: selected ? null : colors.neumoShadowSoft,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (leadingIcon != null) ...[
+              Icon(
+                leadingIcon,
+                size: Design.spacing.iconSmall,
+                color: selected ? colors.primary : colors.textSecondary,
+              ),
+              SizedBox(width: Design.spacing.xs),
+            ],
+            Text(
+              label,
+              style: context.typo.labelMedium.copyWith(
+                color: selected ? colors.primary : colors.textSecondary,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );

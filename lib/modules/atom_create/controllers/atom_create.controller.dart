@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
@@ -15,11 +16,13 @@ class AtomCreateController extends GetxController {
   final AtomCreateService _service = Get.find<AtomCreateService>();
   final MediaService _media = Get.find<MediaService>();
   final AiService _ai = Get.find<AiService>();
+  final CategoryService _categories = Get.find<CategoryService>();
 
   final RxString selectedMode = 'import'.obs;
   final RxString importStage = 'youtube'.obs;
   final RxString noteStage = 'draft'.obs;
   final RxString shareStage = 'preview'.obs;
+  final RxString selectedCategoryId = ''.obs;
   final RxnString pickedUploadPath = RxnString();
   final RxnString pickedUploadName = RxnString();
   final RxBool isSubmitting = false.obs;
@@ -38,6 +41,10 @@ class AtomCreateController extends GetxController {
   void onInit() {
     super.onInit();
     urlController.addListener(() => urlText.value = urlController.text);
+    // Category picker data — silent best-effort refresh + admin check for the
+    // quick-add chip (both cached/cheap).
+    _categories.refresh();
+    _categories.loadIam();
     final args = Get.arguments;
     if (args is Map) {
       if (args['mode'] != null) {
@@ -85,6 +92,33 @@ class AtomCreateController extends GetxController {
     shareStage.value = value;
   }
 
+  /// Tap-to-select; tapping the selected category again detaches it.
+  void selectCategory(String id) {
+    selectedCategoryId.value = selectedCategoryId.value == id ? '' : id;
+  }
+
+  /// Quick-add from the create picker (admin only): creates the category via
+  /// the admin endpoint, refreshes the shared list, and selects it for this
+  /// atom so the admin flow never leaves the composer.
+  Future<bool> quickAddCategory(String name) async {
+    final clean = name.trim();
+    if (clean.isEmpty) return false;
+
+    final result = await _categories.create(clean);
+    if (!result.success) {
+      AppSnackbar.error(result.error ?? result.message);
+      return false;
+    }
+
+    await _categories.refresh();
+    final created = result.data;
+    if (created != null && created.id.isNotEmpty) {
+      selectedCategoryId.value = created.id;
+    }
+    AppSnackbar.success(AppLocales.category.created.tr);
+    return true;
+  }
+
   Future<void> pickUploadAsset() async {
     try {
       final file = await FilePickerPlatform.instance.pickFile(
@@ -115,6 +149,7 @@ class AtomCreateController extends GetxController {
         AtomFromNoteRequest(
           title: note.length > 50 ? note.substring(0, 50) : note,
           note: note,
+          categoryId: selectedCategoryId.value,
         ),
       ),
     );
@@ -127,7 +162,11 @@ class AtomCreateController extends GetxController {
       AppSnackbar.error('URL is empty');
       return;
     }
-    await _submit(() => _service.createFromUrl(AtomFromUrlRequest(url: url)));
+    await _submit(
+      () => _service.createFromUrl(
+        AtomFromUrlRequest(url: url, categoryId: selectedCategoryId.value),
+      ),
+    );
   }
 
   /// POST /v1/atoms/from-asset — creates an Atom around an uploaded asset.
@@ -137,7 +176,12 @@ class AtomCreateController extends GetxController {
       return;
     }
     await _submit(
-      () => _service.createFromAsset(AtomFromAssetRequest(assetId: assetId)),
+      () => _service.createFromAsset(
+        AtomFromAssetRequest(
+          assetId: assetId,
+          categoryId: selectedCategoryId.value,
+        ),
+      ),
     );
   }
 
@@ -175,7 +219,10 @@ class AtomCreateController extends GetxController {
       }
 
       final result = await _service.createFromAsset(
-        AtomFromAssetRequest(assetId: assetId),
+        AtomFromAssetRequest(
+          assetId: assetId,
+          categoryId: selectedCategoryId.value,
+        ),
       );
       if (result.success) {
         AppSnackbar.success(result.message);
@@ -210,6 +257,7 @@ class AtomCreateController extends GetxController {
         AtomFromShareRequest(
           title: text.length > 50 ? text.substring(0, 50) : text,
           text: text,
+          categoryId: selectedCategoryId.value,
         ),
       ),
     );

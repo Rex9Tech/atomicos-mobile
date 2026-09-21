@@ -58,6 +58,7 @@ class AtomModel {
   final String? recordingStatus;
   final Map<String, dynamic> metadata;
   final List<AtomAssetModel> assets;
+  final String? categoryId;
   final String createdAt;
   final String updatedAt;
 
@@ -75,6 +76,7 @@ class AtomModel {
     this.recordingStatus,
     this.metadata = const {},
     this.assets = const [],
+    this.categoryId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -108,6 +110,7 @@ class AtomModel {
           ? Map<String, dynamic>.from(json[AtomKeys.metadata] as Map)
           : const {},
       assets: assets,
+      categoryId: json[CategoryKeys.categoryId]?.toString(),
       createdAt: json[AtomKeys.createdAt]?.toString() ?? '',
       updatedAt: json[AtomKeys.updatedAt]?.toString() ?? '',
     );
