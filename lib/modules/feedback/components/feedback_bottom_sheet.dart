@@ -29,7 +29,8 @@ class FeedbackBottomSheet extends GetView<FeedbackController> {
         bottom: MediaQuery.of(context).viewInsets.bottom + Design.spacing.xxl,
       ),
       decoration: BoxDecoration(
-        color: context.colors.surface,
+        color: context.colors.neumo,
+        gradient: context.colors.neumoGradient,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Design.spacing.radiusXLarge),
         ),

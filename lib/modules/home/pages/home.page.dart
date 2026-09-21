@@ -772,9 +772,10 @@ class _NewAtomAction extends StatelessWidget {
           vertical: Design.spacing.md,
         ),
         decoration: BoxDecoration(
-          color: colors.card,
+          color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: colors.border),
+          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           children: [
@@ -783,6 +784,7 @@ class _NewAtomAction extends StatelessWidget {
               width: 34,
               decoration: BoxDecoration(
                 color: colors.neumo,
+                gradient: colors.neumoGradient,
                 shape: BoxShape.circle,
               ),
               child: Icon(

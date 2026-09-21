@@ -144,7 +144,6 @@ class AtomCreatePage extends GetView<AtomCreateController> {
     final textController = TextEditingController();
     final name = await Get.dialog<String>(
       AlertDialog(
-        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         ),
@@ -804,8 +803,10 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           height: 220,
           padding: EdgeInsets.all(Design.spacing.lg),
           decoration: BoxDecoration(
-            color: colors.card,
+            color: colors.neumo,
+            gradient: colors.neumoGradient,
             borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: TextField(
             onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),

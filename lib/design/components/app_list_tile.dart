@@ -46,7 +46,10 @@ class AppListTile extends StatelessWidget {
           : null,
       trailing: trailing,
       onTap: onTap,
-      backgroundColor: backgroundColor ?? colors.surface,
+      // Transparent by default: tiles sit INSIDE neumo cards, so the card's
+      // same-tone surface must show through (a surface fill here rendered
+      // every settings card near-white — tester report).
+      backgroundColor: backgroundColor ?? Colors.transparent,
       contentPadding:
           contentPadding ??
           EdgeInsets.symmetric(
@@ -74,7 +77,7 @@ class AppListTile extends StatelessWidget {
         subtitle: subtitle,
         trailing: trailing,
         onTap: onTap,
-        backgroundColor: backgroundColor ?? Get.theme.colorScheme.surface,
+        backgroundColor: backgroundColor ?? Colors.transparent,
         padding: contentPadding ?? EdgeInsets.zero,
       );
     }

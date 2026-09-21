@@ -561,7 +561,6 @@ class CalendarPage extends GetView<CalendarController> {
     final textController = TextEditingController(text: event.title);
     final next = await Get.dialog<String>(
       AlertDialog(
-        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
         ),

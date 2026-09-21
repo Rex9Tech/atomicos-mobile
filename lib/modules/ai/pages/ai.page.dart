@@ -1808,7 +1808,8 @@ class _AiPageState extends State<AiPage> {
       Container(
         padding: EdgeInsets.all(Design.spacing.lg),
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.colors.neumo,
+          gradient: context.colors.neumoGradient,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(Design.spacing.radiusLarge),
           ),

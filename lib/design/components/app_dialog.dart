@@ -152,7 +152,6 @@ class AppDialog {
       );
     } else {
       dialog = AlertDialog(
-        backgroundColor: Get.theme.colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         ),
@@ -221,7 +220,6 @@ class AppDialog {
     }
     final result = await Get.dialog<bool>(
       AlertDialog(
-        backgroundColor: Get.theme.colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         ),
@@ -290,7 +288,6 @@ class AppDialog {
     }
     final result = await Get.dialog<bool>(
       AlertDialog(
-        backgroundColor: Get.theme.colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         ),
@@ -353,7 +350,7 @@ class AppDialog {
     }
     return Get.dialog<T>(
       AlertDialog(
-        backgroundColor: backgroundColor ?? Get.theme.colorScheme.surface,
+        backgroundColor: backgroundColor ?? Get.theme.scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
         ),

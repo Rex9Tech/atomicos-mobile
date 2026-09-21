@@ -145,10 +145,21 @@ ThemeData _buildLightTheme() {
       space: Design.spacing.lg,
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: Design.colors.day.surface,
+      // Same-material dialogs: light base = the neumo tone (was near-white
+      // surface, which read as flat paper on the dim backdrop).
+      backgroundColor: Design.colors.day.background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
       ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      // Neumo sheets paint their own same-tone container; the Material sheet
+      // behind must be transparent (the default surface fill made every
+      // bottom sheet read near-white — tester report).
+      backgroundColor: Colors.transparent,
+      modalBackgroundColor: Colors.transparent,
+      elevation: 0,
+      modalElevation: 0,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
@@ -300,6 +311,12 @@ ThemeData _buildDarkTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
       ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.transparent,
+      modalBackgroundColor: Colors.transparent,
+      elevation: 0,
+      modalElevation: 0,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
