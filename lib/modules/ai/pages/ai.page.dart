@@ -26,11 +26,11 @@ class _AiPageState extends State<AiPage> {
     ..onReady();
 
   List<String> get _tabs => [
-        AppLocales.atom.summary.tr,
-        AppLocales.atom.transcript.tr,
-        AppLocales.atom.note.tr,
-        AppLocales.atom.assets.tr,
-      ];
+    AppLocales.atom.summary.tr,
+    AppLocales.atom.transcript.tr,
+    AppLocales.atom.note.tr,
+    AppLocales.atom.assets.tr,
+  ];
   static const _askFilters = <String>['All', 'Meetings', 'Links', 'Notes'];
 
   @override
@@ -48,11 +48,23 @@ class _AiPageState extends State<AiPage> {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
+              // Pinned chat header — stays visible while the conversation
+              // scrolls (tester report: it vanished at the end of long
+              // threads because it lived inside the scroll view).
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  Design.spacing.screenPadding,
+                  Design.spacing.md,
+                  Design.spacing.screenPadding,
+                  0,
+                ),
+                child: _buildAskTopBar(context),
+              ),
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
                     Design.spacing.screenPadding,
-                    Design.spacing.md,
+                    Design.spacing.lg,
                     Design.spacing.screenPadding,
                     0,
                   ),
@@ -246,20 +258,19 @@ class _AiPageState extends State<AiPage> {
                 ? _buildRecordingStatusPanel(
                     context,
                     title: AppLocales.ai.processingMeeting.tr,
-                    subtitle:
-                        AppLocales.ai.processingMeetingSub.tr,
+                    subtitle: AppLocales.ai.processingMeetingSub.tr,
                     icon: Design.icons.sparkles,
                   )
                 : controller.isRecordingComplete
                 ? _buildRecordingStatusPanel(
                     context,
                     title: AppLocales.ai.meetingReady.tr,
-                    subtitle:
-                        AppLocales.ai.meetingReadySub.tr,
+                    subtitle: AppLocales.ai.meetingReadySub.tr,
                     icon: Design.icons.success,
                   )
                 : TextField(
-                    onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                    onTapOutside: (_) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
                     controller: controller.textController,
                     onChanged: controller.updateAskDraft,
                     expands: true,
@@ -283,8 +294,7 @@ class _AiPageState extends State<AiPage> {
             _buildRecordingStatusPanel(
               context,
               title: AppLocales.ai.recordingPausedTitle.tr,
-              subtitle:
-                  AppLocales.ai.recordingPausedSub.tr,
+              subtitle: AppLocales.ai.recordingPausedSub.tr,
               icon: Design.icons.pause,
             ),
           ],
@@ -311,8 +321,6 @@ class _AiPageState extends State<AiPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildAskTopBar(context),
-        SizedBox(height: Design.spacing.xxl),
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(Design.spacing.xl),
@@ -396,8 +404,6 @@ class _AiPageState extends State<AiPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildAskTopBar(context),
-        SizedBox(height: Design.spacing.xl),
         Text(
           AppLocales.ai.chooseContext.tr,
           style: context.typo.headline3.copyWith(fontWeight: FontWeight.w700),
@@ -424,7 +430,8 @@ class _AiPageState extends State<AiPage> {
               SizedBox(width: Design.spacing.sm),
               Expanded(
                 child: TextField(
-                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                   controller: controller.searchContextController,
                   onChanged: (value) => controller.loadContextAtoms(value),
                   decoration: InputDecoration(
@@ -476,11 +483,7 @@ class _AiPageState extends State<AiPage> {
               radius: Design.spacing.radiusXLarge,
               child: Column(
                 children: [
-                  Icon(
-                    Design.icons.atomAdd,
-                    size: 36,
-                    color: colors.textMuted,
-                  ),
+                  Icon(Design.icons.atomAdd, size: 36, color: colors.textMuted),
                   SizedBox(height: Design.spacing.md),
                   Text(
                     AppLocales.ai.noAtomsHere.tr,
@@ -523,8 +526,6 @@ class _AiPageState extends State<AiPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildAskTopBar(context),
-        SizedBox(height: Design.spacing.lg),
         Obx(() {
           final msgs = controller.messages;
           return Column(
@@ -930,8 +931,7 @@ class _AiPageState extends State<AiPage> {
                       onChanged: controller.updateAskDraft,
                       // Tapping anywhere outside drops the keyboard — testers
                       // could not dismiss it before sending.
-                      onTapOutside: (_) =>
-                          FocusScope.of(context).unfocus(),
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       minLines: 1,
                       maxLines: 4,
                       decoration: InputDecoration(
@@ -965,8 +965,7 @@ class _AiPageState extends State<AiPage> {
                             ? colors.neumoShadowSoft
                             : [
                                 BoxShadow(
-                                  color:
-                                      colors.primary.withValues(alpha: 0.35),
+                                  color: colors.primary.withValues(alpha: 0.35),
                                   blurRadius: 10,
                                 ),
                               ],
@@ -974,9 +973,7 @@ class _AiPageState extends State<AiPage> {
                       child: Icon(
                         busy ? Design.icons.stop : Design.icons.send,
                         size: 18,
-                        color: busy
-                            ? colors.textPrimary
-                            : colors.onPrimary,
+                        color: busy ? colors.textPrimary : colors.onPrimary,
                       ),
                     ),
                   );
@@ -1280,8 +1277,7 @@ class _AiPageState extends State<AiPage> {
         SizedBox(height: Design.spacing.md),
         AppToneCard(
           title: AppLocales.ai.askAboutThisAtom.tr,
-          subtitle:
-              AppLocales.ai.askAboutThisAtomSub.tr,
+          subtitle: AppLocales.ai.askAboutThisAtomSub.tr,
           leadingIcon: Design.icons.sparkles,
           tone: EAppToneCardTone.primary,
         ),
@@ -1406,8 +1402,7 @@ class _AiPageState extends State<AiPage> {
                       ? _buildRecordingStatusPanel(
                           context,
                           title: AppLocales.ai.generatingOutputs.tr,
-                          subtitle:
-                              AppLocales.ai.processingPanelSub.tr,
+                          subtitle: AppLocales.ai.processingPanelSub.tr,
                           icon: Design.icons.sparkles,
                         )
                       : controller.isRecordingComplete
@@ -1417,8 +1412,7 @@ class _AiPageState extends State<AiPage> {
                             _buildRecordingStatusPanel(
                               context,
                               title: AppLocales.ai.outputsReady.tr,
-                              subtitle:
-                                  AppLocales.ai.outputsReadySub.tr,
+                              subtitle: AppLocales.ai.outputsReadySub.tr,
                               icon: Design.icons.success,
                             ),
                             SizedBox(height: Design.spacing.md),
@@ -1474,7 +1468,8 @@ class _AiPageState extends State<AiPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
-                      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                      onTapOutside: (_) =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
                       controller: controller.textController,
                       onChanged: controller.updateAskDraft,
                       minLines: 3,
@@ -2332,11 +2327,7 @@ class _AssistantAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: colors.neumoShadowSoft,
       ),
-      child: Icon(
-        Design.icons.sparkles,
-        size: 14,
-        color: colors.primary,
-      ),
+      child: Icon(Design.icons.sparkles, size: 14, color: colors.primary),
     );
   }
 }
@@ -2445,12 +2436,8 @@ class _ChatBubble extends StatelessWidget {
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(Design.spacing.radiusLarge),
           topRight: Radius.circular(Design.spacing.radiusLarge),
-          bottomLeft: Radius.circular(
-            isUser ? Design.spacing.radiusLarge : 6,
-          ),
-          bottomRight: Radius.circular(
-            isUser ? 6 : Design.spacing.radiusLarge,
-          ),
+          bottomLeft: Radius.circular(isUser ? Design.spacing.radiusLarge : 6),
+          bottomRight: Radius.circular(isUser ? 6 : Design.spacing.radiusLarge),
         ),
         boxShadow: colors.neumoShadowSoft,
       ),
@@ -2490,11 +2477,7 @@ class _ChatBubble extends StatelessWidget {
       crossAxisAlignment: isUser
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
-      children: [
-        bubble,
-        const SizedBox(height: 6),
-        meta,
-      ],
+      children: [bubble, const SizedBox(height: 6), meta],
     );
 
     if (isUser) return body;
@@ -2535,10 +2518,7 @@ class _ThinkingBubble extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const AppLoading(
-                type: LoadingType.dots,
-                size: LoadingSize.small,
-              ),
+              const AppLoading(type: LoadingType.dots, size: LoadingSize.small),
               SizedBox(width: Design.spacing.sm),
               Text(
                 AppLocales.ai.thinking.tr,
@@ -2592,11 +2572,17 @@ class _AskActionChip extends StatelessWidget {
               color: busy ? colors.textMuted : colors.primary,
             ),
             SizedBox(width: 6),
-            Text(
-              label,
-              style: context.typo.labelMedium.copyWith(
-                color: busy ? colors.textMuted : colors.textPrimary,
-                fontWeight: FontWeight.w700,
+            // Chips sit in a Wrap — a long label must ellipsize instead of
+            // overflowing the row by a few pixels.
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.typo.labelMedium.copyWith(
+                  color: busy ? colors.textMuted : colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -2704,8 +2690,9 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
             SizedBox(width: Design.spacing.sm),
             Text(
               AppLocales.ai.chooseContext.tr,
-              style:
-                  context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
+              style: context.typo.labelLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -2959,12 +2946,9 @@ class _AttachOption extends StatelessWidget {
   }
 }
 
-/// Soft circular composer action (attach). 
+/// Soft circular composer action (attach).
 class _ComposerIconButton extends StatelessWidget {
-  const _ComposerIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _ComposerIconButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -3011,10 +2995,7 @@ class _ComposerChip extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 240),
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.sm,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: colors.neumo,
         borderRadius: BorderRadius.circular(999),
