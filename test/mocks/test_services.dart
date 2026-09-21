@@ -779,6 +779,12 @@ class FakeHomeService extends GetxService implements HomeService {
 
 /// Fake Recording Service avoiding network calls.
 class FakeRecordingService extends GetxService implements RecordingService {
+  int? lastUpdatedDurationSecs;
+  int? lastFinishDurationSecs;
+
+  /// Response returned by [finish] — tests can point it at a specific atom.
+  ApiResponse<RecordingModel>? finishResponse;
+
   @override
   Future<ApiResponse<RecordingModel>> start(String title) async =>
       ApiResponse.success(
@@ -800,11 +806,14 @@ class FakeRecordingService extends GetxService implements RecordingService {
     String id, {
     String? status,
     int? durationSecs,
-  }) async => ApiResponse.success(
-    message: 'Recording updated',
-    statusCode: 200,
-    data: RecordingModel.fromJson(const {}),
-  );
+  }) async {
+    lastUpdatedDurationSecs = durationSecs;
+    return ApiResponse.success(
+      message: 'Recording updated',
+      statusCode: 200,
+      data: RecordingModel.fromJson(const {}),
+    );
+  }
 
   @override
   Future<ApiResponse<RecordingModel>> finish(
@@ -812,11 +821,15 @@ class FakeRecordingService extends GetxService implements RecordingService {
     int? durationSecs,
     String? transcript,
     String? note,
-  }) async => ApiResponse.success(
-    message: 'Recording finished',
-    statusCode: 200,
-    data: RecordingModel.fromJson(const {}),
-  );
+  }) async {
+    lastFinishDurationSecs = durationSecs;
+    return finishResponse ??
+        ApiResponse.success(
+          message: 'Recording finished',
+          statusCode: 200,
+          data: RecordingModel.fromJson(const {}),
+        );
+  }
 }
 
 /// Fake Speech Service avoiding native audio recorder / player channels.
@@ -860,8 +873,12 @@ class FakeSpeechService extends GetxService
     return ESpeechListenResult.started;
   }
 
+  /// Path returned by [finishCapture] — tests set it to a real temp WAV file
+  /// so the captured-length logic can be exercised.
+  String? captureResultPath;
+
   @override
-  Future<String?> finishCapture() async => null;
+  Future<String?> finishCapture() async => captureResultPath;
 
   @override
   Future<void> stopListening() async {
@@ -1078,6 +1095,7 @@ class FakeMediaService extends MediaService {
   String? lastUploadedType;
   String? lastUploadedAssetableType;
   String? lastUploadedAssetableId;
+  int? lastUploadedDurationSecs;
 
   @override
   void onInit() {}
@@ -1098,6 +1116,7 @@ class FakeMediaService extends MediaService {
     lastUploadedType = type;
     lastUploadedAssetableType = assetableType;
     lastUploadedAssetableId = assetableId;
+    lastUploadedDurationSecs = durationSecs;
 
     return uploadResponse ??
         ApiResponse.success(

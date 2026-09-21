@@ -163,7 +163,9 @@ class LiveActivityController extends GetxController {
       await _recording.updateRecording(
         id,
         status: 'paused',
-        durationSecs: elapsedSeconds.value,
+        // Report what's actually captured so far — the file, not the clock.
+        durationSecs:
+            capturedAudioSeconds(_capturePath) ?? elapsedSeconds.value,
       );
     }
 
@@ -235,12 +237,15 @@ class LiveActivityController extends GetxController {
   /// recording is playable from atom details.
   Future<void> _uploadAudio(String atomId, String path) async {
     try {
+      // The asset keeps the FILE's real length, not the wall-clock timer: the
+      // file is what plays back, and the timer runs past it when background
+      // chunks are dropped. Same rule as the atom's duration at finish.
       final upload = await _media.uploadImage(
         filePath: path,
         filename: 'recording.wav',
         type: AssetKeys.typeAudio,
         folder: 'recordings',
-        durationSecs: elapsedSeconds.value,
+        durationSecs: capturedAudioSeconds(path) ?? elapsedSeconds.value,
         showLoading: false,
       );
 
