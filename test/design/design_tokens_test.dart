@@ -122,15 +122,16 @@ void main() {
 
       // Highlight from the top-left, shade to the bottom-right — tight,
       // defined dual shadows in the flutter_neumorphic proportions, plus a
-      // convex surface wash.
-      expect(raised[0].offset.dx, lessThanOrEqualTo(-4.0));
-      expect(raised[0].color.a, greaterThanOrEqualTo(0.9));
-      expect(raised[1].offset.dx, greaterThanOrEqualTo(4.0));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(12.0));
-      expect(raised[1].color.a, greaterThanOrEqualTo(0.10));
+      // convex surface wash. Kept deliberately gentle (tester feedback:
+      // "still too much") — floors guard the minimum presence, not strength.
+      expect(raised[0].offset.dx, lessThanOrEqualTo(-3.0));
+      expect(raised[0].color.a, greaterThanOrEqualTo(0.8));
+      expect(raised[1].offset.dx, greaterThanOrEqualTo(3.0));
+      expect(raised[1].blurRadius, greaterThanOrEqualTo(10.0));
+      expect(raised[1].color.a, greaterThanOrEqualTo(0.07));
 
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(10.0));
-      expect(soft[1].color.a, greaterThanOrEqualTo(0.08));
+      expect(soft[1].blurRadius, greaterThanOrEqualTo(7.0));
+      expect(soft[1].color.a, greaterThanOrEqualTo(0.06));
 
       expect(gradient.colors, hasLength(2));
       expect(gradient.begin, equals(Alignment.bottomRight));

@@ -73,12 +73,12 @@ class AppThemeContextColors {
     end: Alignment.topLeft,
     colors: isDark
         ? [
-            Colors.black.withValues(alpha: 0.32),
-            Colors.white.withValues(alpha: 0.09),
+            Colors.black.withValues(alpha: 0.26),
+            Colors.white.withValues(alpha: 0.07),
           ]
         : [
-            Colors.black.withValues(alpha: 0.07),
-            Colors.white.withValues(alpha: 0.55),
+            Colors.black.withValues(alpha: 0.05),
+            Colors.white.withValues(alpha: 0.35),
           ],
     stops: const [0, 0.78],
   );
@@ -90,26 +90,26 @@ class AppThemeContextColors {
   List<BoxShadow> get neumoShadow => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.16),
-            blurRadius: 13,
-            offset: const Offset(-4, -4),
+            color: Colors.white.withValues(alpha: 0.14),
+            blurRadius: 12,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.58),
-            blurRadius: 17,
-            offset: const Offset(4, 4),
+            color: Colors.black.withValues(alpha: 0.48),
+            blurRadius: 15,
+            offset: const Offset(3, 3),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.95),
-            blurRadius: 11,
-            offset: const Offset(-4, -4),
+            color: Colors.white.withValues(alpha: 0.85),
+            blurRadius: 10,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.11),
-            blurRadius: 14,
-            offset: const Offset(4, 4),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(3, 3),
           ),
         ];
 
@@ -117,25 +117,25 @@ class AppThemeContextColors {
   List<BoxShadow> get neumoShadowSoft => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.12),
-            blurRadius: 9,
+            color: Colors.white.withValues(alpha: 0.10),
+            blurRadius: 8,
             offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.52),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.44),
+            blurRadius: 10,
             offset: const Offset(3, 3),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.95),
-            blurRadius: 8,
+            color: Colors.white.withValues(alpha: 0.85),
+            blurRadius: 7,
             offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.09),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.065),
+            blurRadius: 9,
             offset: const Offset(3, 3),
           ),
         ];
