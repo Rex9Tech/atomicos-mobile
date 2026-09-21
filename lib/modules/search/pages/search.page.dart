@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../../home/pages/widgets/atom_card.dart';
 import '../controllers/search.controller.dart';
@@ -135,19 +136,26 @@ class SearchPage extends GetView<AtomSearchController> {
   }
 
   Widget _buildFilterRow(BuildContext context) {
+    final categoryService = Get.find<CategoryService>();
+
     return Obx(
       () => Wrap(
         spacing: Design.spacing.sm,
         runSpacing: Design.spacing.sm,
-        children: AtomSearchController.filters
-            .map(
-              (label) => _SearchChip(
-                label: label,
-                selected: label == controller.selectedFilter.value,
-                onTap: () => controller.selectFilter(label),
-              ),
-            )
-            .toList(),
+        children: [
+          // 'All' is fixed; the rest are the current user's own categories.
+          _SearchChip(
+            label: AppLocales.home.filterAll.tr,
+            selected: controller.selectedFilter.value == 'all',
+            onTap: () => controller.selectFilter('all'),
+          ),
+          for (final category in categoryService.categories)
+            _SearchChip(
+              label: category.name,
+              selected: controller.selectedFilter.value == category.id,
+              onTap: () => controller.selectFilter(category.id),
+            ),
+        ],
       ),
     );
   }

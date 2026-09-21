@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../../home/data/models/atom.model.dart';
 import '../../home/services/home.service.dart';
@@ -11,13 +12,14 @@ import '../../home/services/home.service.dart';
 /// Drives the dedicated search screen: debounced query, category filter and
 /// the result list (with its empty state).
 class AtomSearchController extends GetxController {
-  static const filters = <String>['All', 'AtomOS', 'New', 'Personal'];
-
   final HomeService _home = Get.find<HomeService>();
+  final CategoryService _categories = Get.find<CategoryService>();
 
   final searchController = TextEditingController();
   final RxString query = ''.obs;
-  final RxString selectedFilter = 'All'.obs;
+
+  /// 'all' → no category filter; anything else is a category id.
+  final RxString selectedFilter = 'all'.obs;
   final RxList<AtomModel> results = <AtomModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool hasLoaded = false.obs;
@@ -31,10 +33,14 @@ class AtomSearchController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (Get.testMode) return;
     // Fetch after the route's first frame: mutating Rx state while the page
     // is still building trips "markNeedsBuild() called during build".
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!isClosed) search();
+      if (isClosed) return;
+      search();
+      // Dynamic chips: the current user's own categories.
+      _categories.refresh();
     });
   }
 
@@ -60,6 +66,7 @@ class AtomSearchController extends GetxController {
   }
 
   void selectFilter(String value) {
+    if (selectedFilter.value == value) return;
     selectedFilter.value = value;
     search();
   }
@@ -70,11 +77,9 @@ class AtomSearchController extends GetxController {
       final result = await _home.getAtoms(
         limit: 20,
         search: query.value.isEmpty ? null : query.value,
-        status: _statusForFilter(selectedFilter.value),
+        categoryId: _categoryIdFor(selectedFilter.value),
       );
-      results.assignAll(
-        _applyLocalFilter(result.records, selectedFilter.value),
-      );
+      results.assignAll(result.records);
     } catch (error) {
       debugPrint('🔎 [AtomSearchController] search failed: $error');
       results.clear();
@@ -84,27 +89,7 @@ class AtomSearchController extends GetxController {
     }
   }
 
-  String? _statusForFilter(String filter) =>
-      filter.toLowerCase() == 'new' ? 'new' : null;
-
-  List<AtomModel> _applyLocalFilter(List<AtomModel> source, String filter) {
-    switch (filter.toLowerCase()) {
-      case 'atomos':
-        return source
-            .where((atom) => atom.source.toLowerCase().contains('atom'))
-            .toList();
-      case 'personal':
-        return source.where((atom) {
-          final haystack = [
-            atom.source,
-            atom.title,
-            atom.status,
-            atom.note ?? '',
-          ].join(' ').toLowerCase();
-          return haystack.contains('personal');
-        }).toList();
-      default:
-        return source;
-    }
-  }
+  /// 'all' → no category filter; anything else is a category id.
+  String? _categoryIdFor(String filter) =>
+      filter == 'all' || filter.isEmpty ? null : filter;
 }

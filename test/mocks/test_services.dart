@@ -701,6 +701,9 @@ class FakeHomeService extends GetxService implements HomeService {
   /// Every requested page number, in call order (pagination assertions).
   final List<int?> requestedPages = [];
 
+  /// Every requested category id, in call order (filter assertions).
+  final List<String?> requestedCategoryIds = [];
+
   /// When true, [getAtoms] throws — exercises load-more failure paths.
   bool throwOnGetAtoms = false;
 
@@ -714,6 +717,7 @@ class FakeHomeService extends GetxService implements HomeService {
   }) async {
     final current = page ?? 1;
     requestedPages.add(current);
+    requestedCategoryIds.add(categoryId);
 
     if (throwOnGetAtoms) throw Exception('offline');
 
