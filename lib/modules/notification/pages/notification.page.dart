@@ -302,28 +302,31 @@ class _NotificationPageState extends State<NotificationPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Flexible + scale-down: long labels (Burmese) and big badges
-              // must shrink instead of overflowing the tab.
+              // Mirror spacer: the count badge must not push the label off
+              // center — reserve equal width on the left when a badge shows.
+              if (badgeCount != null && badgeCount > 0)
+                const SizedBox(width: 22),
+              // One small label size for ALL tabs (tester: 'consistent small
+              // font texts — like All and Read same as Unread'). The label
+              // ellipsizes as a last resort instead of scaling per-tab, which
+              // used to leave each filter at a different visual size.
               Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    style: typo.labelLarge.copyWith(
-                      color: isActive ? colors.primary : colors.textSecondary,
-                      fontWeight: isActive
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: typo.labelMedium.copyWith(
+                    color: isActive ? colors.primary : colors.textSecondary,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),
               if (badgeCount != null && badgeCount > 0) ...[
-                SizedBox(width: Design.spacing.xs),
+                const SizedBox(width: 3),
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Design.spacing.xs + 2,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
                     vertical: 1,
                   ),
                   decoration: BoxDecoration(
@@ -337,9 +340,9 @@ class _NotificationPageState extends State<NotificationPage> {
                     maxLines: 1,
                     style: typo.caption.copyWith(
                       color: colors.onPrimary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      height: 1.1,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      height: 1.15,
                     ),
                   ),
                 ),

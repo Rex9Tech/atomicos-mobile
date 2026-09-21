@@ -105,6 +105,26 @@ void main() {
     await pumpPage(tester, locale: const Locale('en', 'US'));
 
     expect(tester.takeException(), isNull);
+
+    // All three filter labels render at ONE consistent small size.
+    for (final label in ['All', 'Unread', 'Read']) {
+      final text = tester.widget<Text>(find.text(label));
+      expect(
+        text.style?.fontSize,
+        equals(Design.typo.labelMedium.fontSize),
+        reason: 'filter "$label" must use the small label token',
+      );
+    }
+
+    // …and the rendered text boxes share the exact same height (the
+    // 'consistent font' regression guard — per-tab scaling used to make
+    // each filter a different visual size).
+    final heights = [
+      for (final label in ['All', 'Unread', 'Read'])
+        tester.getSize(find.text(label)).height,
+    ];
+    expect(heights[0], equals(heights[1]));
+    expect(heights[1], equals(heights[2]));
   });
 
   testWidgets('notifications sheet renders without overflow', (tester) async {
