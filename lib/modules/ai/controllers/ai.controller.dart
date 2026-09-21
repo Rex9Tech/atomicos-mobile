@@ -230,6 +230,7 @@ class AiController extends GetxController {
 
         isProcessing.value = result.records.any((m) => m.isProcessing);
         if (!isProcessing.value) _stopProcessingWatchdog();
+        scrollToBottom();
       }
     } catch (e) {
       debugPrint('🤖 [AiController] Error loading history: $e');
@@ -296,6 +297,18 @@ class AiController extends GetxController {
     } finally {
       _isSubmitting = false;
     }
+  }
+
+  /// Re-runs the last turn after a failure: drops the failed exchange locally
+  /// and resends the same user prompt. No-op while another answer is in
+  /// flight.
+  Future<void> retryLastTurn() async {
+    if (isProcessing.value || _isSubmitting) return;
+    final userIndex = messages.lastIndexWhere((m) => m.isUser);
+    if (userIndex < 0) return;
+    final prompt = messages[userIndex].content;
+    messages.removeRange(userIndex, messages.length);
+    await sendMessage(prompt);
   }
 
   /// Hidden context sent alongside the question — attached atom digest and/or

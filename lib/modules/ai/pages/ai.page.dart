@@ -57,7 +57,12 @@ class _AiPageState extends State<AiPage> {
                     Design.spacing.screenPadding,
                     0,
                   ),
-                  child: SingleChildScrollView(child: _buildAskFlow(context)),
+                  child: SingleChildScrollView(
+                    controller: controller.scrollController,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: _buildAskFlow(context),
+                  ),
                 ),
               ),
               _buildAskComposer(context),
@@ -316,10 +321,10 @@ class _AiPageState extends State<AiPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [colors.primary.withValues(alpha: 0.16), colors.surface],
+              colors: [colors.primary.withValues(alpha: 0.14), colors.neumo],
             ),
             borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-            border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
+            boxShadow: colors.neumoShadowSoft,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,7 +467,7 @@ class _AiPageState extends State<AiPage> {
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    hintText: 'Search your atoms…',
+                    hintText: AppLocales.ai.searchAtomsHint.tr,
                     hintStyle: context.typo.bodySmall.copyWith(
                       color: colors.textMuted,
                     ),
@@ -570,6 +575,7 @@ class _AiPageState extends State<AiPage> {
                         controller.activeTtsMessageId.value == message.id,
                     onSpeak: () => controller.speakMessage(message),
                     onCopy: () => _copyMessage(message.content),
+                    onRetry: () => controller.retryLastTurn(),
                   ),
                 ),
               ),
@@ -878,7 +884,10 @@ class _AiPageState extends State<AiPage> {
       ),
       decoration: BoxDecoration(
         color: colors.neumo,
-        boxShadow: colors.neumoShadowSoft,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Design.spacing.radiusXLarge),
+        ),
+        boxShadow: colors.neumoShadow,
       ),
       child: SafeArea(
         top: false,
@@ -917,30 +926,36 @@ class _AiPageState extends State<AiPage> {
                 ),
               );
             }),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: Design.spacing.md,
-                vertical: 10,
-              ),
-              decoration: BoxDecoration(
-                color: colors.card,
-                borderRadius: BorderRadius.circular(
-                  Design.spacing.radiusXLarge,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _ComposerIconButton(
+                  icon: Design.icons.add,
+                  onTap: controller.toggleAskAttachmentMenu,
+                  active: controller.showAskAttachmentMenu,
                 ),
-                border: Border.all(color: colors.border),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: controller.toggleAskAttachmentMenu,
-                    child: Icon(
-                      Design.icons.add,
-                      size: Design.spacing.iconMedium,
-                      color: colors.textSecondary,
-                    ),
+                SizedBox(width: Design.spacing.sm),
+                Obx(
+                  () => _ComposerIconButton(
+                    icon: Design.icons.atomAdd,
+                    onTap: controller.openContextPicker,
+                    active: controller.contextAtom.value != null,
                   ),
-                  SizedBox(width: Design.spacing.sm),
-                  Expanded(
+                ),
+                SizedBox(width: Design.spacing.sm),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Design.spacing.md,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.neumo,
+                      borderRadius: BorderRadius.circular(
+                        Design.spacing.radiusXLarge,
+                      ),
+                      boxShadow: colors.neumoShadowSoft,
+                    ),
                     child: TextField(
                       controller: controller.textController,
                       onChanged: controller.updateAskDraft,
@@ -949,44 +964,55 @@ class _AiPageState extends State<AiPage> {
                       onTapOutside: (_) =>
                           FocusScope.of(context).unfocus(),
                       minLines: 1,
-                      maxLines: 2,
-                      decoration: const InputDecoration(
+                      maxLines: 4,
+                      decoration: InputDecoration(
                         isDense: true,
                         isCollapsed: true,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
-                        hintText: 'Ask Atomic...',
+                        hintText: AppLocales.ai.composerHint.tr,
+                        hintStyle: context.typo.bodyMedium.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: Design.spacing.sm),
-                  Obx(() {
-                    final busy = controller.isProcessing.value;
-                    return GestureDetector(
-                      onTap: busy
-                          ? controller.stopProcessing
-                          : controller.handleSend,
-                      child: Container(
-                        height: 34,
-                        width: 34,
-                        decoration: BoxDecoration(
-                          color: busy ? colors.surface : colors.primary,
-                          shape: BoxShape.circle,
-                          border: busy
-                              ? Border.all(color: colors.border)
-                              : null,
-                        ),
-                        child: Icon(
-                          busy ? Design.icons.stop : Design.icons.send,
-                          size: 16,
-                          color: busy ? colors.textSecondary : colors.onPrimary,
-                        ),
+                ),
+                SizedBox(width: Design.spacing.sm),
+                Obx(() {
+                  final busy = controller.isProcessing.value;
+                  return GestureDetector(
+                    onTap: busy
+                        ? controller.stopProcessing
+                        : controller.handleSend,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: busy ? colors.neumo : colors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: busy
+                            ? colors.neumoShadowSoft
+                            : [
+                                BoxShadow(
+                                  color:
+                                      colors.primary.withValues(alpha: 0.35),
+                                  blurRadius: 10,
+                                ),
+                              ],
                       ),
-                    );
-                  }),
-                ],
-              ),
+                      child: Icon(
+                        busy ? Design.icons.stop : Design.icons.send,
+                        size: 18,
+                        color: busy
+                            ? colors.textPrimary
+                            : colors.onPrimary,
+                      ),
+                    ),
+                  );
+                }),
+              ],
             ),
           ],
         ),
@@ -2189,16 +2215,16 @@ class _AskActionRow extends StatelessWidget {
           vertical: Design.spacing.md,
         ),
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.colors.neumo,
           borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          border: Border.all(color: context.colors.border),
+          boxShadow: context.colors.neumoShadowSoft,
         ),
         child: Row(
           children: [
             Icon(
               icon,
               size: Design.spacing.iconSmall,
-              color: context.colors.textSecondary,
+              color: context.colors.primary,
             ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
@@ -2334,8 +2360,9 @@ class _MiniResultChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
-        color: context.colors.card,
+        color: context.colors.neumo,
         borderRadius: BorderRadius.circular(999),
+        boxShadow: context.colors.neumoShadowSoft,
       ),
       child: Text(
         label,
@@ -2384,8 +2411,92 @@ class _AskActionItem {
   final String subtitle;
 }
 
-/// One conversation turn. User turns sit right and tinted; assistant turns sit
-/// left on glass, with speak + copy affordances.
+/// Small soft-UI avatar marking assistant messages.
+class _AssistantAvatar extends StatelessWidget {
+  const _AssistantAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      height: 28,
+      width: 28,
+      decoration: BoxDecoration(
+        color: colors.neumo,
+        shape: BoxShape.circle,
+        boxShadow: colors.neumoShadowSoft,
+      ),
+      child: Icon(
+        Design.icons.sparkles,
+        size: 14,
+        color: colors.primary,
+      ),
+    );
+  }
+}
+
+/// Compact icon action shown under a bubble (speak / copy).
+class _BubbleAction extends StatelessWidget {
+  const _BubbleAction({required this.icon, required this.color, this.onTap});
+
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        child: Icon(icon, size: 16, color: color),
+      ),
+    );
+  }
+}
+
+/// Tappable "Retry" pill under a failed assistant message.
+class _RetryChip extends StatelessWidget {
+  const _RetryChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.sm,
+          vertical: 3,
+        ),
+        decoration: BoxDecoration(
+          color: colors.error.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Design.icons.refresh, size: 13, color: colors.error),
+            const SizedBox(width: 4),
+            Text(
+              AppLocales.ai.retry.tr,
+              style: context.typo.caption.copyWith(
+                color: colors.error,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({
     required this.message,
@@ -2393,6 +2504,7 @@ class _ChatBubble extends StatelessWidget {
     required this.loadingTts,
     required this.onSpeak,
     required this.onCopy,
+    required this.onRetry,
   });
 
   final AiMessageModel message;
@@ -2400,77 +2512,94 @@ class _ChatBubble extends StatelessWidget {
   final bool loadingTts;
   final VoidCallback onSpeak;
   final VoidCallback onCopy;
+  final VoidCallback onRetry;
+
+  static String _time(BuildContext context, String createdAt) {
+    final parsed = DateTime.tryParse(createdAt);
+    if (parsed == null) return '';
+    return MaterialLocalizations.of(context).formatTimeOfDay(
+      TimeOfDay.fromDateTime(parsed.toLocal()),
+      alwaysUse24HourFormat: MediaQuery.of(context).alwaysUse24HourFormat,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isUser = message.isUser;
     final pending = message.isProcessing;
+    final failed = message.isFailed;
 
-    return Column(
+    final bubble = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * (isUser ? 0.80 : 0.74),
+      ),
+      padding: EdgeInsets.all(Design.spacing.md),
+      decoration: BoxDecoration(
+        color: isUser ? colors.primary.withValues(alpha: 0.14) : colors.neumo,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(Design.spacing.radiusLarge),
+          topRight: Radius.circular(Design.spacing.radiusLarge),
+          bottomLeft: Radius.circular(
+            isUser ? Design.spacing.radiusLarge : 6,
+          ),
+          bottomRight: Radius.circular(
+            isUser ? 6 : Design.spacing.radiusLarge,
+          ),
+        ),
+        boxShadow: colors.neumoShadowSoft,
+      ),
+      child: pending && message.content.trim().isEmpty
+          ? const AppLoading(type: LoadingType.dots, size: LoadingSize.small)
+          : _ChatMarkdown(data: message.content),
+    );
+
+    final meta = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _time(context, message.createdAt),
+          style: context.typo.caption.copyWith(color: colors.textMuted),
+        ),
+        if (failed) ...[
+          SizedBox(width: Design.spacing.sm),
+          _RetryChip(onTap: onRetry),
+        ] else if (!isUser && !pending) ...[
+          SizedBox(width: Design.spacing.sm),
+          _BubbleAction(
+            icon: loadingTts ? Design.icons.clock : Design.icons.speaker,
+            color: speaking ? colors.primary : colors.textMuted,
+            onTap: loadingTts ? null : onSpeak,
+          ),
+          SizedBox(width: Design.spacing.sm),
+          _BubbleAction(
+            icon: Design.icons.clipboard,
+            color: colors.textMuted,
+            onTap: onCopy,
+          ),
+        ],
+      ],
+    );
+
+    final body = Column(
       crossAxisAlignment: isUser
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       children: [
-        Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.78,
-          ),
-          padding: EdgeInsets.all(Design.spacing.md),
-          decoration: BoxDecoration(
-            color: isUser
-                ? colors.primary.withValues(alpha: 0.14)
-                : colors.neumo,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: isUser ? null : colors.neumoShadowSoft,
-          ),
-          child: pending && message.content.trim().isEmpty
-              ? SizedBox(
-                  height: 16,
-                  width: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: colors.primary,
-                  ),
-                )
-              : _ChatMarkdown(data: message.content),
-        ),
-        SizedBox(height: 6),
-        Row(
-          mainAxisAlignment: isUser
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
-          children: [
-            if (message.isFailed) ...[
-              Icon(Design.icons.warning, size: 13, color: colors.error),
-              SizedBox(width: 4),
-              Text(
-                AppLocales.ai.needsRetry.tr,
-                style: context.typo.caption.copyWith(color: colors.error),
-              ),
-              SizedBox(width: Design.spacing.sm),
-            ],
-            if (!isUser && !pending) ...[
-              GestureDetector(
-                onTap: loadingTts ? null : onSpeak,
-                child: Icon(
-                  loadingTts ? Design.icons.clock : Design.icons.speaker,
-                  size: 15,
-                  color: speaking ? colors.primary : colors.textMuted,
-                ),
-              ),
-              SizedBox(width: Design.spacing.sm),
-              GestureDetector(
-                onTap: onCopy,
-                child: Icon(
-                  Design.icons.clipboard,
-                  size: 15,
-                  color: colors.textMuted,
-                ),
-              ),
-            ],
-          ],
-        ),
+        bubble,
+        const SizedBox(height: 6),
+        meta,
+      ],
+    );
+
+    if (isUser) return body;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _AssistantAvatar(),
+        SizedBox(width: Design.spacing.sm),
+        Flexible(child: body),
       ],
     );
   }
@@ -2484,7 +2613,10 @@ class _ThinkingBubble extends StatelessWidget {
     final colors = context.colors;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const _AssistantAvatar(),
+        SizedBox(width: Design.spacing.sm),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
@@ -2498,13 +2630,9 @@ class _ThinkingBubble extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: 12,
-                width: 12,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: colors.primary,
-                ),
+              const AppLoading(
+                type: LoadingType.dots,
+                size: LoadingSize.small,
               ),
               SizedBox(width: Design.spacing.sm),
               Text(
@@ -2567,6 +2695,42 @@ class _AskActionChip extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Soft circular composer action (attach / context). Tints when active.
+class _ComposerIconButton extends StatelessWidget {
+  const _ComposerIconButton({
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: active ? colors.primary.withValues(alpha: 0.16) : colors.neumo,
+          shape: BoxShape.circle,
+          boxShadow: colors.neumoShadowSoft,
+        ),
+        child: Icon(
+          icon,
+          size: Design.spacing.iconMedium,
+          color: active ? colors.primary : colors.textSecondary,
         ),
       ),
     );

@@ -54,6 +54,7 @@ class AppIcons {
   IconData get micOutline => Icons.mic_none_rounded;
   IconData get home => Icons.home_outlined;
   IconData get history => Icons.history_rounded;
+  IconData get refresh => Icons.refresh_rounded;
   IconData get replay10 => Icons.replay_10_rounded;
   IconData get forward10 => Icons.forward_10_rounded;
   IconData get pictureAsPdf => Icons.picture_as_pdf_rounded;

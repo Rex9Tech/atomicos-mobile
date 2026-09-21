@@ -302,6 +302,9 @@ class _AiLocales {
   final cancelListening = 'ai.cancel_listening';
   final typeMessage = 'ai.type_message';
   final send = 'ai.send';
+  final composerHint = 'ai.composerHint';
+  final retry = 'ai.retry';
+  final searchAtomsHint = 'ai.searchAtomsHint';
   final processing = 'ai.processing';
   final clearHistory = 'ai.clear_history';
 
