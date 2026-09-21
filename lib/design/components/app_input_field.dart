@@ -73,23 +73,27 @@ class AppInputField extends StatelessWidget {
         children: [
           Text(label, style: context.typo.labelMedium),
           SizedBox(height: Design.spacing.xs),
-          osTextField(
-            controller: controller,
+          _NeumoFieldShell(
             focusNode: focusNode,
-            autofocus: autoFocus,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
-            onChanged: onChanged,
-            maxLines: maxLines,
-            minLines: minLines,
-            enabled: enabled,
-            textCapitalization: textCapitalization,
-            hint: hint,
-            error: error,
-            helper: helper,
-            prefixIcon: prefixIcon,
-            suffixIcon: suffixIcon,
-            onSubmitted: onSubmitted != null ? (_) => onSubmitted!() : null,
+            hasError: error != null,
+            child: osTextField(
+              controller: controller,
+              focusNode: focusNode,
+              autofocus: autoFocus,
+              obscureText: obscureText,
+              keyboardType: keyboardType,
+              onChanged: onChanged,
+              maxLines: maxLines,
+              minLines: minLines,
+              enabled: enabled,
+              textCapitalization: textCapitalization,
+              hint: hint,
+              error: error,
+              helper: helper,
+              prefixIcon: prefixIcon,
+              suffixIcon: suffixIcon,
+              onSubmitted: onSubmitted != null ? (_) => onSubmitted!() : null,
+            ),
           ),
         ],
       ),
@@ -154,17 +158,9 @@ class AppInputField extends StatelessWidget {
                     child: suffixIcon,
                   )
                 : null,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius:
-                  BorderRadius.circular(Design.spacing.radiusMedium),
-              border: Border.all(
-                color: error != null
-                    ? theme.colorScheme.error
-                    : theme.colorScheme.outline,
-                width: error != null ? 1.5 : 1.0,
-              ),
-            ),
+            // Transparent: the neumo shell around the field paints the soft
+            // same-tone surface (gradient + shadow) for this widget.
+            decoration: const BoxDecoration(),
           ),
           if (error != null) ...[
             SizedBox(height: Design.spacing.xs),
@@ -211,6 +207,85 @@ class AppInputField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),
+    );
+  }
+}
+
+/// Neumo shell for [AppInputField]: same-tone surface + convex gradient +
+/// soft dual shadow, with a thin tinted border only while focused or in
+/// error — so the field still reads as interactive without a hairline at rest.
+class _NeumoFieldShell extends StatefulWidget {
+  const _NeumoFieldShell({
+    required this.focusNode,
+    required this.hasError,
+    required this.child,
+  });
+
+  final FocusNode? focusNode;
+  final bool hasError;
+  final Widget child;
+
+  @override
+  State<_NeumoFieldShell> createState() => _NeumoFieldShellState();
+}
+
+class _NeumoFieldShellState extends State<_NeumoFieldShell> {
+  bool _focused = false;
+  FocusNode? _attached;
+
+  @override
+  void initState() {
+    super.initState();
+    _attach(widget.focusNode);
+  }
+
+  void _attach(FocusNode? node) {
+    _attached?.removeListener(_onFocusChange);
+    _attached = node;
+    _focused = node?.hasFocus ?? false;
+    node?.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (mounted) setState(() => _focused = _attached?.hasFocus ?? false);
+  }
+
+  @override
+  void didUpdateWidget(covariant _NeumoFieldShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      _attach(widget.focusNode);
+    }
+  }
+
+  @override
+  void dispose() {
+    _attached?.removeListener(_onFocusChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: colors.neumo,
+        gradient: colors.neumoGradient,
+        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+        boxShadow: colors.neumoShadowSoft,
+        border: widget.hasError
+            ? Border.all(color: colors.error, width: 1.2)
+            : (_focused
+                  ? Border.all(
+                      color: colors.primary.withValues(alpha: 0.55),
+                      width: 1.3,
+                    )
+                  : null),
+      ),
+      child: widget.child,
     );
   }
 }

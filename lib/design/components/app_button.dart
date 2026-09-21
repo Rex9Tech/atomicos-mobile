@@ -62,7 +62,7 @@ class AppButton extends StatelessWidget {
         );
 
       case EButtonType.google:
-        return osGoogleButton(onPressed: onPressed, child: child);
+        return _InteractiveGoogleButton(onPressed: onPressed, child: child);
     }
   }
 
@@ -147,34 +147,65 @@ class AppButton extends StatelessWidget {
     );
   }
 
-  static Widget osGoogleButton({
-    required VoidCallback? onPressed,
-    required Widget child,
-  }) {
-    if (isIOS) {
-      return Container(
+}
+
+/// Google sign-in button in the neumo language: same-tone soft surface with
+/// the logo + label; presses scale down like the other interactive types.
+class _InteractiveGoogleButton extends StatefulWidget {
+  const _InteractiveGoogleButton({
+    required this.onPressed,
+    required this.child,
+  });
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  State<_InteractiveGoogleButton> createState() =>
+      _InteractiveGoogleButtonState();
+}
+
+class _InteractiveGoogleButtonState extends State<_InteractiveGoogleButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = widget.onPressed != null;
+    final colors = context.colors;
+
+    return AnimatedScale(
+      scale: (_isPressed && isEnabled) ? 0.97 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
         height: Design.spacing.buttonHeight,
+        width: double.infinity,
         decoration: BoxDecoration(
-          color: Get.theme.colorScheme.surface,
+          color: colors.neumo,
+          gradient: colors.neumoGradient,
           borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          border: Border.all(color: Get.theme.colorScheme.outline),
+          boxShadow: colors.neumoShadowSoft,
         ),
-        child: CupertinoButton(
-          onPressed: onPressed,
-          padding: EdgeInsets.symmetric(
-            horizontal: Design.spacing.xl,
-            vertical: Design.spacing.md,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onPressed,
+            onHighlightChanged: (highlighted) {
+              if (isEnabled) setState(() => _isPressed = highlighted);
+            },
+            borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+            child: Center(
+              child: DefaultTextStyle(
+                style: Design.typo.bodyMedium.copyWith(
+                  color: colors.textPrimary,
+                ),
+                child: widget.child,
+              ),
+            ),
           ),
-          child: child,
         ),
-      );
-    }
-    return SizedBox(
-      height: Design.spacing.buttonHeight,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: Design.styles.buttonGoogle,
-        child: child,
       ),
     );
   }

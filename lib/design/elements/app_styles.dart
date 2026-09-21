@@ -24,28 +24,17 @@ class AppStyles {
       helperText: helper,
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
+      // Neumo: the field's shell (see AppInputField) paints the same-tone
+      // surface + soft shadow — the decoration itself stays borderless and
+      // transparent so the shell shows through.
       filled: true,
-      fillColor: colors.surface,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: colors.outline),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: colors.outline),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: colors.primary, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: colors.error),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: colors.error, width: 2),
-      ),
+      fillColor: Colors.transparent,
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      errorBorder: InputBorder.none,
+      focusedErrorBorder: InputBorder.none,
+      disabledBorder: InputBorder.none,
       contentPadding: EdgeInsets.symmetric(
         horizontal: Design.spacing.lg,
         vertical: Design.spacing.md + 2,
@@ -98,22 +87,6 @@ class AppStyles {
       vertical: Design.spacing.sm,
     ),
     textStyle: Design.typo.labelLarge,
-  );
-
-  ButtonStyle get buttonGoogle => ElevatedButton.styleFrom(
-    backgroundColor: Get.theme.colorScheme.surface,
-    foregroundColor: Get.theme.colorScheme.onSurface,
-    minimumSize: Size(double.infinity, Design.spacing.buttonHeight),
-    padding: EdgeInsets.symmetric(
-      horizontal: Design.spacing.xl,
-      vertical: Design.spacing.md,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-    ),
-    side: BorderSide(color: Get.theme.colorScheme.outline),
-    textStyle: Design.typo.button,
-    elevation: 0,
   );
 
   // ===== CARD STYLES =====
