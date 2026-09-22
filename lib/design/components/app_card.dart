@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../design.dart';
 
-/// Neumorphic (soft-UI) surface: the same tone as the page, lifted by a dual
-/// shadow — light from the top-left, shade to the bottom-right. Pass
-/// [borderColor] only where a hairline is genuinely needed.
+/// Raised neumorphic surface: lifted by dual outer shadows.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -30,20 +28,28 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final radius = borderRadius ?? Design.spacing.radiusMedium;
+    // Custom fills (tone cards) still lift with the raised pair — only a
+    // hairline border opts out of soft-UI depth.
+    final useNeumo = borderColor == null;
 
-    final content = Container(
-      margin: margin,
-      padding: padding ?? EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: backgroundColor ?? colors.neumo,
-        // Convex surface wash (skip for custom tone fills).
-        gradient: backgroundColor == null ? colors.neumoGradient : null,
-        borderRadius: BorderRadius.circular(radius),
-        border: borderColor == null ? null : Border.all(color: borderColor!),
-        boxShadow: colors.neumoShadow,
-      ),
-      child: child,
-    );
+    final content = useNeumo
+        ? AppNeumoSurface(
+            radius: radius,
+            color: backgroundColor,
+            padding: padding ?? EdgeInsets.all(Design.spacing.lg),
+            margin: margin,
+            child: child,
+          )
+        : Container(
+            margin: margin,
+            padding: padding ?? EdgeInsets.all(Design.spacing.lg),
+            decoration: BoxDecoration(
+              color: backgroundColor ?? colors.neumo,
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: borderColor!),
+            ),
+            child: child,
+          );
 
     if (onTap != null) {
       return GestureDetector(

@@ -212,14 +212,11 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   Widget _buildModePicker(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    // The strip is a recessed rail; the active mode is the raised thumb.
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
+      radius: 999,
       padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(999),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Obx(
         () => Row(
           children: _modes
@@ -238,8 +235,11 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                         decoration: BoxDecoration(
                           color: controller.selectedMode.value == mode
                               ? colors.primary
-                              : colors.card,
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(999),
+                          boxShadow: controller.selectedMode.value == mode
+                              ? colors.neumoShadowSoft
+                              : null,
                         ),
                         child: Text(
                           _labelForMode(mode),
@@ -592,13 +592,18 @@ class AtomCreatePage extends GetView<AtomCreateController> {
                   ],
                 ),
                 SizedBox(height: Design.spacing.sm),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: controller.uploadProgress.value.clamp(0.0, 1.0),
-                    minHeight: 8,
-                    backgroundColor: colors.card,
-                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                AppNeumoSurface(
+                  depth: ENeumoDepth.inset,
+                  radius: 999,
+                  padding: EdgeInsets.zero,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      value: controller.uploadProgress.value.clamp(0.0, 1.0),
+                      minHeight: 8,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                    ),
                   ),
                 ),
               ],
@@ -609,63 +614,65 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           onTap: controller.isUploading.value
               ? null
               : controller.pickUploadAsset,
+          // Drop target reads as a recess you drop into; a picked file adds a
+          // soft primary glow around the well instead of a border.
           child: AnimatedContainer(
             duration: Design.timers.short,
-            padding: EdgeInsets.all(Design.spacing.xl),
             decoration: BoxDecoration(
-              // Soft-UI drop target: same-tone raised surface, no hairline;
-              // a picked file paints a soft primary glow instead of a border.
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
               borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-              boxShadow: <BoxShadow>[
-                ...colors.neumoShadowSoft,
-                if (hasPickedFile)
-                  BoxShadow(
-                    color: colors.primary.withValues(alpha: 0.35),
-                    blurRadius: 18,
-                  ),
-              ],
+              boxShadow: hasPickedFile
+                  ? <BoxShadow>[
+                      BoxShadow(
+                        color: colors.primary.withValues(alpha: 0.35),
+                        blurRadius: 18,
+                      ),
+                    ]
+                  : null,
             ),
-            child: Column(
-              children: [
-                Container(
-                  height: 64,
-                  width: 64,
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
+            child: AppNeumoSurface(
+              depth: ENeumoDepth.inset,
+              radius: Design.spacing.radiusXLarge,
+              padding: EdgeInsets.all(Design.spacing.xl),
+              child: Column(
+                children: [
+                  Container(
+                    height: 64,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      hasPickedFile ? Design.icons.check : Design.icons.upload,
+                      color: colors.primary,
+                      size: Design.spacing.iconLarge,
+                    ),
                   ),
-                  child: Icon(
-                    hasPickedFile ? Design.icons.check : Design.icons.upload,
-                    color: colors.primary,
-                    size: Design.spacing.iconLarge,
+                  SizedBox(height: Design.spacing.md),
+                  Text(
+                    hasPickedFile
+                        ? (controller.pickedUploadName.value ??
+                              AppLocales.create.attachedFile.tr)
+                        : AppLocales.create.tapToBrowse.tr,
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(height: Design.spacing.md),
-                Text(
-                  hasPickedFile
-                      ? (controller.pickedUploadName.value ??
-                            AppLocales.create.attachedFile.tr)
-                      : AppLocales.create.tapToBrowse.tr,
-                  style: context.typo.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
+                  SizedBox(height: Design.spacing.xs),
+                  Text(
+                    hasPickedFile
+                        ? AppLocales.create.readyToUploadHint.tr
+                        : AppLocales.create.pickFileHint.tr,
+                    style: context.typo.bodySmall.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  hasPickedFile
-                      ? AppLocales.create.readyToUploadHint.tr
-                      : AppLocales.create.pickFileHint.tr,
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -732,16 +739,25 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           style: context.typo.labelLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         SizedBox(height: Design.spacing.md),
-        TextField(
-          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-          controller: controller.shareTextController,
-          minLines: 6,
-          maxLines: 10,
-          decoration: InputDecoration(
-            hintText: AppLocales.create.pasteSharedHint.tr,
-            border: InputBorder.none,
+        AppNeumoSurface(
+          depth: ENeumoDepth.inset,
+          radius: Design.spacing.radiusLarge,
+          padding: EdgeInsets.all(Design.spacing.lg),
+          child: TextField(
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+            controller: controller.shareTextController,
+            minLines: 6,
+            maxLines: 10,
+            decoration: InputDecoration(
+              isDense: true,
+              isCollapsed: true,
+              hintText: AppLocales.create.pasteSharedHint.tr,
+              filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
+            ),
+            style: context.typo.bodyMedium.copyWith(height: 1.45),
           ),
-          style: context.typo.bodyMedium.copyWith(height: 1.45),
         ),
       ],
     );
@@ -794,20 +810,14 @@ class AtomCreatePage extends GetView<AtomCreateController> {
   }
 
   Widget _buildNoteDraftStage(BuildContext context) {
-    final colors = context.colors;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        AppNeumoSurface(
+          depth: ENeumoDepth.inset,
           height: 220,
+          radius: Design.spacing.radiusLarge,
           padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: colors.neumoShadowSoft,
-          ),
           child: TextField(
             onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             controller: controller.noteController,
@@ -818,7 +828,9 @@ class AtomCreatePage extends GetView<AtomCreateController> {
             decoration: InputDecoration(
               isDense: true,
               isCollapsed: true,
-              border: InputBorder.none,
+              filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               hintText: AppLocales.create.noteFieldHint.tr,
@@ -919,15 +931,12 @@ class _RoundTopButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 36,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: 36,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: 36,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: Design.spacing.iconMedium,
@@ -967,9 +976,7 @@ class _CategoryChip extends StatelessWidget {
           color: selected
               ? colors.primary.withValues(alpha: 0.16)
               : colors.neumo,
-          gradient: selected ? null : colors.neumoGradient,
           borderRadius: BorderRadius.circular(999),
-          boxShadow: selected ? null : colors.neumoShadowSoft,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1080,14 +1087,10 @@ class _SupportChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
+      soft: true,
+      radius: 999,
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.md, vertical: 6),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(999),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

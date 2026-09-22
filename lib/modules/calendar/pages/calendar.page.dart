@@ -94,16 +94,12 @@ class CalendarPage extends GetView<CalendarController> {
       children: [
         _RoundIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         const Spacer(),
-        Container(
+        AppNeumoSurface(
+          soft: true,
+          radius: 999,
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
             vertical: Design.spacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(999),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -316,57 +312,62 @@ class CalendarPage extends GetView<CalendarController> {
                 final isSelected = controller.selectedDay.value == day;
                 final isToday = controller.isToday(day);
 
+                final cellContent = Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$day',
+                      style: context.typo.labelLarge.copyWith(
+                        color: isSelected
+                            ? colors.onPrimary
+                            : colors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: Design.spacing.xs),
+                    Container(
+                      height: 6,
+                      width: 6,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? (isSelected ? colors.onPrimary : colors.primary)
+                            : colors.card.withValues(alpha: 0),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                );
+
                 return GestureDetector(
                   onTap: () => controller.selectDay(day),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? colors.primary
-                          : isActive
-                          ? colors.primary.withValues(alpha: 0.14)
-                          : colors.card,
-                      borderRadius: BorderRadius.circular(
-                        Design.spacing.radiusLarge,
-                      ),
-                      border: Border.all(
-                        color: isSelected
-                            ? colors.primary
-                            : isToday
-                            ? colors.primary.withValues(alpha: 0.55)
-                            : isActive
-                            ? colors.primary.withValues(alpha: 0.24)
-                            : colors.border,
-                        width: isToday && !isSelected ? 1.4 : 1.0,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '$day',
-                          style: context.typo.labelLarge.copyWith(
-                            color: isSelected
-                                ? colors.onPrimary
-                                : colors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: Design.spacing.xs),
-                        Container(
-                          height: 6,
-                          width: 6,
+                  // The picked day is pressed into the grid; the rest stay flat.
+                  child: isSelected
+                      ? AppNeumoSurface(
+                          depth: ENeumoDepth.inset,
+                          radius: Design.spacing.radiusLarge,
+                          padding: EdgeInsets.zero,
+                          color: colors.primary,
+                          child: cellContent,
+                        )
+                      : Container(
                           decoration: BoxDecoration(
                             color: isActive
-                                ? (isSelected
-                                      ? colors.onPrimary
-                                      : colors.primary)
-                                : colors.card.withValues(alpha: 0),
-                            shape: BoxShape.circle,
+                                ? colors.primary.withValues(alpha: 0.14)
+                                : colors.card,
+                            borderRadius: BorderRadius.circular(
+                              Design.spacing.radiusLarge,
+                            ),
+                            border: Border.all(
+                              color: isToday
+                                  ? colors.primary.withValues(alpha: 0.55)
+                                  : isActive
+                                  ? colors.primary.withValues(alpha: 0.24)
+                                  : colors.border,
+                              width: isToday ? 1.4 : 1.0,
+                            ),
                           ),
+                          child: cellContent,
                         ),
-                      ],
-                    ),
-                  ),
                 );
               }),
             );
@@ -507,15 +508,10 @@ class CalendarPage extends GetView<CalendarController> {
 
   void _showEventMenu(BuildContext context, CalendarEventModel event) {
     Get.bottomSheet<void>(
-      Container(
+      AppNeumoSurface(
         margin: EdgeInsets.all(Design.spacing.sm),
+        radius: Design.spacing.radiusXLarge,
         padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          color: context.colors.neumo,
-          gradient: context.colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          boxShadow: context.colors.neumoShadow,
-        ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -612,14 +608,9 @@ class _SheetAction extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.md),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           children: [
             Icon(icon, size: Design.spacing.iconSmall, color: colors.primary),
@@ -658,15 +649,12 @@ class _RoundIconButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 32,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: 32,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: 32,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: size ?? Design.spacing.iconSmall,

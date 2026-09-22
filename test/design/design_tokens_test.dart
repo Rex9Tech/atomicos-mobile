@@ -98,10 +98,9 @@ void main() {
       },
     );
 
-    testWidgets('neumo shadow tokens stay pronounced (light)', (tester) async {
+    testWidgets('neumo uses raised dual shadows', (tester) async {
       late List<BoxShadow> raised;
-      late List<BoxShadow> soft;
-      late LinearGradient gradient;
+      late Color fill;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -109,8 +108,7 @@ void main() {
           home: Builder(
             builder: (context) {
               raised = context.colors.neumoShadow;
-              soft = context.colors.neumoShadowSoft;
-              gradient = context.colors.neumoGradient;
+              fill = context.colors.neumo;
               return const SizedBox();
             },
           ),
@@ -118,44 +116,70 @@ void main() {
       );
 
       expect(raised, hasLength(2));
-      expect(soft, hasLength(2));
 
-      // Airy light theme (tester: "still a little shadow"): whisper floors
-      // only — a hint of highlight/shade, nothing more.
-      expect(raised[0].offset.dx, lessThanOrEqualTo(-1.5));
-      expect(raised[0].color.a, greaterThanOrEqualTo(0.6));
-      expect(raised[1].offset.dx, greaterThanOrEqualTo(1.5));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(8.0));
-      expect(raised[1].color.a, greaterThanOrEqualTo(0.03));
+      // Classic neumo: same clay as the page — dual shadows carry the depth.
+      expect(fill, equals(Design.theme.light.scaffoldBackgroundColor));
 
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(5.0));
-      expect(soft[1].color.a, greaterThanOrEqualTo(0.03));
+      // White highlight top-left; cool shade bottom-right.
+      expect(raised[0].offset.dx, lessThan(0));
+      expect(raised[0].offset.dy, lessThan(0));
+      expect(raised[1].offset.dx, greaterThan(0));
+      expect(raised[1].offset.dy, greaterThan(0));
+    });
 
-      expect(gradient.colors, hasLength(2));
-      expect(gradient.begin, equals(Alignment.bottomRight));
-      expect(gradient.end, equals(Alignment.topLeft));
+    testWidgets('inset shadows mirror the raised pair', (tester) async {
+      late List<BoxShadow> inset;
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: Design.theme.dark,
+          theme: Design.theme.light,
           home: Builder(
             builder: (context) {
-              raised = context.colors.neumoShadow;
-              soft = context.colors.neumoShadowSoft;
+              inset = context.colors.neumoInsetShadow;
               return const SizedBox();
             },
           ),
         ),
       );
 
-      // Let the theme transition settle before reading dark tokens.
-      await tester.pumpAndSettle();
+      // Shade bleeds in from the top-left, highlight from the bottom-right —
+      // the opposite of a raised surface, which is what reads as a well.
+      expect(inset.first.offset.dx, greaterThan(0));
+      expect(inset.first.offset.dy, greaterThan(0));
+      expect(inset.last.offset.dx, lessThan(0));
+      expect(inset.last.offset.dy, lessThan(0));
+      expect(inset.last.color, equals(Colors.white.withValues(alpha: 0.9)));
+    });
 
-      expect(raised[0].color.a, greaterThanOrEqualTo(0.08));
-      expect(raised[1].blurRadius, greaterThanOrEqualTo(12.0));
-      expect(raised[1].color.a, greaterThanOrEqualTo(0.35));
-      expect(soft[1].blurRadius, greaterThanOrEqualTo(10.0));
-      expect(soft[1].color.a, greaterThanOrEqualTo(0.30));
+    testWidgets('inset surface paints shadow inside its own bounds', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: Design.theme.light,
+          home: Scaffold(
+            body: Center(
+              child: AppNeumoSurface(
+                depth: ENeumoDepth.inset,
+                width: 200,
+                height: 80,
+                child: const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // A foregroundDecoration is what clips the shadow to the shape; a plain
+      // boxShadow would spill outside and read as elevation instead.
+      final box = tester.widget<Container>(
+        find.descendant(
+          of: find.byType(AppNeumoSurface),
+          matching: find.byType(Container),
+        ),
+      );
+      expect(box.foregroundDecoration, isNotNull);
+      expect(tester.takeException(), isNull);
     });
   });
 }

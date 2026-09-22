@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../design.dart';
 
-/// Neumorphic raised surface — formerly the frosted-glass card. Keeps the same
-/// API (radius, padding, onTap, color, borderColor, shadow) so every screen
-/// that used it picks up the soft-UI treatment in one place.
+/// Raised neumorphic surface — formerly the frosted-glass card.
 class AppGlassCard extends StatelessWidget {
   const AppGlassCard({
     super.key,
@@ -33,20 +31,33 @@ class AppGlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final r = radius ?? Design.spacing.radiusXLarge;
+    final colors = context.colors;
+    // Custom color/shadow still count as raised soft-UI unless a hairline
+    // border is supplied.
+    final useNeumo = borderColor == null && shadow == null;
 
-    final content = Container(
-      width: width,
-      padding: padding ?? EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: color ?? context.colors.neumo,
-        // Convex surface wash (skip for custom tone fills).
-        gradient: color == null ? context.colors.neumoGradient : null,
-        borderRadius: BorderRadius.circular(r),
-        border: borderColor == null ? null : Border.all(color: borderColor!),
-        boxShadow: shadow ?? context.colors.neumoShadow,
-      ),
-      child: child,
-    );
+    final content = useNeumo
+        ? AppNeumoSurface(
+            width: width,
+            radius: r,
+            color: color,
+            padding: padding ?? EdgeInsets.all(Design.spacing.lg),
+            child: child,
+          )
+        : Container(
+            width: width,
+            padding: padding ?? EdgeInsets.all(Design.spacing.lg),
+            decoration: BoxDecoration(
+              color: color ?? colors.neumo,
+              borderRadius: BorderRadius.circular(r),
+              border: borderColor != null
+                  ? Border.all(color: borderColor!)
+                  : null,
+              boxShadow: shadow ??
+                  (borderColor == null ? colors.neumoShadow : null),
+            ),
+            child: child,
+          );
 
     return onTap == null
         ? content

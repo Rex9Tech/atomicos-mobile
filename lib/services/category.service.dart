@@ -61,8 +61,10 @@ class CategoryService extends GetxService {
   /// The category with [id] from the current list, or null when it is not
   /// loaded/known (foreign ids and the uncategorized case both return null).
   CategoryModel? byId(String? id) {
+    // `.toList()` registers with Obx; assigning the RxList alone does not.
+    final list = categories.toList();
     if (id == null || id.isEmpty) return null;
-    for (final category in categories) {
+    for (final category in list) {
       if (category.id == id) return category;
     }
     return null;

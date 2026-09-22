@@ -79,15 +79,12 @@ class PermissionOnboardingPage extends GetView<PermissionOnboardingController> {
       children: [
         GestureDetector(
           onTap: Get.back,
-          child: Container(
-            height: 32,
+          child: AppNeumoSurface(
+            circle: true,
+            soft: true,
             width: 32,
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              shape: BoxShape.circle,
-              boxShadow: colors.neumoShadowSoft,
-            ),
+            height: 32,
+            padding: EdgeInsets.zero,
             child: Icon(
               Design.icons.backArrow,
               size: Design.spacing.iconSmall,
@@ -134,14 +131,9 @@ class PermissionOnboardingPage extends GetView<PermissionOnboardingController> {
           Expanded(
             child: GestureDetector(
               onTap: Get.back,
-              child: Container(
+              child: AppNeumoSurface(
+                radius: 999,
                 padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
-                decoration: BoxDecoration(
-                  color: colors.neumo,
-                  gradient: colors.neumoGradient,
-                  borderRadius: BorderRadius.circular(999),
-                  boxShadow: colors.neumoShadowSoft,
-                ),
                 child: Center(
                   child: Text(
                     AppLocales.permission.done.tr,
@@ -179,14 +171,9 @@ class _PermissionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Row(
         children: [
           Icon(icon, size: Design.spacing.iconMedium, color: colors.primary),

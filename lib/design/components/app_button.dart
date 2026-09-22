@@ -177,17 +177,16 @@ class _InteractiveGoogleButtonState extends State<_InteractiveGoogleButton> {
       scale: (_isPressed && isEnabled) ? 0.97 : 1.0,
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+      // Pressing sinks the surface into the page rather than just dimming it.
+      child: AppNeumoSurface(
+        depth: (_isPressed && isEnabled)
+            ? ENeumoDepth.inset
+            : ENeumoDepth.raised,
+        soft: true,
+        radius: Design.spacing.radiusMedium,
+        padding: EdgeInsets.zero,
         height: Design.spacing.buttonHeight,
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -316,46 +315,56 @@ class _InteractiveNeonButtonState extends State<_InteractiveNeonButton> {
       scale: (_isPressed && isEnabled) ? 0.97 : 1.0,
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          color: (_isPressed && isEnabled)
-              ? Design.colors.primary
-              : context.colors.neumo,
-          gradient: (_isPressed && isEnabled)
-              ? null
-              : context.colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          boxShadow: (_isPressed && isEnabled)
-              ? Design.colors.shadows.neon
-              : context.colors.neumoShadowSoft,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: widget.onPressed,
-            onHighlightChanged: (highlighted) {
-              if (isEnabled) {
-                setState(() => _isPressed = highlighted);
-              }
-            },
-            borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: Design.spacing.xl,
-                vertical: Design.spacing.md,
-              ),
-              child: Center(
-                child: DefaultTextStyle(
-                  style: Design.typo.button.copyWith(
-                    color: Design.colors.glowWhite,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                  child: widget.child,
+      // Idle is a raised neumo surface; pressing lights it up in brand green,
+      // so the glow — not depth — carries the active state here.
+      child: (_isPressed && isEnabled)
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                color: Design.colors.primary,
+                borderRadius: BorderRadius.circular(
+                  Design.spacing.radiusMedium,
                 ),
+                boxShadow: Design.colors.shadows.neon,
               ),
+              child: _buildBody(context),
+            )
+          : AppNeumoSurface(
+              soft: true,
+              radius: Design.spacing.radiusMedium,
+              padding: EdgeInsets.zero,
+              child: _buildBody(context),
+            ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    final isEnabled = widget.onPressed != null;
+    final lit = _isPressed && isEnabled;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onPressed,
+        onHighlightChanged: (highlighted) {
+          if (isEnabled) {
+            setState(() => _isPressed = highlighted);
+          }
+        },
+        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.xl,
+            vertical: Design.spacing.md,
+          ),
+          child: Center(
+            child: DefaultTextStyle(
+              style: Design.typo.button.copyWith(
+                // Glow white only reads once the green fill is lit.
+                color: lit ? Design.colors.glowWhite : context.colors.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              ),
+              child: widget.child,
             ),
           ),
         ),

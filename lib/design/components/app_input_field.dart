@@ -158,9 +158,8 @@ class AppInputField extends StatelessWidget {
                     child: suffixIcon,
                   )
                 : null,
-            // Transparent: the neumo shell around the field paints the soft
-            // same-tone surface (gradient + shadow) for this widget.
-            decoration: const BoxDecoration(),
+            // Transparent: the neumo shell paints the same-tone clay.
+            decoration: const BoxDecoration(color: Colors.transparent),
           ),
           if (error != null) ...[
             SizedBox(height: Design.spacing.xs),
@@ -211,9 +210,9 @@ class AppInputField extends StatelessWidget {
   }
 }
 
-/// Neumo shell for [AppInputField]: same-tone surface + convex gradient +
-/// soft dual shadow, with a thin tinted border only while focused or in
-/// error — so the field still reads as interactive without a hairline at rest.
+/// Neumo shell for [AppInputField]: same-tone surface + soft dual shadow,
+/// with a thin tinted border only while focused or in error — so the field
+/// still reads as interactive without a hairline at rest.
 class _NeumoFieldShell extends StatefulWidget {
   const _NeumoFieldShell({
     required this.focusNode,
@@ -268,23 +267,36 @@ class _NeumoFieldShellState extends State<_NeumoFieldShell> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        boxShadow: colors.neumoShadowSoft,
-        border: widget.hasError
-            ? Border.all(color: colors.error, width: 1.2)
-            : (_focused
-                  ? Border.all(
-                      color: colors.primary.withValues(alpha: 0.55),
-                      width: 1.3,
-                    )
-                  : null),
-      ),
+    // Inputs are wells: recessed at rest, and outlined while focused or
+    // invalid so the accent colour still carries the state.
+    final radius = Design.spacing.radiusMedium;
+    final outline = widget.hasError
+        ? Border.all(color: colors.error, width: 1.2)
+        : (_focused
+              ? Border.all(
+                  color: colors.primary.withValues(alpha: 0.55),
+                  width: 1.3,
+                )
+              : null);
+
+    if (outline != null) {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: colors.background,
+          borderRadius: BorderRadius.circular(radius),
+          border: outline,
+        ),
+        child: widget.child,
+      );
+    }
+
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
+      soft: true,
+      radius: radius,
+      padding: EdgeInsets.zero,
       child: widget.child,
     );
   }

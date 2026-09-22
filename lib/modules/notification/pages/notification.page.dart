@@ -130,15 +130,14 @@ class _NotificationPageState extends State<NotificationPage> {
       child: Column(
         children: [
           // ── Filter Segment Bar ──────────────────────────────
-          Container(
+          // The strip is the track the tabs sit in, so it reads as a well;
+          // only the active tab lifts out of it.
+          AppNeumoSurface(
+            depth: ENeumoDepth.inset,
+            radius: 0,
             padding: EdgeInsets.symmetric(
               horizontal: Design.spacing.lg,
               vertical: Design.spacing.md,
-            ),
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              boxShadow: colors.neumoShadowSoft,
             ),
             child: Obx(
               () => Row(
@@ -294,11 +293,16 @@ class _NotificationPageState extends State<NotificationPage> {
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
           decoration: BoxDecoration(
+            // Blended rather than translucent so the thumb stays opaque over
+            // the recessed track and its lift shadow reads cleanly.
             color: isActive
-                ? colors.primary.withValues(alpha: 0.16)
-                : colors.neumo,
+                ? Color.alphaBlend(
+                    colors.primary.withValues(alpha: 0.16),
+                    colors.neumo,
+                  )
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-            boxShadow: colors.neumoShadowSoft,
+            boxShadow: isActive ? colors.neumoShadowSoft : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

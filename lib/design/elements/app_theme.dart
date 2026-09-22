@@ -106,18 +106,19 @@ ThemeData _buildLightTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Design.colors.day.surface,
+      // Same clay as the page — soft-UI wells, not white Material fields.
+      fillColor: Design.colors.day.background,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.day.border),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.day.border),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.primary, width: 2),
+        borderSide: BorderSide(color: Design.colors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
@@ -264,18 +265,19 @@ ThemeData _buildDarkTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Design.colors.night.surface,
+      // Same clay as the page — soft-UI wells, not light Material fields.
+      fillColor: Design.colors.night.background,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.night.border),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.night.border),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-        borderSide: BorderSide(color: Design.colors.primary, width: 2),
+        borderSide: BorderSide(color: Design.colors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),

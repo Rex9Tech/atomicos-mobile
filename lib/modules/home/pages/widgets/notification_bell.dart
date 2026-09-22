@@ -28,15 +28,12 @@ class NotificationBell extends StatelessWidget {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            Container(
-              height: 32,
+            AppNeumoSurface(
+              circle: true,
+              soft: true,
               width: 32,
-              decoration: BoxDecoration(
-                color: colors.neumo,
-                gradient: colors.neumoGradient,
-                shape: BoxShape.circle,
-                boxShadow: colors.neumoShadowSoft,
-              ),
+              height: 32,
+              padding: EdgeInsets.zero,
               child: Icon(
                 unread > 0 ? Design.icons.bellActive : Design.icons.bell,
                 size: Design.spacing.iconSmall,
@@ -101,21 +98,14 @@ class _NotificationsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
+    return AppNeumoSurface(
       margin: EdgeInsets.all(Design.spacing.sm),
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.fromLTRB(
         Design.spacing.lg,
         Design.spacing.lg,
         Design.spacing.lg,
         Design.spacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        boxShadow: colors.neumoShadow,
       ),
       child: SafeArea(
         child: ConstrainedBox(
@@ -166,14 +156,10 @@ class _NotificationsSheet extends StatelessWidget {
                     );
                   }
                 : null,
-            child: Container(
+            child: AppNeumoSurface(
+              circle: true,
+              soft: true,
               padding: EdgeInsets.all(Design.spacing.xs + 2),
-              decoration: BoxDecoration(
-                color: colors.neumo,
-                gradient: colors.neumoGradient,
-                shape: BoxShape.circle,
-                boxShadow: colors.neumoShadowSoft,
-              ),
               child: Icon(
                 Design.icons.checkAll,
                 size: 18,
@@ -306,14 +292,9 @@ class _NotificationRow extends StatelessWidget {
         }
       },
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.md),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

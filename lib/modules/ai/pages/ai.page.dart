@@ -221,15 +221,12 @@ class _AiPageState extends State<AiPage> {
         const Spacer(),
         GestureDetector(
           onTap: Get.back,
-          child: Container(
-            height: 28,
+          child: AppNeumoSurface(
+            circle: true,
+            soft: true,
             width: 28,
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              shape: BoxShape.circle,
-              boxShadow: colors.neumoShadowSoft,
-            ),
+            height: 28,
+            padding: EdgeInsets.zero,
             child: Icon(
               Design.icons.close,
               size: 16,
@@ -244,15 +241,10 @@ class _AiPageState extends State<AiPage> {
   Widget _buildMeetingWorkspaceCanvas(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
       width: double.infinity,
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -308,7 +300,9 @@ class _AiPageState extends State<AiPage> {
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                       hintText: '',
-                      border: InputBorder.none,
+                      filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       suffixIconConstraints: const BoxConstraints(),
@@ -358,7 +352,6 @@ class _AiPageState extends State<AiPage> {
               colors: [colors.primary.withValues(alpha: 0.14), colors.neumo],
             ),
             borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -464,6 +457,8 @@ class _AiPageState extends State<AiPage> {
                   decoration: InputDecoration(
                     isDense: true,
                     isCollapsed: true,
+                    filled: true,
+                    fillColor: Colors.transparent,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -881,20 +876,13 @@ class _AiPageState extends State<AiPage> {
   Widget _buildAskComposer(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.fromLTRB(
         Design.spacing.screenPadding,
         Design.spacing.sm,
         Design.spacing.screenPadding,
         Design.spacing.screenPadding,
-      ),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(Design.spacing.radiusXLarge),
-        ),
-        boxShadow: colors.neumoShadow,
       ),
       child: SafeArea(
         top: false,
@@ -942,18 +930,13 @@ class _AiPageState extends State<AiPage> {
                 ),
                 SizedBox(width: Design.spacing.sm),
                 Expanded(
-                  child: Container(
+                  // The field is a well pressed into the raised composer bar.
+                  child: AppNeumoSurface(
+                    depth: ENeumoDepth.inset,
+                    radius: Design.spacing.radiusXLarge,
                     padding: EdgeInsets.symmetric(
                       horizontal: Design.spacing.md,
                       vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.neumo,
-                      gradient: colors.neumoGradient,
-                      borderRadius: BorderRadius.circular(
-                        Design.spacing.radiusXLarge,
-                      ),
-                      boxShadow: colors.neumoShadowSoft,
                     ),
                     child: TextField(
                       controller: controller.textController,
@@ -966,7 +949,9 @@ class _AiPageState extends State<AiPage> {
                       decoration: InputDecoration(
                         isDense: true,
                         isCollapsed: true,
-                        border: InputBorder.none,
+                        filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         hintText: AppLocales.ai.composerHint.tr,
@@ -984,27 +969,38 @@ class _AiPageState extends State<AiPage> {
                     onTap: busy
                         ? controller.stopProcessing
                         : controller.handleSend,
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: busy ? colors.neumo : colors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: busy
-                            ? colors.neumoShadowSoft
-                            : [
+                    child: busy
+                        ? AppNeumoSurface(
+                            circle: true,
+                            soft: true,
+                            width: 40,
+                            height: 40,
+                            padding: EdgeInsets.zero,
+                            child: Icon(
+                              Design.icons.stop,
+                              size: 18,
+                              color: colors.textPrimary,
+                            ),
+                          )
+                        : Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
                                 BoxShadow(
                                   color: colors.primary.withValues(alpha: 0.35),
                                   blurRadius: 10,
                                 ),
                               ],
-                      ),
-                      child: Icon(
-                        busy ? Design.icons.stop : Design.icons.send,
-                        size: 18,
-                        color: busy ? colors.textPrimary : colors.onPrimary,
-                      ),
-                    ),
+                            ),
+                            child: Icon(
+                              Design.icons.send,
+                              size: 18,
+                              color: colors.onPrimary,
+                            ),
+                          ),
                   );
                 }),
               ],
@@ -1070,22 +1066,25 @@ class _AiPageState extends State<AiPage> {
     final colors = context.colors;
     final hasMessages = controller.messages.isNotEmpty;
 
-    return Container(
+    return AppNeumoSurface(
+      radius: Design.spacing.radiusLarge,
       padding: EdgeInsets.all(Design.spacing.lg),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Column(
         children: [
-          LinearProgressIndicator(
-            value: hasMessages ? 0.32 : 0.0,
-            minHeight: 6,
-            borderRadius: BorderRadius.circular(999),
-            backgroundColor: colors.card,
-            valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+          // The track is a groove cut into the card; the bar rides inside it,
+          // so the indicator itself stays transparent.
+          AppNeumoSurface(
+            depth: ENeumoDepth.inset,
+            radius: 3,
+            soft: true,
+            padding: EdgeInsets.zero,
+            child: LinearProgressIndicator(
+              value: hasMessages ? 0.32 : 0.0,
+              minHeight: 6,
+              borderRadius: BorderRadius.circular(999),
+              backgroundColor: Colors.transparent,
+              valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+            ),
           ),
           SizedBox(height: Design.spacing.md),
           Row(
@@ -1112,14 +1111,11 @@ class _AiPageState extends State<AiPage> {
   Widget _buildTabs(BuildContext context, List<int> visibleTabs) {
     final colors = context.colors;
 
-    return Container(
+    // Track is recessed so the selected tab indicator reads as sitting on top.
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
+      radius: 999,
       padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(999),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: TabBar(
         isScrollable: false,
         indicatorSize: TabBarIndicatorSize.tab,
@@ -1406,14 +1402,9 @@ class _AiPageState extends State<AiPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: Container(
+          child: AppNeumoSurface(
+            radius: Design.spacing.radiusLarge,
             padding: EdgeInsets.all(Design.spacing.lg),
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              boxShadow: colors.neumoShadowSoft,
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1805,15 +1796,9 @@ class _AiPageState extends State<AiPage> {
 
   void _showRoomsBottomSheet(BuildContext context) {
     Get.bottomSheet(
-      Container(
+      AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          color: context.colors.neumo,
-          gradient: context.colors.neumoGradient,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Design.spacing.radiusLarge),
-          ),
-        ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1915,15 +1900,12 @@ class _CircleIconButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 36,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: 36,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: 36,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: Design.spacing.iconMedium,
@@ -2122,14 +2104,9 @@ class _EmptyStateCard extends StatelessWidget {
     final colors = context.colors;
 
     return Center(
-      child: Container(
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.xl),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -2212,17 +2189,12 @@ class _AskActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppNeumoSurface(
         width: double.infinity,
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
           vertical: Design.spacing.md,
-        ),
-        decoration: BoxDecoration(
-          color: context.colors.neumo,
-          gradient: context.colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: context.colors.neumoShadowSoft,
         ),
         child: Row(
           children: [
@@ -2284,15 +2256,15 @@ class _AskFilterChip extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      // An active filter looks pressed in; the rest stay lifted.
+      child: AppNeumoSurface(
+        depth: selected ? ENeumoDepth.inset : ENeumoDepth.raised,
+        radius: 999,
+        soft: true,
+        color: selected ? colors.primary : colors.neumo,
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.sm,
           vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? colors.primary : colors.neumo,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: selected ? null : colors.neumoShadowSoft,
         ),
         child: Text(
           label,
@@ -2336,14 +2308,10 @@ class _MiniResultChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppNeumoSurface(
+      soft: true,
+      radius: 999,
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
-      decoration: BoxDecoration(
-        color: context.colors.neumo,
-        gradient: context.colors.neumoGradient,
-        borderRadius: BorderRadius.circular(999),
-        boxShadow: context.colors.neumoShadowSoft,
-      ),
       child: Text(
         label,
         style: context.typo.bodySmall.copyWith(
@@ -2399,15 +2367,12 @@ class _AssistantAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
-      height: 28,
+    return AppNeumoSurface(
+      circle: true,
+      soft: true,
       width: 28,
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        shape: BoxShape.circle,
-        boxShadow: colors.neumoShadowSoft,
-      ),
+      height: 28,
+      padding: EdgeInsets.zero,
       child: Icon(Design.icons.sparkles, size: 14, color: colors.primary),
     );
   }
@@ -2514,13 +2479,13 @@ class _ChatBubble extends StatelessWidget {
       padding: EdgeInsets.all(Design.spacing.md),
       decoration: BoxDecoration(
         color: isUser ? colors.primary.withValues(alpha: 0.14) : colors.neumo,
+        boxShadow: isUser ? null : colors.neumoShadow,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(Design.spacing.radiusLarge),
           topRight: Radius.circular(Design.spacing.radiusLarge),
           bottomLeft: Radius.circular(isUser ? Design.spacing.radiusLarge : 6),
           bottomRight: Radius.circular(isUser ? 6 : Design.spacing.radiusLarge),
         ),
-        boxShadow: colors.neumoShadowSoft,
       ),
       child: pending && message.content.trim().isEmpty
           ? const AppLoading(type: LoadingType.dots, size: LoadingSize.small)
@@ -2586,16 +2551,12 @@ class _ThinkingBubble extends StatelessWidget {
       children: [
         const _AssistantAvatar(),
         SizedBox(width: Design.spacing.sm),
-        Container(
+        AppNeumoSurface(
+          soft: true,
+          radius: Design.spacing.radiusLarge,
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
             vertical: Design.spacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -2635,16 +2596,12 @@ class _AskActionChip extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppNeumoSurface(
+        soft: true,
+        radius: 999,
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
           vertical: Design.spacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: colors.neumoShadowSoft,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -2785,16 +2742,12 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
           style: context.typo.caption.copyWith(color: colors.textSecondary),
         ),
         SizedBox(height: Design.spacing.md),
-        Container(
+        AppNeumoSurface(
+          depth: ENeumoDepth.inset,
+          radius: Design.spacing.radiusXLarge,
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
             vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             children: [
@@ -2813,6 +2766,8 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
                   decoration: InputDecoration(
                     isDense: true,
                     isCollapsed: true,
+                    filled: true,
+                    fillColor: Colors.transparent,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -2914,17 +2869,10 @@ class _SheetShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
       margin: EdgeInsets.all(Design.spacing.sm),
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.all(Design.spacing.md),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(Design.spacing.radiusXLarge),
-        ),
-        boxShadow: colors.neumoShadow,
-      ),
       child: SafeArea(
         child: AnimatedPadding(
           duration: Design.timers.short,
@@ -2976,14 +2924,9 @@ class _AttachOption extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.md),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           children: [
             Container(
@@ -3045,15 +2988,12 @@ class _ComposerIconButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 40,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: 40,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: 40,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: Design.spacing.iconMedium,
@@ -3085,10 +3025,8 @@ class _ComposerChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
       decoration: BoxDecoration(
         color: colors.neumo,
-        gradient: colors.neumoGradient,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: colors.primary.withValues(alpha: 0.30)),
-        boxShadow: colors.neumoShadowSoft,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -3141,7 +3079,6 @@ class _ContextAtomCard extends StatelessWidget {
       // reflects what the conversation is currently grounded in.
       shadow: selected
           ? <BoxShadow>[
-              ...colors.neumoShadow,
               BoxShadow(
                 color: colors.primary.withValues(alpha: 0.30),
                 blurRadius: 16,

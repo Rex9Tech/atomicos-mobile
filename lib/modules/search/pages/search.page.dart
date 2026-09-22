@@ -43,15 +43,12 @@ class SearchPage extends GetView<AtomSearchController> {
       children: [
         GestureDetector(
           onTap: Get.back,
-          child: Container(
-            height: 44,
+          child: AppNeumoSurface(
+            circle: true,
+            soft: true,
             width: 44,
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              shape: BoxShape.circle,
-              boxShadow: colors.neumoShadowSoft,
-            ),
+            height: 44,
+            padding: EdgeInsets.zero,
             child: Icon(
               Design.icons.backArrow,
               size: Design.spacing.iconSmall,
@@ -72,16 +69,11 @@ class SearchPage extends GetView<AtomSearchController> {
       tag: kSearchBarHeroTag,
       child: Material(
         type: MaterialType.transparency,
-        child: Container(
+        child: AppNeumoSurface(
+          depth: ENeumoDepth.inset,
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
             vertical: Design.spacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             children: [
@@ -97,6 +89,8 @@ class SearchPage extends GetView<AtomSearchController> {
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     isDense: true,
+                    filled: true,
+                    fillColor: Colors.transparent,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -169,9 +163,11 @@ class SearchPage extends GetView<AtomSearchController> {
         return _buildEmptyState(context);
       }
       return ListView.separated(
+        // Soft-UI card shadows bleed past the card bounds; hard clip kills them.
+        clipBehavior: Clip.none,
         padding: EdgeInsets.only(bottom: Design.spacing.xl),
         itemCount: controller.results.length,
-        separatorBuilder: (_, _) => SizedBox(height: Design.spacing.md),
+        separatorBuilder: (_, _) => SizedBox(height: Design.spacing.lg),
         itemBuilder: (_, index) => AtomCard(atom: controller.results[index]),
       );
     });

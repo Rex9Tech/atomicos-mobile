@@ -40,15 +40,14 @@ class AppColors {
 class AppDayColors {
   const AppDayColors();
 
-  // Soft-UI light base: a gentle gray-green rather than near-white, so the
-  // white highlight and dark shade of neumorphic surfaces both read.
-  Color get background => const Color(0xFFEDF0EE);
-  // Surfaces sit just a hair above the background — same material, layered
-  // by light instead of color contrast (flutter_neumorphic rule).
-  Color get surface => const Color(0xFFF3F6F3);
-  Color get card => const Color(0xFFF5F5F3);
-  Color get border => const Color(0xFFE0E5E1);
-  Color get divider => const Color(0xFFF3F4F6);
+  // Soft-UI clay: a cool mid-gray so white highlights and cool shades both
+  // read when raised surfaces share this exact tone.
+  Color get background => const Color(0xFFE8ECF1);
+  // Material surface tokens stay a hair lighter for non-neumo chrome.
+  Color get surface => const Color(0xFFF4F6F9);
+  Color get card => const Color(0xFFF4F6F9);
+  Color get border => const Color(0xFFDCE1E8);
+  Color get divider => const Color(0xFFE4E8EE);
   Color get textPrimary => const Color(0xFF111827);
   Color get textSecondary => const Color(0xFF4B5563);
   Color get textMuted => const Color(0xFF9CA3AF);

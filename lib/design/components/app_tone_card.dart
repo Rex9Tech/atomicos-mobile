@@ -45,7 +45,7 @@ class AppToneCard extends StatelessWidget {
       onTap: onTap,
       padding: padding ?? EdgeInsets.all(Design.spacing.md),
       borderRadius: Design.spacing.radiusLarge,
-      backgroundColor: background,
+      // backgroundColor: background,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

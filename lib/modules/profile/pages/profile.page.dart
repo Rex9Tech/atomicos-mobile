@@ -143,7 +143,7 @@ class _PhotoSourceSheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: context.colors.neumo,
-        gradient: context.colors.neumoGradient,
+        boxShadow: context.colors.neumoShadow,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Design.spacing.radiusXLarge),
         ),

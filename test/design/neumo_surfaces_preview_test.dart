@@ -17,7 +17,6 @@ Widget _pill(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     decoration: BoxDecoration(
       color: colors.neumo,
-      gradient: colors.neumoGradient,
       borderRadius: BorderRadius.circular(999),
       boxShadow: colors.neumoShadowSoft,
     ),
@@ -28,7 +27,6 @@ Widget _pill(
           width: 34,
           decoration: BoxDecoration(
             color: colors.neumo,
-            gradient: colors.neumoGradient,
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 18, color: colors.primary),
@@ -127,7 +125,6 @@ void main() {
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 color: colors.neumo,
-                                gradient: colors.neumoGradient,
                                 borderRadius: BorderRadius.circular(28),
                                 boxShadow: colors.neumoShadow,
                               ),

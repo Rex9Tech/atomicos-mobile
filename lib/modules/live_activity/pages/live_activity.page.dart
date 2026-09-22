@@ -171,7 +171,9 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               maxLines: 3,
               decoration: InputDecoration(
                 isDense: true,
-                border: InputBorder.none,
+                filled: true,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
                 hintText: AppLocales.recording.noteFieldHint.tr,
                 hintStyle: context.typo.bodyMedium.copyWith(
                   color: colors.textMuted,
@@ -299,15 +301,12 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    // The transcript streams into a well sunk into the sheet, so the text
+    // reads as content the sheet holds rather than another card on top of it.
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
       width: double.infinity,
       padding: EdgeInsets.all(Design.spacing.md),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Obx(() {
         final text = widget.controller.liveTranscript.value.trim();
         final notice = widget.controller.transcriptNotice.value;
@@ -390,15 +389,12 @@ class _GlassRoundButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 36,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: 36,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: 36,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: Design.spacing.iconSmall,

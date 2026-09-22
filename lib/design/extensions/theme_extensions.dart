@@ -58,85 +58,122 @@ class AppThemeContextColors {
       : Colors.white.withValues(alpha: 0.85);
 
   // ===== NEUMORPHISM (soft UI) =====
-  /// Neumorphic surface fill — the same tone as the page, so the dual shadow
-  /// and gradient do the lifting (theme switch keeps a slightly raised dark
-  /// surface).
-  Color get neumo => isDark
-      ? _context.theme.colorScheme.surface
-      : _context.theme.scaffoldBackgroundColor;
+  /// Same tone as the page — raised and inset both extrude from one clay.
+  Color get neumo => _context.theme.scaffoldBackgroundColor;
 
-  /// Convex soft-UI surface wash, mirroring flutter_neumorphic's convex
-  /// shader: translucent dark at the bottom-right fading to a light wash
-  /// toward the top-left (the light source). Draw it OVER [neumo].
-  LinearGradient get neumoGradient => LinearGradient(
-    begin: Alignment.bottomRight,
-    end: Alignment.topLeft,
-    colors: isDark
-        ? [
-            Colors.black.withValues(alpha: 0.26),
-            Colors.white.withValues(alpha: 0.07),
-          ]
-        : [
-            Colors.black.withValues(alpha: 0.025),
-            Colors.white.withValues(alpha: 0.25),
-          ],
-    stops: const [0, 0.78],
-  );
-
-  /// Raised soft-UI surface: light falls from the top-left, shade to the
-  /// bottom-right — tight, defined dual shadows in the flutter_neumorphic
-  /// proportions (their blur scales with depth, ~1:2 offset:blur), softened
-  /// one notch after tester feedback ("a little bit too much").
+  /// Raised soft-UI (convex): white highlight top-left, cool shade
+  /// bottom-right. Same fill as the page so the dual shadows carry the depth.
+  /// No borders — non-uniform borders break [BorderRadius] in Flutter.
   List<BoxShadow> get neumoShadow => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.14),
+            color: Colors.white.withValues(alpha: 0.07),
             blurRadius: 12,
-            offset: const Offset(-3, -3),
+            offset: const Offset(-5, -5),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.48),
-            blurRadius: 15,
-            offset: const Offset(3, 3),
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 12,
+            offset: const Offset(5, 5),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.65),
-            blurRadius: 8,
-            offset: const Offset(-1.5, -1.5),
+            color: Colors.white,
+            blurRadius: 12,
+            offset: const Offset(-5, -5),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 8,
-            offset: const Offset(1.5, 1.5),
+            color: const Color(0xFFA3B1C6).withValues(alpha: 0.45),
+            blurRadius: 12,
+            offset: const Offset(5, 5),
           ),
         ];
 
-  /// Softer dual shadow for small, tight components (chips, buttons).
+  /// Softer raised pair for chips, icon buttons, and compact controls.
   List<BoxShadow> get neumoShadowSoft => isDark
       ? [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.10),
+            color: Colors.white.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.44),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 8,
             offset: const Offset(3, 3),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.65),
-            blurRadius: 5,
-            offset: const Offset(-1.5, -1.5),
+            color: Colors.white,
+            blurRadius: 8,
+            offset: const Offset(-3, -3),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: const Color(0xFFA3B1C6).withValues(alpha: 0.35),
+            blurRadius: 8,
+            offset: const Offset(3, 3),
+          ),
+        ];
+
+  /// Recessed soft-UI: shade bleeding in from the top-left, light bleeding in
+  /// from the bottom-right — the mirror of [neumoShadow].
+  ///
+  /// Only [AppNeumoSurface] with [ENeumoDepth.inset] can paint these;
+  /// [BoxDecoration.boxShadow] draws outside the shape and will not work.
+  List<BoxShadow> get neumoInsetShadow => isDark
+      ? [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.55),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(3, 3),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.07),
+            blurRadius: 10,
+            offset: const Offset(-3, -3),
+          ),
+        ]
+      : [
+          BoxShadow(
+            color: const Color(0xFF8E9BAE).withValues(alpha: 0.38),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(3, 3),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.9),
+            blurRadius: 10,
+            offset: const Offset(-3, -3),
+          ),
+        ];
+
+  /// Shallower well for compact controls and pressed states.
+  List<BoxShadow> get neumoInsetShadowSoft => isDark
+      ? [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 8,
+            offset: const Offset(2, 2),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.05),
             blurRadius: 6,
-            offset: const Offset(1.5, 1.5),
+            offset: const Offset(-2, -2),
+          ),
+        ]
+      : [
+          BoxShadow(
+            color: const Color(0xFF8E9BAE).withValues(alpha: 0.28),
+            blurRadius: 8,
+            offset: const Offset(2, 2),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.85),
+            blurRadius: 6,
+            offset: const Offset(-2, -2),
           ),
         ];
 

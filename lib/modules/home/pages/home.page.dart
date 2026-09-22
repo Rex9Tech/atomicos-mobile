@@ -67,9 +67,11 @@ class HomePage extends GetView<AuthController> {
         return false;
       },
       child: ListView.separated(
+        // Soft-UI card shadows bleed past the card bounds; hard clip kills them.
+        clipBehavior: Clip.none,
         padding: EdgeInsets.only(bottom: Design.spacing.lg),
         itemCount: atoms.length + (homeController.hasMoreAtoms.value ? 1 : 0),
-        separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
+        separatorBuilder: (_, index) => SizedBox(height: Design.spacing.lg),
         itemBuilder: (context, index) {
           if (index == atoms.length) {
             return _buildLoadMoreFooter(context, homeController);
@@ -109,16 +111,12 @@ class HomePage extends GetView<AuthController> {
 
     return Row(
       children: [
-        Container(
+        AppNeumoSurface(
+          soft: true,
+          radius: Design.spacing.radiusLarge,
           padding: EdgeInsets.symmetric(
             horizontal: Design.spacing.md,
             vertical: Design.spacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: colors.neumoShadowSoft,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -152,13 +150,13 @@ class HomePage extends GetView<AuthController> {
               );
             }
 
-            return Container(
-              height: 32,
+            return AppNeumoSurface(
+              circle: true,
+              soft: true,
               width: 32,
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
+              height: 32,
+              padding: EdgeInsets.zero,
+              color: colors.primary.withValues(alpha: 0.12),
               child: Icon(
                 Design.icons.person,
                 size: Design.spacing.iconSmall,
@@ -213,16 +211,14 @@ class HomePage extends GetView<AuthController> {
         tag: kSearchBarHeroTag,
         child: Material(
           type: MaterialType.transparency,
-          child: Container(
+          // The search field is a well, pressed into the page — the one place
+          // the inset pair reads most clearly against the raised cards.
+          child: AppNeumoSurface(
+            depth: ENeumoDepth.inset,
+            radius: Design.spacing.radiusLarge,
             padding: EdgeInsets.symmetric(
               horizontal: Design.spacing.md,
               vertical: Design.spacing.md,
-            ),
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-              boxShadow: colors.neumoShadow,
             ),
             child: Row(
               children: [
@@ -236,15 +232,12 @@ class HomePage extends GetView<AuthController> {
                     ),
                   ),
                 ),
-                Container(
-                  height: 28,
+                AppNeumoSurface(
+                  circle: true,
+                  soft: true,
                   width: 28,
-                  decoration: BoxDecoration(
-                    color: colors.neumo,
-                    gradient: colors.neumoGradient,
-                    shape: BoxShape.circle,
-                    boxShadow: colors.neumoShadowSoft,
-                  ),
+                  height: 28,
+                  padding: EdgeInsets.zero,
                   child: Icon(
                     Design.icons.filter,
                     size: Design.spacing.iconSmall,
@@ -313,16 +306,13 @@ class HomePage extends GetView<AuthController> {
           const Spacer(),
           GestureDetector(
             onTap: AppRoutes.toCalendar,
-            child: Container(
-              height: 30,
+            child: AppNeumoSurface(
+              circle: true,
+              soft: true,
               width: 30,
+              height: 30,
               margin: EdgeInsets.only(right: Design.spacing.sm),
-              decoration: BoxDecoration(
-                color: colors.neumo,
-                gradient: colors.neumoGradient,
-                shape: BoxShape.circle,
-                boxShadow: colors.neumoShadowSoft,
-              ),
+              padding: EdgeInsets.zero,
               child: Icon(
                 Design.icons.calendar,
                 size: Design.spacing.iconSmall,
@@ -330,15 +320,12 @@ class HomePage extends GetView<AuthController> {
               ),
             ),
           ),
-          Container(
-            height: 30,
+          AppNeumoSurface(
+            circle: true,
+            soft: true,
             width: 30,
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              shape: BoxShape.circle,
-              boxShadow: colors.neumoShadowSoft,
-            ),
+            height: 30,
+            padding: EdgeInsets.zero,
             child: Icon(
               Design.icons.search,
               size: Design.spacing.iconSmall,
@@ -354,19 +341,15 @@ class HomePage extends GetView<AuthController> {
     final colors = context.colors;
 
     return ListView.separated(
+      clipBehavior: Clip.none,
       padding: EdgeInsets.only(bottom: Design.spacing.lg),
       itemCount: 3,
-      separatorBuilder: (_, index) => SizedBox(height: Design.spacing.md),
+      separatorBuilder: (_, index) => SizedBox(height: Design.spacing.lg),
       itemBuilder: (context, index) {
-        return Container(
+        return AppNeumoSurface(
           height: 132,
+          radius: Design.spacing.radiusXLarge,
           padding: EdgeInsets.all(Design.spacing.lg),
-          decoration: BoxDecoration(
-            color: colors.neumo,
-            gradient: colors.neumoGradient,
-            borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-            boxShadow: colors.neumoShadowSoft,
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -374,7 +357,7 @@ class HomePage extends GetView<AuthController> {
                 height: 10,
                 width: 88,
                 decoration: BoxDecoration(
-                  color: colors.card,
+                  color: colors.divider,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -383,7 +366,7 @@ class HomePage extends GetView<AuthController> {
                 height: 16,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: colors.card,
+                  color: colors.divider,
                   borderRadius: BorderRadius.circular(
                     Design.spacing.radiusMedium,
                   ),
@@ -394,7 +377,7 @@ class HomePage extends GetView<AuthController> {
                 height: 16,
                 width: 188,
                 decoration: BoxDecoration(
-                  color: colors.card,
+                  color: colors.divider,
                   borderRadius: BorderRadius.circular(
                     Design.spacing.radiusMedium,
                   ),
@@ -405,7 +388,7 @@ class HomePage extends GetView<AuthController> {
                 height: 12,
                 width: 132,
                 decoration: BoxDecoration(
-                  color: colors.card,
+                  color: colors.divider,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -447,14 +430,9 @@ class HomePage extends GetView<AuthController> {
   Widget _buildBottomDock(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    return AppNeumoSurface(
+      radius: Design.spacing.radiusXLarge,
       padding: EdgeInsets.all(Design.spacing.sm),
-      decoration: BoxDecoration(
-        color: colors.neumo,
-        gradient: colors.neumoGradient,
-        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-        boxShadow: colors.neumoShadowSoft,
-      ),
       child: Row(
         children: [
           Expanded(
@@ -492,17 +470,10 @@ class HomePage extends GetView<AuthController> {
         builder: (context, setSheetState) {
           final isRecordTab = selectedTab == 'record';
 
-          return Container(
+          return AppNeumoSurface(
             margin: EdgeInsets.all(Design.spacing.sm),
+            radius: Design.spacing.radiusXLarge,
             padding: EdgeInsets.all(Design.spacing.md),
-            decoration: BoxDecoration(
-              color: colors.neumo,
-              gradient: colors.neumoGradient,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(Design.spacing.radiusXLarge),
-              ),
-              boxShadow: colors.neumoShadow,
-            ),
             child: SafeArea(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -519,16 +490,9 @@ class HomePage extends GetView<AuthController> {
                     ),
                   ),
                   SizedBox(height: Design.spacing.md),
-                  Container(
+                  AppNeumoSurface(
+                    radius: Design.spacing.radiusXLarge,
                     padding: EdgeInsets.all(Design.spacing.lg),
-                    decoration: BoxDecoration(
-                      color: colors.neumo,
-                      gradient: colors.neumoGradient,
-                      borderRadius: BorderRadius.circular(
-                        Design.spacing.radiusXLarge,
-                      ),
-                      boxShadow: colors.neumoShadowSoft,
-                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -546,14 +510,13 @@ class HomePage extends GetView<AuthController> {
                           ),
                         ),
                         SizedBox(height: Design.spacing.lg),
-                        Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: colors.neumo,
-                            gradient: colors.neumoGradient,
-                            borderRadius: BorderRadius.circular(999),
-                            boxShadow: colors.neumoShadowSoft,
-                          ),
+                        // Segmented track is a groove; only the selected
+                        // thumb inside it rises.
+                        AppNeumoSurface(
+                          depth: ENeumoDepth.inset,
+                          soft: true,
+                          radius: 999,
+                          padding: const EdgeInsets.all(4),
                           child: Row(
                             children: [
                               Expanded(
@@ -688,23 +651,44 @@ class _FilterChip extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Design.spacing.md,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? colors.primary : colors.neumo,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: selected ? null : colors.neumoShadowSoft,
-        ),
-        child: Text(
-          label,
-          style: context.typo.labelMedium.copyWith(
-            color: selected ? colors.background : colors.textSecondary,
-          ),
-        ),
-      ),
+      child: selected
+          ? Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: Design.spacing.md,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: colors.primary,
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: [
+                  BoxShadow(
+                    color: colors.primary.withValues(alpha: 0.28),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Text(
+                label,
+                style: context.typo.labelMedium.copyWith(
+                  color: colors.onPrimary,
+                ),
+              ),
+            )
+          : AppNeumoSurface(
+              soft: true,
+              radius: 999,
+              padding: EdgeInsets.symmetric(
+                horizontal: Design.spacing.md,
+                vertical: 6,
+              ),
+              child: Text(
+                label,
+                style: context.typo.labelMedium.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            ),
     );
   }
 }
@@ -766,27 +750,20 @@ class _NewAtomAction extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
-      child: Container(
+      child: AppNeumoSurface(
+        radius: 999,
         padding: EdgeInsets.symmetric(
           horizontal: Design.spacing.md,
           vertical: Design.spacing.md,
         ),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           children: [
-            Container(
-              height: 34,
+            AppNeumoSurface(
+              circle: true,
+              soft: true,
               width: 34,
-              decoration: BoxDecoration(
-                color: colors.neumo,
-                gradient: colors.neumoGradient,
-                shape: BoxShape.circle,
-              ),
+              height: 34,
+              padding: EdgeInsets.zero,
               child: Icon(
                 icon,
                 size: Design.spacing.iconSmall,
@@ -841,21 +818,32 @@ class _SheetTabButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
-        decoration: BoxDecoration(
-          color: selected ? colors.primary.withValues(alpha: 0.14) : null,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: context.typo.labelMedium.copyWith(
-            color: selected ? colors.primary : colors.textSecondary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
+      // The selected thumb lifts out of the groove it sits in.
+      child: selected
+          ? AppNeumoSurface(
+              soft: true,
+              radius: 999,
+              padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: context.typo.labelMedium.copyWith(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            )
+          : Padding(
+              padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: context.typo.labelMedium.copyWith(
+                  color: colors.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
     );
   }
 }

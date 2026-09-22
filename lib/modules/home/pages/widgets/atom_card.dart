@@ -7,6 +7,9 @@ import 'package:rexone_mobile/routes/routes.dart';
 import '../../data/models/atom.model.dart';
 
 /// Summary card for one atom — shared by Home and Search results.
+///
+/// Classic raised soft-UI: same clay as the page, extruded by the dual
+/// diagonal shadow pair. The source tag sits in a soft inset well.
 class AtomCard extends StatelessWidget {
   const AtomCard({super.key, required this.atom});
 
@@ -21,113 +24,144 @@ class AtomCard extends StatelessWidget {
     // worth of text (first paragraph, collapsed, word-safe ellipsis).
     final summary = _cardSummary(atom);
 
-    return AppGlassCard(
+    return GestureDetector(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
-      radius: Design.spacing.radiusLarge,
-      padding: EdgeInsets.all(Design.spacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                _sourceIcon(atom.source),
-                size: Design.spacing.iconSmall,
-                color: colors.textSecondary,
-              ),
-              SizedBox(width: Design.spacing.xs),
-              Text(
-                atom.source.toUpperCase(),
-                style: context.typo.caption.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const Spacer(),
-              _statusBadge(atom.status),
-            ],
-          ),
-          SizedBox(height: Design.spacing.md),
-          Text(
-            atom.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: context.typo.bodyLarge.copyWith(
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-            ),
-          ),
-          if (summary.isNotEmpty) ...[
-            SizedBox(height: Design.spacing.xs),
-            MarkdownBody(
-              data: summary,
-              shrinkWrap: true,
-              styleSheet: MarkdownStyleSheet(
-                p: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
-                strong: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                  fontWeight: FontWeight.w700,
-                ),
-                em: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                  fontStyle: FontStyle.italic,
-                ),
-                listBullet: context.typo.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.4,
-                ),
-                blockquote: context.typo.bodySmall.copyWith(
-                  color: colors.textMuted,
-                  height: 1.4,
-                ),
-                code: context.typo.caption.copyWith(color: colors.primary),
-              ),
-            ),
-          ],
-          if (date.isNotEmpty || duration.isNotEmpty) ...[
-            SizedBox(height: Design.spacing.sm),
+      behavior: HitTestBehavior.opaque,
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusXLarge,
+        padding: EdgeInsets.all(Design.spacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                if (date.isNotEmpty) ...[
-                  Icon(
-                    Design.icons.calendar,
-                    size: 13,
-                    color: colors.textMuted,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    date,
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                ],
-                if (date.isNotEmpty && duration.isNotEmpty)
-                  Text(
-                    ' · ',
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                if (duration.isNotEmpty) ...[
-                  Icon(Design.icons.clock, size: 13, color: colors.textMuted),
-                  const SizedBox(width: 4),
-                  Text(
-                    duration,
-                    style: context.typo.caption.copyWith(
-                      color: colors.textMuted,
-                    ),
-                  ),
-                ],
+                _SourceChip(source: atom.source),
+                const Spacer(),
+                _statusBadge(atom.status),
               ],
             ),
+            SizedBox(height: Design.spacing.md),
+            Text(
+              atom.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.typo.bodyLarge.copyWith(
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+              ),
+            ),
+            if (summary.isNotEmpty) ...[
+              SizedBox(height: Design.spacing.xs),
+              MarkdownBody(
+                data: summary,
+                shrinkWrap: true,
+                styleSheet: MarkdownStyleSheet(
+                  p: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    height: 1.4,
+                  ),
+                  strong: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    height: 1.4,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  em: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    height: 1.4,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  listBullet: context.typo.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    height: 1.4,
+                  ),
+                  blockquote: context.typo.bodySmall.copyWith(
+                    color: colors.textMuted,
+                    height: 1.4,
+                  ),
+                  code: context.typo.caption.copyWith(color: colors.primary),
+                ),
+              ),
+            ],
+            if (date.isNotEmpty || duration.isNotEmpty) ...[
+              SizedBox(height: Design.spacing.sm),
+              Row(
+                children: [
+                  if (date.isNotEmpty) ...[
+                    Icon(
+                      Design.icons.calendar,
+                      size: 13,
+                      color: colors.textMuted,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      date,
+                      style: context.typo.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                  if (date.isNotEmpty && duration.isNotEmpty)
+                    Text(
+                      ' · ',
+                      style: context.typo.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  if (duration.isNotEmpty) ...[
+                    Icon(Design.icons.clock, size: 13, color: colors.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      duration,
+                      style: context.typo.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Recessed source label — the "GOOGLE MEET" well from the soft-UI mock.
+class _SourceChip extends StatelessWidget {
+  const _SourceChip({required this.source});
+
+  final String source;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
+      soft: true,
+      radius: 999,
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.sm,
+        vertical: Design.spacing.xs,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _sourceIcon(source),
+            size: Design.spacing.iconSmall,
+            color: colors.textSecondary,
+          ),
+          SizedBox(width: Design.spacing.xs),
+          Text(
+            source.toUpperCase(),
+            style: context.typo.caption.copyWith(
+              color: colors.textSecondary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
         ],
       ),
     );

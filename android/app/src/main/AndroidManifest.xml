@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- $APP_NAME -->
     <application
-        android:label="AtomicOS"
+        android:label="Atomic"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

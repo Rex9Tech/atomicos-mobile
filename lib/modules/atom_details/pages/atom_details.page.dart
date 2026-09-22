@@ -93,15 +93,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     if (atom == null) return;
 
     Get.bottomSheet<void>(
-      Container(
+      AppNeumoSurface(
         margin: EdgeInsets.all(Design.spacing.sm),
+        radius: Design.spacing.radiusXLarge,
         padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          color: context.colors.neumo,
-          gradient: context.colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          boxShadow: context.colors.neumoShadow,
-        ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -168,15 +163,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final categoryService = Get.find<CategoryService>();
 
     Get.bottomSheet<void>(
-      Container(
+      AppNeumoSurface(
         margin: EdgeInsets.all(Design.spacing.sm),
+        radius: Design.spacing.radiusXLarge,
         padding: EdgeInsets.all(Design.spacing.lg),
-        decoration: BoxDecoration(
-          color: context.colors.neumo,
-          gradient: context.colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-          boxShadow: context.colors.neumoShadow,
-        ),
         child: SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -251,7 +241,19 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final categoryService = Get.find<CategoryService>();
 
     return Obx(() {
-      final category = categoryService.byId(atom.categoryId);
+      // Force a read on every build — byId short-circuits when categoryId
+      // is null and would otherwise leave this Obx with no Rx dependency.
+      final categories = categoryService.categories.toList();
+      final id = atom.categoryId;
+      CategoryModel? category;
+      if (id != null && id.isNotEmpty) {
+        for (final item in categories) {
+          if (item.id == id) {
+            category = item;
+            break;
+          }
+        }
+      }
       if (category == null) return const SizedBox.shrink();
       final colors = context.colors;
 
@@ -361,56 +363,57 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           final linked = controller.linkedEvent.value != null;
           return Row(
             children: [
-              GestureDetector(
-                onTap: controller.isSavingDate.value
-                    ? null
-                    : () => _pickMeetingDate(context),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Design.spacing.sm,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.neumo,
-                    gradient: colors.neumoGradient,
-                    borderRadius: BorderRadius.circular(999),
-                    boxShadow: colors.neumoShadowSoft,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (controller.isSavingDate.value)
-                        SizedBox(
-                          height: 12,
-                          width: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+              Flexible(
+                child: GestureDetector(
+                  onTap: controller.isSavingDate.value
+                      ? null
+                      : () => _pickMeetingDate(context),
+                  child: AppNeumoSurface(
+                    soft: true,
+                    radius: 999,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Design.spacing.sm,
+                      vertical: 5,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (controller.isSavingDate.value)
+                          SizedBox(
+                            height: 12,
+                            width: 12,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.primary,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Design.icons.calendar,
+                            size: 13,
                             color: colors.primary,
                           ),
-                        )
-                      else
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            meetingAt == null
+                                ? AppLocales.atom.setMeetingDate.tr
+                                : _dateTimeLabel(context, meetingAt),
+                            overflow: TextOverflow.ellipsis,
+                            style: context.typo.caption.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
                         Icon(
-                          Design.icons.calendar,
-                          size: 13,
-                          color: colors.primary,
+                          Design.icons.edit,
+                          size: 12,
+                          color: colors.textMuted,
                         ),
-                      const SizedBox(width: 5),
-                      Text(
-                        meetingAt == null
-                            ? AppLocales.atom.setMeetingDate.tr
-                            : _dateTimeLabel(context, meetingAt),
-                        style: context.typo.caption.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Design.icons.edit,
-                        size: 12,
-                        color: colors.textMuted,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -460,13 +463,23 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         radius: Design.spacing.radiusLarge,
         child: Column(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 6,
-                backgroundColor: colors.border,
-                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+            AppNeumoSurface(
+              depth: ENeumoDepth.inset,
+              soft: true,
+              radius: 999,
+              padding: EdgeInsets.zero,
+              child: SizedBox(
+                width: double.infinity,
+                height: 6,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: Colors.transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: Design.spacing.md),
@@ -540,15 +553,12 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final colors = context.colors;
     final visible = _visibleTabIndexes(atom);
 
+    // The strip is a recessed rail; the active tab is the raised thumb.
     return Obx(
-      () => Container(
+      () => AppNeumoSurface(
+        depth: ENeumoDepth.inset,
+        radius: 999,
         padding: EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           children: visible.map((index) {
             final label = _tabs[index];
@@ -566,6 +576,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     decoration: BoxDecoration(
                       color: selected ? colors.primary : Colors.transparent,
                       borderRadius: BorderRadius.circular(999),
+                      boxShadow: selected ? colors.neumoShadowSoft : null,
                     ),
                     child: Text(
                       label,
@@ -732,9 +743,11 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
             onTap: controller.isUploadingAsset.value
                 ? null
                 : controller.addAttachment,
-            child: AppGlassCard(
-              padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
+            // Upload zone, not a card — it should read as a recess.
+            child: AppNeumoSurface(
+              depth: ENeumoDepth.inset,
               radius: Design.spacing.radiusLarge,
+              padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -959,11 +972,15 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _scrollableCard(BuildContext context, Widget child) {
     return SingleChildScrollView(
-      child: AppGlassCard(
-        padding: EdgeInsets.all(Design.spacing.lg),
-        radius: Design.spacing.radiusXLarge,
+      // Let the card take the scroll view's max width without forcing
+      // double.infinity through AppNeumoSurface (that can blow layout).
+      child: SizedBox(
         width: double.infinity,
-        child: child,
+        child: AppGlassCard(
+          padding: EdgeInsets.all(Design.spacing.lg),
+          radius: Design.spacing.radiusXLarge,
+          child: child,
+        ),
       ),
     );
   }
@@ -1220,15 +1237,12 @@ class _CircleButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: size,
+      child: AppNeumoSurface(
+        circle: true,
+        soft: true,
         width: size,
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          shape: BoxShape.circle,
-          boxShadow: colors.neumoShadowSoft,
-        ),
+        height: size,
+        padding: EdgeInsets.zero,
         child: Icon(
           icon,
           size: Design.spacing.iconSmall,
@@ -1260,14 +1274,9 @@ class _SheetAction extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppNeumoSurface(
+        radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.md),
-        decoration: BoxDecoration(
-          color: colors.neumo,
-          gradient: colors.neumoGradient,
-          borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-          boxShadow: colors.neumoShadowSoft,
-        ),
         child: Row(
           children: [
             Icon(icon, size: Design.spacing.iconSmall, color: colors.primary),
