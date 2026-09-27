@@ -28,6 +28,22 @@ cat << 'EOF' > "${PRE_COMMIT_HOOK}"
 #!/usr/bin/env bash
 set -e
 
+# Ensure developer toolchains are discoverable in GUI environments (VS Code, Fork, SourceTree)
+if ! command -v dart &>/dev/null; then
+  for p in \
+    "$HOME/Desktop/Dev/Dependencies/flutter/bin" \
+    "$HOME/development/flutter/bin" \
+    "$HOME/flutter/bin" \
+    "/opt/homebrew/bin" \
+    "/usr/local/bin" \
+    "$HOME/.pub-cache/bin"
+  do
+    if [ -d "$p" ]; then
+      export PATH="$p:$PATH"
+    fi
+  done
+fi
+
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 NC='\033[0m'
