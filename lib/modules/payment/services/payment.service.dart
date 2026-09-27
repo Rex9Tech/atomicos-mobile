@@ -93,9 +93,9 @@ class PaymentService extends GetxService {
   }
 
   // ============================================================
-  // TRANSACTIONS
+  // PURCHASES
   // ============================================================
-  Future<PaginatedResponse<TransactionModel>> getTransactions({
+  Future<PaginatedResponse<PurchaseModel>> getPurchases({
     int? page,
     int? limit,
     bool showLoading = false,
@@ -104,13 +104,13 @@ class PaymentService extends GetxService {
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
     final response = await _api.get(
-      ServerRoutes.paymentTransactions,
+      ServerRoutes.paymentPurchases,
       query: query,
       showLoading: showLoading,
     );
-    return _api.parsePagyList<TransactionModel>(
+    return _api.parsePagyList<PurchaseModel>(
       response,
-      TransactionModel.fromJson,
+      PurchaseModel.fromJson,
     );
   }
 

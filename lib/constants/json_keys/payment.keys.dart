@@ -47,9 +47,10 @@ class PaymentKeys {
   static const expiredAt = 'expired_at';
   static const daysRemaining = 'days_remaining';
 
-  // ===== Transaction =====
+  // ===== Purchase =====
   static const paid = 'paid';
   static const createdAt = 'created_at';
+  static const purchases = 'purchases';
 
   // ===== Coupon =====
   static const couponCode = 'coupon_code';
@@ -74,8 +75,8 @@ class PaymentKeys {
   static const userId = 'user_id';
   static const couponTitle = 'coupon_title';
   static const userEmail = 'user_email';
-  static const purchaseId = 'purchase_id';
-  static const purchaseType = 'purchase_type';
+  static const paymentId = 'payment_id';
+  static const paymentType = 'payment_type';
   static const originalAmount = 'original_amount';
   static const remainingAttempts = 'remaining_attempts';
   static const cooldownRemaining = 'cooldown_remaining';

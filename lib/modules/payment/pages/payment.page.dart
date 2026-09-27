@@ -82,15 +82,15 @@ class PaymentPage extends GetView<PaymentController> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildProductCard(context, controller, product),
-                if (isLast && controller.transactions.isNotEmpty) ...[
+                if (isLast && controller.purchases.isNotEmpty) ...[
                   SizedBox(height: Design.spacing.xxxl),
                   Text(
-                    AppLocales.payment.transactions.tr,
+                    AppLocales.payment.purchases.tr,
                     style: context.typo.headline3,
                   ),
                   SizedBox(height: Design.spacing.md),
-                  ...controller.transactions.map(
-                    (tx) => _buildTransactionTile(context, tx),
+                  ...controller.purchases.map(
+                    (p) => _buildPurchaseTile(context, p),
                   ),
                   SizedBox(height: Design.spacing.xxl),
                 ],
@@ -339,7 +339,7 @@ class PaymentPage extends GetView<PaymentController> {
     );
   }
 
-  Widget _buildTransactionTile(BuildContext context, TransactionModel tx) {
+  Widget _buildPurchaseTile(BuildContext context, PurchaseModel p) {
     return AppCard(
       margin: EdgeInsets.only(bottom: Design.spacing.sm),
       padding: EdgeInsets.symmetric(
@@ -352,17 +352,17 @@ class PaymentPage extends GetView<PaymentController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tx.productName ?? 'Payment', style: context.typo.bodyLarge),
-              if (tx.createdAt != null)
+              Text(p.productName ?? 'Payment', style: context.typo.bodyLarge),
+              if (p.createdAt != null)
                 Text(
-                  AppDateTime.formatLocalDate(tx.createdAt),
+                  AppDateTime.formatLocalDate(p.createdAt),
                   style: context.typo.caption,
                 ),
             ],
           ),
           AppBadge(
-            text: tx.paid ? 'Paid' : tx.status,
-            type: tx.paid ? BadgeType.success : BadgeType.warning,
+            text: p.paid ? 'Paid' : p.status,
+            type: p.paid ? BadgeType.success : BadgeType.warning,
           ),
         ],
       ),

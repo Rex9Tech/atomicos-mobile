@@ -25,7 +25,7 @@ void main() {
 
   group('PaymentController - Fetch and State', () {
     test(
-      'fetchData populates products, subscriptions, transactions, and accesses',
+      'fetchData populates products, subscriptions, purchases, and accesses',
       () async {
         final mockProduct = ProductModel(
           id: 'prod_1',
@@ -63,8 +63,8 @@ void main() {
           scheduledForCancellation: false,
         );
 
-        final mockTx = TransactionModel(
-          id: 'tx_1',
+        final mockPurchase = PurchaseModel(
+          id: 'pur_1',
           productId: 'prod_1',
           unitAmount: 1999,
           currency: 'USD',
@@ -94,8 +94,8 @@ void main() {
               success: true,
             );
 
-        fakePayment.transactionsResponse = PaginatedResponse<TransactionModel>(
-          records: [mockTx],
+        fakePayment.purchasesResponse = PaginatedResponse<PurchaseModel>(
+          records: [mockPurchase],
           message: 'OK',
           statusCode: 200,
           success: true,
@@ -107,7 +107,7 @@ void main() {
         expect(controller.products.first.id, equals('prod_1'));
         expect(controller.accesses.length, equals(1));
         expect(controller.subscriptions.length, equals(1));
-        expect(controller.transactions.length, equals(1));
+        expect(controller.purchases.length, equals(1));
 
         expect(controller.hasActiveAccess('prod_1'), isTrue);
         expect(controller.hasActiveAccess('prod_unknown'), isFalse);

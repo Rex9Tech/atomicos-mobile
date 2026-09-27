@@ -209,7 +209,7 @@ class AppTranslations extends Translations {
       // Payment
       AppLocales.payment.title: 'Billing & Subscriptions',
       AppLocales.payment.subscriptions: 'Subscriptions',
-      AppLocales.payment.transactions: 'Transactions',
+      AppLocales.payment.purchases: 'Purchases',
       AppLocales.payment.upgradePlan: 'Upgrade Plan',
       AppLocales.payment.active: 'Active',
       AppLocales.payment.canceled: 'Canceled',
@@ -580,7 +580,7 @@ class AppTranslations extends Translations {
       // Payment
       AppLocales.payment.title: 'ငွေပေးချေမှုနှင့် စာရင်းသွင်းမှု',
       AppLocales.payment.subscriptions: 'စာရင်းသွင်းမှုများ',
-      AppLocales.payment.transactions: 'ငွေလွှဲမှတ်တမ်း',
+      AppLocales.payment.purchases: 'ဝယ်ယူမှုမှတ်တမ်း',
       AppLocales.payment.upgradePlan: 'အဆင့်မြှင့်မည်',
       AppLocales.payment.active: 'အသုံးပြုဆဲ',
       AppLocales.payment.canceled: 'ပယ်ဖျက်ပြီး',

@@ -19,7 +19,7 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
   /// Aliases [items] from [PagyControllerMixin] for full backward compatibility.
   RxList<ProductModel> get products => items;
   final RxList<SubscriptionModel> subscriptions = <SubscriptionModel>[].obs;
-  final RxList<TransactionModel> transactions = <TransactionModel>[].obs;
+  final RxList<PurchaseModel> purchases = <PurchaseModel>[].obs;
   final RxList<AccessModel> accesses = <AccessModel>[].obs;
 
   // Filter Chip Constants
@@ -178,9 +178,9 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
             subscriptions.assignAll(res.records);
           }
         }),
-        _payment.getTransactions(showLoading: false).then((res) {
+        _payment.getPurchases(showLoading: false).then((res) {
           if (res.success) {
-            transactions.assignAll(res.records);
+            purchases.assignAll(res.records);
           }
         }),
         _payment.getActiveAccesses(showLoading: false).then((res) {
@@ -389,6 +389,6 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
   }
 
   int getPurchaseCount(String productId) {
-    return transactions.where((t) => t.productId == productId && t.paid).length;
+    return purchases.where((t) => t.productId == productId && t.paid).length;
   }
 }

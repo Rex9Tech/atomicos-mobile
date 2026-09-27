@@ -241,7 +241,7 @@ class _PaymentLocales {
 
   final title = 'payment.title';
   final subscriptions = 'payment.subscriptions';
-  final transactions = 'payment.transactions';
+  final purchases = 'payment.purchases';
   final upgradePlan = 'payment.upgrade_plan';
   final active = 'payment.active';
   final canceled = 'payment.canceled';

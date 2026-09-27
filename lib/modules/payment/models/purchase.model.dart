@@ -1,6 +1,6 @@
 import 'package:rexone_mobile/constants/constants.dart';
 
-class TransactionModel {
+class PurchaseModel {
   final String id;
   final String? productId;
   final int unitAmount;
@@ -10,7 +10,7 @@ class TransactionModel {
   final String? productName;
   final String? createdAt;
 
-  TransactionModel({
+  PurchaseModel({
     required this.id,
     this.productId,
     required this.unitAmount,
@@ -21,8 +21,8 @@ class TransactionModel {
     this.createdAt,
   });
 
-  factory TransactionModel.fromJson(Map<String, dynamic> json) {
-    return TransactionModel(
+  factory PurchaseModel.fromJson(Map<String, dynamic> json) {
+    return PurchaseModel(
       id: json[ApiKeys.id]?.toString() ?? '',
       productId: json[PaymentKeys.productId]?.toString(),
       unitAmount: json[PaymentKeys.unitAmount] is int

@@ -481,7 +481,7 @@ class FakeFeedbackService extends FeedbackService {
 class FakePaymentService extends PaymentService {
   PaginatedResponse<ProductModel>? productsResponse;
   PaginatedResponse<SubscriptionModel>? subscriptionsResponse;
-  PaginatedResponse<TransactionModel>? transactionsResponse;
+  PaginatedResponse<PurchaseModel>? purchasesResponse;
   PaginatedResponse<AccessModel>? accessesResponse;
   ApiResponse<Map<String, dynamic>>? checkoutResponse;
   ApiResponse<SubscriptionModel>? cancelResponse;
@@ -532,13 +532,13 @@ class FakePaymentService extends PaymentService {
   }
 
   @override
-  Future<PaginatedResponse<TransactionModel>> getTransactions({
+  Future<PaginatedResponse<PurchaseModel>> getPurchases({
     int? page,
     int? limit,
     bool showLoading = false,
   }) async {
-    return transactionsResponse ??
-        const PaginatedResponse<TransactionModel>(
+    return purchasesResponse ??
+        const PaginatedResponse<PurchaseModel>(
           records: [],
           message: 'OK',
           statusCode: 200,

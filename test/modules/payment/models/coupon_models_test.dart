@@ -181,8 +181,8 @@ void main() {
         PaymentKeys.couponId: 'c_1',
         PaymentKeys.userId: 'u_1',
         PaymentKeys.productId: 'p_1',
-        PaymentKeys.purchaseId: 'trx_1',
-        PaymentKeys.purchaseType: 'trx',
+        PaymentKeys.paymentId: 'pur_1',
+        PaymentKeys.paymentType: 'purchase',
         PaymentKeys.discountAmount: 500,
         PaymentKeys.originalAmount: 2000,
         PaymentKeys.finalAmount: 1500,
@@ -199,13 +199,16 @@ void main() {
       expect(userCoupon.userId, 'u_1');
       expect(userCoupon.couponCode, 'SAVE5');
       expect(userCoupon.couponTitle, 'Save \$5');
-      expect(userCoupon.purchaseType, PurchaseTypes.trx);
+      expect(userCoupon.paymentType, PaymentTypes.purchase);
+      expect(userCoupon.paymentId, 'pur_1');
       expect(userCoupon.discountAmount, 500);
       expect(userCoupon.finalAmount, 1500);
 
       final encoded = userCoupon.toJson();
       expect(encoded[PaymentKeys.couponId], 'c_1');
       expect(encoded[PaymentKeys.userId], 'u_1');
+      expect(encoded[PaymentKeys.paymentId], 'pur_1');
+      expect(encoded[PaymentKeys.paymentType], PaymentTypes.purchase);
       expect(encoded[PaymentKeys.couponTitle], 'Save \$5');
     });
   });

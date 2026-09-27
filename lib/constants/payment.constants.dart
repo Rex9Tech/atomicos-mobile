@@ -16,11 +16,11 @@ class CouponTypes {
   static const fixed = 'fixed';
 }
 
-class PurchaseTypes {
-  const PurchaseTypes._();
+class PaymentTypes {
+  const PaymentTypes._();
 
-  static const trx = 'trx';
-  static const sbs = 'sbs';
+  static const purchase = 'purchase';
+  static const subscription = 'subscription';
 }
 
 class PaymentCurrencies {

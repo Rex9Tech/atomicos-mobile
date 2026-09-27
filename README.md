@@ -28,13 +28,13 @@ Built under the same creed as RexOne Core and RexOne Web: **Start from One. Not 
 
 ### 🏛️ Unified Ecosystem & Constitutional Directives
 
-| Resource                  | Purpose & Canonical Specification                                                                                                                                                                                                                                                                                       |
-| :------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **🏛️ Unified Ecosystem**  | Complete cross-platform architecture, feature parity matrix, and communication protocols between Core, Web, and Mobile: **[Ecosystem Architecture](https://github.com/rex-9/rexone-core/blob/dev/ECOSYSTEM.md)** and **[Visual Walkthrough](https://github.com/rex-9/rexone-core/blob/dev/docs/VISUAL_WALKTHROUGH.md)** |
-| **📜 Constitutional Law** | Non-negotiable architecture, design system, and state laws: **[LAW.md](LAW.md)** _(Zero exceptions)_                                                                                                                                                                                                                    |
-| **🤖 Operational Agent Governance** | Autonomous agent rules, secret isolation, and documentation synchronization: **[AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)** |
-| **🗄️ Client Database**    | Drift SQLite local-first architecture and schema mirroring: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                                                                                                                                                                  |
-| **📖 Master Documentation Hub** | Native subsystem architecture, CLI tools, and E2E testing: **[`docs/README.md`](docs/README.md)**                                                                                                                                                                                     |
+| Resource                            | Purpose & Canonical Specification                                                                                                                                                                                                                                                                                       |
+| :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🏛️ Unified Ecosystem**            | Complete cross-platform architecture, feature parity matrix, and communication protocols between Core, Web, and Mobile: **[Ecosystem Architecture](https://github.com/rex-9/rexone-core/blob/dev/ECOSYSTEM.md)** and **[Visual Walkthrough](https://github.com/rex-9/rexone-core/blob/dev/docs/VISUAL_WALKTHROUGH.md)** |
+| **📜 Constitutional Law**           | Non-negotiable architecture, design system, and state laws: **[LAW.md](LAW.md)** _(Zero exceptions)_                                                                                                                                                                                                                    |
+| **🤖 Operational Agent Governance** | Autonomous agent rules, secret isolation, and documentation synchronization: **[AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)**                                                                                                                                                                   |
+| **🗄️ Client Database**              | Drift SQLite local-first architecture and schema mirroring: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                                                                                                                                                                                                    |
+| **📖 Master Documentation Hub**     | Native subsystem architecture, CLI tools, and E2E testing: **[`docs/README.md`](docs/README.md)**                                                                                                                                                                                                                       |
 
 ---
 
@@ -52,31 +52,33 @@ Instead of burning money and compute wasting AI tokens on weak, fragmented mobil
 
 RexOne Mobile pioneers **Discipline-Driven Development (DDD)** for native mobile engineering. In an era where AI agents can vomit thousands of lines of Flutter code in seconds, the bottleneck is never rendering a UI—it is **preserving native performance, managing hardware lifecycles, and preventing widget-tree chaos**.
 
-> *You bring the idea. AI writes the code. RexOne keeps both of you from destroying the foundation.*
+> _You bring the idea. AI writes the code. RexOne keeps both of you from destroying the foundation._
 
 #### Fearless Mobile Realities Others Hesitate to Reveal:
+
 1. **The Mobile AI Vibe-Coding Catastrophe**: Unguided AI coding agents dump API calls, state manipulation, audio focus, and storage I/O directly into monolithic `build()` methods. Within two iterations, hot reload crawls, memory leaks proliferate, and the app crashes on the first network hiccup. Discipline-Driven Development enforces strict separation: Presentation (widgets), Business Logic (controllers), and Data (services & models).
 2. **The Webview Wrapper Cop-Out**: Wrapping a responsive website in a webview shell and calling it an "iOS and Android app" is lazy, deceptive, and disrespectful to users. Real mobile experiences demand native 60fps rendering, hardware-accelerated media streaming, and offline-first SQLite persistence (Drift) that operates seamlessly in airplane mode.
 3. **The Mobile BaaS Trap**: Direct-to-database mobile SDKs expose client apps to severe security vectors, runaway cloud query costs, and zero offline durability. Real mobile architecture communicates with a sovereign, authenticated API core.
 4. **Zero Deprecation Shims & Zombie Code**: Retaining dead screens, abandoned controllers, or stale model fields is cowardice. Under Constitutional Law U14, replaced code is eliminated completely.
-5. **100% Free Sovereignty**: Unlike commercial Flutter starter kits charging hundreds of dollars or locking push notifications and offline sync behind paid licenses, RexOne Mobile is 100% free, MIT/open, and sovereign.
+5. **100% Free Sovereignty**: Unlike commercial Flutter starter kits charging hundreds of dollars or locking push notifications and offline sync behind paid licenses, RexOne Mobile is 100% free, Apache 2.0 open-source, and sovereign.
 
 ### 📊 Architectural Comparison: Why RexOne Wins
 
-| Dimension / Capability | 🛡️ **RexOne Sovereign Trinity** | 📦 **Next.js Full-Stack Boilerplates** | 🔥 **Firebase / Cloud Serverless** | 🪤 **Supabase / BaaS Starter Kits** | 🚂 **Rails & Laravel Monoliths** |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Architectural Model** | ✅ **Sovereign Tri-Platform**: Rails 8 API + React 19 SPA + pure Flutter 3 native client | ❌ **Node Monolith**: API, DB, jobs & DOM crammed into 1 fragile runtime | ❌ **Serverless Spaghetti**: Disconnected Cloud Functions + NoSQL Firestore | ⚠️ **Client-Heavy BaaS**: Direct client DB queries + scattered edge functions | ⚠️ **HTML Monolith**: Server-rendered HTML with Turbo/Livewire |
-| **Native Mobile App** | ✅ **Native 60fps Flutter**: Shared contracts, biometrics, hardware media & push | ❌ **None or Webview Shell**: Sluggish Capacitor/Cordova wrapper | ⚠️ **Fragmented SDKs**: Direct NoSQL queries from mobile with zero encapsulation | ⚠️ **Raw Client SDK**: Mobile apps directly expose database tables via client key | ⚠️ **Turbo / Webview**: Web pages wrapped in a native navigation shell |
-| **Offline-First Durability** | ✅ **Drift SQLite (`rexone_offline`)**: Schema mirroring, offline subtitles & AES-256 saves | ❌ **None**: Application breaks entirely on network disconnect | ⚠️ **Flaky Document Cache**: Primitive document cache prone to sync desync | ⚠️ **No Relational Offline**: Unreliable offline sync across foreign keys | ❌ **None**: Server-rendered pages require constant connectivity |
-| **Database Integrity** | ✅ **Strict Relational PostgreSQL**: Foreign keys, ACID, UUIDs, soft-deletes | ⚠️ **ORM Inconsistencies**: Serverless connection pool limits on Prisma/Drizzle | ❌ **NoSQL Hell**: No joins, no cascading deletes, data duplication nightmare | ✅ **PostgreSQL**: Relational integrity via managed Postgres instance | ✅ **PostgreSQL / MySQL**: Mature relational ORM (ActiveRecord / Eloquent) |
-| **Background Processing** | ✅ **Solid Queue (Fibers + Threads)**: Workload pooling, recurring cron, zero Redis costs | ❌ **Serverless Timeouts**: Forced into third-party Inngest, QStash, or Celery ($$$) | ❌ **Execution Timeouts**: Severe execution limits, cold starts & high invocation bills | ⚠️ **Edge Functions**: Strict 10s CPU limits, no persistent background workers | ⚠️ **Redis Dependency**: Requires external Redis broker & extra hosting RAM |
-| **Real-Time Delivery** | ✅ **Native Action Cable**: Persistent WebSockets, auto-reconnect & binary STT/TTS | ❌ **Broken on Serverless**: Forced into expensive Pusher / Ably tiers ($$$) | ⚠️ **Firestore Listeners**: Pay-per-document-read billing nightmare under active polling | ⚠️ **Supabase Realtime**: Row-level broadcast, high connection pricing tiers | ⚠️ **External Broker**: Requires Redis/Reverb/Soketi daemon configuration |
-| **Object Storage** | ✅ **Self-Hosted Garage S3**: High-performance local S3, zero egress bills | ❌ **Vendor Cloud**: AWS S3 / Cloudflare R2 egress fees | ❌ **Google Cloud Storage**: Proprietary bucket pricing & steep download egress fees | ⚠️ **Proprietary Storage**: Vendor-locked BaaS pricing ladders | ⚠️ **ActiveStorage / Flysystem**: Tied to third-party cloud S3 bucket bills |
-| **AI Workflows & Speech** | ✅ **Durable Queued AI**: Chunked streaming, 16kHz live STT, binary MP3 TTS | ⚠️ **Edge Timeouts**: LLM streams crash on cold starts or Vercel limits | ❌ **Synchronous Timeouts**: Long-running LLM inferences hit function deadlines | ❌ **Client Leaks**: Client-side API keys or basic Edge Function calls | ⚠️ **Basic Wrappers**: Simple synchronous chat endpoints |
-| **Anti-Vibe Governance** | ✅ **Constitutional Law (`LAW.md`)**: Laws U14/U15 stop AI tech debt and zombie code | ❌ **Unguided Vibe-Coding**: Fragile abstractions, dead shims & runaway debt | ❌ **Scattered Cloud Logic**: Code fragmented across dozens of uncoordinated functions | ❌ **RLS Spaghetti**: 100+ line SQL security policies prone to data leaks | ⚠️ **Conventions Only**: No explicit constitutional AI agent rules |
-| **Cost & Sovereignty** | ✅ **100% Free & Open (MIT)**: Zero paywalls, zero "Pro" upsells, sovereign VPS deploy | ❌ **$199–$499 Paid License**: Features gated behind tier paywalls | ❌ **Google Vendor Trap**: Massive cloud bills as user volume scales ($5k–$20k/mo) | ❌ **Monthly Cloud Lock-in**: Free tier lulls you into $5,000/mo hostage bill | ❌ **$299–$799 Paid License**: Commercial starter kit paywalls (Jumpstart, Spark) |
+| Dimension / Capability       | 🛡️ **RexOne Sovereign Trinity**                                                               | 📦 **Next.js Full-Stack Boilerplates**                                               | 🔥 **Firebase / Cloud Serverless**                                                       | 🪤 **Supabase / BaaS Starter Kits**                                               | 🚂 **Rails & Laravel Monoliths**                                                  |
+| :--------------------------- | :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| **Architectural Model**      | ✅ **Sovereign Tri-Platform**: Rails 8 API + React 19 SPA + pure Flutter 3 native client      | ❌ **Node Monolith**: API, DB, jobs & DOM crammed into 1 fragile runtime             | ❌ **Serverless Spaghetti**: Disconnected Cloud Functions + NoSQL Firestore              | ⚠️ **Client-Heavy BaaS**: Direct client DB queries + scattered edge functions     | ⚠️ **HTML Monolith**: Server-rendered HTML with Turbo/Livewire                    |
+| **Native Mobile App**        | ✅ **Native 60fps Flutter**: Shared contracts, biometrics, hardware media & push              | ❌ **None or Webview Shell**: Sluggish Capacitor/Cordova wrapper                     | ⚠️ **Fragmented SDKs**: Direct NoSQL queries from mobile with zero encapsulation         | ⚠️ **Raw Client SDK**: Mobile apps directly expose database tables via client key | ⚠️ **Turbo / Webview**: Web pages wrapped in a native navigation shell            |
+| **Offline-First Durability** | ✅ **Drift SQLite (`rexone_offline`)**: Schema mirroring, offline subtitles & AES-256 saves   | ❌ **None**: Application breaks entirely on network disconnect                       | ⚠️ **Flaky Document Cache**: Primitive document cache prone to sync desync               | ⚠️ **No Relational Offline**: Unreliable offline sync across foreign keys         | ❌ **None**: Server-rendered pages require constant connectivity                  |
+| **Database Integrity**       | ✅ **Strict Relational PostgreSQL**: Foreign keys, ACID, UUIDs, soft-deletes                  | ⚠️ **ORM Inconsistencies**: Serverless connection pool limits on Prisma/Drizzle      | ❌ **NoSQL Hell**: No joins, no cascading deletes, data duplication nightmare            | ✅ **PostgreSQL**: Relational integrity via managed Postgres instance             | ✅ **PostgreSQL / MySQL**: Mature relational ORM (ActiveRecord / Eloquent)        |
+| **Background Processing**    | ✅ **Solid Queue (Fibers + Threads)**: Workload pooling, recurring cron, zero Redis costs     | ❌ **Serverless Timeouts**: Forced into third-party Inngest, QStash, or Celery ($$$) | ❌ **Execution Timeouts**: Severe execution limits, cold starts & high invocation bills  | ⚠️ **Edge Functions**: Strict 10s CPU limits, no persistent background workers    | ⚠️ **Redis Dependency**: Requires external Redis broker & extra hosting RAM       |
+| **Real-Time Delivery**       | ✅ **Native Action Cable**: Persistent WebSockets, auto-reconnect & binary STT/TTS            | ❌ **Broken on Serverless**: Forced into expensive Pusher / Ably tiers ($$$)         | ⚠️ **Firestore Listeners**: Pay-per-document-read billing nightmare under active polling | ⚠️ **Supabase Realtime**: Row-level broadcast, high connection pricing tiers      | ⚠️ **External Broker**: Requires Redis/Reverb/Soketi daemon configuration         |
+| **Object Storage**           | ✅ **Self-Hosted Garage S3**: High-performance local S3, zero egress bills                    | ❌ **Vendor Cloud**: AWS S3 / Cloudflare R2 egress fees                              | ❌ **Google Cloud Storage**: Proprietary bucket pricing & steep download egress fees     | ⚠️ **Proprietary Storage**: Vendor-locked BaaS pricing ladders                    | ⚠️ **ActiveStorage / Flysystem**: Tied to third-party cloud S3 bucket bills       |
+| **AI Workflows & Speech**    | ✅ **Durable Queued AI**: Chunked streaming, 16kHz live STT, binary MP3 TTS                   | ⚠️ **Edge Timeouts**: LLM streams crash on cold starts or Vercel limits              | ❌ **Synchronous Timeouts**: Long-running LLM inferences hit function deadlines          | ❌ **Client Leaks**: Client-side API keys or basic Edge Function calls            | ⚠️ **Basic Wrappers**: Simple synchronous chat endpoints                          |
+| **Anti-Vibe Governance**     | ✅ **Constitutional Law (`LAW.md`)**: Laws U14/U15 stop AI tech debt and zombie code          | ❌ **Unguided Vibe-Coding**: Fragile abstractions, dead shims & runaway debt         | ❌ **Scattered Cloud Logic**: Code fragmented across dozens of uncoordinated functions   | ❌ **RLS Spaghetti**: 100+ line SQL security policies prone to data leaks         | ⚠️ **Conventions Only**: No explicit constitutional AI agent rules                |
+| **Cost & Sovereignty**       | ✅ **100% Free & Open (Apache 2.0)**: Zero paywalls, zero "Pro" upsells, sovereign VPS deploy | ❌ **$199–$499 Paid License**: Features gated behind tier paywalls                   | ❌ **Google Vendor Trap**: Massive cloud bills as user volume scales ($5k–$20k/mo)       | ❌ **Monthly Cloud Lock-in**: Free tier lulls you into $5,000/mo hostage bill     | ❌ **$299–$799 Paid License**: Commercial starter kit paywalls (Jumpstart, Spark) |
 
 RexOne Mobile stops mobile chaos decisively:
+
 - **First-Class Mobile, Not a Webview Shell**: Built with pure Flutter 3 & Dart Clean Architecture (Presentation, Business Logic, and Data layers) orchestrated by reactive GetX.
 - **Local-First Offline Resilience**: Fully backed by a local **Drift (Type-safe SQLite)** database (`rexone_offline`), ensuring instant media playback, offline subtitles, and zero network-choke even when completely disconnected.
 - **The Foundation Bends Around the Product**: RexOne Mobile provides native device plumbing (biometrics, camera, audio focus, push, background tasks, AES-256-GCM sandbox encryption) while leaving your product UI and domain completely unencumbered.
@@ -131,24 +133,24 @@ It was to build a **clear mobile foundation**—strong enough to carry ambitious
 
 ## Feature map
 
-| Foundation             | What is ready                                                                           | Details                                                              |
-| ---------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, platform sessions      | [Authentication & security](#authentication--security)               |
-| **Profile & IAM**      | Profile settings, camera/gallery avatar upload, and 3-tier RBAC admin hierarchy         | [Profile & IAM Hierarchy](#profile--iam-hierarchy)                   |
-| **Push Notifications** | OneSignal push messaging, permission management, user tag syncing, and click routing    | [Push & Analytics](#push-notifications--analytics)                   |
-| **Product Analytics**  | Firebase Analytics screen tracking, auth lifecycle events, and telemetry                | [Push & Analytics](#push-notifications--analytics)                   |
-| **In-App Upgrades**    | Splash checks `/v1/client/versions/current` and shows force or skippable update dialogs | [Version Upgrader](#in-app-version-upgrader)                         |
-| **Commerce**           | Products, Stripe Checkout WebView, coupons, subscriptions, and cancel/resume workflows  | [Payments & entitlements](#payments--entitlements)                   |
-| **Media & Offline**    | Progressive A/V streaming, SRT subtitles, synced lyrics, Drift SQLite, and AES-256 saves | [Media & offline playback](#media--offline-playback)                 |
-| **AI Assistant**       | Non-blocking queued chat, persistent room history, and Action Cable notifications       | [AI capabilities & Speech](#ai-capabilities--speech)                 |
-| **Speech (TTS & STT)** | Live 16kHz PCM voice streaming with level bars and direct binary MP3 TTS playback      | [AI capabilities & Speech](#ai-capabilities--speech)                 |
-| **Real Time**          | Action Cable WebSocket client, subscription channels, and global toast dispatching      | [Real-time delivery](#real-time-delivery)                            |
-| **Observability**      | Flutter and platform error capture with automated client log delivery to RexOne Core    | [Client observability](#client-observability--telemetry)             |
-| **Design System**      | Centralized design tokens, theme extensions, custom components, and light/dark modes    | [Design system](#design-system)                                      |
-| **Localization**       | English and Burmese with dynamic runtime switching and `X-Locale` backend sync          | [Localization](#localization)                                        |
-| **Governance**         | Constitutional Architecture (LAW.md) & AI Agent Operational Rules (AGENTS.md)          | [LAW.md](LAW.md) · [AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) |
-| **Testing (E2E)**      | Real on-device automated user journey specs via Flutter Integration Test Driver         | [Quality & testing](#-quality--automated-testing)                   |
-| **Quality**            | Strongly typed Dart models, analyzer compliance, and automated test suite               | [Quality & testing](#-quality--automated-testing)                   |
+| Foundation             | What is ready                                                                            | Details                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, platform sessions       | [Authentication & security](#authentication--security)                                  |
+| **Profile & IAM**      | Profile settings, camera/gallery avatar upload, and 3-tier RBAC admin hierarchy          | [Profile & IAM Hierarchy](#profile--iam-hierarchy)                                      |
+| **Push Notifications** | OneSignal push messaging, permission management, user tag syncing, and click routing     | [Push & Analytics](#push-notifications--analytics)                                      |
+| **Product Analytics**  | Firebase Analytics screen tracking, auth lifecycle events, and telemetry                 | [Push & Analytics](#push-notifications--analytics)                                      |
+| **In-App Upgrades**    | Splash checks `/v1/client/versions/current` and shows force or skippable update dialogs  | [Version Upgrader](#in-app-version-upgrader)                                            |
+| **Commerce**           | Products, Stripe Checkout WebView, coupons, subscriptions, and cancel/resume workflows   | [Payments & entitlements](#payments--entitlements)                                      |
+| **Media & Offline**    | Progressive A/V streaming, SRT subtitles, synced lyrics, Drift SQLite, and AES-256 saves | [Media & offline playback](#media--offline-playback)                                    |
+| **AI Assistant**       | Non-blocking queued chat, persistent room history, and Action Cable notifications        | [AI capabilities & Speech](#ai-capabilities--speech)                                    |
+| **Speech (TTS & STT)** | Live 16kHz PCM voice streaming with level bars and direct binary MP3 TTS playback        | [AI capabilities & Speech](#ai-capabilities--speech)                                    |
+| **Real Time**          | Action Cable WebSocket client, subscription channels, and global toast dispatching       | [Real-time delivery](#real-time-delivery)                                               |
+| **Observability**      | Flutter and platform error capture with automated client log delivery to RexOne Core     | [Client observability](#client-observability--telemetry)                                |
+| **Design System**      | Centralized design tokens, theme extensions, custom components, and light/dark modes     | [Design system](#design-system)                                                         |
+| **Localization**       | English and Burmese with dynamic runtime switching and `X-Locale` backend sync           | [Localization](#localization)                                                           |
+| **Governance**         | Constitutional Architecture (LAW.md) & AI Agent Operational Rules (AGENTS.md)            | [LAW.md](LAW.md) · [AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) |
+| **Testing (E2E)**      | Real on-device automated user journey specs via Flutter Integration Test Driver          | [Quality & testing](#-quality--automated-testing)                                       |
+| **Quality**            | Strongly typed Dart models, analyzer compliance, and automated test suite                | [Quality & testing](#-quality--automated-testing)                                       |
 
 ---
 
@@ -296,6 +298,7 @@ flutter run --dart-define=APP_ENV=.env.dev
 ```
 
 To run in Staging (UAT) or Production mode:
+
 ```bash
 # Staging / UAT
 flutter run --dart-define=APP_ENV=.env.uat
@@ -335,13 +338,13 @@ For full testing configurations and Flutter Driver instructions, see **[`docs/RE
 
 To maintain high architectural discipline without cluttering the primary showcase, exhaustive technical specifications, database schemas, and CLI manuals are organized in **[`docs/`](docs/)**:
 
-| Resource | Scope & Canonical Specification |
-| :--- | :--- |
-| **📖 Master Mobile Documentation Hub** | Native architecture topology, CLI script catalog, and testing guides: **[`docs/README.md`](docs/README.md)** |
-| **🗄️ Client SQLite Database (Drift)** | Drift SQLite architecture, schema mirroring, offline states, and DAOs: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)** |
-| **🏛️ Unified Ecosystem Architecture** | Cross-platform contracts, WebSocket event catalogs, and shared schemas: **[`ECOSYSTEM.md`](ECOSYSTEM.md)** |
-| **📜 Constitutional Law** | Non-negotiable architecture, state management, and design tokens: **[`LAW.md`](LAW.md)** |
-| **🤖 Autonomous Agent Governance** | Operational agent rules, secret isolation, and documentation synchronization: **[`AGENTS.md`](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)** |
+| Resource                               | Scope & Canonical Specification                                                                                                                          |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **📖 Master Mobile Documentation Hub** | Native architecture topology, CLI script catalog, and testing guides: **[`docs/README.md`](docs/README.md)**                                             |
+| **🗄️ Client SQLite Database (Drift)**  | Drift SQLite architecture, schema mirroring, offline states, and DAOs: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                          |
+| **🏛️ Unified Ecosystem Architecture**  | Cross-platform contracts, WebSocket event catalogs, and shared schemas: **[`ECOSYSTEM.md`](ECOSYSTEM.md)**                                               |
+| **📜 Constitutional Law**              | Non-negotiable architecture, state management, and design tokens: **[`LAW.md`](LAW.md)**                                                                 |
+| **🤖 Autonomous Agent Governance**     | Operational agent rules, secret isolation, and documentation synchronization: **[`AGENTS.md`](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)** |
 
 ---
 
@@ -382,6 +385,7 @@ cd ../rexone-core && ./scripts/rebrand.sh
 ```
 
 For standalone mobile rebranding:
+
 ```bash
 ./scripts/rebrand.sh "New App Name" "com.company.newapp" "path/to/icon.png"
 ```
@@ -401,12 +405,24 @@ This application is built on top of the **RexOne Ecosystem** (`rex-9`). When cre
 
 ## 💖 Sponsor & Support RexOne
 
-RexOne is built and maintained by Rex ([@rex-9](https://github.com/rex-9)). If RexOne saves you engineering weeks, AI tokens, or cloud compute costs, consider supporting the foundation!
+> _"I'm not a wealthy founder or a venture-backed company ~ I'm an independent developer and meditator who built RexOne with my own hands. I could have easily closed-sourced this enterprise foundation or charged $800+ behind a commercial paywall. Instead, out of pure loving-kindness (mettā) cultivated through my meditation journey under Theravada Buddhist teachings, I chose to gift RexOne 100% free and open-source under Apache 2.0 to empower builders, indie hackers, and learners worldwide._
+>
+> _If this foundation saves you months of engineering, thousands of dollars, or sparks your product journey, please consider supporting me so I can sustain my life and craft. Kindly return the loving-kindness: [Sponsor Rex on GitHub](https://github.com/sponsors/rex-9) and star the repositories. Thank you so much for your generosity and kindness. 🙏"_
+
+RexOne Mobile is architected, forged, and maintained by Rex ([@rex-9](https://github.com/rex-9)). If RexOne saves you engineering months, AI tokens, or cloud compute costs, please consider supporting the foundation!
 
 [![Sponsor rex-9](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/rex-9)
 [![GitHub Stars](https://img.shields.io/github/stars/rex-9/rexone_mobile.svg?style=social&label=Star)](https://github.com/rex-9/rexone_mobile)
 
 👉 **[Sponsor Rex on GitHub](https://github.com/sponsors/rex-9)**
+
+---
+
+## 🕯️ The Candle Philosophy of Open Source
+
+> _"Sharing is like lighting candles from one candle to another: sharing one's light does not make its own flame dimmer or weaker, but the world illuminates more and more with each light shared... making the world more and more beautiful... one light at a time..."_
+>
+> — **Htet Naing (Rex9)**, _Creator of RexOne_
 
 ---
 

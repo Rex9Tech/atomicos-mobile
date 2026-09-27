@@ -5,8 +5,8 @@ class UserCouponModel {
   final String couponId;
   final String userId;
   final String productId;
-  final String purchaseId;
-  final String purchaseType;
+  final String paymentId;
+  final String paymentType;
   final int discountAmount;
   final int originalAmount;
   final int finalAmount;
@@ -22,8 +22,8 @@ class UserCouponModel {
     required this.couponId,
     required this.userId,
     required this.productId,
-    required this.purchaseId,
-    required this.purchaseType,
+    required this.paymentId,
+    required this.paymentType,
     required this.discountAmount,
     required this.originalAmount,
     required this.finalAmount,
@@ -41,8 +41,8 @@ class UserCouponModel {
       couponId: json[PaymentKeys.couponId]?.toString() ?? '',
       userId: json[PaymentKeys.userId]?.toString() ?? '',
       productId: json[PaymentKeys.productId]?.toString() ?? '',
-      purchaseId: json[PaymentKeys.purchaseId]?.toString() ?? '',
-      purchaseType: json[PaymentKeys.purchaseType]?.toString() ?? PurchaseTypes.trx,
+      paymentId: json[PaymentKeys.paymentId]?.toString() ?? '',
+      paymentType: json[PaymentKeys.paymentType]?.toString() ?? PaymentTypes.purchase,
       discountAmount: json[PaymentKeys.discountAmount] is int
           ? json[PaymentKeys.discountAmount] as int
           : int.tryParse(json[PaymentKeys.discountAmount]?.toString() ?? '0') ?? 0,
@@ -66,8 +66,8 @@ class UserCouponModel {
     PaymentKeys.couponId: couponId,
     PaymentKeys.userId: userId,
     PaymentKeys.productId: productId,
-    PaymentKeys.purchaseId: purchaseId,
-    PaymentKeys.purchaseType: purchaseType,
+    PaymentKeys.paymentId: paymentId,
+    PaymentKeys.paymentType: paymentType,
     PaymentKeys.discountAmount: discountAmount,
     PaymentKeys.originalAmount: originalAmount,
     PaymentKeys.finalAmount: finalAmount,
