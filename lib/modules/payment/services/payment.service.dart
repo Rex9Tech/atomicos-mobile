@@ -23,11 +23,24 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<ProductModel>> getProducts({
     int? page,
     int? limit,
+    String? search,
+    bool? recurring,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
-    final response = await _api.get(ServerRoutes.paymentProducts, query: query);
+    if (search != null && search.trim().isNotEmpty) {
+      query[ApiKeys.search] = search.trim();
+    }
+    if (recurring != null) {
+      query[PaymentKeys.recurring] = recurring.toString();
+    }
+    final response = await _api.get(
+      ServerRoutes.paymentProducts,
+      query: query,
+      showLoading: showLoading,
+    );
     return _api.parsePagyList<ProductModel>(response, ProductModel.fromJson);
   }
 
@@ -37,6 +50,7 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<SubscriptionModel>> getSubscriptions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
@@ -44,6 +58,7 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.paymentSubscriptions,
       query: query,
+      showLoading: showLoading,
     );
     return _api.parsePagyList<SubscriptionModel>(
       response,
@@ -83,6 +98,7 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<TransactionModel>> getTransactions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
@@ -90,6 +106,7 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.paymentTransactions,
       query: query,
+      showLoading: showLoading,
     );
     return _api.parsePagyList<TransactionModel>(
       response,
@@ -103,22 +120,32 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<AccessModel>> getActiveAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
-    final response = await _api.get(ServerRoutes.activeAccesses, query: query);
+    final response = await _api.get(
+      ServerRoutes.activeAccesses,
+      query: query,
+      showLoading: showLoading,
+    );
     return _api.parsePagyList<AccessModel>(response, AccessModel.fromJson);
   }
 
   Future<PaginatedResponse<AccessModel>> getAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
-    final response = await _api.get(ServerRoutes.accesses, query: query);
+    final response = await _api.get(
+      ServerRoutes.accesses,
+      query: query,
+      showLoading: showLoading,
+    );
     return _api.parsePagyList<AccessModel>(response, AccessModel.fromJson);
   }
 

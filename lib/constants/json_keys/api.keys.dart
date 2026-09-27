@@ -29,4 +29,5 @@ class ApiKeys {
   // ===== Common Payload Fields =====
   static const timestamp = 'timestamp';
   static const currentRoute = 'current_route';
+  static const search = 'search';
 }

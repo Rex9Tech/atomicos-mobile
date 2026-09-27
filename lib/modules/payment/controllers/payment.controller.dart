@@ -6,18 +6,48 @@ import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 
+import 'package:rexone_mobile/controllers/pagy.controller.dart';
+import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
 import '../payment.dart';
 
-class PaymentController extends GetxController {
+class PaymentController extends GetxController with PagyControllerMixin<ProductModel> {
   late final PaymentService _payment;
   AnalyticsService? _analytics;
   final Set<String> _viewedProductIds = <String>{};
 
-  final RxList<ProductModel> products = <ProductModel>[].obs;
+  /// Aliases [items] from [PagyControllerMixin] for full backward compatibility.
+  RxList<ProductModel> get products => items;
   final RxList<SubscriptionModel> subscriptions = <SubscriptionModel>[].obs;
   final RxList<TransactionModel> transactions = <TransactionModel>[].obs;
   final RxList<AccessModel> accesses = <AccessModel>[].obs;
+
+  // Filter Chip Constants
+  static const filterAll = 'all';
+  static const filterSubscription = 'subscription';
+  static const filterOneTime = 'one_time';
+
+  String get selectedFilterId {
+    final recurring = activeFilters[PaymentKeys.recurring] as bool?;
+    if (recurring == true) return filterSubscription;
+    if (recurring == false) return filterOneTime;
+    return filterAll;
+  }
+
+  void selectFilterId(String id) {
+    switch (id) {
+      case filterSubscription:
+        setFilter(PaymentKeys.recurring, true);
+        break;
+      case filterOneTime:
+        setFilter(PaymentKeys.recurring, false);
+        break;
+      case filterAll:
+      default:
+        setFilter(PaymentKeys.recurring, null);
+        break;
+    }
+  }
 
   // Coupon state
   final Rx<CouponValidationModel?> appliedCoupon = Rx<CouponValidationModel?>(null);
@@ -88,24 +118,72 @@ class PaymentController extends GetxController {
   }
 
   // ============================================================
-  // DATA FETCHING
+  // DATA FETCHING & PAGY PAGINATION
   // ============================================================
+
+  @override
+  Future<PaginatedResponse<ProductModel>> fetchPage({
+    required int page,
+    required int limit,
+    String? search,
+    Map<String, dynamic>? filters,
+  }) async {
+    final recurring = filters?[PaymentKeys.recurring] as bool?;
+    var res = await _payment.getProducts(
+      page: page,
+      limit: limit,
+      search: search,
+      recurring: recurring,
+      showLoading: false,
+    );
+
+    if (!res.success && items.isEmpty && page == 1) {
+      debugPrint(
+        '💳 [PaymentController] getProducts failed (${res.statusCode}), retrying in 400ms...',
+      );
+      await Future.delayed(const Duration(milliseconds: 400));
+      res = await _payment.getProducts(
+        page: page,
+        limit: limit,
+        search: search,
+        recurring: recurring,
+        showLoading: false,
+      );
+    }
+
+    debugPrint(
+      '💳 [PaymentController] getProducts success=${res.success} (status ${res.statusCode}), count=${res.records.length}',
+    );
+
+    if (res.success) {
+      for (final product in res.records) {
+        if (_viewedProductIds.add(product.id)) {
+          _analytics?.logViewProduct(
+            productId: product.id,
+            productName: product.name,
+          );
+        }
+      }
+    }
+
+    return res;
+  }
 
   Future<void> fetchData() async {
     try {
       await Future.wait([
-        _fetchProductsWithRetry(),
-        _payment.getSubscriptions().then((res) {
+        refreshList(),
+        _payment.getSubscriptions(showLoading: false).then((res) {
           if (res.success) {
             subscriptions.assignAll(res.records);
           }
         }),
-        _payment.getTransactions().then((res) {
+        _payment.getTransactions(showLoading: false).then((res) {
           if (res.success) {
             transactions.assignAll(res.records);
           }
         }),
-        _payment.getActiveAccesses().then((res) {
+        _payment.getActiveAccesses(showLoading: false).then((res) {
           if (res.success) {
             accesses.assignAll(res.records);
           }
@@ -115,31 +193,6 @@ class PaymentController extends GetxController {
       debugPrint(
         '💳 [PaymentController] Failed to fetch payment data: $e\n$stk',
       );
-    }
-  }
-
-  Future<void> _fetchProductsWithRetry() async {
-    var res = await _payment.getProducts();
-    if (!res.success && products.isEmpty) {
-      debugPrint(
-        '💳 [PaymentController] getProducts failed (${res.statusCode}), retrying in 400ms...',
-      );
-      await Future.delayed(const Duration(milliseconds: 400));
-      res = await _payment.getProducts();
-    }
-    debugPrint(
-      '💳 [PaymentController] getProducts success=${res.success} (status ${res.statusCode}), count=${res.records.length}',
-    );
-    if (res.success) {
-      products.assignAll(res.records);
-      for (final product in res.records) {
-        if (_viewedProductIds.add(product.id)) {
-          _analytics?.logViewProduct(
-            productId: product.id,
-            productName: product.name,
-          );
-        }
-      }
     }
   }
 

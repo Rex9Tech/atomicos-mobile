@@ -486,6 +486,11 @@ class FakePaymentService extends PaymentService {
   ApiResponse<SubscriptionModel>? cancelResponse;
   ApiResponse<SubscriptionModel>? resumeResponse;
 
+  int? lastGetProductsPage;
+  int? lastGetProductsLimit;
+  String? lastGetProductsSearch;
+  bool? lastGetProductsRecurring;
+
   @override
   void onInit() {}
 
@@ -493,7 +498,14 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<ProductModel>> getProducts({
     int? page,
     int? limit,
+    String? search,
+    bool? recurring,
+    bool showLoading = false,
   }) async {
+    lastGetProductsPage = page;
+    lastGetProductsLimit = limit;
+    lastGetProductsSearch = search;
+    lastGetProductsRecurring = recurring;
     return productsResponse ??
         const PaginatedResponse<ProductModel>(
           records: [],
@@ -507,6 +519,7 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<SubscriptionModel>> getSubscriptions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     return subscriptionsResponse ??
         const PaginatedResponse<SubscriptionModel>(
@@ -521,6 +534,7 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<TransactionModel>> getTransactions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     return transactionsResponse ??
         const PaginatedResponse<TransactionModel>(
@@ -535,6 +549,7 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<AccessModel>> getActiveAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     return accessesResponse ??
         const PaginatedResponse<AccessModel>(

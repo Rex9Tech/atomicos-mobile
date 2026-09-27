@@ -231,4 +231,95 @@ void main() {
       expect(controller.couponCooldownSecondsLeft.value > 0, isTrue);
     });
   });
+
+  group('PaymentController - Pagy, Search and Filter', () {
+    test('onSearchChanged triggers fetch with search parameter', () async {
+      controller.onSearchChanged('membership');
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      expect(controller.searchQuery.value, equals('membership'));
+      expect(fakePayment.lastGetProductsSearch, equals('membership'));
+    });
+
+    test('selectFilterId with filterSubscription passes recurring=true to service', () async {
+      controller.selectFilterId(PaymentController.filterSubscription);
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(controller.activeFilters[PaymentKeys.recurring], isTrue);
+      expect(fakePayment.lastGetProductsRecurring, isTrue);
+    });
+
+    test('selectFilterId with filterOneTime passes recurring=false to service', () async {
+      controller.selectFilterId(PaymentController.filterOneTime);
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(controller.activeFilters[PaymentKeys.recurring], isFalse);
+      expect(fakePayment.lastGetProductsRecurring, isFalse);
+    });
+
+    test('loadMore requests next page and appends products', () async {
+      final page1Product = ProductModel(
+        id: 'prod_1',
+        name: 'Product 1',
+        description: 'First product',
+        price: '\$10',
+        unitAmount: 1000,
+        currency: 'USD',
+        periodLabel: 'one-time',
+        recurring: false,
+        active: true,
+      );
+      final page2Product = ProductModel(
+        id: 'prod_2',
+        name: 'Product 2',
+        description: 'Second product',
+        price: '\$20',
+        unitAmount: 2000,
+        currency: 'USD',
+        periodLabel: 'one-time',
+        recurring: false,
+        active: true,
+      );
+
+      fakePayment.productsResponse = PaginatedResponse<ProductModel>(
+        records: [page1Product],
+        message: 'OK',
+        statusCode: 200,
+        success: true,
+        pagination: const PaginationMeta(
+          currentPage: 1,
+          limit: 10,
+          totalCount: 2,
+          totalPages: 2,
+          nextPage: 2,
+          prevPage: null,
+        ),
+      );
+
+      await controller.refreshList();
+      expect(controller.products.length, equals(1));
+      expect(controller.hasMore, isTrue);
+
+      fakePayment.productsResponse = PaginatedResponse<ProductModel>(
+        records: [page2Product],
+        message: 'OK',
+        statusCode: 200,
+        success: true,
+        pagination: const PaginationMeta(
+          currentPage: 2,
+          limit: 10,
+          totalCount: 2,
+          totalPages: 2,
+          nextPage: null,
+          prevPage: 1,
+        ),
+      );
+
+      await controller.loadMore();
+      expect(fakePayment.lastGetProductsPage, equals(2));
+      expect(controller.products.length, equals(2));
+      expect(controller.products.map((p) => p.id), containsAll(['prod_1', 'prod_2']));
+      expect(controller.hasMore, isFalse);
+    });
+  });
 }
