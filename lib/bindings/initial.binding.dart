@@ -29,7 +29,7 @@ class InitialBinding extends Bindings {
     Get.put(AnalyticsService(), permanent: true);
 
     // Notifications: OneSignal + local notifications + Live Activities
-    Get.put(PushNotiService(), permanent: true);
+    Get.put(PushNotificationService(), permanent: true);
 
     // API Service (interface + implementation)
     Get.put<ApiService>(ApiService(), permanent: true);

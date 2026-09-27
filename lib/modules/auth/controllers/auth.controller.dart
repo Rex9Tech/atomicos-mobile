@@ -18,7 +18,8 @@ class AuthController extends GetxController {
   final AuthService _auth = Get.find<AuthService>();
   final StorageService _storage = Get.find<StorageService>();
   final AnalyticsService _analytics = Get.find<AnalyticsService>();
-  final PushNotiService _pushNotiService = Get.find<PushNotiService>();
+  final PushNotificationService _pushNotificationService =
+      Get.find<PushNotificationService>();
 
   static const int maxAttempts = 3;
   // Attempts UI default — server is the source of truth, this is a display fallback.
@@ -271,9 +272,9 @@ class AuthController extends GetxController {
     if (Get.isRegistered<SocketService>()) {
       Get.find<SocketService>().connect(token);
     }
-    if (Get.isRegistered<PushNotiService>()) {
+    if (Get.isRegistered<PushNotificationService>()) {
       // Sync user data with OneSignal
-      _pushNotiService.syncUser(user);
+      _pushNotificationService.syncUser(user);
     }
     if (Get.isRegistered<AnalyticsService>()) {
       // Set user ID and properties
@@ -639,8 +640,8 @@ class AuthController extends GetxController {
     attemptsLeft.value = maxAttempts;
     hasFailureHistory.value = false;
     // Clear OneSignal user data
-    if (Get.isRegistered<PushNotiService>()) {
-      _pushNotiService.clearUser();
+    if (Get.isRegistered<PushNotificationService>()) {
+      _pushNotificationService.clearUser();
     }
     await _clearOfflineMediaOnLogout();
   }
@@ -686,7 +687,7 @@ class AuthController extends GetxController {
     _storeSession(user: user, token: token);
 
     // 2. Request push permission (non-blocking)
-    unawaited(_pushNotiService.requestPermission());
+    unawaited(_pushNotificationService.requestPermission());
 
     // 3. Navigate to home
     AppRoutes.toHome();

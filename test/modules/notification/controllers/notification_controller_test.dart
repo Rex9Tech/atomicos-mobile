@@ -7,7 +7,7 @@ import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/modules/notification/notification.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
@@ -30,7 +30,7 @@ void main() {
     Get.put<AuthService>(fakeAuthService);
     Get.put<StorageService>(fakeStorageService);
     Get.put<AnalyticsService>(FakeAnalyticsService());
-    Get.put<PushNotiService>(FakePushNotiService());
+    Get.put<PushNotificationService>(FakePushNotificationService());
     Get.put<SocketService>(FakeSocketService());
     authController = Get.put(AuthController());
     controller = Get.put(NotificationController());

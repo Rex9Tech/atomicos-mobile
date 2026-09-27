@@ -10,7 +10,7 @@ import 'package:rexone_mobile/modules/profile/profile.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 import 'package:rexone_mobile/services/media.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
@@ -24,7 +24,7 @@ void main() {
   late FakeMediaService fakeMedia;
   late FakeAuthService fakeAuth;
   late FakeAnalyticsService fakeAnalytics;
-  late FakePushNotiService fakePush;
+  late FakePushNotificationService fakePush;
   late FakeSocketService fakeSocket;
 
   setUpAll(() {
@@ -40,7 +40,7 @@ void main() {
     fakeMedia = FakeMediaService();
     fakeAuth = FakeAuthService();
     fakeAnalytics = FakeAnalyticsService();
-    fakePush = FakePushNotiService();
+    fakePush = FakePushNotificationService();
     fakeSocket = FakeSocketService();
 
     Get.put<ProfileService>(fakeProfile);
@@ -49,7 +49,7 @@ void main() {
     Get.put<MediaService>(fakeMedia);
     Get.put<AuthService>(fakeAuth);
     Get.put<AnalyticsService>(fakeAnalytics);
-    Get.put<PushNotiService>(fakePush);
+    Get.put<PushNotificationService>(fakePush);
     Get.put<SocketService>(fakeSocket);
   });
 

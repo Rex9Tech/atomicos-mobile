@@ -1,7 +1,7 @@
 // test/modules/profile/services/profile_service_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:rexone_mobile/modules/profile/data/requests/requests.dart';
+import 'package:rexone_mobile/modules/profile/requests/requests.dart';
 import 'package:rexone_mobile/modules/profile/services/profile.service.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';

@@ -4,7 +4,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
-import '../data/models/feedback.model.dart';
+import '../models/feedback.model.dart';
 
 class FeedbackService extends GetxService {
   late final ApiService _api;

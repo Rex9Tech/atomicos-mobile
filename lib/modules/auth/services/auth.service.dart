@@ -5,8 +5,8 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
-import '../data/requests/requests.dart';
-import '../data/models/user_peek.model.dart';
+import '../requests/requests.dart';
+import '../models/user_peek.model.dart';
 
 class AuthService extends GetxService {
   final ApiService _api = Get.find<ApiService>();

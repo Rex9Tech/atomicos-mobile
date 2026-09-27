@@ -7,4 +7,3 @@ export 'version.model.dart';
 export 'user_version.model.dart';
 export 'api_response.model.dart';
 export 'pagination.model.dart';
-export '../modules/notification/data/models/notification.model.dart';

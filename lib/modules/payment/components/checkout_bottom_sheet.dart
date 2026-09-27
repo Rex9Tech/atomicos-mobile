@@ -4,7 +4,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 
 import '../controllers/payment.controller.dart';
-import '../data/models/models.dart';
+import '../models/models.dart';
 
 class CheckoutBottomSheet extends StatefulWidget {
   final ProductModel product;

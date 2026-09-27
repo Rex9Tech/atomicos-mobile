@@ -4,6 +4,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
+import '../models/notification.model.dart';
 
 class NotificationService extends GetxService {
   late final ApiService _api;

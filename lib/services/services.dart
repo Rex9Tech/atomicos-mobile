@@ -8,6 +8,6 @@ export 'media_download.service.dart';
 export 'media_download_notification.service.dart';
 export 'speech.service.dart';
 export 'analytics.service.dart';
-export 'push_noti.service.dart';
+export 'push_notification.service.dart';
 export 'network.service.dart';
 export 'version.service.dart';

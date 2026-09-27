@@ -6,7 +6,7 @@ import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 
-import 'package:rexone_mobile/controllers/pagy.controller.dart';
+import 'package:rexone_mobile/controllers/pagy.mixin.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
 import '../payment.dart';

@@ -3,7 +3,7 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
-import '../data/requests/requests.dart';
+import '../requests/requests.dart';
 
 class ProfileService extends GetxService {
   late final ApiService _api;

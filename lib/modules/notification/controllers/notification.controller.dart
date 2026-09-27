@@ -9,6 +9,7 @@ import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 import '../services/notification.service.dart';
+import '../models/notification.model.dart';
 
 class NotificationController extends GetxController {
   late final NotificationService _service;

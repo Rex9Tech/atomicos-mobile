@@ -9,7 +9,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/ai/ai.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
-import 'package:rexone_mobile/modules/feedback/data/models/feedback.model.dart';
+import 'package:rexone_mobile/modules/feedback/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
 import 'package:rexone_mobile/modules/notification/notification.dart';
 import 'package:rexone_mobile/modules/payment/payment.dart';
@@ -20,7 +20,7 @@ import 'package:rexone_mobile/services/media.service.dart';
 import 'package:rexone_mobile/services/media_download.service.dart';
 import 'package:rexone_mobile/services/network.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/speech.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
@@ -200,7 +200,8 @@ class FakeAnalyticsService extends AnalyticsService {
 }
 
 /// Fake Push Notification Service without OneSignal dependencies.
-class FakePushNotiService extends GetxService implements PushNotiService {
+class FakePushNotificationService extends GetxService
+    implements PushNotificationService {
   bool permissionRequested = false;
   UserModel? syncedUser;
   bool userCleared = false;

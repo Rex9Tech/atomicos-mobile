@@ -179,15 +179,15 @@ flowchart LR
 
 ### Layer Boundaries:
 
-- `lib/modules/` owns product features end-to-end. Each module keeps its pages, controllers, and optional feature service together behind a single barrel export (`auth.dart`, `payment.dart`, `media.dart`, …).
-- `lib/controllers/` holds only app-wide coordinators that do not belong to one feature (e.g. `SocketController`).
-- `lib/services/` holds shared infrastructure: HTTP (`ApiService`), Action Cable, Firebase Analytics, OneSignal, storage, device permissions, and client logs.
-- `lib/database/` encapsulates the type-safe Drift SQLite database (`rexone_offline`) and local DAOs.
-- `lib/design/` centralizes design tokens, theme definitions, extensions, and reusable UI components.
+- `lib/modules/` owns product features end-to-end. Each module follows a flat, symmetric directory structure (`components/`, `controllers/`, `models/`, `pages/`, `requests/`, `services/`) behind a single barrel export (`auth.dart`, `payment.dart`, `media.dart`, …) with zero redundant data layers.
+- `lib/controllers/` holds app-wide coordinators (`SocketController`) and reusable mixins (`PagyControllerMixin`).
+- `lib/services/` holds shared infrastructure: HTTP (`ApiService`), Action Cable, Firebase Analytics, OneSignal (`PushNotificationService`), storage, device permissions, and client logs.
+- `lib/data/local/` encapsulates the type-safe Drift SQLite database (`rexone_offline`), tables, and local DAOs.
+- `lib/design/` centralizes design tokens, theme definitions, extensions, and reusable UI components strictly conforming to the `App*` / `app_*` convention.
 - `lib/bindings/` handles centralized dependency injection for shared services and permanent controllers. Route-scoped controllers are bound on their respective `GetPage`.
 - `lib/models/` contains strongly typed JSON:API models, pagination metadata (`PaginationMeta`, `PaginatedResponse`), and response envelopes.
 - `lib/locales/` contains multi-language translations and runtime dictionary updates.
-- `lib/config/` and `lib/constants/` manage environment definitions, typed JSON keys (`JsonKeys`), and log constants.
+- `lib/config/` and `lib/constants/` manage environment definitions, typed JSON keys (`JsonKeys`), and normalized constants (`*.constants.dart`).
 
 ---
 

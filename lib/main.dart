@@ -50,7 +50,7 @@ void main() async {
   );
   await AppInfo.init();
   InitialBinding().dependencies();
-  await Get.find<PushNotiService>().initializePlatform();
+  await Get.find<PushNotificationService>().initializePlatform();
   await Get.find<MediaDownloadNotificationService>().initialize();
   await Get.find<MediaDownloadService>().initializeDownloader();
 

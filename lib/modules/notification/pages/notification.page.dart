@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import '../controllers/notification.controller.dart';
-import '../data/models/notification.model.dart';
+import '../models/notification.model.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});

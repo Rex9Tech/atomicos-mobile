@@ -9,22 +9,22 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/config/app.config.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/services/media_download.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 
 /// Media-download-specific notification UX (progress Live Activity + complete/fail).
-/// Platform plugins live in [PushNotiService].
+/// Platform plugins live in [PushNotificationService].
 class MediaDownloadNotificationService extends GetxService {
   static const _liveActivityChannel = MethodChannel(
     MediaDownloadConstants.liveActivityMethodChannel,
   );
 
-  late final PushNotiService _pushNoti;
+  late final PushNotificationService _pushNotification;
   final Set<String> _liveActivityAssetIds = {};
 
   @override
   void onInit() {
     super.onInit();
-    _pushNoti = Get.find<PushNotiService>();
+    _pushNotification = Get.find<PushNotificationService>();
   }
 
   @override
@@ -53,7 +53,7 @@ class MediaDownloadNotificationService extends GetxService {
       progressBar: true,
     );
 
-    await _pushNoti.createAndroidChannel(
+    await _pushNotification.createAndroidChannel(
       AndroidNotificationChannel(
         MediaDownloadConstants.notificationChannelId,
         AppLocales.media.notificationChannelName.tr,
@@ -72,7 +72,7 @@ class MediaDownloadNotificationService extends GetxService {
     required String assetId,
     required String title,
   }) async {
-    await _pushNoti.createLiveActivity(assetId, {
+    await _pushNotification.createLiveActivity(assetId, {
       MediaDownloadConstants.metaAssetId: assetId,
       MediaDownloadConstants.metaTitle: title,
       MediaDownloadConstants.metaProgress: 0,
@@ -88,7 +88,7 @@ class MediaDownloadNotificationService extends GetxService {
     bool paused = false,
   }) async {
     if (!_liveActivityAssetIds.contains(assetId)) return;
-    await _pushNoti.updateLiveActivity(assetId, {
+    await _pushNotification.updateLiveActivity(assetId, {
       MediaDownloadConstants.metaAssetId: assetId,
       MediaDownloadConstants.metaTitle: title,
       MediaDownloadConstants.metaProgress: (progress * 100).round(),
@@ -116,7 +116,7 @@ class MediaDownloadNotificationService extends GetxService {
     String? errorMessage,
   }) async {
     await _endLiveActivity(assetId);
-    if (!_pushNoti.isLocalNotificationsReady) return;
+    if (!_pushNotification.isLocalNotificationsReady) return;
 
     final id = assetId.hashCode & 0x7fffffff;
     final details = NotificationDetails(
@@ -131,7 +131,7 @@ class MediaDownloadNotificationService extends GetxService {
     );
 
     if (success) {
-      await _pushNoti.showLocalNotification(
+      await _pushNotification.showLocalNotification(
         id: id,
         title: AppConfig.appName,
         body: title.isEmpty
@@ -145,7 +145,7 @@ class MediaDownloadNotificationService extends GetxService {
       return;
     }
 
-    await _pushNoti.showLocalNotification(
+    await _pushNotification.showLocalNotification(
       id: id,
       title: AppConfig.appName,
       body: errorMessage ?? AppLocales.media.downloadFailed.tr,
@@ -165,7 +165,7 @@ class MediaDownloadNotificationService extends GetxService {
 
   Future<void> _endLiveActivity(String assetId) async {
     if (!_liveActivityAssetIds.remove(assetId)) return;
-    await _pushNoti.endLiveActivity(assetId);
+    await _pushNotification.endLiveActivity(assetId);
   }
 
   Future<dynamic> _onLiveActivityMethodCall(MethodCall call) async {

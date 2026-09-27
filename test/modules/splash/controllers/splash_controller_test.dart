@@ -9,7 +9,7 @@ import 'package:rexone_mobile/modules/splash/splash.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
@@ -41,7 +41,7 @@ void main() {
     Get.put<StorageService>(fakeStorage);
     Get.put<AuthService>(FakeAuthService());
     Get.put<AnalyticsService>(FakeAnalyticsService());
-    Get.put<PushNotiService>(FakePushNotiService());
+    Get.put<PushNotificationService>(FakePushNotificationService());
     Get.put<SocketService>(FakeSocketService());
 
     Get.put(AuthController());

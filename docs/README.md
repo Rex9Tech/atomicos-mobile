@@ -24,39 +24,44 @@ RexOne Mobile enforces strict Clean Architecture separation across distinct func
 lib/
 ├── bindings/             # Centralized GetX DI for shared services and permanent controllers
 ├── config/               # App configuration and environment resolution (.env.dev, .env.uat, .env.prod)
-├── constants/            # Constants, analytics event keys, locale keys, HTTP status
-├── controllers/          # App-wide coordinators only (SocketController)
-├── database/             # Drift SQLite database (rexone_offline), tables, DAOs, and migrations
+├── constants/            # Standardized constants (*.constants.dart), analytics keys, locale keys, HTTP status
+├── controllers/          # App-wide coordinators (SocketController) and mixins (PagyControllerMixin)
+├── data/
+│   └── local/            # Drift SQLite database (rexone_offline), tables, DAOs, and migrations
 ├── design/               # Design system tokens, reusable UI primitives, and themes
-│   ├── components/       # Buttons, Inputs, Password fields, Dialogs, Loading indicators, Snackbars
+│   ├── components/       # AppAccessGate, AppButton, AppInputField, AppPasswordField, AppDialog, AppLoading, etc.
 │   ├── elements/         # Design tokens (Colors, Spacing, Typography, Icons, Timers)
 │   └── extensions/       # Theme context extensions (context.colors, context.typo)
 ├── helpers/              # Utility helpers (JSON:API parser, validators, media encryption)
 ├── locales/              # Multi-language translations (English en_US, Burmese my_MM)
-├── models/               # Strongly typed JSON:API models and response envelopes
-├── modules/              # Cohesive feature modules (Page + Controller + Feature Service)
-│   ├── splash/           # Launch, session restoration, blocking version upgrade
+├── models/               # Core strongly typed models and response envelopes
+├── modules/              # Cohesive feature modules with flat, symmetric architecture:
+│   │                     # ├── components/ (optional widgets)
+│   │                     # ├── controllers/ (GetX controllers)
+│   │                     # ├── models/ (domain models, zero redundant data/ layer)
+│   │                     # ├── pages/ (full screen views)
+│   │                     # ├── requests/ (API request DTOs)
+│   │                     # ├── services/ (feature API clients)
+│   │                     # └── <feature>.dart (single barrel export)
+│   ├── ai/               # Non-blocking queued AI chat, multi-room management, live thinking
 │   ├── auth/             # Welcome, smart email discovery, 6-digit password, OTP, recovery
+│   ├── feedback/         # In-app user feedback and rating collection
 │   ├── home/             # Main dashboard, quick actions, and upgrade prompts
+│   ├── media/            # Mixed media library, dual players, offline downloads
+│   ├── notification/     # In-app and push notification inbox, mark-as-read, real-time toasts
 │   ├── payment/          # Product catalogue, coupon validation, Stripe Checkout WebView
 │   ├── profile/          # Account profile management, avatar camera/gallery upload
 │   ├── setting/          # Theme toggle, language switcher, and account navigation
-│   ├── ai/               # Non-blocking queued AI chat, multi-room management, live thinking
-│   └── media/            # Mixed media library, dual players, offline downloads
-│       ├── components/   # TrackArtwork, playlist tile/header/empty/load-more
-│       ├── controllers/  # MediaPlaylistController (library + bulk downloads)
-│       ├── pages/        # MediaPlaylistPage
-│       ├── audio/        # Full player, mini player, synced lyrics (SRT)
-│       └── video/        # Inline better_player, viewport sizing, subtitle tracks
+│   └── splash/           # Launch, session restoration, blocking version upgrade
 ├── routes/               # GetX route declarations and auth route guards
-└── services/             # Shared transport gateways (API, SolidCable, Analytics, Push, Log)
+└── services/             # Shared transport gateways (ApiService, SocketService, AnalyticsService, PushNotificationService, LogService)
 ```
 
 ### Layer Boundaries:
 - **Presentation (`lib/modules/*/pages/`, `lib/design/`)**: Pure UI widgets. Widgets never instantiate transport clients, mutate storage directly, or execute business logic.
 - **Business Logic (`lib/modules/*/controllers/`)**: Reactive GetX controllers managing feature state, user gestures, and coordinating with services.
-- **Data & Transport (`lib/services/`, `lib/models/`)**: Strongly typed models, JSON:API response envelopes, and single-responsibility transport clients.
-- **Local Persistence (`lib/database/`)**: Type-safe Drift SQLite database (`rexone_offline`) mirroring backend tables for resilient local-first operation.
+- **Data & Transport (`lib/services/`, `lib/models/`, `lib/modules/*/models/`, `lib/modules/*/requests/`)**: Strongly typed models, JSON:API response envelopes, request DTOs, and single-responsibility transport clients.
+- **Local Persistence (`lib/data/local/`)**: Type-safe Drift SQLite database (`rexone_offline`) mirroring backend tables for resilient local-first operation.
 
 ---
 

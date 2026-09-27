@@ -7,7 +7,7 @@ import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/modules/payment/payment.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 import 'package:rexone_mobile/services/media_download.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
@@ -18,7 +18,7 @@ void main() {
   late FakeAuthService fakeAuth;
   late FakeStorageService fakeStorage;
   late FakeAnalyticsService fakeAnalytics;
-  late FakePushNotiService fakePush;
+  late FakePushNotificationService fakePush;
   late FakeSocketService fakeSocket;
   late FakeMediaDownloadService fakeDownloads;
   late AuthController authController;
@@ -28,14 +28,14 @@ void main() {
     fakeAuth = FakeAuthService();
     fakeStorage = FakeStorageService();
     fakeAnalytics = FakeAnalyticsService();
-    fakePush = FakePushNotiService();
+    fakePush = FakePushNotificationService();
     fakeSocket = FakeSocketService();
     fakeDownloads = FakeMediaDownloadService();
 
     Get.put<AuthService>(fakeAuth);
     Get.put<StorageService>(fakeStorage);
     Get.put<AnalyticsService>(fakeAnalytics);
-    Get.put<PushNotiService>(fakePush);
+    Get.put<PushNotificationService>(fakePush);
     Get.put<SocketService>(fakeSocket);
     Get.put<MediaDownloadService>(fakeDownloads);
 
