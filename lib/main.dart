@@ -50,11 +50,42 @@ void main() async {
   );
   await AppInfo.init();
   InitialBinding().dependencies();
-  await Get.find<PushNotificationService>().initializePlatform();
-  await Get.find<MediaDownloadNotificationService>().initialize();
-  await Get.find<MediaDownloadService>().initializeDownloader();
+
+  // Best-effort boot steps. Each is time-boxed and guarded so a plugin that
+  // stalls or fails can NEVER block the first frame — a wedged init here
+  // white-screens the whole app (seen on MIUI: the media downloader's
+  // foreground-service start never returning).
+  Future<void> bootStep(
+    String label,
+    Future<void> Function() step, {
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
+    final sw = Stopwatch()..start();
+    try {
+      await step().timeout(timeout);
+      debugPrint('BOOT ok: $label (${sw.elapsedMilliseconds}ms)');
+    } catch (e) {
+      debugPrint('BOOT skip: $label after ${sw.elapsedMilliseconds}ms — $e');
+    }
+  }
+
+  await bootStep(
+    'push-notifications',
+    () => Get.find<PushNotificationService>().initializePlatform(),
+  );
 
   runApp(const MyApp());
+
+  // Media stack initializes after the first frame — downloads only start
+  // from user actions, so nothing needs it earlier.
+  await bootStep(
+    'media-download-notifications',
+    () => Get.find<MediaDownloadNotificationService>().initialize(),
+  );
+  await bootStep(
+    'media-downloader',
+    () => Get.find<MediaDownloadService>().initializeDownloader(),
+  );
 }
 
 class MyApp extends StatelessWidget {
