@@ -225,10 +225,12 @@ flowchart LR
 
 ### Payments & entitlements
 
-- Product catalogue with one-time and recurring pricing and pagination support.
-- Promo & referral coupon validation (`POST /v1/payment/coupons/validate`) with real-time discount calculation and localized pricing.
-- In-app Stripe Checkout handoff via WebView (`webview_flutter`). Zero-amount checkouts bypass Stripe and provision immediate entitlement access.
-- Subscription state management (Active, Scheduled for Cancellation, Expired) with destructive confirmation guards.
+- **Universal Multi-Provider Architecture**: Supports Stripe web checkout, Google Play Store, Apple App Store, and free products under a unified domain model.
+- **Silent & Pluggable In-App Purchases**: In-App Purchases are disabled by default via `PaymentConfig.enableInAppPurchases = false`, ensuring developers without app store merchant setups can run the app without errors or native store channel initialization.
+- **Native Store Verification**: When enabled, `InAppPurchaseService` coordinates purchases and restores with Google Play and Apple App Store, verifying store proofs via `POST /v1/payment/verify`.
+- **Free Products**: Zero-amount tiers (`unit_amount: 0`) require no payment gateway and provision immediate access entitlements via `AccessService.grant`.
+- **Stripe Checkout Fallback**: In-app Stripe Checkout handoff via WebView (`webview_flutter`) with real-time WebSocket payment notifications.
+- **Coupons & Subscriptions**: Promo & referral coupon validation (`POST /v1/payment/coupons/validate`) with real-time discount calculation and subscription lifecycle management (Active, Scheduled for Cancellation, Resumed, Expired).
 
 ### Media & offline playback
 

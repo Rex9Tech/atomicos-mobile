@@ -264,6 +264,29 @@ class _PaymentLocales {
   final free = 'payment.free';
   final orderSummary = 'payment.order_summary';
   final discountApplied = 'payment.discount_applied';
+  final accessGranted = 'payment.access_granted';
+  final invalidCheckout = 'payment.invalid_checkout';
+  final checkoutFailed = 'payment.checkout_failed';
+  final cancelFailed = 'payment.cancel_failed';
+  final resumeFailed = 'payment.resume_failed';
+  final couponValidationFailed = 'payment.coupon_validation_failed';
+
+  final iap = const _PaymentIapLocales();
+}
+
+class _PaymentIapLocales {
+  const _PaymentIapLocales();
+
+  final failed = 'payment.iap.failed';
+  final verifySuccess = 'payment.iap.verify_success';
+  final verifyFailed = 'payment.iap.verify_failed';
+  final disabled = 'payment.iap.disabled';
+  final storeUnavailable = 'payment.iap.store_unavailable';
+  final productNotFound = 'payment.iap.product_not_found';
+  final initiateFailed = 'payment.iap.initiate_failed';
+  final restoringPurchases = 'payment.iap.restoring_purchases';
+  final restoreFailed = 'payment.iap.restore_failed';
+  final serviceUnavailable = 'payment.iap.service_unavailable';
 }
 
 class _UserLocales {

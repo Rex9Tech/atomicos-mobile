@@ -66,6 +66,7 @@ class InitialBinding extends Bindings {
 
     // Payment Service (depends on ApiService)
     Get.put(PaymentService(), permanent: true);
+    Get.put(InAppPurchaseService(), permanent: true);
 
     // AI Service (depends on ApiService)
     Get.put(AiService(), permanent: true);

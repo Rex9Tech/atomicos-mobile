@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
@@ -363,10 +364,58 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
               final isFree =
                   product.isFree || (applied != null && applied.isFree);
 
+              if (isFree) {
+                return AppButton(
+                  text: AppLocales.payment.claimFreeAccess.tr,
+                  type: EButtonType.primary,
+                  isExpanded: true,
+                  onPressed: () {
+                    Get.back();
+                    _controller.startCheckout(
+                      product.id,
+                      couponCode: applied?.code,
+                    );
+                  },
+                );
+              }
+
+              // In-App Purchase path when feature is explicitly enabled
+              if (PaymentConfig.enableInAppPurchases && product.isInApp) {
+                final storeName = Platform.isIOS ? 'App Store' : 'Google Play';
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppButton(
+                      text: 'Pay with $storeName',
+                      type: EButtonType.primary,
+                      isExpanded: true,
+                      onPressed: () {
+                        Get.back();
+                        _controller.buyWithInApp(
+                          product,
+                          couponCode: applied?.code,
+                        );
+                      },
+                    ),
+                    SizedBox(height: Design.spacing.sm),
+                    AppButton(
+                      text: AppLocales.payment.proceedToCheckout.tr,
+                      type: EButtonType.text,
+                      isExpanded: true,
+                      onPressed: () {
+                        Get.back();
+                        _controller.startCheckout(
+                          product.id,
+                          couponCode: applied?.code,
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }
+
               return AppButton(
-                text: isFree
-                    ? AppLocales.payment.claimFreeAccess.tr
-                    : AppLocales.payment.proceedToCheckout.tr,
+                text: AppLocales.payment.proceedToCheckout.tr,
                 type: EButtonType.primary,
                 isExpanded: true,
                 onPressed: () {

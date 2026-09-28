@@ -16,6 +16,28 @@ class CouponTypes {
   static const fixed = 'fixed';
 }
 
+class PaymentConfig {
+  const PaymentConfig._();
+
+  /// Set to true to enable In-App Purchases (Google Play & Apple App Store).
+  /// Kept false by default for silent, clean, pluggable decoupling.
+  static bool enableInAppPurchases = false;
+
+  /// When both IAP and Stripe web checkout are available, prefer IAP.
+  static bool preferInAppPurchases = false;
+}
+
+class PaymentProviders {
+  const PaymentProviders._();
+
+  static const stripe = 'stripe';
+  static const googlePlay = 'google_play';
+  static const appStore = 'app_store';
+
+  static const inApp = <String>[googlePlay, appStore];
+  static const all = <String>[stripe, googlePlay, appStore];
+}
+
 class PaymentTypes {
   const PaymentTypes._();
 

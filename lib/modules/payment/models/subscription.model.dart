@@ -1,11 +1,13 @@
+// lib/modules/payment/models/subscription.model.dart
 import 'package:rexone_mobile/constants/constants.dart';
 
 class SubscriptionModel {
   final String id;
   final String status;
   final String productId;
-  final String stripeSubscriptionItemId;
-  final String stripePriceId;
+  final String? provider;
+  final String? providerSubscriptionId;
+  final String? providerPriceId;
   final String currency;
   final int unitAmount;
   final int quantity;
@@ -27,8 +29,9 @@ class SubscriptionModel {
     required this.id,
     required this.status,
     required this.productId,
-    required this.stripeSubscriptionItemId,
-    required this.stripePriceId,
+    this.provider,
+    this.providerSubscriptionId,
+    this.providerPriceId,
     required this.currency,
     required this.unitAmount,
     required this.quantity,
@@ -54,13 +57,16 @@ class SubscriptionModel {
     final active = json[PaymentKeys.active] == true || status == 'active';
     final scheduled = canceledAt != null && endedAt == null && active;
 
+    final subId = json[PaymentKeys.providerSubscriptionId]?.toString() ?? '';
+    final priceId = json[PaymentKeys.providerPriceId]?.toString() ?? '';
+
     return SubscriptionModel(
       id: json[ApiKeys.id]?.toString() ?? '',
       status: status,
       productId: json[PaymentKeys.productId]?.toString() ?? '',
-      stripeSubscriptionItemId:
-          json[PaymentKeys.stripeSubscriptionItemId]?.toString() ?? '',
-      stripePriceId: json[PaymentKeys.stripePriceId]?.toString() ?? '',
+      provider: json[PaymentKeys.provider]?.toString(),
+      providerSubscriptionId: subId.isNotEmpty ? subId : null,
+      providerPriceId: priceId.isNotEmpty ? priceId : null,
       currency: json[PaymentKeys.currency]?.toString() ?? '',
       unitAmount: (json[PaymentKeys.unitAmount] as num?)?.toInt() ?? 0,
       quantity: (json[PaymentKeys.quantity] as num?)?.toInt() ?? 1,

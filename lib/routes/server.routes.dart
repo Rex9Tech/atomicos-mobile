@@ -65,6 +65,7 @@ class ServerRoutes {
       api('/payment/subscriptions/$id/resume');
   static String get paymentPurchases => api('/payment/purchases');
   static String get paymentCouponsValidate => api('/payment/coupons/validate');
+  static String get paymentVerify => api('/payment/verify');
 
   // Chat
   static String get aiChat => api('/chat/messages');

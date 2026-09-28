@@ -9,6 +9,8 @@ class PurchaseModel {
   final String status;
   final String? productName;
   final String? createdAt;
+  final String? provider;
+  final String? providerPaymentId;
 
   PurchaseModel({
     required this.id,
@@ -19,6 +21,8 @@ class PurchaseModel {
     required this.status,
     this.productName,
     this.createdAt,
+    this.provider,
+    this.providerPaymentId,
   });
 
   factory PurchaseModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,8 @@ class PurchaseModel {
       status: json[PaymentKeys.status]?.toString() ?? '',
       productName: json[PaymentKeys.productName]?.toString(),
       createdAt: json[PaymentKeys.createdAt]?.toString(),
+      provider: json[PaymentKeys.provider]?.toString(),
+      providerPaymentId: json[PaymentKeys.providerPaymentId]?.toString(),
     );
   }
 }

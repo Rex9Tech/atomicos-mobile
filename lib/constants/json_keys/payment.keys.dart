@@ -11,6 +11,26 @@ class PaymentKeys {
   static const freeAccessGranted = 'free_access_granted';
   static const accessId = 'access_id';
 
+  // ===== Universal Provider Keys =====
+  static const provider = 'provider';
+  static const providerPaymentId = 'provider_payment_id';
+  static const providerSubscriptionId = 'provider_subscription_id';
+  static const providerPriceId = 'provider_price_id';
+
+  // ===== Store SKU Identifiers =====
+  static const stripeProductId = 'stripe_product_id';
+  static const stripePriceId = 'stripe_price_id';
+  static const googlePlayProductId = 'google_play_product_id';
+  static const appStoreProductId = 'app_store_product_id';
+  static const supportedProviders = 'supported_providers';
+  static const inApp = 'in_app';
+
+  // ===== IAP Verification =====
+  static const receiptData = 'receipt_data';
+  static const purchaseToken = 'purchase_token';
+  static const packageName = 'package_name';
+  static const transactionId = 'transaction_id';
+
   // ===== Product =====
   static const name = 'name';
   static const description = 'description';
@@ -24,8 +44,6 @@ class PaymentKeys {
 
   // ===== Subscription =====
   static const status = 'status';
-  static const stripeSubscriptionItemId = 'stripe_subscription_item_id';
-  static const stripePriceId = 'stripe_price_id';
   static const quantity = 'quantity';
   static const interval = 'interval';
   static const intervalCount = 'interval_count';

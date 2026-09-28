@@ -187,4 +187,17 @@ class PaymentService extends GetxService {
       CouponValidationModel.fromJson,
     );
   }
+
+  // ============================================================
+  // IN-APP PURCHASES
+  // ============================================================
+  Future<ApiResponse<Map<String, dynamic>>> verifyInAppPurchase(
+    Map<String, dynamic> body,
+  ) async {
+    final response = await _api.post(
+      ServerRoutes.paymentVerify,
+      body,
+    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
+  }
 }

@@ -200,6 +200,26 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
   // ACTIONS
   // ============================================================
 
+  InAppPurchaseService? get _iap => Get.isRegistered<InAppPurchaseService>()
+      ? Get.find<InAppPurchaseService>()
+      : null;
+
+  Future<bool> buyWithInApp(ProductModel product, {String? couponCode}) async {
+    if (_iap == null) {
+      AppSnackbar.error(AppLocales.payment.iap.serviceUnavailable.tr);
+      return false;
+    }
+    return await _iap!.buyProduct(product, couponCode: couponCode);
+  }
+
+  Future<void> restorePurchases() async {
+    if (_iap == null) {
+      AppSnackbar.error(AppLocales.payment.iap.serviceUnavailable.tr);
+      return;
+    }
+    await _iap!.restorePurchases();
+  }
+
   Future<void> startCheckout(String productId, {String? couponCode}) async {
     try {
       final effectiveCode = couponCode ?? appliedCoupon.value?.code;
@@ -215,7 +235,7 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
 
         if (isFreeAccessGranted) {
           removeCoupon();
-          AppSnackbar.success('Access granted successfully! 🎉');
+          AppSnackbar.success(AppLocales.payment.accessGranted.tr);
           if (Get.isRegistered<AuthController>()) {
             unawaited(Get.find<AuthController>().getCurrentUser());
           }
@@ -231,13 +251,17 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
           // the WebSocket connection is preserved throughout checkout.
           AppRoutes.toCheckout(url: checkoutUrl);
         } else {
-          AppSnackbar.error(response.error ?? 'Invalid checkout response');
+          AppSnackbar.error(
+            response.error ?? AppLocales.payment.invalidCheckout.tr,
+          );
         }
       } else {
         AppSnackbar.error(response.error ?? response.message);
       }
     } catch (e) {
-      AppSnackbar.error('Checkout failed: $e');
+      AppSnackbar.error(
+        AppLocales.payment.checkoutFailed.trParams({'error': e.toString()}),
+      );
     }
   }
 
@@ -278,7 +302,9 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
     } catch (e) {
       isValidatingCoupon.value = false;
       appliedCoupon.value = null;
-      couponError.value = 'Failed to validate coupon: $e';
+      couponError.value = AppLocales.payment.couponValidationFailed.trParams({
+        'error': e.toString(),
+      });
       return false;
     }
   }
@@ -316,7 +342,7 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
         AppSnackbar.error(res.error ?? res.message);
       }
     } catch (e) {
-      AppSnackbar.error('Failed to cancel subscription');
+      AppSnackbar.error(AppLocales.payment.cancelFailed.tr);
     }
   }
 
@@ -330,7 +356,7 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
         AppSnackbar.error(res.error ?? res.message);
       }
     } catch (e) {
-      AppSnackbar.error('Failed to resume subscription');
+      AppSnackbar.error(AppLocales.payment.resumeFailed.tr);
     }
   }
 
