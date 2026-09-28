@@ -32,9 +32,6 @@ class AppToneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final accent = _accentColor(context);
-    final background = tone == EAppToneCardTone.neutral
-        ? colors.surface
-        : accent.withValues(alpha: 0.05);
     // Keep the text clear of the trailing widget, which is centred on the
     // right edge no matter how tall the row gets.
     final trailingGutter = trailing == null
@@ -45,7 +42,6 @@ class AppToneCard extends StatelessWidget {
       onTap: onTap,
       padding: padding ?? EdgeInsets.all(Design.spacing.md),
       borderRadius: Design.spacing.radiusLarge,
-      // backgroundColor: background,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
