@@ -229,9 +229,32 @@ class ApiService extends GetConnect {
     final statusCode =
         status[ApiKeys.code] as int? ?? response.statusCode ?? 500;
     final data = body[ApiKeys.data];
-    final meta = body[ApiKeys.meta] is Map
+    Map<String, dynamic>? meta = body[ApiKeys.meta] is Map
         ? Map<String, dynamic>.from(body[ApiKeys.meta] as Map)
         : null;
+
+    // The AtomicOS core returns auth fields inside `data` (e.g.
+    // {user: {...}, token: "…"}, {otp_sent: true},
+    // {remaining_attempts: …, cooldown_remaining: …}) while upstream-style
+    // callers read them from `meta`. Lift them so both contracts work —
+    // without this, password sign-in failed despite correct credentials
+    // because `meta.token` was always null.
+    if (data is Map) {
+      const liftedKeys = <String>[
+        'token',
+        'otp_sent',
+        'remaining_attempts',
+        'cooldown_remaining',
+        'password_required',
+        'challenge_token',
+        'room_id',
+      ];
+      for (final key in liftedKeys) {
+        if (data[key] != null) {
+          (meta ??= <String, dynamic>{})[key] = data[key];
+        }
+      }
+    }
 
     final T? parsedData = (fromJson != null && data is Map)
         ? fromJson(flattenRecord(data))
