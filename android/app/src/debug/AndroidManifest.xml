@@ -4,11 +4,4 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <application>
-        <!-- Debug-only: MIUI/Adreno white-screens under Impeller/Vulkan; Skia renders fine. -->
-        <meta-data
-            android:name="io.flutter.embedding.android.EnableImpeller"
-            android:value="false" />
-    </application>
 </manifest>
