@@ -5,6 +5,7 @@ import 'package:rexone_mobile/modules/home/controllers/home.controller.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/services/category.service.dart';
+import 'package:rexone_mobile/services/storage.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
 
 import '../../mocks/test_services.dart';
@@ -30,6 +31,7 @@ void main() {
     Get.put<HomeService>(fakeHome);
     Get.put<VersionService>(FakeVersionService());
     Get.put<CategoryService>(FakeCategoryService());
+    Get.put<StorageService>(FakeStorageService());
     controller = HomeController();
   });
 

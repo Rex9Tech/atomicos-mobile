@@ -1,4 +1,4 @@
-/// Request keys for client log payloads sent to Rexone Core.
+/// Request keys for client log payloads sent to RexOne Core.
 class LogKeys {
   const LogKeys._();
 
@@ -15,4 +15,9 @@ class LogKeys {
   static const stackTrace = 'stack_trace';
   static const localStorageKeys = 'local_storage_keys';
   static const context = 'context';
+  static const log = 'log';
+  static const buildNumber = 'build_number';
+  static const fullVersion = 'full_version';
+  static const currentRoute = 'current_route';
+  static const timestamp = 'timestamp';
 }

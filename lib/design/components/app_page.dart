@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 class AppPage extends StatelessWidget {
@@ -39,12 +40,19 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final page =
+        isIOS ? _buildCupertinoPage(context) : _buildMaterialPage(context);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (!didPop) _handleBackPressed(context);
       },
-      child: isIOS ? _buildCupertinoPage(context) : _buildMaterialPage(context),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: page,
+      ),
     );
   }
 
@@ -58,7 +66,8 @@ class AppPage extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: padding ?? EdgeInsets.all(Design.spacing.screenPadding),
+                padding:
+                    padding ?? EdgeInsets.all(Design.spacing.screenPadding),
                 child: child,
               ),
               if (bottomNavigationBar != null)
@@ -114,13 +123,11 @@ class AppPage extends StatelessWidget {
       middle: title != null
           ? Text(title!, style: context.typo.headline4)
           : null,
-      trailing: actions != null && actions!.isNotEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: actions!,
-            )
-          : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [_timeZoneIndicator(context), ...?actions],
+      ),
     );
   }
 
@@ -143,7 +150,22 @@ class AppPage extends StatelessWidget {
             )
           : null,
       title: title != null ? Text(title!, style: context.typo.headline4) : null,
-      actions: actions,
+      actions: [_timeZoneIndicator(context), ...?actions],
+    );
+  }
+
+  Widget _timeZoneIndicator(BuildContext context) {
+    return Tooltip(
+      message: '${AppDateTime.timeZoneName} (${AppDateTime.utcOffset})',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          border: Border.all(color: context.colors.divider),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(AppDateTime.utcOffset, style: context.typo.caption),
+      ),
     );
   }
 

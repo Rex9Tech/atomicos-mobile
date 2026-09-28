@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# Rexone Mobile — E2E Test Runner with Clean Summary Reporter
+# RexOne Mobile — E2E Test Runner with Clean Summary Reporter
 #
 # Usage:
 #   ./scripts/test.sh [flow|file] [-d device] [options]
@@ -33,7 +33,7 @@ EXTRA_ARGS=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
-      echo "Rexone Mobile — E2E Test Runner"
+      echo "RexOne Mobile — E2E Test Runner"
       echo ""
       echo "Usage: ./scripts/test.sh [flow|file] [-d device] [--flutter|--patrol]"
       echo ""
@@ -115,11 +115,15 @@ fi
 
 # Auto-detect device if none specified
 if [ -z "$DEVICE" ]; then
-  RUNNING_EMU=$(flutter devices | grep -E "emulator-|iPhone|macOS" | head -n 1 | awk '{print $NF}' | tr -d '()' || true)
+  RUNNING_EMU=$(flutter devices | grep -E "emulator-|iPhone|macOS" | head -n 1 | awk -F'•' '{print $2}' | xargs || true)
   if [ -n "$RUNNING_EMU" ]; then
     DEVICE="$RUNNING_EMU"
   fi
 fi
+
+# Dynamically resolve package name from pubspec.yaml or fallback
+PACKAGE_NAME=$(grep -E '^\s*package_name:\s*' pubspec.yaml | head -n 1 | awk '{print $2}' || true)
+PACKAGE_NAME="${PACKAGE_NAME:-com.rex9.rexone}"
 
 if [ "$TARGET" = "all" ]; then
   TEST_FILES=(
@@ -135,8 +139,10 @@ else
 fi
 
 echo "===================================================="
-echo " 🌕 Rexone Mobile E2E Test Runner"
-echo " Suites: ${#TEST_FILES[@]} | Device: ${DEVICE:-default}"
+echo " 🌕 RexOne Mobile E2E Test Runner"
+echo " Suites:  ${#TEST_FILES[@]}"
+echo " Device:  ${DEVICE:-default}"
+echo " Package: $PACKAGE_NAME"
 echo "===================================================="
 
 cleanup_test_data() {
@@ -144,7 +150,24 @@ cleanup_test_data() {
   echo "🧹 Cleaning up test users from database..."
   docker exec dev-rexone-core-api bin/rails runner "User.where('email LIKE ? OR email LIKE ?', 'e2e-%', '%@rexone.test').destroy_all" 2>/dev/null || true
 }
+
+ensure_test_users() {
+  echo "🌱 Ensuring prerequisite E2E test users exist in database..."
+  docker exec dev-rexone-core-api bin/rails runner "
+    just = User.find_or_initialize_by(email: 'just@admin.com')
+    just.assign_attributes(name: 'Just Admin User', username: 'justadmin', password: '123456', password_confirmation: '123456')
+    just.confirmed_at ||= Time.current
+    just.save!
+    admin_role = Iam::Role.find_by(name: IamConstants::Role::ADMIN) || Iam::Role.find_by(name: IamConstants::Role::USER)
+    Iam::UserRole.find_or_create_by!(user: just, role: admin_role) if admin_role
+  " 2>/dev/null || true
+}
+
 trap cleanup_test_data EXIT
+
+# Pre-clean database and ensure test credentials exist
+cleanup_test_data
+ensure_test_users
 
 PASSED_COUNT=0
 FAILED_COUNT=0
@@ -160,12 +183,12 @@ for file in "${TEST_FILES[@]}"; do
   echo "----------------------------------------------------"
 
   START_TIME=$(date +%s)
-  
+
   # Pre-grant notification permissions to prevent system dialog interruption
   if [ -n "$DEVICE" ]; then
-    adb -s "$DEVICE" shell pm grant com.rexone.mobile android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+    adb -s "$DEVICE" shell pm grant "$PACKAGE_NAME" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
   else
-    adb shell pm grant com.rexone.mobile android.permission.POST_NOTIFICATIONS 2>/dev/null || true
+    adb shell pm grant "$PACKAGE_NAME" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
   fi
 
   CMD=("flutter" "drive" "--driver=test_driver/integration_test.dart" "--target=$file")

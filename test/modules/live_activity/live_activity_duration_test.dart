@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
-import 'package:rexone_mobile/modules/ai/data/models/recording.model.dart';
+import 'package:rexone_mobile/modules/ai/models/recording.model.dart';
 import 'package:rexone_mobile/modules/ai/services/recording.service.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/modules/live_activity/live_activity.dart';

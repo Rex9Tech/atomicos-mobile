@@ -2,52 +2,124 @@
 
 <div align="center">
 
-# Rexone Mobile
+# RexOne Mobile
 
-### A disciplined Flutter client, built to turn a powerful foundation into a seamless mobile product experience.
+### Start from One. Not from Zero. A disciplined Flutter client, built to turn a powerful foundation into a seamless mobile product experience.
 
-A production-minded mobile foundation for authenticated applications. Identity, payments, access control, media, AI, real-time delivery, push notifications, product analytics, in-app updates, localization, client telemetry, and reusable design primitives meet here—not as disconnected demos, but as one cohesive mobile application.
+A production-grade mobile foundation for authenticated native applications. Identity, payments, access control, media, AI, real-time delivery, push notifications, product analytics, in-app updates, localization, client telemetry, and reusable design primitives meet here—not as disconnected demos, but as one cohesive, modular mobile application.
 
-Built under the same creed as Rexone Core and Rexone Web: **clear in thought, exact in structure, simple in use, and strong enough to endure what comes after launch.**
+Built under the same creed as RexOne Core and RexOne Web: **Start from One. Not from Zero. Clear in thought, exact in structure, simple in use, and strong enough to endure what comes after launch.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev/)
 [![GetX](https://img.shields.io/badge/GetX-4.7-8A2BE2)](https://pub.dev/packages/get)
+[![Drift](https://img.shields.io/badge/Drift_SQLite-Type--Safe-00599C?logo=sqlite&logoColor=white)](docs/CLIENT_DATABASE.md)
+[![Sponsor rex-9](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/rex-9)
+[![Web Demo](https://img.shields.io/badge/Web_Demo-rexone.rex9.me-FF2238?logo=firefox&logoColor=white)](https://rexone.rex9.me)
 [![CI](https://github.com/rex-9/rexone_mobile/actions/workflows/test.yml/badge.svg)](https://github.com/rex-9/rexone_mobile/actions/workflows/test.yml)
 
 **Typed · Modular · Localized · Observable · Push-ready · Analytics-enabled · API-driven · Fully Tested**
 
-[Explore the foundation](#feature-map) · [Ecosystem Architecture](ECOSYSTEM.md) · [Development Law](LAW.md) · [Run it locally](#getting-started) · [Meet the architecture](#architecture) · [E2E Testing](#end-to-end-testing-flutter-driver) · [Connect the API](#configuration--environment-management)
+[Live Web Demo ↗](https://rexone.rex9.me) · [Explore the client](#feature-map) · [Who it is for](#who-rexone-mobile-is-for) · [Ecosystem Architecture](ECOSYSTEM.md) · [Development Law](LAW.md) · [Agent Governance](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) · [Run it locally](#-quick-start) · [Architecture](#architecture) · [Documentation Hub](docs/README.md)
 
 </div>
 
 ---
 
-> [!IMPORTANT]
-> **🏛️ Unified Ecosystem**: For the complete cross-platform architecture, feature parity matrix, and communication protocols between Core, Web, and Mobile, see **[ECOSYSTEM.md](ECOSYSTEM.md)**.
->
-> **📜 Constitutional Law**: All development must strictly adhere to the architecture, design system, and state laws in **[LAW.md](LAW.md)**. Zero exceptions.
+### 🏛️ Unified Ecosystem & Constitutional Directives
 
-## Why Rexone Mobile?
+| Resource                            | Purpose & Canonical Specification                                                                                                                                                                                                                                                                                       |
+| :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **🏛️ Unified Ecosystem**            | Complete cross-platform architecture, feature parity matrix, and communication protocols between Core, Web, and Mobile: **[Ecosystem Architecture](https://github.com/rex-9/rexone-core/blob/dev/ECOSYSTEM.md)** and **[Visual Walkthrough](https://github.com/rex-9/rexone-core/blob/dev/docs/VISUAL_WALKTHROUGH.md)** |
+| **📜 Constitutional Law**           | Non-negotiable architecture, design system, and state laws: **[LAW.md](LAW.md)** _(Zero exceptions)_                                                                                                                                                                                                                    |
+| **🤖 Operational Agent Governance** | Autonomous agent rules, secret isolation, and documentation synchronization: **[AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)**                                                                                                                                                                   |
+| **🗄️ Client Database**              | Drift SQLite local-first architecture and schema mirroring: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                                                                                                                                                                                                    |
+| **📖 Master Documentation Hub**     | Native subsystem architecture, CLI tools, and E2E testing: **[`docs/README.md`](docs/README.md)**                                                                                                                                                                                                                       |
 
-A capable backend and a polished web app are only parts of the whole product. The mobile application must navigate device lifecycles, volatile network conditions, push notifications, app store version migrations, real-time socket events, platform sessions, biometric/passcode verification, and structured error telemetry.
+---
 
-Rexone Mobile exists so that work does not have to be reinvented for every mobile application built on Rexone Core.
+## Why RexOne Mobile?
 
-This is not a template of screens pretending to be an architecture. Feature modules, shared services, models, bindings, design primitives, and telemetry pipelines have exact and deliberate responsibilities:
+A capable backend and a polished web app are only parts of the whole product. Mobile is not a website wrapped in a webview—it is an independent, first-class native client that must navigate operating system lifecycles, volatile network disconnects, hardware audio focus, push notification routing, app store version migrations, real-time socket events, platform sessions, biometric/passcode verification, and structured error telemetry.
+
+RexOne Mobile exists so that work does not have to be reinvented or rebuilt from scratch for every mobile product built on RexOne Core.
+
+### The Purpose: Start from One. Not from Zero.
+
+Instead of burning money and compute wasting AI tokens on weak, fragmented mobile boilerplate or having to rebuild cross-platform contracts, push notifications, and state architecture again and again for every product, RexOne Mobile provides a sovereign, production-grade Flutter foundation.
+
+### Discipline-Driven Development (DDD): The Unvarnished Mobile Truth
+
+RexOne Mobile pioneers **Discipline-Driven Development (DDD)** for native mobile engineering. In an era where AI agents can vomit thousands of lines of Flutter code in seconds, the bottleneck is never rendering a UI—it is **preserving native performance, managing hardware lifecycles, and preventing widget-tree chaos**.
+
+> _You bring the idea. AI writes the code. RexOne keeps both of you from destroying the foundation._
+
+#### Fearless Mobile Realities Others Hesitate to Reveal:
+
+1. **The Mobile AI Vibe-Coding Catastrophe**: Unguided AI coding agents dump API calls, state manipulation, audio focus, and storage I/O directly into monolithic `build()` methods. Within two iterations, hot reload crawls, memory leaks proliferate, and the app crashes on the first network hiccup. Discipline-Driven Development enforces strict separation: Presentation (widgets), Business Logic (controllers), and Data (services & models).
+2. **The Webview Wrapper Cop-Out**: Wrapping a responsive website in a webview shell and calling it an "iOS and Android app" is lazy, deceptive, and disrespectful to users. Real mobile experiences demand native 60fps rendering, hardware-accelerated media streaming, and offline-first SQLite persistence (Drift) that operates seamlessly in airplane mode.
+3. **The Mobile BaaS Trap**: Direct-to-database mobile SDKs expose client apps to severe security vectors, runaway cloud query costs, and zero offline durability. Real mobile architecture communicates with a sovereign, authenticated API core.
+4. **Zero Deprecation Shims & Zombie Code**: Retaining dead screens, abandoned controllers, or stale model fields is cowardice. Under Constitutional Law U14, replaced code is eliminated completely.
+5. **100% Free Sovereignty**: Unlike commercial Flutter starter kits charging hundreds of dollars or locking push notifications and offline sync behind paid licenses, RexOne Mobile is 100% free, Apache 2.0 open-source, and sovereign.
+
+### 📊 Architectural Comparison: Why RexOne Wins
+
+| Dimension / Capability       | 🛡️ **RexOne Sovereign Trinity**                                                               | 📦 **Next.js Full-Stack Boilerplates**                                               | 🔥 **Firebase / Cloud Serverless**                                                       | 🪤 **Supabase / BaaS Starter Kits**                                               | 🚂 **Rails & Laravel Monoliths**                                                  |
+| :--------------------------- | :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| **Architectural Model**      | ✅ **Sovereign Tri-Platform**: Rails 8 API + React 19 SPA + pure Flutter 3 native client      | ❌ **Node Monolith**: API, DB, jobs & DOM crammed into 1 fragile runtime             | ❌ **Serverless Spaghetti**: Disconnected Cloud Functions + NoSQL Firestore              | ⚠️ **Client-Heavy BaaS**: Direct client DB queries + scattered edge functions     | ⚠️ **HTML Monolith**: Server-rendered HTML with Turbo/Livewire                    |
+| **Native Mobile App**        | ✅ **Native 60fps Flutter**: Shared contracts, biometrics, hardware media & push              | ❌ **None or Webview Shell**: Sluggish Capacitor/Cordova wrapper                     | ⚠️ **Fragmented SDKs**: Direct NoSQL queries from mobile with zero encapsulation         | ⚠️ **Raw Client SDK**: Mobile apps directly expose database tables via client key | ⚠️ **Turbo / Webview**: Web pages wrapped in a native navigation shell            |
+| **Offline-First Durability** | ✅ **Drift SQLite (`rexone_offline`)**: Schema mirroring, offline subtitles & AES-256 saves   | ❌ **None**: Application breaks entirely on network disconnect                       | ⚠️ **Flaky Document Cache**: Primitive document cache prone to sync desync               | ⚠️ **No Relational Offline**: Unreliable offline sync across foreign keys         | ❌ **None**: Server-rendered pages require constant connectivity                  |
+| **Database Integrity**       | ✅ **Strict Relational PostgreSQL**: Foreign keys, ACID, UUIDs, soft-deletes                  | ⚠️ **ORM Inconsistencies**: Serverless connection pool limits on Prisma/Drizzle      | ❌ **NoSQL Hell**: No joins, no cascading deletes, data duplication nightmare            | ✅ **PostgreSQL**: Relational integrity via managed Postgres instance             | ✅ **PostgreSQL / MySQL**: Mature relational ORM (ActiveRecord / Eloquent)        |
+| **Background Processing**    | ✅ **Solid Queue (Fibers + Threads)**: Workload pooling, recurring cron, zero Redis costs     | ❌ **Serverless Timeouts**: Forced into third-party Inngest, QStash, or Celery ($$$) | ❌ **Execution Timeouts**: Severe execution limits, cold starts & high invocation bills  | ⚠️ **Edge Functions**: Strict 10s CPU limits, no persistent background workers    | ⚠️ **Redis Dependency**: Requires external Redis broker & extra hosting RAM       |
+| **Real-Time Delivery**       | ✅ **Native Action Cable**: Persistent WebSockets, auto-reconnect & binary STT/TTS            | ❌ **Broken on Serverless**: Forced into expensive Pusher / Ably tiers ($$$)         | ⚠️ **Firestore Listeners**: Pay-per-document-read billing nightmare under active polling | ⚠️ **Supabase Realtime**: Row-level broadcast, high connection pricing tiers      | ⚠️ **External Broker**: Requires Redis/Reverb/Soketi daemon configuration         |
+| **Object Storage**           | ✅ **Self-Hosted Garage S3**: High-performance local S3, zero egress bills                    | ❌ **Vendor Cloud**: AWS S3 / Cloudflare R2 egress fees                              | ❌ **Google Cloud Storage**: Proprietary bucket pricing & steep download egress fees     | ⚠️ **Proprietary Storage**: Vendor-locked BaaS pricing ladders                    | ⚠️ **ActiveStorage / Flysystem**: Tied to third-party cloud S3 bucket bills       |
+| **AI Workflows & Speech**    | ✅ **Durable Queued AI**: Chunked streaming, 16kHz live STT, binary MP3 TTS                   | ⚠️ **Edge Timeouts**: LLM streams crash on cold starts or Vercel limits              | ❌ **Synchronous Timeouts**: Long-running LLM inferences hit function deadlines          | ❌ **Client Leaks**: Client-side API keys or basic Edge Function calls            | ⚠️ **Basic Wrappers**: Simple synchronous chat endpoints                          |
+| **Anti-Vibe Governance**     | ✅ **Constitutional Law (`LAW.md`)**: Laws U14/U15 stop AI tech debt and zombie code          | ❌ **Unguided Vibe-Coding**: Fragile abstractions, dead shims & runaway debt         | ❌ **Scattered Cloud Logic**: Code fragmented across dozens of uncoordinated functions   | ❌ **RLS Spaghetti**: 100+ line SQL security policies prone to data leaks         | ⚠️ **Conventions Only**: No explicit constitutional AI agent rules                |
+| **Cost & Sovereignty**       | ✅ **100% Free & Open (Apache 2.0)**: Zero paywalls, zero "Pro" upsells, sovereign VPS deploy | ❌ **$199–$499 Paid License**: Features gated behind tier paywalls                   | ❌ **Google Vendor Trap**: Massive cloud bills as user volume scales ($5k–$20k/mo)       | ❌ **Monthly Cloud Lock-in**: Free tier lulls you into $5,000/mo hostage bill     | ❌ **$299–$799 Paid License**: Commercial starter kit paywalls (Jumpstart, Spark) |
+
+RexOne Mobile stops mobile chaos decisively:
+
+- **First-Class Mobile, Not a Webview Shell**: Built with pure Flutter 3 & Dart Clean Architecture (Presentation, Business Logic, and Data layers) orchestrated by reactive GetX.
+- **Local-First Offline Resilience**: Fully backed by a local **Drift (Type-safe SQLite)** database (`rexone_offline`), ensuring instant media playback, offline subtitles, and zero network-choke even when completely disconnected.
+- **The Foundation Bends Around the Product**: RexOne Mobile provides native device plumbing (biometrics, camera, audio focus, push, background tasks, AES-256-GCM sandbox encryption) while leaving your product UI and domain completely unencumbered.
+
+Feature modules, shared services, models, bindings, design primitives, and telemetry pipelines have exact and deliberate responsibilities:
 
 - **Modules** own a product feature end to end — pages, controllers, and (when needed) that feature's HTTP client — behind a single barrel export.
 - **Shared services** are thin, single-responsibility clients for transport that is not feature-owned: HTTP, Action Cable, Firebase, OneSignal, storage, and client logs.
 - **Design primitives** enforce consistent spacing, typography, and theme tokens across light and dark modes.
-- **Observability listeners** automatically capture uncaught Flutter and platform errors and ship structured diagnostic payloads to Rexone Core's client log store.
+- **Observability listeners** automatically capture uncaught Flutter and platform errors and ship structured diagnostic payloads to RexOne Core's client log store.
 
 The client is designed to **bend around the product**, never to make the product kneel before the foundation.
+
+## Who RexOne Mobile is for
+
+RexOne Mobile is built for Flutter teams, founder-engineers, and agencies creating Android and iOS products on RexOne Core that need native device integration without fragmenting the ecosystem's identity, commerce, notification, and API contracts.
+
+It is a particularly good fit when a mobile product needs several of these capabilities to work together:
+
+- Complete identity, confirmation, recovery, Google sign-in, and platform-isolated sessions.
+- Stripe checkout, subscriptions, purchases, and entitlement-aware experiences.
+- Push and in-app notifications with deep-link handling and conversion analytics.
+- Queued AI responses and real-time operation updates that survive navigation or app backgrounding.
+- Camera, gallery, microphone, permissions, app-version checks, and device-aware telemetry.
+- Shared localization, device-local date and time presentation, themes, and reusable interface primitives.
+
+RexOne Mobile is not a collection of disconnected Flutter screens or a replacement for product-specific UX. It is the reference Android and iOS client for RexOne Core, leaving each product free to define its own domain and experience.
+
+## What you get
+
+- **One cross-platform client architecture:** Android and iOS share typed models, feature modules, routing, localization, and lifecycle behavior.
+- **Native delivery foundations:** permissions, push notifications, deep links, version upgrades, media input, and device telemetry are already coordinated.
+- **Durable product flows:** authentication, commerce, AI, profile, and notification behavior follow the same Core contracts as RexOne Web.
+- **Centralized infrastructure:** API handling, socket reconnection, analytics, logging, storage, and device orchestration remain outside individual pages.
+- **A customizable design system:** reusable components and tokens support product-specific interfaces without discarding the application structure.
 
 ---
 
 ## The philosophy
 
-Rexone Mobile follows the same doctrine as the ecosystem it serves:
+RexOne Mobile follows the same doctrine as the ecosystem it serves:
 
 > **Clarity before cleverness. Precision before haste. Simplicity without weakness. Strength without spectacle.**
 
@@ -61,27 +133,30 @@ It was to build a **clear mobile foundation**—strong enough to carry ambitious
 
 ## Feature map
 
-| Foundation             | What is ready                                                                            | Details                                                              |
-| ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, platform sessions       | [Authentication & security](#authentication--security)               |
-| **Profile**            | Settings account row opens Profile; camera/gallery photo pick (local preview only)       | [Profile](#profile)                                                  |
-| **Push Notifications** | OneSignal push messaging, permission management, user tag syncing, and click routing     | [Push notifications](#push-notifications)                            |
-| **Product Analytics**  | Firebase Analytics screen tracking, auth lifecycle events, and telemetry                 | [Product analytics](#product-analytics)                              |
-| **In-App Upgrades**    | Splash checks `/v1/client/versions/current` and shows force or skippable update dialogs  | [In-app version upgrader](#in-app-version-upgrader)                  |
-| **Commerce**           | Products, Stripe Checkout WebView, subscriptions, and cancel/resume workflows            | [Payments & entitlements](#payments--entitlements)                   |
-| **AI Assistant**       | Non-blocking queued chat, persistent room history, and Action Cable notifications        | [AI capabilities](#ai-capabilities)                                  |
-| **Real Time**          | Action Cable WebSocket client, subscription channels, and global toast dispatching       | [Real-time delivery](#real-time-delivery)                            |
-| **Observability**      | Flutter and platform error capture with automated client log delivery to Rexone Core     | [Client observability & telemetry](#client-observability--telemetry) |
-| **Design System**      | Centralized design tokens, theme extensions, custom components, and light/dark modes     | [Design system](#design-system)                                      |
-| **Localization**       | English, Spanish, and Burmese with dynamic runtime switching and `X-Locale` backend sync | [Localization](#localization)                                        |
-| **Testing (E2E)**      | Real on-device automated user journey specs via Flutter Integration Test Driver          | [End-to-End Testing](#end-to-end-testing-flutter-driver)             |
-| **Quality**            | Strongly typed Dart models, analyzer compliance, and automated test suite                | [Quality & testing](#quality--testing)                               |
+| Foundation             | What is ready                                                                            | Details                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, platform sessions       | [Authentication & security](#authentication--security)                                  |
+| **Profile & IAM**      | Profile settings, camera/gallery avatar upload, and 3-tier RBAC admin hierarchy          | [Profile & IAM Hierarchy](#profile--iam-hierarchy)                                      |
+| **Push Notifications** | OneSignal push messaging, permission management, user tag syncing, and click routing     | [Push & Analytics](#push-notifications--analytics)                                      |
+| **Product Analytics**  | Firebase Analytics screen tracking, auth lifecycle events, and telemetry                 | [Push & Analytics](#push-notifications--analytics)                                      |
+| **In-App Upgrades**    | Splash checks `/v1/client/versions/current` and shows force or skippable update dialogs  | [Version Upgrader](#in-app-version-upgrader)                                            |
+| **Commerce**           | Products, Stripe Checkout WebView, coupons, subscriptions, and cancel/resume workflows   | [Payments & entitlements](#payments--entitlements)                                      |
+| **Media & Offline**    | Progressive A/V streaming, SRT subtitles, synced lyrics, Drift SQLite, and AES-256 saves | [Media & offline playback](#media--offline-playback)                                    |
+| **AI Assistant**       | Non-blocking queued chat, persistent room history, and Action Cable notifications        | [AI capabilities & Speech](#ai-capabilities--speech)                                    |
+| **Speech (TTS & STT)** | Live 16kHz PCM voice streaming with level bars and direct binary MP3 TTS playback        | [AI capabilities & Speech](#ai-capabilities--speech)                                    |
+| **Real Time**          | Action Cable WebSocket client, subscription channels, and global toast dispatching       | [Real-time delivery](#real-time-delivery)                                               |
+| **Observability**      | Flutter and platform error capture with automated client log delivery to RexOne Core     | [Client observability](#client-observability--telemetry)                                |
+| **Design System**      | Centralized design tokens, theme extensions, custom components, and light/dark modes     | [Design system](#design-system)                                                         |
+| **Localization**       | English and Burmese with dynamic runtime switching and `X-Locale` backend sync           | [Localization](#localization)                                                           |
+| **Governance**         | Constitutional Architecture (LAW.md) & AI Agent Operational Rules (AGENTS.md)            | [LAW.md](LAW.md) · [AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) |
+| **Testing (E2E)**      | Real on-device automated user journey specs via Flutter Integration Test Driver          | [Quality & testing](#-quality--automated-testing)                                       |
+| **Quality**            | Strongly typed Dart models, analyzer compliance, and automated test suite                | [Quality & testing](#-quality--automated-testing)                                       |
 
 ---
 
 ## Architecture
 
-Rexone Mobile keeps framework concerns explicit, responsibilities separated, and external providers isolated.
+RexOne Mobile keeps framework concerns explicit, responsibilities separated, and external providers isolated.
 
 ```mermaid
 flowchart LR
@@ -91,7 +166,7 @@ flowchart LR
     Controllers --> SharedSvc[Shared Services]
     FeatureSvc --> API[GetConnect HTTP Client]
     SharedSvc --> API
-    API --> Core[Rexone Core API]
+    API --> Core[RexOne Core API]
 
     Core <-->|Action Cable| Socket[Socket Service]
     Socket --> SocketCtrl[Socket Controller]
@@ -106,16 +181,15 @@ flowchart LR
 
 ### Layer Boundaries:
 
-- `lib/modules/` owns product features. Each module keeps its pages, controllers, and optional feature service together, and exposes them through a barrel file (`auth.dart`, `payment.dart`, …).
-- `lib/controllers/` holds only app-wide coordinators that do not belong to one feature — today, `SocketController`.
-- `lib/services/` holds shared infrastructure: HTTP (`ApiService`), Action Cable, Firebase Analytics, OneSignal, storage, device permissions, and client logs.
-- `lib/design/` centralizes design tokens, theme definitions, extensions, and reusable UI components.
-- `lib/bindings/` handles centralized dependency injection for shared services and permanent controllers. Feature controllers that are route-scoped (Payment, Checkout, AI, Profile) are bound on their `GetPage`.
+- `lib/modules/` owns product features end-to-end. Each module follows a flat, symmetric directory structure (`components/`, `controllers/`, `models/`, `pages/`, `requests/`, `services/`) behind a single barrel export (`auth.dart`, `payment.dart`, `media.dart`, …) with zero redundant data layers.
+- `lib/controllers/` holds app-wide coordinators (`SocketController`) and reusable mixins (`PagyControllerMixin`).
+- `lib/services/` holds shared infrastructure: HTTP (`ApiService`), Action Cable, Firebase Analytics, OneSignal (`PushNotificationService`), storage, device permissions, and client logs.
+- `lib/data/local/` encapsulates the type-safe Drift SQLite database (`rexone_offline`), tables, and local DAOs.
+- `lib/design/` centralizes design tokens, theme definitions, extensions, and reusable UI components strictly conforming to the `App*` / `app_*` convention.
+- `lib/bindings/` handles centralized dependency injection for shared services and permanent controllers. Route-scoped controllers are bound on their respective `GetPage`.
 - `lib/models/` contains strongly typed JSON:API models, pagination metadata (`PaginationMeta`, `PaginatedResponse`), and response envelopes.
 - `lib/locales/` contains multi-language translations and runtime dictionary updates.
-- `lib/config/` and `lib/constants/` manage environment definitions, typed JSON keys (`JsonKeys`), log constants (`LogConstants`), and application constants.
-- `integration_test/` houses end-to-end integration specifications, test robots, and test data factories.
-- `test_driver/` houses the Flutter driver entrypoint bridging device execution with test reporting.
+- `lib/config/` and `lib/constants/` manage environment definitions, typed JSON keys (`JsonKeys`), and normalized constants (`*.constants.dart`).
 
 ---
 
@@ -124,179 +198,83 @@ flowchart LR
 ### Authentication & security
 
 - **Smart Email Discovery**: Automatically checks user registration and confirmation state via `GET /peek`.
-- **6-Digit Password**: In-memory password handling for sign-in and registration (credentials never leak to persistent storage or route arguments).
+- **6-Digit Password**: In-memory password handling for sign-in and registration (credentials never leak to disk or route arguments).
 - **Unconfirmed Drop-off Recovery**: Returning unconfirmed users route directly to email confirmation OTP, bypassing credentials setup.
-- **Escalating Attempt Protection**: Reactive password retry limits and cooldown counters driven dynamically by rexone-core.
+- **Escalating Attempt Protection**: Reactive password retry limits and cooldown counters driven dynamically by RexOne Core.
 - **Email Confirmation**: 6-digit email OTP verification with countdown-guarded resend capabilities.
-- **Google Sign-In**: Native Google OAuth flow with Rexone Core challenge token support for first-time signups.
-- **Active Session Enforcement**: Sends `X-Platform: mobile` to ensure single-device active session rules enforced by the backend cache.
+- **Google Sign-In**: Native Google OAuth flow with RexOne Core challenge token support for first-time signups.
+- **Active Session Enforcement**: Sends `X-Platform: android` or `X-Platform: ios` so Core maintains an isolated active session for each native platform.
 - **Session Replacement Handling**: Detects active session invalidation and gracefully routes the user to sign-in with localized feedback.
 
-### Profile
+### Profile & IAM Hierarchy
 
-- Own feature module at `lib/modules/profile/` (route-scoped `ProfileController` on `/profile`).
-- Opened from the Settings account row (`AppRoutes.toProfile`).
-- Prefills full name, username, and email from the signed-in `UserModel`. Email is read-only.
-- Edit badge on the avatar opens a camera or gallery sheet (`image_picker`). Save PUTs name/username on `/v1/users/current` and uploads a picked avatar.
-- Camera and photo-library prompts go through shared `PermissionService` (same Settings dialog pattern as the AI microphone).
+- Own feature module at `lib/modules/profile/` with route-scoped `ProfileController` on `/profile`.
+- Camera and gallery avatar selection via `image_picker` guarded by shared `PermissionService`.
+- **Three-Tier Administrative RBAC**: Enforces `super_admin` (full authority), `admin` (domain operations, excluding `users` and `iam`), and partial admins (`*_admin`, where permissions grant access to both standard and admin endpoints).
 
-### IAM & RBAC Administrative Hierarchy
+### Push notifications & Analytics
 
-The mobile client enforces a synchronized three-tier administrative hierarchy:
+- **OneSignal Push**: Native push messaging for Android and iOS with user tag synchronization hooked into auth lifecycle and deep-link click routing.
+- **Firebase Analytics**: Central navigation tracking emits `view_page` from `GetMaterialApp.navigatorObservers` with `platform: android` or `platform: ios`. User identity is synced via opaque user ID; personal data is never sent to Analytics.
 
-- **`super_admin`**: Full authority across all features, screens, and administrative tools.
-- **`admin`**: Full authority across domain operations (`feedbacks`, `payments`, `ai`, `assets`, `logs`), strictly excluded from `users` and `iam`.
-- **Partial Admins (`*_admin` naming convention)**: Users holding the base `user` role plus a specific `*_admin` role (e.g. `feedback_admin`). Any role with `admin` in its name is an admin role. Permissions in admin roles grant access to both standard and admin endpoints, whereas permissions in non-admin roles (such as `user`) only grant access to non-admin features.
+### In-App Version Upgrader
 
-### Push notifications
-
-- Powered by **OneSignal Flutter SDK** (`onesignal_flutter`).
-- Native push notifications for Android and iOS (`remote-notification` background modes).
-- User identification and tag synchronization (`syncUser(user)` and `clearUser()`) hooked directly into authentication state changes.
-- Click listeners that route notifications and track conversion events via `AnalyticsService`.
-
-### Product analytics
-
-- Powered by **Firebase Analytics** (`firebase_core` & `firebase_analytics`).
-- Automatic screen tracking via `FirebaseAnalyticsObserver` registered in `GetMaterialApp.navigatorObservers`.
-- Pre-defined event tracking for sign-up, sign-in, sign-out, password resets, onboarding, and error captures via `Constants.analytics`.
-- User ID tagging synchronized with authenticated sessions.
-
-### In-app version upgrader
-
-- Checked on splash via `VersionService` (`GET /v1/client/versions/current?version=`).
-- `update_required` shows `AppDialog.update`; `must_update` blocks Later and keeps the user on splash.
-- Update opens the API `store_url` in the system store.
+- Checks `/v1/client/versions/current` during app startup via `VersionService` using canonical `AppInfo` metadata.
+- `must_update`: Handled exclusively by the sovereign full-screen `SplashPage` blocking view with `PopScope(canPop: false)` and direct store handoff.
+- `update_required`: Prompted non-blockingly on `HomePage` via `AppDialog.update` with "Later" and "Update" options.
 
 ### Payments & entitlements
 
-- Product catalogue with one-time and recurring pricing and pagination support.
-- In-app Stripe Checkout handoff via WebView (`webview_flutter`).
-- Subscription state management (Active, Scheduled for Cancellation, Expired).
-- Safe end-of-period cancellation and resumption guarded by destructive confirmation dialogs.
+- **Universal Multi-Provider Architecture**: Supports Stripe web checkout, Google Play Store, Apple App Store, and free products under a unified domain model.
+- **Silent & Pluggable In-App Purchases**: In-App Purchases are disabled by default via `PaymentConfig.enableInAppPurchases = false`, ensuring developers without app store merchant setups can run the app without errors or native store channel initialization.
+- **Native Store Verification**: When enabled, `InAppPurchaseService` coordinates purchases and restores with Google Play and Apple App Store, verifying store proofs via `POST /v1/payment/verify`.
+- **Free Products**: Zero-amount tiers (`unit_amount: 0`) require no payment gateway and provision immediate access entitlements via `AccessService.grant`.
+- **Stripe Checkout Fallback**: In-app Stripe Checkout handoff via WebView (`webview_flutter`) with real-time WebSocket payment notifications.
+- **Coupons & Subscriptions**: Promo & referral coupon validation (`POST /v1/payment/coupons/validate`) with real-time discount calculation and subscription lifecycle management (Active, Scheduled for Cancellation, Resumed, Expired).
 
-### AI capabilities
+### Media & offline playback
 
-- Non-blocking conversational AI assistant backed by Rexone Core and DeepSeek.
-- Multi-room management with persistent chat history and pagination support.
-- Real-time response completion notifications delivered via Action Cable.
-- Room deletion and chat clearing guarded by destructive confirmation prompts.
+- Unified feature module at `lib/modules/media/` with a shared `MediaPlaylistPage`, dual players, and offline caching:
+  - **Video (`better_player`)**: Hardware-accelerated 16:9 inline viewport, audio focus management (`setMixWithOthers(false)`), low-latency buffer tuning, 100MB chunk disk caching, and gap-bridged SRT closed captions (`SrtHelper.bridgeSmallGaps`).
+  - **Audio (`just_audio`)**: Background playback with lock-screen Now Playing controls, persistent mini player, and Apple Music-style synced lyrics from SRT tracks.
+  - **Local-First Drift SQLite**: Backed by a local **Drift (SQLite)** database (`rexone_offline`, documented in [`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)). Downloaded media always plays from local decrypted storage even when online, delivering instant startup.
+  - **Airplane Mode Resilience**: When offline, the playlist queries Drift SQLite, presenting downloaded media with offline thumbnails and subtitles.
+  - **Security & Background Transfers**: AES-256-GCM sandbox encryption, single icon-space progress controls, storage accounting, and background execution via `background_downloader` with Android foreground notifications and iOS Live Activity support.
+
+### AI capabilities & Speech
+
+- **Conversational AI Chat**: Non-blocking queued AI chat backed by RexOne Core (DeepSeek / Gemini), multi-room management, persistent history, and live thinking indicators.
+- **Live Voice Dictation (STT)**: Microphones stream normalized 16-bit PCM chunks to Core's ActionCable `SpeechLiveChannel` with interactive `VoiceLevelBars` wave visualization.
+- **Text-to-Speech (TTS) Playback**: Direct binary audio stream playback via `just_audio` without base64 overhead, dynamically linking generated audio assets to chat bubbles.
 
 ### Real-time delivery
 
-- Real-time WebSocket connection to Rexone Core via Action Cable (`SolidCable`).
+- Real-time WebSocket connection to RexOne Core via Action Cable (`SolidCable`).
 - Auto-reconnect and token refresh on authentication.
 - Centralized `SocketController` dispatches notifications and manages global toast feedback.
 
 ### Client observability & telemetry
 
 - Global error capture through `FlutterError.onError` and `PlatformDispatcher.instance.onError`.
-- Structured diagnostic payloads (message, stack trace, device metadata, OS version, app version, local storage keys) delivered directly to Rexone Core's `POST /v1/client/logs`.
-- Environment names validated against canonical backend schemas (`development`, `staging`, `production`).
+- Structured diagnostic payloads (message, stack trace, device metadata, OS version, app version) delivered directly to RexOne Core's `POST /v1/client/logs`.
 
 ### Design system
 
 - Centralized design entry point via `import 'package:rexone_mobile/design/design.dart';`.
-- Complete design tokens: `Design.spacing`, `Design.typography`, `Design.icons`, and `Design.timers`.
-- Theme extensions for theme-aware colors and typography (`context.colors`, `context.typo`).
+- Design tokens: `Design.spacing`, `Design.typography`, `Design.icons`, and `Design.timers`.
+- Theme extensions (`context.colors`, `context.typo`) supporting cohesive light and dark themes.
 - Reusable components: `AppButton`, `AppInputField`, `AppPasswordField`, `AppDialog`, `AppLoading`, `AppPage`, and `AppSnackbar`.
-- Cohesive light and dark themes with persistent user preferences.
 
 ### Localization
 
 - Fully localized into:
   - 🇬🇧 **English (`en_US`)**
-  - 🇪🇸 **Spanish (`es_ES`)**
   - 🇲🇲 **Burmese (`my_MM`)**
-- Complete parity across all user-facing texts with dynamic runtime GetX translation reload.
-- Automatically sends `X-Locale` and `Accept-Language` headers on all HTTP requests to ensure backend responses match the user's selected language.
+- Complete parity across all user-facing texts with dynamic runtime GetX translation reload and automated `X-Locale` backend header sync.
 
 ---
 
-## Speech & AI Assistant
-
-Rexone Mobile pairs reactive GetX UI with real-time audio and AI capabilities:
-
-- **Live Voice Dictation (STT)**:
-  - Microphones stream normalized 16-bit PCM chunks to Core's ActionCable `SpeechLiveChannel` in real time.
-  - Interactive `VoiceLevelBars` wave animation visualizes live amplitude and voice input levels.
-  - Seamless fallback with automatic cancellation and error handling.
-- **Text-to-Speech (TTS) Playback**:
-  - Direct binary audio stream playback via `just_audio` / `AudioPlayer` without base64 overhead.
-  - Message-level speech synthesis button with animated loading states and playing indicators.
-  - Background completion notifications (`tts_ready`) dynamically link generated MP3 assets to assistant message bubbles.
-- **Conversational AI Chat**:
-  - Non-blocking queued AI chat execution with persistent conversation rooms and message history.
-  - Optimistic UI updates with live thinking indicators and ActionCable socket synchronization.
-
----
-
-## End-to-End Testing (Flutter Driver)
-
-Rexone Mobile includes on-device E2E tests built with **`package:integration_test`** and Flutter Driver. Tests exercise real user flows on active iOS Simulators or Android Emulators without mocking UI behavior.
-
-### Test Structure
-
-```text
-rexone_mobile/
-├── integration_test/
-│   ├── auth/
-│   │   ├── password_test.dart       # Password acceptance, rejection, and retries
-│   │   ├── password_reset_test.dart # Forgot password request flow
-│   │   ├── sign_in_test.dart        # End-to-end sign-in, drop-off recovery & home navigation
-│   │   ├── sign_out_test.dart       # Sign out & session termination
-│   │   ├── sign_up_test.dart        # Full registration & email confirmation
-│   │   └── sso_test.dart            # Google SSO button presence & interaction
-│   ├── data/
-│   │   └── users.dart               # Test user definitions & dynamic factory
-│   └── robots/                      # Test Robot helper classes
-├── test_driver/
-│   └── integration_test.dart        # Flutter Driver bridge entrypoint
-└── scripts/
-    ├── test.sh                   # Full test suite runner (Unit + E2E)
-    ├── test_unit.sh              # Flutter unit test runner
-    └── test_e2e.sh               # Mobile E2E runner CLI
-```
-
-### Running Tests
-
-Rexone Mobile provides specialized and unified test runner scripts in [`scripts/`](scripts/):
-
-```bash
-# 1. Run FULL test suite (Unit + E2E)
-./scripts/test.sh all -d emulator-5554
-
-# 2. Run ONLY Unit tests (Flutter Test) - fast feedback loop
-./scripts/test_unit.sh
-# or: flutter test
-
-# 3. Run ONLY E2E tests (Flutter Drive / Integration Test)
-./scripts/test_e2e.sh all -d emulator-5554
-
-# Run specific E2E flows
-./scripts/test_e2e.sh sign-in -d emulator-5554
-./scripts/test_e2e.sh sign-up -d emulator-5554
-./scripts/test_e2e.sh password -d emulator-5554
-./scripts/test_e2e.sh password-reset -d emulator-5554
-./scripts/test_e2e.sh sign-out -d emulator-5554
-./scripts/test_e2e.sh sso -d emulator-5554
-
-# Or run on iOS Simulator
-./scripts/test_e2e.sh sign-in -d "iPhone 16 Pro"
-```
-
-Or run via Flutter Driver directly:
-
-```bash
-flutter drive \
-  --driver=test_driver/integration_test.dart \
-  --target=integration_test/auth/sign_in_test.dart \
-  -d emulator-5554
-```
-
----
-
-## Getting started
+## ⚡ Quick Start
 
 ### Prerequisites
 
@@ -304,219 +282,165 @@ flutter drive \
 - **Dart SDK**: `>= 3.11.5`
 - **Android Studio** / **VS Code** with Flutter extensions
 - **Xcode** (for iOS development on macOS)
-- **CocoaPods** (for iOS dependency management)
+- **Running RexOne Core API** (`http://localhost:3000` or `http://10.0.2.2:3000` on Android emulator)
 
-Verify your environment:
+### 3-Step Setup
 
-```sh
-flutter doctor
-```
-
-### Installation
-
-1. Clone the repository:
-
-```sh
+```bash
+# 1. Clone repository
 git clone git@github.com:rex-9/rexone-mobile.git
 cd rexone-mobile
-```
 
-2. Install dependencies:
-
-```sh
+# 2. Install dependencies & configure pre-commit hooks
 flutter pub get
-```
+./scripts/install_pre_commit.sh
 
-3. Configure environment variables:
-   Create `.env.dev`, `.env.uat`, or `.env.prod` in the project root:
-
-```env
-APP_NAME=Rexone
-APP_VERSION=1.0.0
-API_BASE_URL=http://10.0.2.2:3000
-GOOGLE_SERVER_CLIENT_ID=your_google_server_client_id.apps.googleusercontent.com
-ONE_SIGNAL_APP_ID=your_onesignal_app_id
-ANDROID_APP_ID=com.rexone.mobile
-IOS_APP_ID=com.rexone.mobile
-```
-
-4. Configure Firebase & Google Services:
-
-- **Android**: Copy `android/app/google-services.json.example` to `android/app/google-services.json` and configure your Firebase project values.
-- **iOS**: Copy `ios/Runner/GoogleService-Info.plist.example` to `ios/Runner/GoogleService-Info.plist` and configure your Firebase project values.
-
-> [!NOTE]
-> `google-services.json` and `GoogleService-Info.plist` are included in `.gitignore` to prevent credential exposure.
-
----
-
-## Running the application
-
-### Development:
-
-```sh
+# 3. Launch application (Development)
 flutter run --dart-define=APP_ENV=.env.dev
 ```
 
-### Staging (UAT):
+To run in Staging (UAT) or Production mode:
 
-```sh
+```bash
+# Staging / UAT
 flutter run --dart-define=APP_ENV=.env.uat
-```
 
-### Production:
-
-```sh
+# Production
 flutter run --dart-define=APP_ENV=.env.prod
 ```
 
 ---
 
-## Quality & testing
+## 🧪 Quality & Automated Testing
 
-Run static analysis:
+RexOne Mobile enforces high engineering discipline with strict analyzer checks and multi-level automated testing:
 
-```sh
+```bash
+# 1. Run static analysis across application, tests, and integration specs
 flutter analyze lib/ test/ integration_test/
-```
 
-Run unit and widget tests:
-
-```sh
+# 2. Run unit, controller, and widget tests (283 tests)
 flutter test test/
+# or: ./scripts/test_unit.sh
+
+# 3. Validate locale parity and audit unused translation keys
+./scripts/check_locales.sh
+./scripts/check_locales.sh --unused
+
+# 4. Run real on-device Flutter Driver E2E integration tests
+./scripts/test_e2e.sh all -d emulator-5554
+# Or specific flows: ./scripts/test_e2e.sh sign-in -d emulator-5554
 ```
 
-Run on-device integration tests:
-
-```sh
-./scripts/test.sh all -d emulator-5554
-```
+For full testing configurations and Flutter Driver instructions, see **[`docs/README.md`](docs/README.md)**.
 
 ---
 
-## Building for production
+## 📚 Technical Documentation & Subsystem Architecture
 
-### Android APK:
+To maintain high architectural discipline without cluttering the primary showcase, exhaustive technical specifications, database schemas, and CLI manuals are organized in **[`docs/`](docs/)**:
 
-```sh
+| Resource                               | Scope & Canonical Specification                                                                                                                          |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **📖 Master Mobile Documentation Hub** | Native architecture topology, CLI script catalog, and testing guides: **[`docs/README.md`](docs/README.md)**                                             |
+| **🗄️ Client SQLite Database (Drift)**  | Drift SQLite architecture, schema mirroring, offline states, and DAOs: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                          |
+| **🏛️ Unified Ecosystem Architecture**  | Cross-platform contracts, WebSocket event catalogs, and shared schemas: **[`ECOSYSTEM.md`](ECOSYSTEM.md)**                                               |
+| **📜 Constitutional Law**              | Non-negotiable architecture, state management, and design tokens: **[`LAW.md`](LAW.md)**                                                                 |
+| **🤖 Autonomous Agent Governance**     | Operational agent rules, secret isolation, and documentation synchronization: **[`AGENTS.md`](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)** |
+
+---
+
+## 🚀 Production Releases & Automated CI/CD
+
+RexOne Mobile includes an automated Android release pipeline in [`.github/workflows/build_android.yaml`](.github/workflows/build_android.yaml) triggering on pushes to `uat` (Pre-Release APK) and `main` (Production Release APK).
+
+### Manual Local Builds
+
+```bash
+# Build Android Release APK
 flutter build apk --release --dart-define=APP_ENV=.env.prod
-```
 
-### Android App Bundle (AAB):
-
-```sh
+# Build Android App Bundle (Google Play AAB)
 flutter build appbundle --release --dart-define=APP_ENV=.env.prod
-```
 
-### iOS Release:
-
-```sh
+# Build iOS Release
 flutter build ios --release --dart-define=APP_ENV=.env.prod
 ```
 
+For required GitHub Secrets configuration, see **[`docs/README.md`](docs/README.md)**.
+
 ---
 
-## Project structure
+## Other Repos in RexOne Ecosystem
 
-```text
-rexone_mobile/
-├── android/                  # Android native project & Gradle config
-├── ios/                      # iOS native project & CocoaPods config
-├── integration_test/         # On-device integration tests & test robots
-├── lib/
-│   ├── bindings/             # GetX DI for shared services and permanent controllers
-│   ├── config/               # App configuration and environment resolution
-│   ├── constants/            # Constants, analytics event keys, locale keys, HTTP status
-│   ├── controllers/          # App-wide coordinators only (SocketController)
-│   ├── design/               # Design system (tokens, components, extensions, themes, icons)
-│   │   ├── components/       # Reusable atoms and molecules (Button, Input, Password, Dialog, Loading)
-│   │   ├── elements/         # Design tokens (Colors, Spacing, Typography, Icons, Timers)
-│   │   └── extensions/       # Theme context extensions
-│   ├── helpers/              # Utility helpers (API JSON:API parser, flags, validators)
-│   ├── locales/              # Multi-language translations (en_US, es_ES, my_MM)
-│   ├── models/               # Strongly typed models and JSON:API response envelopes
-│   ├── modules/              # Feature modules (pages + controllers + feature services)
-│   │   ├── splash/           # Launch / session restore
-│   │   ├── auth/             # Welcome, password, signup, OTP, recovery
-│   │   ├── home/             # Main dashboard
-│   │   ├── payment/          # Plans, Stripe Checkout WebView, subscriptions
-│   │   ├── profile/          # Account profile, avatar upload
-│   │   ├── setting/          # Theme, language, and account row
-│   │   └── ai/               # Assistant chat, rooms, history
-│   ├── routes/               # GetX route declarations and auth route guards
-│   └── services/             # Shared transport (API, Socket, Log, Analytics, Push, Storage, Permissions)
-├── scripts/
-│   ├── rebrand.sh             # Unified mobile rebranding (Name + Package + Icon)
-│   ├── update_app_name.sh     # App display name updater (Android, iOS, .env)
-│   ├── update_package_name.sh # Package identifier / Bundle ID updater
-│   ├── update_app_icon.sh     # Launcher icons generator
-│   ├── update_app_version.sh  # Version and build number incrementer
-│   ├── test.sh                # Full test suite runner (Unit + E2E)
-│   ├── test_unit.sh           # Flutter unit test runner
-│   └── test_e2e.sh            # E2E integration test CLI runner
-├── test/                      # Unit, controller, and localization tests (88 tests)
-│   ├── controllers/           # Socket controller tests
-│   ├── mocks/                 # In-memory test service doubles
-│   ├── modules/               # Auth, Notification, Feedback, Setting, Payment, AI controller tests
-│   └── services/              # Speech and core service tests
-├── test_driver/
-│   └── integration_test.dart  # Flutter Driver test bridge
-└── pubspec.yaml
-```
+- [RexOne Core](https://github.com/rex-9/rexone-core) — Rails API, IAM, payments, jobs, notifications, storage, AI, administration, and observability
+- [RexOne Web](https://github.com/rex-9/rexone-web) — React 19 SPA, Tailwind CSS v4, DaisyUI 5, admin consoles, and Vidstack player
 
 ---
 
 ## 🎨 Rebranding & Utility Scripts
 
-> [!TIP]
-> **Recommended**: For full, synchronized rebranding across all 3 platforms (Core Backend, Web SPA, and Mobile App), run the master rebrand engine from **`rexone-core`**:
->
-> ```bash
-> cd ../rexone-core && ./scripts/rebrand.sh
-> ```
-
-For standalone mobile development or isolated updates, you can use the local scripts below:
+For full, synchronized rebranding across Core, Web, and Mobile, execute the master rebrand engine from **`rexone-core`**:
 
 ```bash
-# 1. Standalone Mobile Rebrand (Name + Package ID + App Icon)
-./scripts/rebrand.sh "New App Name" "com.company.newapp" "path/to/icon.png"
-
-# 2. Update App Display Name only
-./scripts/update_app_name.sh "New App Name"
-
-# 3. Update Package Name / Bundle ID only
-./scripts/update_package_name.sh com.company.newapp
-
-# 4. Generate Launcher Icons from assets/brand/logo.png
-./scripts/update_app_icon.sh
-
-# 5. Bump Version and Build Number
-./scripts/update_app_version.sh 1.1.0
+cd ../rexone-core && ./scripts/rebrand.sh
 ```
+
+For standalone mobile rebranding:
+
+```bash
+./scripts/rebrand.sh "New App Name" "com.company.newapp" "path/to/icon.png"
+```
+
+For the complete catalog of individual utility scripts (name, package ID, icons, versions), see **[`docs/README.md`](docs/README.md)**.
 
 ---
 
 ## 🏛️ Ecosystem Lineage & Attribution
 
-This application is built on top of the **Rexone Ecosystem** (`rex-9`). When creating derivative products or white-label applications:
+This application is built on top of the **RexOne Ecosystem** (`rex-9`). When creating derivative products or white-label applications:
 
 - Developers and creators are warmly encouraged to preserve ecosystem credit in documentation to support the project.
 - All development must strictly adhere to the constitutional engineering standards in **[LAW.md](LAW.md)** and **[ECOSYSTEM.md](ECOSYSTEM.md)**.
 
 ---
 
+## 💖 Sponsor & Support RexOne
+
+> _"I'm not a wealthy founder or a venture-backed company ~ I'm an independent developer and meditator who built RexOne with my own hands. I could have easily closed-sourced this enterprise foundation or charged $800+ behind a commercial paywall. Instead, out of pure loving-kindness (mettā) cultivated through my meditation journey under Theravada Buddhist teachings, I chose to gift RexOne 100% free and open-source under Apache 2.0 to empower builders, indie hackers, and learners worldwide._
+>
+> _If this foundation saves you months of engineering, thousands of dollars, or sparks your product journey, please consider supporting me so I can sustain my life and craft. Kindly return the loving-kindness: [Sponsor Rex on GitHub](https://github.com/sponsors/rex-9) and star the repositories. Thank you so much for your generosity and kindness. 🙏"_
+
+RexOne Mobile is architected, forged, and maintained by Rex ([@rex-9](https://github.com/rex-9)). If RexOne saves you engineering months, AI tokens, or cloud compute costs, please consider supporting the foundation!
+
+[![Sponsor rex-9](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/rex-9)
+[![GitHub Stars](https://img.shields.io/github/stars/rex-9/rexone_mobile.svg?style=social&label=Star)](https://github.com/rex-9/rexone_mobile)
+
+👉 **[Sponsor Rex on GitHub](https://github.com/sponsors/rex-9)**
+
+---
+
+## 🕯️ The Candle Philosophy of Open Source
+
+> _"Sharing is like lighting candles from one candle to another: sharing one's light does not make its own flame dimmer or weaker, but the world illuminates more and more with each light shared... making the world more and more beautiful... one light at a time..."_
+>
+> — **Htet Naing (Rex9)**, _Creator of RexOne_
+
+---
+
 ## Author
 
-Built with Clarity & Simplicity Driven Development, by **Rex (Rex9)**.
+Architected with Discipline-Driven Development (DDD), by **Htet Naing (Rex9)**.
 
-A software engineer, full-stack architect, and long-time practitioner of meditation.
+A full-stack architect, product craftsman, and long-time practitioner of meditation.
 
-I build systems the same way I approach the path itself: **with a clear mind, deliberate steps, and no unnecessary weight.**
+I build systems the same way I approach the path itself: **with a clear mind, deliberate steps, and zero unnecessary weight.**
 
-- GitHub: [@rex-9](https://github.com/rex-9)
-- Portfolio: [rex9.me](https://rex9.me)
-- LinkedIn: [rex9](https://www.linkedin.com/in/rex9/)
+- **Creator**: Htet Naing ([@rex-9](https://github.com/rex-9))
+- **Portfolio**: [rex9.me](https://rex9.me)
+- **LinkedIn**: [Htet Naing (rex9)](https://www.linkedin.com/in/rex9/)
+- **X / Twitter**: [@htetnaing0814](https://x.com/htetnaing0814)
 
-_Built with ❤️ by Rex9 on Rexone Ecosystem_
+_Built with ❤️ by Htet Naing (Rex9) on the RexOne Ecosystem_
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>

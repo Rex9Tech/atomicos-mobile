@@ -11,7 +11,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:rexone_mobile/main.dart' as app;
 import 'package:rexone_mobile/modules/auth/controllers/auth.controller.dart';
 import 'package:rexone_mobile/modules/home/pages/home.page.dart';
-import 'package:rexone_mobile/modules/setting/controller/setting.controller.dart';
+import 'package:rexone_mobile/modules/setting/controllers/setting.controller.dart';
 import 'package:rexone_mobile/modules/setting/pages/setting.page.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 

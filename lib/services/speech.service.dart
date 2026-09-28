@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:record/record.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
@@ -24,7 +25,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   late final SocketService _socket;
   late final PermissionService _permissions;
   final AudioRecorder _recorder = AudioRecorder();
-  final AudioPlayer _player = AudioPlayer();
+  AudioPlayer? _player;
 
   final RxBool isListening = false.obs;
   final RxDouble voiceLevel = 0.0.obs;
@@ -54,6 +55,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   StreamSubscription<bool>? _connSub;
   StreamSubscription<PlayerState>? _playerStateSub;
   final BytesBuilder _pcmBuffer = BytesBuilder(copy: false);
+
+  /// Set by [AudioPlayerService] so TTS can take the single native player.
+  Future<void> Function()? beforeTtsPlayback;
 
   bool get isListenSessionActive =>
       isListening.value || _speechSubscribed || _isStartingListen;
@@ -106,7 +110,6 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     unawaited(finishCapture());
     unawaited(stopPlayback());
     unawaited(_recorder.dispose());
-    unawaited(_player.dispose());
     super.onClose();
   }
 
@@ -122,10 +125,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     final response = await _api.post(ServerRoutes.textToSpeech, {
       SpeechKeys.messageId: messageId,
     }, showLoading: showLoading);
-    return _api.parseResponse<Map<String, dynamic>>(
-      response,
-      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
-    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
   }
 
   // ============================================================
@@ -150,11 +150,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       form,
       showLoading: showLoading,
     );
-    return _api.parseResponse<String>(
+    return _api.parseRecord<String>(
       response,
-      (data) => data is Map
-          ? data[SpeechKeys.text]?.toString() ?? ''
-          : data?.toString() ?? '',
+      (json) => json[SpeechKeys.text]?.toString() ?? '',
     );
   }
 
@@ -166,11 +164,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     final response = await _api.post(ServerRoutes.speechToText, {
       SpeechKeys.audioUrl: audioUrl,
     }, showLoading: showLoading);
-    return _api.parseResponse<String>(
+    return _api.parseRecord<String>(
       response,
-      (data) => data is Map
-          ? data[SpeechKeys.text]?.toString() ?? ''
-          : data?.toString() ?? '',
+      (json) => json[SpeechKeys.text]?.toString() ?? '',
     );
   }
 
@@ -178,17 +174,27 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   // TTS PLAYBACK
   // ============================================================
   Future<void> playUrl(String url) async {
+    await beforeTtsPlayback?.call();
     await stopPlayback();
     isPlaying.value = true;
     try {
-      await _player.setUrl(url);
+      final player = _player ??= AudioPlayer();
+      await player.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(url),
+          tag: MediaItem(
+            id: SpeechKeys.ttsMediaId,
+            title: AppLocales.ai.title.tr,
+          ),
+        ),
+      );
       _playerStateSub?.cancel();
-      _playerStateSub = _player.playerStateStream.listen((state) {
+      _playerStateSub = player.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           unawaited(stopPlayback());
         }
       });
-      await _player.play();
+      await player.play();
     } catch (_) {
       isPlaying.value = false;
       rethrow;
@@ -198,7 +204,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   Future<void> stopPlayback() async {
     _playerStateSub?.cancel();
     _playerStateSub = null;
-    await _player.stop();
+    await _player?.stop();
+    await _player?.dispose();
+    _player = null;
     isPlaying.value = false;
   }
 
@@ -274,7 +282,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
           if (await _recorder.isRecording()) {
             await _recorder.stop();
           }
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('🎤 [SpeechService] Recorder stop error: $e');
+        }
         return ESpeechListenResult.failed;
       }
 
@@ -359,7 +369,9 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
         if (await _recorder.isRecording()) {
           await _recorder.stop();
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🎤 [SpeechService] Teardown recorder stop error: $e');
+      }
 
       if (_speechSubscribed) {
         _socket.perform(SpeechKeys.channel, SpeechKeys.stop);

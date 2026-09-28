@@ -4,6 +4,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
+import '../models/notification.model.dart';
 
 class NotificationService extends GetxService {
   late final ApiService _api;
@@ -35,13 +36,9 @@ class NotificationService extends GetxService {
       showLoading: false,
     );
 
-    return _api.parsePaginatedResponse<NotificationModel>(
+    return _api.parsePagyList<NotificationModel>(
       response,
-      (item) => NotificationModel.fromJson(
-        item is Map<String, dynamic>
-            ? item
-            : Map<String, dynamic>.from(item as Map),
-      ),
+      NotificationModel.fromJson,
     );
   }
 
@@ -53,12 +50,7 @@ class NotificationService extends GetxService {
         showLoading: false,
       );
 
-      final res = _api.parseResponse<Map<String, dynamic>>(
-        response,
-        (data) => data is Map<String, dynamic>
-            ? data
-            : Map<String, dynamic>.from(data as Map),
-      );
+      final res = _api.parseRecord<Map<String, dynamic>>(response);
 
       if (res.success && res.data != null) {
         return (res.data![NotificationKeys.unreadCount] as num?)?.toInt() ?? 0;
@@ -77,13 +69,9 @@ class NotificationService extends GetxService {
       showLoading: false,
     );
 
-    return _api.parseResponse<NotificationModel>(
+    return _api.parseRecord<NotificationModel>(
       response,
-      (item) => NotificationModel.fromJson(
-        item is Map<String, dynamic>
-            ? item
-            : Map<String, dynamic>.from(item as Map),
-      ),
+      NotificationModel.fromJson,
     );
   }
 
@@ -95,21 +83,16 @@ class NotificationService extends GetxService {
       showLoading: false,
     );
 
-    return _api.parseResponse<Map<String, dynamic>>(
-      response,
-      (item) => item is Map<String, dynamic>
-          ? item
-          : Map<String, dynamic>.from(item as Map),
-    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
   }
 
   /// Delete an individual notification
-  Future<ApiResponse<dynamic>> deleteNotification(String id) async {
+  Future<ApiResponse<void>> deleteNotification(String id) async {
     final response = await _api.delete(
       ServerRoutes.deleteNotification(id),
       showLoading: false,
     );
 
-    return _api.parseResponse<dynamic>(response, (item) => item);
+    return _api.parseRecord<void>(response);
   }
 }

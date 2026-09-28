@@ -91,7 +91,13 @@ void main() {
       fakeAi.chatResponse = ApiResponse.success(
         message: 'Queued',
         statusCode: 200,
-        data: {AiKeys.roomId: 'room_123'},
+        data: AiMessageModel(
+          id: 'msg_1',
+          role: EChatRole.assistant.name,
+          content: 'Hello',
+          roomId: 'room_123',
+          createdAt: DateTime.now().toIso8601String(),
+        ),
       );
 
       await controller.sendMessage('Test message');
@@ -191,6 +197,85 @@ void main() {
 
       expect(controller.rooms, isEmpty);
       expect(controller.currentRoomId.value, isNull);
+    });
+
+    test('renameRoom updates room title in list and updates currentRoomTitle if matching', () async {
+      final room = AiRoomModel(
+        id: 'r_ren',
+        title: 'Original Title',
+        messageCount: 1,
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+        processing: false,
+      );
+
+      controller.rooms.assignAll([room]);
+      controller.currentRoomId.value = 'r_ren';
+      controller.currentRoomTitle.value = 'Original Title';
+
+      fakeAi.renameRoomResponse = ApiResponse.success(
+        message: 'Renamed',
+        statusCode: 200,
+        data: room.copyWith(title: 'Updated Title'),
+      );
+
+      await controller.renameRoom('r_ren', 'Updated Title');
+
+      expect(controller.rooms.first.title, equals('Updated Title'));
+      expect(controller.currentRoomTitle.value, equals('Updated Title'));
+    });
+
+    test('sendMessage extracts roomId from response.meta when provided', () async {
+      fakeAi.chatResponse = ApiResponse.success(
+        message: 'Queued',
+        statusCode: 200,
+        data: AiMessageModel(
+          id: 'msg_meta',
+          role: EChatRole.assistant.name,
+          content: 'Meta response',
+          roomId: '',
+          createdAt: DateTime.now().toIso8601String(),
+        ),
+        meta: {AiKeys.roomId: 'room_from_meta'},
+      );
+
+      await controller.sendMessage('Check meta room id');
+
+      expect(controller.currentRoomId.value, equals('room_from_meta'));
+    });
+
+    test('sendMessage replaces optimistic message with returned chunked messages', () async {
+      final chunk1 = AiMessageModel(
+        id: 'msg_c1',
+        role: EChatRole.user.name,
+        content: 'Part 1 of long prompt',
+        roomId: 'room_chunks',
+        createdAt: DateTime.now().toIso8601String(),
+      );
+      final chunk2 = AiMessageModel(
+        id: 'msg_c2',
+        role: EChatRole.user.name,
+        content: 'Part 2 of long prompt',
+        roomId: 'room_chunks',
+        createdAt: DateTime.now().toIso8601String(),
+      );
+
+      fakeAi.chatResponse = ApiResponse.success(
+        message: 'Queued',
+        statusCode: 200,
+        data: chunk1,
+        meta: {
+          AiKeys.roomId: 'room_chunks',
+          AiKeys.messages: [chunk1.toJson(), chunk2.toJson()],
+        },
+      );
+
+      await controller.sendMessage('Part 1 of long promptPart 2 of long prompt');
+
+      expect(controller.messages.length, equals(2));
+      expect(controller.messages[0].id, equals('msg_c1'));
+      expect(controller.messages[1].id, equals('msg_c2'));
+      expect(controller.currentRoomId.value, equals('room_chunks'));
     });
   });
 }

@@ -1,8 +1,10 @@
 // lib/modules/payment/payment.dart
-export './data/requests/requests.dart';
-export './data/models/models.dart';
+export './requests/requests.dart';
+export './models/models.dart';
 export './controllers/payment.controller.dart';
 export './controllers/checkout.controller.dart';
 export './services/payment.service.dart';
+export './services/iap.service.dart';
+export './components/checkout_bottom_sheet.dart';
 export 'pages/payment.page.dart';
 export 'pages/checkout_webview.page.dart';

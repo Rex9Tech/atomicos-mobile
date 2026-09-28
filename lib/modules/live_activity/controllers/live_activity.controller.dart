@@ -249,7 +249,7 @@ class LiveActivityController extends GetxController {
         showLoading: false,
       );
 
-      final assetId = upload.data?.asset.id ?? '';
+      final assetId = upload.data?.id ?? '';
       if (!upload.success || assetId.isEmpty) {
         debugPrint(
           '🎙️ [LiveActivity] audio upload failed: ${upload.error ?? upload.message}',

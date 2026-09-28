@@ -7,7 +7,7 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 
 import '../../../notification/controllers/notification.controller.dart';
-import '../../../notification/data/models/notification.model.dart';
+import '../../../notification/models/notification.model.dart';
 
 /// Bell button that lives beside the home-header avatar. Shows the unread
 /// count badge and opens the notifications sheet on tap.

@@ -5,81 +5,81 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
-import '../data/requests/requests.dart';
-import '../data/responses/responses.dart';
+import '../requests/requests.dart';
+import '../models/user_peek.model.dart';
 
 class AuthService extends GetxService {
   final ApiService _api = Get.find<ApiService>();
 
   // 1. Check if user exists
-  Future<ApiResponse<PeekUserResponse>> peekUser(String email) async {
+  Future<ApiResponse<UserPeekModel>> peekUser(String email) async {
     final response = await _api.get(
       ServerRoutes.peekUser,
       query: {AuthKeys.email: email},
     );
-    return _api.parseResponse<PeekUserResponse>(
+    return _api.parseRecord<UserPeekModel>(
       response,
-      (data) => PeekUserResponse.fromJson(data),
+      UserPeekModel.fromJson,
     );
   }
 
   // 2. Sign in with email/username and password
-  Future<ApiResponse<SignInResponse>> signIn(SignInRequest request) async {
+  Future<ApiResponse<UserModel>> signIn(SignInRequest request) async {
     final response = await _api.post(ServerRoutes.signIn, request.toJson());
-    return _api.parseResponse<SignInResponse>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => SignInResponse.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
   // 3. Sign in with token (from email confirmation)
-  Future<ApiResponse<AuthResponse>> signInWithToken(
+  Future<ApiResponse<UserModel>> signInWithToken(
     SignInTokenRequest request,
   ) async {
     final response = await _api.post(
       ServerRoutes.signInWithToken,
       request.toJson(),
     );
-    return _api.parseResponse<AuthResponse>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => AuthResponse.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
   // 4. Sign in with Google
-  Future<ApiResponse<GoogleResponse>> signInWithGoogle(
+  Future<ApiResponse<UserModel>> signInWithGoogle(
     SignInGoogleRequest request,
   ) async {
     final response = await _api.post(
       ServerRoutes.signInWithGoogle,
       request.toJson(),
     );
-    return _api.parseResponse<GoogleResponse>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => GoogleResponse.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
   // 4b. Complete Google sign in (new Google account sets a passcode)
-  Future<ApiResponse<AuthResponse>> googleSignInComplete(
+  Future<ApiResponse<UserModel>> googleSignInComplete(
     GoogleSignInCompleteRequest request,
   ) async {
     final response = await _api.post(
       ServerRoutes.signInGoogleComplete,
       request.toJson(),
     );
-    return _api.parseResponse<AuthResponse>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => AuthResponse.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
   // 5. Sign up (register new user)
   Future<ApiResponse<UserModel>> signUp(SignUpRequest request) async {
     final response = await _api.post(ServerRoutes.signUp, request.toJson());
-    return _api.parseResponse<UserModel>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => UserModel.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
@@ -91,17 +91,17 @@ class AuthService extends GetxService {
       ServerRoutes.sendConfirmationCode,
       request.toJson(),
     );
-    return _api.parseResponse<void>(response, (data) {});
+    return _api.parseRecord<void>(response);
   }
 
   // 7. Confirm email with code
-  Future<ApiResponse<AuthResponse>> confirmOTPCode(
+  Future<ApiResponse<UserModel>> confirmOTPCode(
     ConfirmOtpRequest request,
   ) async {
     final response = await _api.post(ServerRoutes.confirmCode, request.toJson());
-    return _api.parseResponse<AuthResponse>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => AuthResponse.fromJson(data),
+      UserModel.fromJson,
     );
   }
 
@@ -113,21 +113,21 @@ class AuthService extends GetxService {
       ServerRoutes.forgotPassword,
       request.toJson(),
     );
-    return _api.parseResponse<void>(response, (data) {});
+    return _api.parseRecord<void>(response);
   }
 
   // 9. Get current user
   Future<ApiResponse<UserModel>> getCurrentUser() async {
     final response = await _api.get(ServerRoutes.currentUser);
-    return _api.parseResponse<UserModel>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => UserModel.fromJson(data[AuthKeys.user]),
+      UserModel.fromJson,
     );
   }
 
   // 10. Sign out
   Future<ApiResponse<void>> signOut() async {
     final response = await _api.delete(ServerRoutes.signOut);
-    return _api.parseResponse<void>(response, (data) {});
+    return _api.parseRecord<void>(response);
   }
 }

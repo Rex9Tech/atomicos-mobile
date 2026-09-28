@@ -2,14 +2,16 @@
 // ignore_for_file: must_call_super
 import 'dart:async';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:live_activities/models/url_scheme_data.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/ai/ai.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/modules/calendar/data/models/calendar_event.model.dart';
 import 'package:rexone_mobile/modules/calendar/services/calendar.service.dart';
-import 'package:rexone_mobile/modules/feedback/data/models/feedback.model.dart';
+import 'package:rexone_mobile/modules/feedback/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
 import 'package:rexone_mobile/modules/home/data/models/category.model.dart';
@@ -21,12 +23,14 @@ import 'package:rexone_mobile/modules/profile/profile.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
 import 'package:rexone_mobile/services/category.service.dart';
 import 'package:rexone_mobile/services/media.service.dart';
+import 'package:rexone_mobile/services/media_download.service.dart';
 import 'package:rexone_mobile/services/network.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
-import 'package:rexone_mobile/services/push_noti.service.dart';
+import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/speech.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
+import 'package:rexone_mobile/modules/media/media.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 
 /// In-memory storage service that replaces GetStorage box for unit tests.
@@ -100,6 +104,38 @@ class FakeStorageService extends StorageService {
   bool getSkipPremium() => memory[StorageKeys.skipPremium] == true;
 
   @override
+  void saveAudioSession(Map<String, dynamic> session) {
+    memory[StorageKeys.audioSession] = Map<String, dynamic>.from(session);
+  }
+
+  @override
+  Map<String, dynamic>? getAudioSession() {
+    final data = memory[StorageKeys.audioSession];
+    if (data is! Map) return null;
+    return Map<String, dynamic>.from(data);
+  }
+
+  @override
+  void clearAudioSession() => memory.remove(StorageKeys.audioSession);
+
+  @override
+  Map<String, dynamic>? getMediaDownloadsIndex() {
+    final data = memory[StorageKeys.mediaDownloads];
+    if (data is! Map) return null;
+    return Map<String, dynamic>.from(
+      data.map((key, value) => MapEntry(key.toString(), value)),
+    );
+  }
+
+  @override
+  void saveMediaDownloadsIndex(Map<String, dynamic> index) {
+    memory[StorageKeys.mediaDownloads] = Map<String, dynamic>.from(index);
+  }
+
+  @override
+  void clearMediaDownloadsIndex() => memory.remove(StorageKeys.mediaDownloads);
+
+  @override
   void clearAll() => memory.clear();
 }
 
@@ -170,13 +206,53 @@ class FakeAnalyticsService extends AnalyticsService {
 }
 
 /// Fake Push Notification Service without OneSignal dependencies.
-class FakePushNotiService extends GetxService implements PushNotiService {
+class FakePushNotificationService extends GetxService
+    implements PushNotificationService {
   bool permissionRequested = false;
   UserModel? syncedUser;
   bool userCleared = false;
+  bool platformInitialized = false;
+
+  @override
+  bool get isLocalNotificationsReady => true;
+
+  @override
+  Stream<UrlSchemeData>? liveActivityUrlSchemeStream() => null;
 
   @override
   void onInit() {}
+
+  @override
+  Future<void> initializePlatform() async {
+    platformInitialized = true;
+  }
+
+  @override
+  Future<void> createAndroidChannel(AndroidNotificationChannel channel) async {}
+
+  @override
+  Future<void> showLocalNotification({
+    required int id,
+    required String title,
+    required String body,
+    required NotificationDetails details,
+    String? payload,
+  }) async {}
+
+  @override
+  Future<void> createLiveActivity(
+    String activityId,
+    Map<String, dynamic> data,
+  ) async {}
+
+  @override
+  Future<void> updateLiveActivity(
+    String activityId,
+    Map<String, dynamic> data,
+  ) async {}
+
+  @override
+  Future<void> endLiveActivity(String activityId) async {}
 
   @override
   Future<void> requestPermission() async {
@@ -196,82 +272,73 @@ class FakePushNotiService extends GetxService implements PushNotiService {
 
 /// Fake AuthService with configurable mock responses.
 class FakeAuthService extends GetxService implements AuthService {
-  ApiResponse<PeekUserResponse>? peekUserResponse;
-  ApiResponse<SignInResponse>? signInResponse;
+  ApiResponse<UserPeekModel>? peekUserResponse;
+  ApiResponse<UserModel>? signInResponse;
   ApiResponse<UserModel>? signUpResponse;
   ApiResponse<void>? sendOtpResponse;
-  ApiResponse<AuthResponse>? confirmOtpResponse;
-  ApiResponse<GoogleResponse>? googleSignInResponse;
-  ApiResponse<AuthResponse>? googleSignInCompleteResponse;
+  ApiResponse<UserModel>? confirmOtpResponse;
+  ApiResponse<UserModel>? googleSignInResponse;
+  ApiResponse<UserModel>? googleSignInCompleteResponse;
   ApiResponse<UserModel>? currentUserResponse;
   ApiResponse<void>? forgotPasswordResponse;
   ApiResponse<void>? signOutResponse;
 
   @override
-  Future<ApiResponse<PeekUserResponse>> peekUser(String email) async {
+  Future<ApiResponse<UserPeekModel>> peekUser(String email) async {
     return peekUserResponse ??
         ApiResponse.success(
           message: 'OK',
           statusCode: 200,
-          data: PeekUserResponse(userExists: true, confirmed: true),
+          data: UserPeekModel(userExists: true, confirmed: true),
         );
   }
 
   @override
-  Future<ApiResponse<SignInResponse>> signIn(SignInRequest request) async {
+  Future<ApiResponse<UserModel>> signIn(SignInRequest request) async {
     return signInResponse ??
         ApiResponse.success(
           message: 'OK',
           statusCode: 200,
-          data: SignInResponse(
-            user: UserModel(id: 'u1', email: 'test@example.com'),
-            token: 'jwt_test_token',
-          ),
+          data: UserModel(id: 'u1', email: 'test@example.com'),
+          meta: const {AuthKeys.token: 'jwt_test_token'},
         );
   }
 
   @override
-  Future<ApiResponse<AuthResponse>> signInWithToken(
-    SignInTokenRequest request,
-  ) async {
+  Future<ApiResponse<UserModel>> signInWithToken(
+      SignInTokenRequest request) async {
     return ApiResponse.success(
       message: 'OK',
       statusCode: 200,
-      data: AuthResponse(
-        user: UserModel(id: 'u1', email: 'test@example.com'),
-        token: 'token',
-      ),
+      data: UserModel(id: 'u1', email: 'test@example.com'),
+      meta: const {AuthKeys.token: 'token'},
     );
   }
 
   @override
-  Future<ApiResponse<GoogleResponse>> signInWithGoogle(
-    SignInGoogleRequest request,
-  ) async {
+  Future<ApiResponse<UserModel>> signInWithGoogle(
+      SignInGoogleRequest request) async {
     return googleSignInResponse ??
         ApiResponse.success(
           message: 'OK',
           statusCode: 200,
-          data: GoogleResponse(
-            user: UserModel(id: 'u1', email: 'test@example.com'),
-            token: 'token',
-            passwordRequired: false,
-          ),
+          data: UserModel(id: 'u1', email: 'test@example.com'),
+          meta: const {
+            AuthKeys.token: 'token',
+            AuthKeys.passwordRequired: false,
+          },
         );
   }
 
   @override
-  Future<ApiResponse<AuthResponse>> googleSignInComplete(
-    GoogleSignInCompleteRequest request,
-  ) async {
+  Future<ApiResponse<UserModel>> googleSignInComplete(
+      GoogleSignInCompleteRequest request) async {
     return googleSignInCompleteResponse ??
         ApiResponse.success(
           message: 'OK',
           statusCode: 200,
-          data: AuthResponse(
-            user: UserModel(id: 'u1', email: 'test@example.com'),
-            token: 'token',
-          ),
+          data: UserModel(id: 'u1', email: 'test@example.com'),
+          meta: const {AuthKeys.token: 'token'},
         );
   }
 
@@ -294,17 +361,14 @@ class FakeAuthService extends GetxService implements AuthService {
   }
 
   @override
-  Future<ApiResponse<AuthResponse>> confirmOTPCode(
-    ConfirmOtpRequest request,
-  ) async {
+  Future<ApiResponse<UserModel>> confirmOTPCode(
+      ConfirmOtpRequest request) async {
     return confirmOtpResponse ??
         ApiResponse.success(
           message: 'Verified',
           statusCode: 200,
-          data: AuthResponse(
-            user: UserModel(id: 'u1', email: 'test@example.com'),
-            token: 'valid_token',
-          ),
+          data: UserModel(id: 'u1', email: 'test@example.com'),
+          meta: const {AuthKeys.token: 'valid_token'},
         );
   }
 
@@ -385,7 +449,7 @@ class FakeNotificationService extends NotificationService {
   }
 
   @override
-  Future<ApiResponse<dynamic>> deleteNotification(String id) async {
+  Future<ApiResponse<void>> deleteNotification(String id) async {
     deletedIds.add(id);
     return ApiResponse.success(message: 'Deleted', statusCode: 200);
   }
@@ -523,11 +587,16 @@ class FakeFeedbackService extends FeedbackService {
 class FakePaymentService extends PaymentService {
   PaginatedResponse<ProductModel>? productsResponse;
   PaginatedResponse<SubscriptionModel>? subscriptionsResponse;
-  PaginatedResponse<TransactionModel>? transactionsResponse;
+  PaginatedResponse<PurchaseModel>? purchasesResponse;
   PaginatedResponse<AccessModel>? accessesResponse;
   ApiResponse<Map<String, dynamic>>? checkoutResponse;
-  ApiResponse<dynamic>? cancelResponse;
-  ApiResponse<dynamic>? resumeResponse;
+  ApiResponse<SubscriptionModel>? cancelResponse;
+  ApiResponse<SubscriptionModel>? resumeResponse;
+
+  int? lastGetProductsPage;
+  int? lastGetProductsLimit;
+  String? lastGetProductsSearch;
+  bool? lastGetProductsRecurring;
 
   @override
   void onInit() {}
@@ -536,7 +605,14 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<ProductModel>> getProducts({
     int? page,
     int? limit,
+    String? search,
+    bool? recurring,
+    bool showLoading = false,
   }) async {
+    lastGetProductsPage = page;
+    lastGetProductsLimit = limit;
+    lastGetProductsSearch = search;
+    lastGetProductsRecurring = recurring;
     return productsResponse ??
         const PaginatedResponse<ProductModel>(
           records: [],
@@ -550,6 +626,7 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<SubscriptionModel>> getSubscriptions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     return subscriptionsResponse ??
         const PaginatedResponse<SubscriptionModel>(
@@ -561,12 +638,13 @@ class FakePaymentService extends PaymentService {
   }
 
   @override
-  Future<PaginatedResponse<TransactionModel>> getTransactions({
+  Future<PaginatedResponse<PurchaseModel>> getPurchases({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
-    return transactionsResponse ??
-        const PaginatedResponse<TransactionModel>(
+    return purchasesResponse ??
+        const PaginatedResponse<PurchaseModel>(
           records: [],
           message: 'OK',
           statusCode: 200,
@@ -578,6 +656,7 @@ class FakePaymentService extends PaymentService {
   Future<PaginatedResponse<AccessModel>> getActiveAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     return accessesResponse ??
         const PaginatedResponse<AccessModel>(
@@ -603,15 +682,61 @@ class FakePaymentService extends PaymentService {
   }
 
   @override
-  Future<ApiResponse<dynamic>> cancelSubscription(String id) async {
+  Future<ApiResponse<SubscriptionModel>> cancelSubscription(String id) async {
     return cancelResponse ??
-        ApiResponse.success(message: 'Subscription canceled', statusCode: 200);
+        ApiResponse.success(
+          message: 'Subscription canceled',
+          statusCode: 200,
+          data: SubscriptionModel.fromJson({'id': id, 'status': 'canceled'}),
+        );
   }
 
   @override
-  Future<ApiResponse<dynamic>> resumeSubscription(String id) async {
+  Future<ApiResponse<SubscriptionModel>> resumeSubscription(String id) async {
     return resumeResponse ??
-        ApiResponse.success(message: 'Subscription resumed', statusCode: 200);
+        ApiResponse.success(
+          message: 'Subscription resumed',
+          statusCode: 200,
+          data: SubscriptionModel.fromJson({'id': id, 'status': 'active'}),
+        );
+  }
+
+  ApiResponse<CouponValidationModel>? validateCouponResponse;
+
+  @override
+  Future<ApiResponse<CouponValidationModel>> validateCoupon(
+    String code,
+    String productId,
+  ) async {
+    return validateCouponResponse ??
+        ApiResponse.success(
+          message: 'Coupon is valid',
+          statusCode: 200,
+          data: CouponValidationModel(
+            valid: true,
+            discountAmount: 200,
+            finalAmount: 800,
+            originalAmount: 1000,
+            currency: 'usd',
+            coupon: CouponModel(
+              id: 'c-test-1',
+              title: 'Test Coupon',
+              code: code,
+              couponType: CouponTypes.fixed,
+              amount: 200,
+              currency: 'usd',
+              maxUsage: 100,
+              maxUsagePerUser: 1,
+              usedCount: 0,
+              targetRoleIds: const [],
+              targetUserIds: const [],
+              targetProductIds: const [],
+              active: true,
+              exhausted: false,
+              expired: false,
+            ),
+          ),
+        );
   }
 }
 
@@ -619,10 +744,11 @@ class FakePaymentService extends PaymentService {
 class FakeAiService extends AiService {
   PaginatedResponse<AiRoomModel>? roomsResponse;
   PaginatedResponse<AiMessageModel>? historyResponse;
-  ApiResponse<Map<String, dynamic>>? chatResponse;
+  ApiResponse<AiMessageModel>? chatResponse;
   ApiResponse<AiRoomModel>? createRoomResponse;
-  ApiResponse<dynamic>? deleteRoomResponse;
-  ApiResponse<dynamic>? clearHistoryResponse;
+  ApiResponse<AiRoomModel>? renameRoomResponse;
+  ApiResponse<void>? deleteRoomResponse;
+  ApiResponse<void>? clearHistoryResponse;
 
   @override
   void onInit() {}
@@ -653,12 +779,21 @@ class FakeAiService extends AiService {
   }
 
   @override
-  Future<ApiResponse<Map<String, dynamic>>> chat(AiChatRequest request) async {
+  Future<ApiResponse<AiMessageModel>> chat(AiChatRequest request) async {
     return chatResponse ??
         ApiResponse.success(
           message: 'Chat response queued',
           statusCode: 200,
-          data: {AiKeys.roomId: request.roomId ?? 'default_room'},
+          data: AiMessageModel(
+            id: 'mock_msg_1',
+            role: 'assistant',
+            content: 'Mock response',
+            roomId: request.roomId ?? 'default_room',
+            createdAt: DateTime.now().toIso8601String(),
+          ),
+          meta: {
+            AiKeys.roomId: request.roomId ?? 'default_room',
+          },
         );
   }
 
@@ -680,13 +815,30 @@ class FakeAiService extends AiService {
   }
 
   @override
-  Future<ApiResponse<dynamic>> deleteRoom(String roomId) async {
+  Future<ApiResponse<AiRoomModel>> renameRoom(String roomId, String title) async {
+    return renameRoomResponse ??
+        ApiResponse.success(
+          message: 'Room renamed',
+          statusCode: 200,
+          data: AiRoomModel(
+            id: roomId,
+            title: title,
+            messageCount: 0,
+            createdAt: DateTime.now().toIso8601String(),
+            updatedAt: DateTime.now().toIso8601String(),
+            processing: false,
+          ),
+        );
+  }
+
+  @override
+  Future<ApiResponse<void>> deleteRoom(String roomId) async {
     return deleteRoomResponse ??
         ApiResponse.success(message: 'Room deleted', statusCode: 200);
   }
 
   @override
-  Future<ApiResponse<dynamic>> clearHistory({String? roomId}) async {
+  Future<ApiResponse<void>> clearHistory({String? roomId}) async {
     return clearHistoryResponse ??
         ApiResponse.success(message: 'History cleared', statusCode: 200);
   }
@@ -876,6 +1028,8 @@ class FakeSpeechService extends GetxService
 
   @override
   bool allowBackgroundListening = false;
+@override
+  Future<void> Function()? beforeTtsPlayback;
 
   SocketMessage? lastSpeechEvent;
   ESpeechEventType? lastSpeechEventType;
@@ -1072,9 +1226,15 @@ class FakeVersionService extends VersionService {
   @override
   void onInit() {}
 
+  int? lastRequestedBuildNumber;
+
   @override
-  Future<ApiResponse<VersionModel>> getCurrent(String version) async {
+  Future<ApiResponse<VersionModel>> getCurrent({
+    required String version,
+    int? buildNumber,
+  }) async {
     lastRequestedVersion = version;
+    lastRequestedBuildNumber = buildNumber;
     if (throwOnGet) throw Exception('offline');
     return currentResponse ??
         ApiResponse.success(
@@ -1086,16 +1246,16 @@ class FakeVersionService extends VersionService {
 
   ApiResponse<UserVersionModel>? userVersionResponse;
   String? lastReportedVersion;
-  int? lastReportedVersionCode;
+  int? lastReportedBuildNumber;
   bool throwOnReport = false;
 
   @override
   Future<ApiResponse<UserVersionModel>> reportUserVersion({
     required String version,
-    required int versionCode,
+    required int buildNumber,
   }) async {
     lastReportedVersion = version;
-    lastReportedVersionCode = versionCode;
+    lastReportedBuildNumber = buildNumber;
     if (throwOnReport) throw Exception('offline');
     return userVersionResponse ??
         ApiResponse.success(
@@ -1104,7 +1264,7 @@ class FakeVersionService extends VersionService {
           data: UserVersionModel(
             id: 'install_1',
             number: version,
-            buildNumber: versionCode,
+            buildNumber: buildNumber,
             platform: 'android',
           ),
         );
@@ -1113,18 +1273,51 @@ class FakeVersionService extends VersionService {
 
 /// Fake Media Service.
 class FakeMediaService extends MediaService {
-  ApiResponse<AssetUploadResponse>? uploadResponse;
+  ApiResponse<AssetModel>? uploadResponse;
+  PaginatedResponse<AssetModel>? assetsResponse;
+  final Map<String, ApiResponse<MediaPlaybackModel>> playbackByAssetId = {};
+  String? lastPlaybackAssetId;
   String? lastUploadedFilePath;
   String? lastUploadedType;
   String? lastUploadedAssetableType;
   String? lastUploadedAssetableId;
   int? lastUploadedDurationSecs;
+  String? lastAssetsType;
+  int? lastAssetsPage;
+  int? lastAssetsLimit;
 
   @override
   void onInit() {}
 
   @override
-  Future<ApiResponse<AssetUploadResponse>> uploadImage({
+  Future<ApiResponse<MediaPlaybackModel>> getAssetPlayback(
+    String assetId,
+  ) async {
+    lastPlaybackAssetId = assetId;
+    return playbackByAssetId[assetId] ??
+        ApiResponse.error(message: 'Playback unavailable', statusCode: 404);
+  }
+
+  @override
+  Future<PaginatedResponse<AssetModel>> getAssets({
+    String? type,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    lastAssetsType = type;
+    lastAssetsPage = page;
+    lastAssetsLimit = limit;
+    return assetsResponse ??
+        const PaginatedResponse<AssetModel>(
+          records: [],
+          message: 'OK',
+          statusCode: 200,
+          success: true,
+        );
+  }
+
+  @override
+  Future<ApiResponse<AssetModel>> uploadImage({
     required String filePath,
     String? filename,
     String? type,
@@ -1145,25 +1338,163 @@ class FakeMediaService extends MediaService {
         ApiResponse.success(
           message: 'Uploaded',
           statusCode: 200,
-          data: AssetUploadResponse(
-            asset: AssetModel(
-              id: 'a1',
-              name: 'avatar.png',
-              url: 'https://example.com/avatar.png',
-              type: type ?? 'avatar',
-              source: AssetKeys.sourceUpload,
-              sizeBytes: 1024,
-              format: 'png',
-              assetableType: assetableType ?? 'User',
-              assetableId: assetableId ?? 'u1',
-            ),
-            storageDetails: StorageDetails(
-              storageKey: 'avatars/a1.png',
-              bytes: 1024,
-              format: 'png',
-            ),
+          data: AssetModel(
+            id: 'a1',
+            name: 'avatar.png',
+            url: 'https://example.com/avatar.png',
+            type: type ?? 'avatar',
+            source: AssetKeys.sourceUpload,
+            sizeBytes: 1024,
+            format: 'png',
+            assetableType: assetableType ?? 'User',
+            assetableId: assetableId ?? 'u1',
           ),
+          meta: const {
+            AssetKeys.storageDetails: {
+              AssetKeys.storageKey: 'avatars/a1.png',
+              AssetKeys.bytes: 1024,
+              AssetKeys.format: 'png',
+            },
+          },
         );
+  }
+}
+
+/// Lightweight offline download double for controller unit tests.
+class FakeMediaDownloadService extends MediaDownloadService {
+  bool clearedAll = false;
+  Exception? downloadError;
+
+  @override
+  void onInit() {}
+
+  @override
+  Future<void> initializeDownloader() async {}
+
+  @override
+  Future<void> downloadAsset(AssetModel asset) async {
+    if (downloadError != null) throw downloadError!;
+    entries[asset.id] = MediaDownloadModel(
+      assetId: asset.id,
+      state: EMediaDownloadState.ready,
+      progress: 1,
+      title: asset.displayTitle,
+      mediaFormat: asset.format,
+      mediaPath: '${asset.id}.enc',
+      downloadedAt: DateTime.now(),
+    );
+    entries.refresh();
+  }
+
+  @override
+  Future<void> cancelDownload(String assetId) async {
+    entries.remove(assetId);
+    entries.refresh();
+  }
+
+  @override
+  Future<void> pauseDownload(String assetId) async {
+    final entry = entries[assetId];
+    if (entry == null) return;
+    entries[assetId] = entry.copyWith(state: EMediaDownloadState.paused);
+    entries.refresh();
+  }
+
+  @override
+  Future<void> resumeDownload(String assetId) async {
+    final entry = entries[assetId];
+    if (entry == null) return;
+    entries[assetId] = entry.copyWith(state: EMediaDownloadState.downloading);
+    entries.refresh();
+  }
+
+  @override
+  Future<void> deleteDownload(String assetId) async {
+    entries.remove(assetId);
+    entries.refresh();
+  }
+
+  @override
+  Future<void> clearAllDownloads() async {
+    entries.clear();
+    entries.refresh();
+    clearedAll = true;
+  }
+}
+
+/// Lightweight audio player double for controller unit tests.
+class FakeAudioPlayerService extends AudioPlayerService {
+  bool playResult = true;
+  int? lastPlayedIndex;
+  int? lastQueueIndex;
+
+  @override
+  void onInit() {}
+
+  @override
+  Future<void> setAssets(List<AssetModel> next) async {
+    assets.assignAll(next);
+  }
+
+  @override
+  Future<bool> playQueueAt(int index) async {
+    lastQueueIndex = index;
+    if (index < 0 || index >= queue.length) return false;
+    queueIndex.value = index;
+    final asset = queue[index];
+
+    if (asset.isAudioMedia) {
+      final audioIndex = assets.indexWhere((item) => item.id == asset.id);
+      if (audioIndex < 0) return false;
+      return play(audioIndex);
+    }
+
+    if (asset.isVideoMedia && Get.isRegistered<VideoPlayerService>()) {
+      final video = Get.find<VideoPlayerService>();
+      final videoIndex = video.assets.indexWhere((item) => item.id == asset.id);
+      if (videoIndex < 0) return false;
+      return video.play(videoIndex);
+    }
+
+    return false;
+  }
+
+  @override
+  Future<bool> play([int? index]) async {
+    if (assets.isEmpty) return true;
+    lastPlayedIndex = (index ?? currentIndex.value).clamp(0, assets.length - 1);
+    hasSession.value = true;
+    currentIndex.value = lastPlayedIndex!;
+    return playResult;
+  }
+
+  @override
+  Future<bool> toggle() async => playResult;
+}
+
+/// Lightweight video player double for controller unit tests.
+class FakeVideoPlayerService extends VideoPlayerService {
+  bool playResult = true;
+  int? lastPlayedIndex;
+  bool toggleCalled = false;
+
+  @override
+  Future<void> setAssets(List<AssetModel> next) async {
+    assets.assignAll(next);
+  }
+
+  @override
+  Future<bool> play(int index) async {
+    if (assets.isEmpty) return true;
+    lastPlayedIndex = index.clamp(0, assets.length - 1);
+    hasSession.value = true;
+    currentIndex.value = lastPlayedIndex!;
+    return playResult;
+  }
+
+  @override
+  Future<void> toggle() async {
+    toggleCalled = true;
   }
 }
 

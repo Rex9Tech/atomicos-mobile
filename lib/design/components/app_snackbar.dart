@@ -140,6 +140,7 @@ class AppSnackbar {
     Get.closeAllSnackbars();
 
     Get.rawSnackbar(
+      snackPosition: SnackPosition.TOP,
       titleText: Row(
         children: [
           Icon(icon, color: foreground, size: 20),

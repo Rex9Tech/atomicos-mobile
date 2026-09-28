@@ -9,6 +9,8 @@ import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
 import '../modules/setting/setting.dart';
 import '../modules/notification/notification.dart';
+import '../modules/media/media.dart';
+import '../data/local/local.dart';
 import '../services/services.dart';
 import '../controllers/controllers.dart';
 
@@ -16,6 +18,9 @@ class InitialBinding extends Bindings {
   @override
   void dependencies() {
     // ===== Services =====
+
+    // Local SQLite Database (Drift)
+    Get.put(AppDatabase(), permanent: true);
 
     // Storage (no dependencies)
     Get.put(StorageService(), permanent: true);
@@ -26,8 +31,8 @@ class InitialBinding extends Bindings {
     // Analytics Service (Firebase Analytics)
     Get.put(AnalyticsService(), permanent: true);
 
-    // Push Notification Service (OneSignal)
-    Get.put(PushNotiService(), permanent: true);
+    // Notifications: OneSignal + local notifications + Live Activities
+    Get.put(PushNotificationService(), permanent: true);
 
     // API Service (interface + implementation)
     Get.put<ApiService>(ApiService(), permanent: true);
@@ -40,6 +45,12 @@ class InitialBinding extends Bindings {
 
     // Media upload (depends on ApiService)
     Get.put(MediaService(), permanent: true);
+
+    // Offline media download notifications (no dependencies)
+    Get.put(MediaDownloadNotificationService(), permanent: true);
+
+    // Offline media downloads (depends on StorageService + MediaService)
+    Get.put(MediaDownloadService(), permanent: true);
 
     // WebSocket / Action Cable Socket Service
     Get.put(SocketService(), permanent: true);
@@ -56,8 +67,15 @@ class InitialBinding extends Bindings {
     // Foreground service that keeps a recording alive in the background
     Get.put(RecordingSessionService(), permanent: true);
 
+    // Playlist / background-capable audio (depends on SpeechService to pause TTS)
+    Get.put(AudioPlayerService(), permanent: true);
+
+    // Video streaming (better_player)
+    Get.put(VideoPlayerService(), permanent: true);
+
     // Payment Service (depends on ApiService)
     Get.put(PaymentService(), permanent: true);
+    Get.put(InAppPurchaseService(), permanent: true);
 
     // AI Service (depends on ApiService)
     Get.put(AiService(), permanent: true);
@@ -90,5 +108,8 @@ class InitialBinding extends Bindings {
 
     // Global socket event router (snackbars + controller dispatch)
     Get.put(SocketController(), permanent: true);
+
+    // Audio mini player
+    Get.put(MiniPlayerController(), permanent: true);
   }
 }

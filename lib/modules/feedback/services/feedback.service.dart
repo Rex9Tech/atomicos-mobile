@@ -4,7 +4,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
-import '../data/models/feedback.model.dart';
+import '../models/feedback.model.dart';
 
 class FeedbackService extends GetxService {
   late final ApiService _api;
@@ -24,13 +24,9 @@ class FeedbackService extends GetxService {
       showLoading: false,
     );
 
-    return _api.parseResponse<FeedbackModel>(
+    return _api.parseRecord<FeedbackModel>(
       response,
-      (item) => FeedbackModel.fromJson(
-        item is Map<String, dynamic>
-            ? item
-            : Map<String, dynamic>.from(item as Map),
-      ),
+      FeedbackModel.fromJson,
     );
   }
 
@@ -45,13 +41,9 @@ class FeedbackService extends GetxService {
 
     final response = await _api.get(ServerRoutes.feedbacks, query: query);
 
-    return _api.parsePaginatedResponse<FeedbackModel>(
+    return _api.parsePagyList<FeedbackModel>(
       response,
-      (item) => FeedbackModel.fromJson(
-        item is Map<String, dynamic>
-            ? item
-            : Map<String, dynamic>.from(item as Map),
-      ),
+      FeedbackModel.fromJson,
     );
   }
 }

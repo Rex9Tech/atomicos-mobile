@@ -16,14 +16,25 @@ lib/design/
 │   ├── app_media.dart       # Asset paths
 │   ├── app_timers.dart      # Durations & animations
 │   └── app_theme.dart       # Light/Dark themes
-├── components/              # Reusable UI components
-│   ├── app_button.dart
-│   ├── app_input_field.dart
-│   ├── app_passcode_field.dart
-│   ├── app_loading.dart
-│   ├── app_snackbar.dart
-│   ├── app_dialog.dart
-│   └── app_page.dart        # Page layout wrapper
+├── components/              # Reusable UI components strictly adhering to app_* prefix
+│   ├── app_access_gate.dart # Entitlement & access gating wrapper
+│   ├── app_badge.dart       # Status badges with neon/status themes
+│   ├── app_button.dart      # Button primitives (primary, secondary, google, etc.)
+│   ├── app_card.dart        # Content container card
+│   ├── app_dialog.dart      # Success, error, and confirm dialogs
+│   ├── app_handle_bar.dart  # Modal bottom sheet grab handle
+│   ├── app_image.dart       # Cached network & local image widget
+│   ├── app_input_field.dart # Form text input with validation error states
+│   ├── app_list_tile.dart   # Interactive list item tile
+│   ├── app_loading.dart     # Modal & linear progress indicators
+│   ├── app_network_banner.dart # Offline / restored connection banner
+│   ├── app_page.dart        # Page scaffold wrapper
+│   ├── app_pagy_list_view.dart # Infinite-scroll pagination list view
+│   ├── app_password_field.dart # Secure password input
+│   ├── app_rating_slider.dart # User rating slider
+│   ├── app_search_bar.dart  # Debounced search bar with filter chips
+│   ├── app_snackbar.dart    # Feedback toast/snackbar notifications
+│   └── app_toggle.dart      # Theme-aware switch toggle
 └── extensions/              # Theme-aware extensions
     └── theme_extensions.dart # context.colors & context.typo
 ```

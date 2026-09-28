@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 
 import '../payment.dart';
 
@@ -14,58 +15,88 @@ class PaymentPage extends GetView<PaymentController> {
     return AppPage(
       title: AppLocales.payment.plansPricing.tr,
       showBackButton: true,
+      padding: Design.spacing.zero,
       child: Obx(() {
-        return RefreshIndicator(
+        final filterChips = [
+          const AppSearchChipItem(
+            id: PaymentController.filterAll,
+            label: 'All Plans',
+          ),
+          const AppSearchChipItem(
+            id: PaymentController.filterSubscription,
+            label: 'Subscriptions',
+            icon: Icons.repeat_rounded,
+          ),
+          const AppSearchChipItem(
+            id: PaymentController.filterOneTime,
+            label: 'One-Time',
+            icon: Icons.flash_on_rounded,
+          ),
+        ];
+
+        final searchHeader = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Text(
+              AppLocales.payment.choosePlan.tr,
+              style: context.typo.headline1,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Design.spacing.xs),
+            Text(
+              AppLocales.payment.choosePlanSub.tr,
+              style: context.typo.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Design.spacing.lg),
+
+            // Search and Filter Bar
+            AppSearchBar(
+              hint: 'Search plans...',
+              initialQuery: controller.searchQuery.value,
+              onSearchChanged: controller.onSearchChanged,
+              isSearching:
+                  controller.isLoading.value && controller.items.isNotEmpty,
+              filterChips: filterChips,
+              selectedFilterId: controller.selectedFilterId,
+              onFilterSelected: controller.selectFilterId,
+            ),
+          ],
+        );
+
+        return AppPagyListView<ProductModel>(
+          items: controller.products,
+          isLoading: controller.isLoading.value,
+          isLoadingMore: controller.isLoadingMore.value,
+          hasMore: controller.hasMore,
+          errorMessage: controller.errorMessage.value,
           onRefresh: controller.fetchData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
+          onLoadMore: controller.loadMore,
+          header: searchHeader,
+          emptyMessage:
+              'No products available matching your search or filters.',
+          itemBuilder: (context, product, index) {
+            final isLast = index == controller.products.length - 1;
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header
-                Text(
-                  AppLocales.payment.choosePlan.tr,
-                  style: context.typo.headline1,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: Design.spacing.xs),
-                Text(
-                  AppLocales.payment.choosePlanSub.tr,
-                  style: context.typo.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: Design.spacing.xxl),
-
-                // Products List
-                if (controller.products.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(Design.spacing.xl),
-                      child: Text(
-                        AppLocales.payment.noProducts.tr,
-                        style: context.typo.bodyMedium,
-                      ),
-                    ),
-                  )
-                else
-                  ...controller.products.map(
-                    (product) =>
-                        _buildProductCard(context, controller, product),
-                  ),
-
-                // Transactions History
-                if (controller.transactions.isNotEmpty) ...[
+                _buildProductCard(context, controller, product),
+                if (isLast && controller.purchases.isNotEmpty) ...[
                   SizedBox(height: Design.spacing.xxxl),
-                  Text(AppLocales.payment.orderHistory.tr, style: context.typo.headline3),
-                  SizedBox(height: Design.spacing.md),
-                  ...controller.transactions.map(
-                    (tx) => _buildTransactionTile(context, tx),
+                  Text(
+                    AppLocales.payment.purchases.tr,
+                    style: context.typo.headline3,
                   ),
+                  SizedBox(height: Design.spacing.md),
+                  ...controller.purchases.map(
+                    (p) => _buildPurchaseTile(context, p),
+                  ),
+                  SizedBox(height: Design.spacing.xxl),
                 ],
-                SizedBox(height: Design.spacing.xxxl),
               ],
-            ),
-          ),
+            );
+          },
         );
       }),
     );
@@ -200,7 +231,7 @@ class PaymentPage extends GetView<PaymentController> {
     // 2. Active subscription -> Cancel button
     if (activeSub != null) {
       final periodEnd = activeSub.currentPeriodEnd != null
-          ? activeSub.currentPeriodEnd!.split('T').first
+          ? AppDateTime.formatLocalDate(activeSub.currentPeriodEnd)
           : 'end of period';
 
       return Column(
@@ -232,7 +263,7 @@ class PaymentPage extends GetView<PaymentController> {
     // 3. Canceled (pending end of cycle) -> Resume button
     if (canceledSub != null) {
       final periodEnd = canceledSub.currentPeriodEnd != null
-          ? canceledSub.currentPeriodEnd!.split('T').first
+          ? AppDateTime.formatLocalDate(canceledSub.currentPeriodEnd)
           : 'end of period';
 
       return Column(
@@ -316,7 +347,7 @@ class PaymentPage extends GetView<PaymentController> {
     );
   }
 
-  Widget _buildTransactionTile(BuildContext context, TransactionModel tx) {
+  Widget _buildPurchaseTile(BuildContext context, PurchaseModel p) {
     return AppCard(
       margin: EdgeInsets.only(bottom: Design.spacing.sm),
       padding: EdgeInsets.symmetric(
@@ -329,17 +360,17 @@ class PaymentPage extends GetView<PaymentController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tx.productName ?? AppLocales.payment.paymentLabel.tr, style: context.typo.bodyLarge),
-              if (tx.createdAt != null)
+              Text(p.productName ?? AppLocales.payment.paymentLabel.tr, style: context.typo.bodyLarge),
+              if (p.createdAt != null)
                 Text(
-                  tx.createdAt!.split('T').first,
+                  AppDateTime.formatLocalDate(p.createdAt),
                   style: context.typo.caption,
                 ),
             ],
           ),
           AppBadge(
-            text: tx.paid ? AppLocales.payment.paid.tr : tx.status,
-            type: tx.paid ? BadgeType.success : BadgeType.warning,
+            text: p.paid ? AppLocales.payment.paid.tr : p.status,
+            type: p.paid ? BadgeType.success : BadgeType.warning,
           ),
         ],
       ),

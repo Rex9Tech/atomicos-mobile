@@ -1,5 +1,5 @@
 // lib/constants/json_keys/payment.keys.dart
-/// Request/response keys for payment, product, subscription, and transaction payloads.
+/// Request/response keys for payment, product, coupon, subscription, and transaction payloads.
 class PaymentKeys {
   const PaymentKeys._();
 
@@ -11,13 +11,32 @@ class PaymentKeys {
   static const freeAccessGranted = 'free_access_granted';
   static const accessId = 'access_id';
 
+  // ===== Universal Provider Keys =====
+  static const provider = 'provider';
+  static const providerPaymentId = 'provider_payment_id';
+  static const providerSubscriptionId = 'provider_subscription_id';
+  static const providerPriceId = 'provider_price_id';
+
+  // ===== Store SKU Identifiers =====
+  static const stripeProductId = 'stripe_product_id';
+  static const stripePriceId = 'stripe_price_id';
+  static const googlePlayProductId = 'google_play_product_id';
+  static const appStoreProductId = 'app_store_product_id';
+  static const supportedProviders = 'supported_providers';
+  static const inApp = 'in_app';
+
+  // ===== IAP Verification =====
+  static const receiptData = 'receipt_data';
+  static const purchaseToken = 'purchase_token';
+  static const packageName = 'package_name';
+  static const transactionId = 'transaction_id';
+
   // ===== Product =====
   static const name = 'name';
   static const description = 'description';
   static const price = 'price';
-  static const priceUnitAmount = 'price_unit_amount';
+  static const unitAmount = 'unit_amount';
   static const currency = 'currency';
-  static const cycle = 'cycle';
   static const periodLabel = 'period_label';
   static const recurring = 'recurring';
   static const active = 'active';
@@ -25,6 +44,9 @@ class PaymentKeys {
 
   // ===== Subscription =====
   static const status = 'status';
+  static const quantity = 'quantity';
+  static const interval = 'interval';
+  static const intervalCount = 'interval_count';
   static const currentPeriodStart = 'current_period_start';
   static const currentPeriodEnd = 'current_period_end';
   static const startedAt = 'started_at';
@@ -35,13 +57,46 @@ class PaymentKeys {
   static const productName = 'product_name';
 
   // ===== Access =====
+  static const accesses = 'accesses';
+  static const productCode = 'product_code';
   static const grantedAt = 'granted_at';
   static const expiresAt = 'expires_at';
   static const revokedAt = 'revoked_at';
   static const expiredAt = 'expired_at';
   static const daysRemaining = 'days_remaining';
 
-  // ===== Transaction =====
+  // ===== Purchase =====
   static const paid = 'paid';
   static const createdAt = 'created_at';
+  static const purchases = 'purchases';
+
+  // ===== Coupon =====
+  static const couponCode = 'coupon_code';
+  static const code = 'code';
+  static const title = 'title';
+  static const couponType = 'coupon_type';
+  static const amount = 'amount';
+  static const maxUsage = 'max_usage';
+  static const maxUsagePerUser = 'max_usage_per_user';
+  static const usedCount = 'used_count';
+  static const referrerId = 'referrer_id';
+  static const targetRoleIds = 'target_role_ids';
+  static const targetUserIds = 'target_user_ids';
+  static const targetProductIds = 'target_product_ids';
+  static const exhausted = 'exhausted';
+  static const expired = 'expired';
+  static const valid = 'valid';
+  static const discountAmount = 'discount_amount';
+  static const finalAmount = 'final_amount';
+  static const coupon = 'coupon';
+  static const couponId = 'coupon_id';
+  static const userId = 'user_id';
+  static const couponTitle = 'coupon_title';
+  static const userEmail = 'user_email';
+  static const paymentId = 'payment_id';
+  static const paymentType = 'payment_type';
+  static const originalAmount = 'original_amount';
+  static const remainingAttempts = 'remaining_attempts';
+  static const cooldownRemaining = 'cooldown_remaining';
+  static const metadata = 'metadata';
 }

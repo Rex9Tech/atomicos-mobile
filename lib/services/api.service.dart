@@ -4,10 +4,9 @@ import 'package:get/get_connect/http/src/request/request.dart';
 import 'package:rexone_mobile/config/config.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
-import 'package:rexone_mobile/models/responses/api.response.dart';
+import 'package:rexone_mobile/models/api_response.model.dart';
 import 'package:rexone_mobile/models/pagination.model.dart';
 import 'package:rexone_mobile/routes/routes.dart';
-import 'package:rexone_mobile/helpers/api.helper.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 
 import '../modules/auth/auth.dart';
@@ -15,7 +14,6 @@ import '../modules/setting/setting.dart';
 
 class ApiService extends GetConnect {
   static const String sessionReplacedError = 'Active session not found';
-  static const String _multipartHeader = 'X-Multipart';
 
   @override
   void onInit() {
@@ -32,16 +30,14 @@ class ApiService extends GetConnect {
 
   void _setupInterceptors() {
     httpClient.addRequestModifier<dynamic>((request) async {
-      request.headers[AppConstants.headerAccept] = AppConstants.contentTypeJson;
-      final isMultipart = request.headers[_multipartHeader] == 'true';
+      request.headers[AuthHeaders.accept] = AppConstants.contentTypeJson;
+      final isMultipart = request.headers[AuthHeaders.multipart] == 'true';
       if (!isMultipart) {
-        request.headers[AppConstants.headerContentType] =
-            AppConstants.contentTypeJson;
+        request.headers[AuthHeaders.contentType] = AppConstants.contentTypeJson;
       } else {
-        request.headers.remove(AppConstants.headerContentType);
+        request.headers.remove(AuthHeaders.contentType);
       }
-      request.headers[AppConstants.headerXPlatform] =
-          AppConstants.currentPlatform;
+      request.headers[AuthHeaders.platform] = AppConstants.currentPlatform;
       String apiLocale = 'en';
       if (Get.isRegistered<SettingController>()) {
         final code = Get.find<SettingController>().localeCode.value;
@@ -50,8 +46,8 @@ class ApiService extends GetConnect {
         final code = Get.find<StorageService>().getLocaleCode() ?? 'en_US';
         apiLocale = code.split('_').first.toLowerCase();
       }
-      request.headers[AppConstants.headerXLocale] = apiLocale;
-      request.headers[AppConstants.headerAcceptLanguage] = apiLocale;
+      request.headers[AuthHeaders.locale] = apiLocale;
+      request.headers[AuthHeaders.acceptLanguage] = apiLocale;
       String token = '';
       if (Get.isRegistered<AuthController>()) {
         token = Get.find<AuthController>().authToken.value;
@@ -60,7 +56,7 @@ class ApiService extends GetConnect {
         token = Get.find<StorageService>().getToken() ?? '';
       }
       if (token.isNotEmpty) {
-        request.headers[AppConstants.headerAuthorization] =
+        request.headers[AuthHeaders.authorization] =
             '${AppConstants.bearerPrefix}$token';
       }
       return request;
@@ -144,7 +140,7 @@ class ApiService extends GetConnect {
       () => super.post(
         url,
         form,
-        headers: {_multipartHeader: 'true'},
+        headers: {AuthHeaders.multipart: 'true'},
         uploadProgress: uploadProgress,
       ),
       showLoading,
@@ -200,11 +196,30 @@ class ApiService extends GetConnect {
   void _showLoading() => AppLoading.show();
   void _hideLoading() => AppLoading.hide();
 
-  // ===== RESPONSE HANDLING =====
-  ApiResponse<T> parseResponse<T>(
-    Response response,
-    T? Function(dynamic data) fromJson,
-  ) {
+  // ===== RECORD & LIST PARSERS =====
+
+  /// Flattens a Rails JSON:API `{id, type, attributes}` map into a flat map.
+  static Map<String, dynamic> flattenRecord(dynamic data) {
+    if (data is! Map) return const {};
+    final map = Map<String, dynamic>.from(data);
+    if (map[ApiKeys.attributes] is Map) {
+      final attributes = Map<String, dynamic>.from(
+        map[ApiKeys.attributes] as Map,
+      );
+      if (map[ApiKeys.id] != null) {
+        attributes[ApiKeys.id] = map[ApiKeys.id].toString();
+      }
+      return attributes;
+    }
+    return map;
+  }
+
+  /// Parses a single record response into [ApiResponse<T>].
+  /// Deterministically flattens JSON:API `{id, type, attributes}` records.
+  ApiResponse<T> parseRecord<T>(
+    Response response, [
+    T Function(Map<String, dynamic> json)? fromJson,
+  ]) {
     final body = response.body is Map
         ? Map<String, dynamic>.from(response.body as Map)
         : <String, dynamic>{};
@@ -214,6 +229,13 @@ class ApiService extends GetConnect {
     final statusCode =
         status[ApiKeys.code] as int? ?? response.statusCode ?? 500;
     final data = body[ApiKeys.data];
+    final meta = body[ApiKeys.meta] is Map
+        ? Map<String, dynamic>.from(body[ApiKeys.meta] as Map)
+        : null;
+
+    final T? parsedData = (fromJson != null && data is Map)
+        ? fromJson(flattenRecord(data))
+        : (data is T ? data : null);
 
     if (response.hasError || !(status[ApiKeys.success] as bool? ?? false)) {
       // Optional: Log API errors to analytics
@@ -235,7 +257,9 @@ class ApiService extends GetConnect {
             response.statusText ??
             HttpStatusMap.getMessage(statusCode),
         statusCode: statusCode,
-        data: data != null ? fromJson(data) : null,
+        data: parsedData,
+        error: status[ApiKeys.error] as String?,
+        meta: meta,
       );
     }
 
@@ -244,13 +268,16 @@ class ApiService extends GetConnect {
           status[ApiKeys.message] as String? ??
           HttpStatusMap.getMessage(statusCode),
       statusCode: statusCode,
-      data: data != null ? fromJson(data) : null,
+      data: parsedData,
+      meta: meta,
     );
   }
 
-  PaginatedResponse<T> parsePaginatedResponse<T>(
+  /// Parses a paginated collection response into [PaginatedResponse<T>].
+  /// Automatically flattens each JSON:API record in `data`.
+  PaginatedResponse<T> parsePagyList<T>(
     Response response,
-    T Function(dynamic data) fromJson,
+    T Function(Map<String, dynamic> data) fromJson,
   ) {
     final body = response.body is Map
         ? Map<String, dynamic>.from(response.body as Map)
@@ -270,7 +297,103 @@ class ApiService extends GetConnect {
         response.statusText ??
         HttpStatusMap.getMessage(statusCode);
 
-    final List<T> records = ApiHelper.parseList(data, fromJson);
+    final List<T> records = [];
+    if (data is List) {
+      for (final item in data) {
+        if (item is Map) {
+          records.add(fromJson(flattenRecord(item)));
+        }
+      }
+    }
+
+    PaginationMeta? pagination;
+    if (meta is Map && meta[ApiKeys.pagination] is Map) {
+      pagination = PaginationMeta.fromJson(
+        Map<String, dynamic>.from(meta[ApiKeys.pagination] as Map),
+      );
+    }
+
+    return PaginatedResponse<T>(
+      records: records,
+      pagination: pagination,
+      message: msg,
+      statusCode: statusCode,
+      success: isSuccess && !response.hasError,
+    );
+  }
+
+  // ===== RESPONSE HANDLING (envelope-aware helpers) =====
+
+  /// Parses a single-record/void response using this app's `{status, data}`
+  /// envelope. Unlike [parseRecord] it does not assume a JSON:API body shape,
+  /// so callers stay working across both envelope generations.
+  ApiResponse<T> parseResponse<T>(
+    Response response,
+    T? Function(dynamic data) fromJson,
+  ) {
+    final body = response.body is Map
+        ? Map<String, dynamic>.from(response.body as Map)
+        : <String, dynamic>{};
+    final status = body[ApiKeys.status] is Map
+        ? Map<String, dynamic>.from(body[ApiKeys.status] as Map)
+        : <String, dynamic>{};
+    final statusCode =
+        status[ApiKeys.code] as int? ?? response.statusCode ?? 500;
+    final data = body[ApiKeys.data];
+
+    if (response.hasError || !(status[ApiKeys.success] as bool? ?? false)) {
+      return ApiResponse.error(
+        message:
+            status[ApiKeys.error] as String? ??
+            status[ApiKeys.message] as String? ??
+            response.statusText ??
+            HttpStatusMap.getMessage(statusCode),
+        statusCode: statusCode,
+        data: data != null ? fromJson(data) : null,
+      );
+    }
+
+    return ApiResponse.success(
+      message:
+          status[ApiKeys.message] as String? ??
+          HttpStatusMap.getMessage(statusCode),
+      statusCode: statusCode,
+      data: data != null ? fromJson(data) : null,
+    );
+  }
+
+  /// Parses a paginated collection response into [PaginatedResponse<T>],
+  /// reading `meta.pagination` — the app's Pagy-style envelope.
+  PaginatedResponse<T> parsePaginatedResponse<T>(
+    Response response,
+    T Function(Map<String, dynamic> data) fromJson,
+  ) {
+    final body = response.body is Map
+        ? Map<String, dynamic>.from(response.body as Map)
+        : <String, dynamic>{};
+    final status = body[ApiKeys.status] is Map
+        ? Map<String, dynamic>.from(body[ApiKeys.status] as Map)
+        : <String, dynamic>{};
+    final statusCode =
+        status[ApiKeys.code] as int? ?? response.statusCode ?? 500;
+    final data = body[ApiKeys.data];
+    final meta = body[ApiKeys.meta];
+
+    final isSuccess = status[ApiKeys.success] as bool? ?? false;
+    final msg =
+        status[ApiKeys.message] as String? ??
+        status[ApiKeys.error] as String? ??
+        response.statusText ??
+        HttpStatusMap.getMessage(statusCode);
+
+    final List<T> records = [];
+    if (data is List) {
+      for (final item in data) {
+        if (item is Map) {
+          records.add(fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+    }
 
     PaginationMeta? pagination;
     if (meta is Map && meta[ApiKeys.pagination] is Map) {
@@ -312,8 +435,8 @@ class ApiService extends GetConnect {
 
   String? _bodyError(dynamic body) {
     if (body is Map) {
-      final status = body['status'];
-      if (status is Map) return status['error'] as String?;
+      final status = body[ApiKeys.status];
+      if (status is Map) return status[ApiKeys.error] as String?;
     }
     return null;
   }

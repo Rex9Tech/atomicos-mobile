@@ -22,6 +22,9 @@ class AppLocales {
   static const create = _CreateLocales();
   static const home = _HomeLocales();
   static const category = _CategoryLocales();
+  static const audio = _AudioLocales();
+  static const video = _VideoLocales();
+  static const media = _MediaLocales();
 }
 
 class _CategoryLocales {
@@ -344,7 +347,7 @@ class _AiLocales {
   final askSourceAtom = 'ai.ask_source_atom';
 
   // AI chat
-  String get aiSendMessageFailed => 'ai_send_message_failed';
+  final aiSendMessageFailed = 'ai.ai_send_message_failed';
   final aiResponseFailed = 'ai.ai_response_failed';
   final aiHistoryCleared = 'ai.ai_history_cleared';
   final aiClearHistoryFailed = 'ai.ai_clear_history_failed';
@@ -380,7 +383,7 @@ class _PaymentLocales {
 
   final title = 'payment.title';
   final subscriptions = 'payment.subscriptions';
-  final transactions = 'payment.transactions';
+  final purchases = 'payment.purchases';
   final upgradePlan = 'payment.upgrade_plan';
   final active = 'payment.active';
   final canceled = 'payment.canceled';
@@ -391,6 +394,41 @@ class _PaymentLocales {
   final successDesc = 'payment.success_desc';
   final cancelTitle = 'payment.cancel_title';
   final cancelDesc = 'payment.cancel_desc';
+  final promoCode = 'payment.promo_code';
+  final promoCodeHint = 'payment.promo_code_hint';
+  final apply = 'payment.apply';
+  final remove = 'payment.remove';
+  final couponApplied = 'payment.coupon_applied';
+  final discount = 'payment.discount';
+  final totalDue = 'payment.total_due';
+  final claimFreeAccess = 'payment.claim_free_access';
+  final proceedToCheckout = 'payment.proceed_to_checkout';
+  final free = 'payment.free';
+  final orderSummary = 'payment.order_summary';
+  final discountApplied = 'payment.discount_applied';
+  final accessGranted = 'payment.access_granted';
+  final invalidCheckout = 'payment.invalid_checkout';
+  final checkoutFailed = 'payment.checkout_failed';
+  final cancelFailed = 'payment.cancel_failed';
+  final resumeFailed = 'payment.resume_failed';
+  final couponValidationFailed = 'payment.coupon_validation_failed';
+
+  final iap = const _PaymentIapLocales();
+}
+
+class _PaymentIapLocales {
+  const _PaymentIapLocales();
+
+  final failed = 'payment.iap.failed';
+  final verifySuccess = 'payment.iap.verify_success';
+  final verifyFailed = 'payment.iap.verify_failed';
+  final disabled = 'payment.iap.disabled';
+  final storeUnavailable = 'payment.iap.store_unavailable';
+  final productNotFound = 'payment.iap.product_not_found';
+  final initiateFailed = 'payment.iap.initiate_failed';
+  final restoringPurchases = 'payment.iap.restoring_purchases';
+  final restoreFailed = 'payment.iap.restore_failed';
+  final serviceUnavailable = 'payment.iap.service_unavailable';
 }
 
 class _UserLocales {
@@ -437,10 +475,20 @@ class _NotificationLocales {
   final empty = 'notification.empty';
   final loadMore = 'notification.load_more';
   final deleted = 'notification.deleted';
+  final deleteTitle = 'notification.delete_title';
+  final deleteConfirm = 'notification.delete_confirm';
   final failedToLoad = 'notification.failed_to_load';
   final viewAll = 'notification.view_all';
   final today = 'notification.today';
   final yesterday = 'notification.yesterday';
+  final webOnlyTitle = 'notification.web_only_title';
+  final webOnlyMessage = 'notification.web_only_message';
+  final webOnlyConfirm = 'notification.web_only_confirm';
+  final externalTitle = 'notification.external_title';
+  final externalMessage = 'notification.external_message';
+  final externalConfirm = 'notification.external_confirm';
+  final openLink = 'notification.open_link';
+  final readMore = 'notification.read_more';
 }
 
 class _AtomLocales {
@@ -596,4 +644,98 @@ class _HomeLocales {
   final filterAll = 'home.filterAll';
   final filterNew = 'home.filterNew';
   final filterPersonal = 'home.filterPersonal';
+
+}
+class _MediaLocales {
+  const _MediaLocales();
+
+  final playlistTitle = 'media.playlist_title';
+  final playlistSubtitle = 'media.playlist_subtitle';
+  final playlistEmpty = 'media.playlist_empty';
+  final playAll = 'media.play_all';
+  final downloadAll = 'media.download_all';
+  final downloadAllStarted = 'media.download_all_started';
+  final downloadAllNone = 'media.download_all_none';
+  final typeAudio = 'media.type_audio';
+  final typeVideo = 'media.type_video';
+  final typeImage = 'media.type_image';
+  final typeAttachment = 'media.type_attachment';
+  final noPlayableMedia = 'media.no_playable_media';
+  final openUnsupported = 'media.open_unsupported';
+  final openFailed = 'media.open_failed';
+  final openNoViewer = 'media.open_no_viewer';
+  final download = 'media.download';
+  final downloading = 'media.downloading';
+  final downloadProgress = 'media.download_progress';
+  final downloadQueued = 'media.download_queued';
+  final downloadPaused = 'media.download_paused';
+  final pauseDownload = 'media.pause_download';
+  final resumeDownload = 'media.resume_download';
+  final processing = 'media.processing';
+  final downloaded = 'media.downloaded';
+  final downloadFailed = 'media.download_failed';
+  final removeDownload = 'media.remove_download';
+  final removeDownloadTitle = 'media.remove_download_title';
+  final removeDownloadConfirm = 'media.remove_download_confirm';
+  final cancelDownload = 'media.cancel_download';
+  final cancelDownloadTitle = 'media.cancel_download_title';
+  final cancelDownloadConfirm = 'media.cancel_download_confirm';
+  final downloadTooMany = 'media.download_too_many';
+  final downloadComplete = 'media.download_complete';
+  final downloadCompleteNamed = 'media.download_complete_named';
+  final notificationChannelName = 'media.notification_channel_name';
+  final notificationChannelDescription =
+      'media.notification_channel_description';
+  final offlineEmptyTitle = 'media.offline_empty_title';
+  final offlineEmptyMessage = 'media.offline_empty_message';
+  final removeDownloadStorageConfirm = 'media.remove_download_storage_confirm';
+  final removeDownloadWithSize = 'media.remove_download_with_size';
+  final freedStorage = 'media.freed_storage';
+  final downloadWithSize = 'media.download_with_size';
+  final downloadedWithSize = 'media.downloaded_with_size';
+}
+
+class _AudioLocales {
+  const _AudioLocales();
+
+  final title = 'audio.title';
+  final playAll = 'audio.play_all';
+  final nowPlaying = 'audio.now_playing';
+  final play = 'audio.play';
+  final pause = 'audio.pause';
+  final next = 'audio.next';
+  final previous = 'audio.previous';
+  final playlistSubtitle = 'audio.playlist_subtitle';
+  final playbackFailed = 'audio.playback_failed';
+  final close = 'audio.close';
+  final empty = 'audio.empty';
+  final lyrics = 'audio.lyrics';
+  final lyricsLoading = 'audio.lyrics_loading';
+  final lyricsUnavailable = 'audio.lyrics_unavailable';
+  final lyricsLoadFailed = 'audio.lyrics_load_failed';
+  final lyricsTrack = 'audio.lyrics_track';
+}
+
+class _VideoLocales {
+  const _VideoLocales();
+
+  final title = 'video.title';
+  final playAll = 'video.play_all';
+  final nowPlaying = 'video.now_playing';
+  final play = 'video.play';
+  final pause = 'video.pause';
+  final next = 'video.next';
+  final previous = 'video.previous';
+  final playlistSubtitle = 'video.playlist_subtitle';
+  final playbackFailed = 'video.playback_failed';
+  final close = 'video.close';
+  final empty = 'video.empty';
+  final settings = 'video.settings';
+  final playbackSpeed = 'video.playback_speed';
+  final speedNormal = 'video.speed_normal';
+  final volume = 'video.volume';
+  final subtitles = 'video.subtitles';
+  final subtitlesOff = 'video.subtitles_off';
+  final subtitlesUnavailable = 'video.subtitles_unavailable';
+  final captions = 'video.captions';
 }

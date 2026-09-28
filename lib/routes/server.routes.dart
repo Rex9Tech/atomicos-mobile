@@ -45,7 +45,9 @@ class ServerRoutes {
   static String get currentUserIam => api('/users/current/iam');
 
   // Media
-  static String get uploadAsset => api('/media/upload');
+  static String get uploadAsset => api('/assets/upload');
+  static String get assets => api('/assets');
+  static String assetPlayback(String id) => api('/assets/$id/playback');
 
   // Accesses
   static String get accesses => api('/accesses');
@@ -62,7 +64,9 @@ class ServerRoutes {
       api('/payment/subscriptions/$id/cancel');
   static String paymentSubscriptionResume(String id) =>
       api('/payment/subscriptions/$id/resume');
-  static String get paymentTransactions => api('/payment/transactions');
+  static String get paymentPurchases => api('/payment/purchases');
+  static String get paymentCouponsValidate => api('/payment/coupons/validate');
+  static String get paymentVerify => api('/payment/verify');
 
   // AI
   static String get aiChat => api('/ai/chat');
@@ -110,7 +114,8 @@ class ServerRoutes {
 
   // Notifications
   static String get notifications => api('/notifications');
-  static String get unreadNotificationsCount => api('/notifications/unread_count');
+  static String get unreadNotificationsCount =>
+      api('/notifications/unread_count');
   static String readNotification(String id) => api('/notifications/$id/read');
   static String get readAllNotifications => api('/notifications/read_all');
   static String deleteNotification(String id) => api('/notifications/$id');

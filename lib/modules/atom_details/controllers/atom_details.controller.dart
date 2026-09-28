@@ -309,7 +309,7 @@ class AtomDetailsController extends GetxController {
         folder: 'atoms',
         showLoading: false,
       );
-      final assetId = upload.data?.asset.id;
+      final assetId = upload.data?.id;
       if (!upload.success || assetId == null || assetId.isEmpty) {
         AppSnackbar.error('Upload failed. Please try again.');
         return;

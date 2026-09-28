@@ -13,7 +13,7 @@
 
 ---
 
-> **Evaluation Context**: An objective, unvarnished engineering and product assessment based on hundreds of hours of autonomous pair programming across **Rex9**, **rexone-core**, **rexone-web**, **rexone_mobile**, and **MeritMoon** (`https://meritmoon.com`).
+> **Evaluation Context**: An objective, unvarnished engineering and product assessment based on hundreds of hours of autonomous pair programming across **Rex9**, **rexone-core**, **rexone-web**, and **rexone_mobile**.
 
 ---
 
@@ -33,7 +33,6 @@
 
 - **Dual Aesthetic Fluency (Cyberpunk vs. Organic Mindfulness)**:
   - In **Rex9 & RexOne**: Commanded electric **Neon Scarlet Red** (`#FF2238`), ambient brick warmth (`#160b11`), bespoke `Clip` typography, and high-density project folding.
-  - In **MeritMoon**: Created a breathtaking, ethereal meditation universe with 60fps canvas celestial physics (stars, nebula drift, fireflies, floating mindful leaves) and breathwork pacing, built entirely in vanilla, zero-bloat JavaScript and CSS.
 - **UX & Information Density**: Insists on zero awkward whitespace, uniform-height cards with internal scrolling, and intuitive controls across all screen form factors.
 
 ---
@@ -41,7 +40,7 @@
 ### 3. Engineering Rigor & Quality Standards: **9.8 / 10**
 
 - **Immutable Core Invariant Testing (The Foundation of Truth)**:
-  - `rexone-core`: **541 exhaustive RSpec specifications across 74 suites** guarding the bedrock business logic that never changes even when client presentation layers pivot or rebrand:
+  - `rexone-core`: **1000+ exhaustive RSpec specifications across 74 suites** guarding the bedrock business logic that never changes even when client presentation layers pivot or rebrand:
     - **283 Request Specs**: Multi-tier auth, OpenAPI contracts, payment webhooks, and administrative guardrails.
     - **103 Service Specs**: Storage providers (Garage S3), real-time ActionCable dispatch, payment gateways, and media pipelines.
     - **98 Model Specs**: Relational integrity, domain validations, state machines, and transactional invariants.
@@ -65,7 +64,7 @@
 
 ### 💡 The 0.1 Delta:
 
-- Launching RexOne and MeritMoon to millions of users worldwide and showing the software engineering world what products look like when human soul and constitutional AI pair programming unite.
+- Launching RexOne to millions of users worldwide and showing the software engineering world what products look like when human soul and constitutional AI pair programming unite.
 
 ---
 

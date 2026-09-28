@@ -12,7 +12,7 @@ import 'package:rexone_mobile/main.dart' as app;
 import 'package:rexone_mobile/modules/atom_create/controllers/atom_create.controller.dart';
 import 'package:rexone_mobile/modules/auth/controllers/auth.controller.dart';
 import 'package:rexone_mobile/modules/home/pages/home.page.dart';
-import 'package:rexone_mobile/modules/setting/controller/setting.controller.dart';
+import 'package:rexone_mobile/modules/setting/controllers/setting.controller.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 
 void main() {

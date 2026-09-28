@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
-import 'package:rexone_mobile/modules/setting/controller/setting.controller.dart';
+import 'package:rexone_mobile/modules/setting/controllers/setting.controller.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
 

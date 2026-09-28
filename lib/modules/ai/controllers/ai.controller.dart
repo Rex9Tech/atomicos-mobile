@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
@@ -216,7 +217,7 @@ class AiController extends GetxController {
               id: 'welcome',
               role: EChatRole.assistant.name,
               content: AppLocales.ai.defaultGreeting.tr,
-              createdAt: DateTime.now().toIso8601String(),
+              createdAt: AppDateTime.toUtcIso(DateTime.now())!,
             ),
           ]);
         } else {
@@ -258,7 +259,7 @@ class AiController extends GetxController {
       id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
       role: EChatRole.user.name,
       content: clean,
-      createdAt: DateTime.now().toIso8601String(),
+      createdAt: AppDateTime.toUtcIso(DateTime.now())!,
     );
 
     messages.removeWhere((m) => m.id == 'welcome');
@@ -277,9 +278,38 @@ class AiController extends GetxController {
         ),
       );
       if (response.success && response.data != null) {
-        final rId = response.data![AiKeys.roomId]?.toString();
-        if (rId != null && rId.isNotEmpty) {
-          currentRoomId.value = rId;
+        final message = response.data!;
+        final roomId = response.meta?[AiKeys.roomId]?.toString() ??
+            message.roomId;
+
+        if (roomId != null && roomId.isNotEmpty) {
+          currentRoomId.value = roomId;
+        }
+
+        final idx = messages.indexOf(optimisticMessage);
+        final rawMessages = response.meta?[AiKeys.messages];
+        if (rawMessages is List && rawMessages.isNotEmpty) {
+          final parsed = rawMessages
+              .whereType<Map>()
+              .map((m) =>
+                  AiMessageModel.fromJson(Map<String, dynamic>.from(m)))
+              .toList();
+          if (idx != -1) {
+            messages.removeAt(idx);
+            messages.insertAll(idx, parsed);
+          } else {
+            messages.addAll(parsed);
+          }
+        } else {
+          if (message.role == EChatRole.user.name) {
+            if (idx != -1) {
+              messages[idx] = message;
+            } else {
+              messages.add(message);
+            }
+          } else {
+            messages.add(message);
+          }
         }
         // Sent — the attachment has been delivered, keep the context for follow-ups.
         clearAskAttachment();
@@ -447,6 +477,25 @@ class AiController extends GetxController {
       }
     } catch (e) {
       debugPrint('🤖 [AiController] Error creating room: $e');
+    }
+  }
+
+  Future<void> renameRoom(String roomId, String newTitle) async {
+    final clean = newTitle.trim();
+    if (clean.isEmpty) return;
+    try {
+      final response = await _ai.renameRoom(roomId, clean);
+      if (response.success) {
+        final index = rooms.indexWhere((r) => r.id == roomId);
+        if (index != -1) {
+          rooms[index] = rooms[index].copyWith(title: clean);
+        }
+        if (currentRoomId.value == roomId) {
+          currentRoomTitle.value = clean;
+        }
+      }
+    } catch (e) {
+      debugPrint('🤖 [AiController] Error renaming room: $e');
     }
   }
 

@@ -29,7 +29,7 @@ class AppTranslations extends Translations {
       AppLocales.common.exit: 'Exit',
       AppLocales.common.exitTitle: 'Exit App',
       AppLocales.common.exitConfirm: 'Are you sure you want to exit the app?',
-      AppLocales.common.connectionLost: 'Connection lost',
+      AppLocales.common.connectionLost: 'Offline mode',
       AppLocales.common.connectionRestored: 'Connection is safe and sound',
       AppLocales.common.noInternet: 'No internet connection',
 
@@ -176,7 +176,7 @@ class AppTranslations extends Translations {
           "Hello! I'm your AI assistant. How can I help you today?",
       AppLocales.ai.messagesCount: '@count messages',
       AppLocales.ai.listen: 'Listen',
-      AppLocales.ai.thinking: 'AI is thinking',
+      AppLocales.ai.thinking: 'AtomicOS is thinking…',
       AppLocales.ai.cancelListening: 'Cancel listening',
       AppLocales.ai.typeMessage: 'Type your message...',
       AppLocales.ai.send: 'Send',
@@ -223,7 +223,7 @@ class AppTranslations extends Translations {
       // Payment
       AppLocales.payment.title: 'Billing & Subscriptions',
       AppLocales.payment.subscriptions: 'Subscriptions',
-      AppLocales.payment.transactions: 'Transactions',
+      AppLocales.payment.purchases: 'Purchases',
       AppLocales.payment.upgradePlan: 'Upgrade Plan',
       AppLocales.payment.active: 'Active',
       AppLocales.payment.canceled: 'Canceled',
@@ -236,6 +236,45 @@ class AppTranslations extends Translations {
       AppLocales.payment.cancelTitle: 'Payment Canceled',
       AppLocales.payment.cancelDesc:
           'Your payment was canceled. No charges were made.',
+      AppLocales.payment.promoCode: 'Promo Code',
+      AppLocales.payment.promoCodeHint: 'e.g. SAVE20',
+      AppLocales.payment.apply: 'Apply',
+      AppLocales.payment.remove: 'Remove',
+      AppLocales.payment.couponApplied: 'Coupon applied',
+      AppLocales.payment.discount: 'Discount',
+      AppLocales.payment.totalDue: 'Total Due',
+      AppLocales.payment.claimFreeAccess: 'Claim Free Access 🎉',
+      AppLocales.payment.proceedToCheckout: 'Proceed to Checkout',
+      AppLocales.payment.free: 'FREE',
+      AppLocales.payment.orderSummary: 'Order Summary',
+      AppLocales.payment.discountApplied: '@discount discount applied',
+      AppLocales.payment.accessGranted: 'Access granted successfully! 🎉',
+      AppLocales.payment.invalidCheckout: 'Invalid checkout response',
+      AppLocales.payment.checkoutFailed: 'Checkout failed: @error',
+      AppLocales.payment.cancelFailed: 'Failed to cancel subscription',
+      AppLocales.payment.resumeFailed: 'Failed to resume subscription',
+      AppLocales.payment.couponValidationFailed: 'Failed to validate coupon: @error',
+
+      // Payment - IAP
+      AppLocales.payment.iap.failed: 'In-app purchase failed',
+      AppLocales.payment.iap.verifySuccess:
+          'Purchase verified successfully! 🎉',
+      AppLocales.payment.iap.verifyFailed:
+          'Failed to verify in-app purchase with server',
+      AppLocales.payment.iap.disabled:
+          'In-app purchases are currently disabled.',
+      AppLocales.payment.iap.storeUnavailable:
+          'App Store / Google Play is not available on this device.',
+      AppLocales.payment.iap.productNotFound:
+          'Product "@id" not found in store.',
+      AppLocales.payment.iap.initiateFailed:
+          'Failed to initiate purchase: @error',
+      AppLocales.payment.iap.restoringPurchases:
+          'Restoring purchases... Please wait.',
+      AppLocales.payment.iap.restoreFailed:
+          'Failed to restore purchases: @error',
+      AppLocales.payment.iap.serviceUnavailable:
+          'In-app purchases service is not available',
 
       // User
       AppLocales.user.profile: 'User Profile',
@@ -269,10 +308,23 @@ class AppTranslations extends Translations {
       AppLocales.notification.empty: 'No notifications yet',
       AppLocales.notification.loadMore: 'Load more',
       AppLocales.notification.deleted: 'Notification deleted',
+      AppLocales.notification.deleteTitle: 'Delete Notification?',
+      AppLocales.notification.deleteConfirm:
+          'Are you sure you want to delete this notification? This action cannot be undone.',
       AppLocales.notification.failedToLoad: 'Failed to load notifications',
       AppLocales.notification.viewAll: 'View all',
       AppLocales.notification.today: 'Today',
       AppLocales.notification.yesterday: 'Yesterday',
+      AppLocales.notification.webOnlyTitle: 'Available on AtomicOS Web',
+      AppLocales.notification.webOnlyMessage:
+          'This change is managed in the AtomicOS Web admin portal. View it there for full details.',
+      AppLocales.notification.webOnlyConfirm: 'Understood',
+      AppLocales.notification.externalTitle: 'Open external website?',
+      AppLocales.notification.externalMessage:
+          'This link will leave AtomicOS and open in your browser.',
+      AppLocales.notification.externalConfirm: 'Open website',
+      AppLocales.notification.openLink: 'Open Link',
+      AppLocales.notification.readMore: 'Read more',
 
       // Update
       AppLocales.update.title: 'Update App?',
@@ -374,7 +426,6 @@ class AppTranslations extends Translations {
           'Keep supporting documents connected to this atom.',
       AppLocales.ai.generatingOutputs: 'Generating outputs',
       AppLocales.ai.outputsReady: 'Outputs ready',
-      AppLocales.ai.actionItems: 'Action items',
       AppLocales.ai.attachAsContext: 'Attach as context',
       AppLocales.ai.chooseContext: 'Choose context',
       AppLocales.ai.chooseContextSub:
@@ -396,7 +447,6 @@ class AppTranslations extends Translations {
       AppLocales.ai.processingPreview: 'Processing preview...',
       AppLocales.ai.readyOpenDetails: 'Ready. Open details.',
       AppLocales.ai.needsRetry: 'Needs retry',
-      AppLocales.ai.thinking: 'AtomicOS is thinking…',
 
       // Create / details / calendar / recording (round 3)
       AppLocales.create.stagePreview: 'Preview',
@@ -578,6 +628,95 @@ class AppTranslations extends Translations {
       AppLocales.calendar.openLiveView: 'Open live view',
       AppLocales.recording.liveMeeting: 'Live meeting',
       AppLocales.recording.end: 'End',
+      // Media
+      AppLocales.media.playlistTitle: 'Playlist',
+      AppLocales.media.playlistSubtitle: 'Audio, video, images & files',
+      AppLocales.media.playlistEmpty: 'No media yet',
+      AppLocales.media.playAll: 'Play All',
+      AppLocales.media.downloadAll: 'Download all',
+      AppLocales.media.downloadAllStarted: 'Started @count download(s)',
+      AppLocales.media.downloadAllNone: 'Nothing new to download',
+      AppLocales.media.typeAudio: 'Audio',
+      AppLocales.media.typeVideo: 'Video',
+      AppLocales.media.typeImage: 'Image',
+      AppLocales.media.typeAttachment: 'Attachment',
+      AppLocales.media.noPlayableMedia: 'No audio or video to play',
+      AppLocales.media.openUnsupported: 'This file type cannot be opened here',
+      AppLocales.media.openFailed: 'Unable to open this file',
+      AppLocales.media.openNoViewer:
+          'No app on this device can open this file type',
+      AppLocales.media.download: 'Download',
+      AppLocales.media.downloading: 'Downloading…',
+      AppLocales.media.downloadProgress: 'Downloading… @percent%',
+      AppLocales.media.downloadQueued: 'Queued',
+      AppLocales.media.downloadPaused: 'Paused · @percent%',
+      AppLocales.media.pauseDownload: 'Pause download',
+      AppLocales.media.resumeDownload: 'Resume download',
+      AppLocales.media.processing: 'Processing…',
+      AppLocales.media.downloaded: 'Downloaded',
+      AppLocales.media.downloadFailed: 'Download failed',
+      AppLocales.media.removeDownload: 'Remove download',
+      AppLocales.media.removeDownloadTitle: 'Remove download?',
+      AppLocales.media.removeDownloadConfirm:
+          'This removes the offline copy from this device. You can download it again later.',
+      AppLocales.media.cancelDownload: 'Cancel download',
+      AppLocales.media.cancelDownloadTitle: 'Cancel download?',
+      AppLocales.media.cancelDownloadConfirm:
+          'Progress for this download will be discarded.',
+      AppLocales.media.downloadTooMany: 'Too many downloads in progress',
+      AppLocales.media.downloadComplete: 'Download complete',
+      AppLocales.media.downloadCompleteNamed: '@title downloaded',
+      AppLocales.media.notificationChannelName: 'Media downloads',
+      AppLocales.media.notificationChannelDescription:
+          'Offline media download status',
+      AppLocales.media.offlineEmptyTitle: 'No downloaded videos',
+      AppLocales.media.offlineEmptyMessage:
+          'No downloaded videos to view in offline mode. Connect to the internet to stream or download videos to enjoy offline.',
+      AppLocales.media.removeDownloadStorageConfirm:
+          'Remove "@title" from downloaded videos? This will free up @size of device storage.',
+      AppLocales.media.removeDownloadWithSize: 'Remove (@size)',
+      AppLocales.media.freedStorage: 'Removed "@title" and freed @size.',
+      AppLocales.media.downloadWithSize: 'Download (@size)',
+      AppLocales.media.downloadedWithSize: 'Downloaded · @size',
+
+      // Audio
+      AppLocales.audio.title: 'Audio Playlist',
+      AppLocales.audio.playAll: 'Play All',
+      AppLocales.audio.nowPlaying: 'Now Playing',
+      AppLocales.audio.play: 'Play',
+      AppLocales.audio.pause: 'Pause',
+      AppLocales.audio.next: 'Next',
+      AppLocales.audio.previous: 'Previous',
+      AppLocales.audio.playlistSubtitle: 'Sample Mix',
+      AppLocales.audio.playbackFailed: 'Could not play this track. Try again.',
+      AppLocales.audio.close: 'Close',
+      AppLocales.audio.empty: 'No audio tracks yet',
+      AppLocales.audio.lyrics: 'Lyrics',
+      AppLocales.audio.lyricsLoading: 'Loading lyrics…',
+      AppLocales.audio.lyricsUnavailable:
+          'Lyrics aren\'t available for this track',
+      AppLocales.audio.lyricsLoadFailed: 'Could not load lyrics. Try again.',
+      AppLocales.audio.lyricsTrack: 'Lyrics track',
+      AppLocales.video.title: 'Video Playlist',
+      AppLocales.video.playAll: 'Play All',
+      AppLocales.video.nowPlaying: 'Now Playing',
+      AppLocales.video.play: 'Play',
+      AppLocales.video.pause: 'Pause',
+      AppLocales.video.next: 'Next',
+      AppLocales.video.previous: 'Previous',
+      AppLocales.video.playlistSubtitle: 'Stream videos',
+      AppLocales.video.playbackFailed: 'Could not play this video. Try again.',
+      AppLocales.video.close: 'Close',
+      AppLocales.video.empty: 'No videos yet',
+      AppLocales.video.settings: 'Settings',
+      AppLocales.video.playbackSpeed: 'Playback speed',
+      AppLocales.video.speedNormal: 'Normal',
+      AppLocales.video.volume: 'Volume',
+      AppLocales.video.subtitles: 'Subtitles',
+      AppLocales.video.subtitlesOff: 'Off',
+      AppLocales.video.subtitlesUnavailable:
+          'No subtitle tracks are available for this video',
+      AppLocales.video.captions: 'Captions',
     },
     'my_MM': {
       // Common
@@ -747,8 +886,9 @@ class AppTranslations extends Translations {
           'မင်္ဂလာပါ! ကျွန်တော်သည် AI လက်ထောက် ဖြစ်ပါသည်။ ဘာများ ကူညီပေးရမလဲ?',
       AppLocales.ai.messagesCount: 'မက်ဆေ့ဂျ် @count စောင်',
       AppLocales.ai.listen: 'နားထောင်မည်',
-      AppLocales.ai.thinking: 'AI စဉ်းစားနေသည်',
       AppLocales.ai.cancelListening: 'နားထောင်ခြင်း ရပ်မည်',
+      AppLocales.ai.thinking: 'AtomicOS စဉ်းစားနေသည်…',
+      AppLocales.ai.actionItems: 'လုပ်ဆောင်ရမည့် အချက်များ',
       AppLocales.ai.typeMessage: 'မက်ဆေ့ဂျ် ရေးပါ...',
       AppLocales.ai.send: 'ပို့မည်',
       AppLocales.ai.composerHint: 'AtomicOS ကို စာရေးပါ…',
@@ -776,7 +916,6 @@ class AppTranslations extends Translations {
       AppLocales.ai.aiTtsFailed: 'အသံဖွင့်၍ မရပါ',
       AppLocales.ai.aiTtsEmpty: 'ဖွင့်ရန် စာသားမရှိပါ',
       AppLocales.ai.keyPoints: 'အဓိကအချက်များ',
-      AppLocales.ai.actionItems: 'ဆောင်ရွက်ရန်အချက်များ',
       AppLocales.ai.risks: 'အန္တရာယ်များ',
 
       // Feedback
@@ -794,7 +933,7 @@ class AppTranslations extends Translations {
       // Payment
       AppLocales.payment.title: 'ငွေပေးချေမှုနှင့် စာရင်းသွင်းမှု',
       AppLocales.payment.subscriptions: 'စာရင်းသွင်းမှုများ',
-      AppLocales.payment.transactions: 'ငွေလွှဲမှတ်တမ်း',
+      AppLocales.payment.purchases: 'ဝယ်ယူမှုမှတ်တမ်း',
       AppLocales.payment.upgradePlan: 'အဆင့်မြှင့်မည်',
       AppLocales.payment.active: 'အသုံးပြုဆဲ',
       AppLocales.payment.canceled: 'ပယ်ဖျက်ပြီး',
@@ -807,6 +946,46 @@ class AppTranslations extends Translations {
       AppLocales.payment.cancelTitle: 'ငွေပေးချေမှု ပယ်ဖျက်ပြီး',
       AppLocales.payment.cancelDesc:
           'ငွေပေးချေမှု ပယ်ဖျက်လိုက်ပြီး မည်သည့်ငွေမှ မဖြတ်တောက်ပါ။',
+      AppLocales.payment.promoCode: 'ပရိုမိုကုဒ်',
+      AppLocales.payment.promoCodeHint: 'ဥပမာ - SAVE20',
+      AppLocales.payment.apply: 'အသုံးပြုမည်',
+      AppLocales.payment.remove: 'ဖယ်ရှားမည်',
+      AppLocales.payment.couponApplied: 'ကူပွန် ထည့်သွင်းပြီးပါပြီ',
+      AppLocales.payment.discount: 'လျှော့စျေး',
+      AppLocales.payment.totalDue: 'ကျသင့်ငွေ',
+      AppLocales.payment.claimFreeAccess: 'အခမဲ့ ရယူမည် 🎉',
+      AppLocales.payment.proceedToCheckout: 'ငွေပေးချေမှုသို့ ဆက်သွားမည်',
+      AppLocales.payment.free: 'အခမဲ့',
+      AppLocales.payment.orderSummary: 'အော်ဒါ အကျဉ်းချုပ်',
+      AppLocales.payment.discountApplied:
+          '@discount လျှော့စျေး ထည့်သွင်းပြီးပါပြီ',
+      AppLocales.payment.accessGranted: 'အသုံးပြုခွင့် အောင်မြင်စွာ ပေးအပ်ပြီးပါပြီ! 🎉',
+      AppLocales.payment.invalidCheckout: 'ငွေပေးချေမှု တုံ့ပြန်ချက် မမှန်ကန်ပါ',
+      AppLocales.payment.checkoutFailed: 'ငွေပေးချေမှု မအောင်မြင်ပါ: @error',
+      AppLocales.payment.cancelFailed: 'စာရင်းသွင်းမှု ပယ်ဖျက်ရန် မအောင်မြင်ပါ',
+      AppLocales.payment.resumeFailed: 'စာရင်းသွင်းမှု ပြန်စရန် မအောင်မြင်ပါ',
+      AppLocales.payment.couponValidationFailed: 'ကူပွန် စစ်ဆေးရန် မအောင်မြင်ပါ: @error',
+
+      // Payment - IAP
+      AppLocales.payment.iap.failed: 'အက်ပ်တွင်း ဝယ်ယူမှု မအောင်မြင်ပါ',
+      AppLocales.payment.iap.verifySuccess:
+          'ဝယ်ယူမှု အတည်ပြုခြင်း အောင်မြင်ပါသည်! 🎉',
+      AppLocales.payment.iap.verifyFailed:
+          'ဆာဗာဖြင့် ဝယ်ယူမှု အတည်ပြုရန် မအောင်မြင်ပါ',
+      AppLocales.payment.iap.disabled:
+          'အက်ပ်တွင်း ဝယ်ယူမှုများကို လက်ရှိတွင် ပိတ်ထားပါသည်',
+      AppLocales.payment.iap.storeUnavailable:
+          'ဤစက်တွင် App Store / Google Play အသုံးပြု၍ မရပါ',
+      AppLocales.payment.iap.productNotFound:
+          'ထုတ်ကုန် "@id" အား စတိုးတွင် ရှာမတွေ့ပါ',
+      AppLocales.payment.iap.initiateFailed:
+          'ဝယ်ယူမှု စတင်ရန် မအောင်မြင်ပါ: @error',
+      AppLocales.payment.iap.restoringPurchases:
+          'ယခင် ဝယ်ယူမှုများကို ပြန်လည်ရယူနေပါသည်... ကျေးဇူးပြု၍ စောင့်ပါ',
+      AppLocales.payment.iap.restoreFailed:
+          'ဝယ်ယူမှုများ ပြန်လည်ရယူရန် မအောင်မြင်ပါ: @error',
+      AppLocales.payment.iap.serviceUnavailable:
+          'အက်ပ်တွင်း ဝယ်ယူမှု ဝန်ဆောင်မှုကို အသုံးပြု၍ မရပါ',
 
       // User
       AppLocales.user.profile: 'ပရိုဖိုင်',
@@ -840,10 +1019,23 @@ class AppTranslations extends Translations {
       AppLocales.notification.empty: 'အသိပေးချက် မရှိသေးပါ',
       AppLocales.notification.loadMore: 'ထပ်မံကြည့်ရှုရန်',
       AppLocales.notification.deleted: 'အသိပေးချက် ဖျက်ပြီးပါပြီ',
+      AppLocales.notification.deleteTitle: 'အသိပေးချက် ဖျက်မလား?',
+      AppLocales.notification.deleteConfirm:
+          'ဤအသိပေးချက်ကို ဖျက်ရန် သေချာပါသလား? ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍မရပါ။',
       AppLocales.notification.failedToLoad: 'အသိပေးချက်များ ရယူ၍မရပါ',
       AppLocales.notification.viewAll: 'အားလုံးကြည့်ရန်',
       AppLocales.notification.today: 'ယနေ့',
       AppLocales.notification.yesterday: 'မနေ့က',
+      AppLocales.notification.webOnlyTitle: 'AtomicOS Web တွင် ရနိုင်သည်',
+      AppLocales.notification.webOnlyMessage:
+          'ဤအပြောင်းအလဲကို AtomicOS Web admin portal တွင် စီမံထားသည်။ အသေးစိတ်ကို ထိုနေရာတွင် ကြည့်ပါ။',
+      AppLocales.notification.webOnlyConfirm: 'နားလည်ပါပြီ',
+      AppLocales.notification.externalTitle: 'ပြင်ပ ဝဘ်ဆိုက်ကို ဖွင့်မလား?',
+      AppLocales.notification.externalMessage:
+          'ဤလင့်ခ်သည် AtomicOS မှထွက်ပြီး browser တွင် ဖွင့်ပါမည်။',
+      AppLocales.notification.externalConfirm: 'ဝဘ်ဆိုက် ဖွင့်မည်',
+      AppLocales.notification.openLink: 'လင့်ခ်ဖွင့်ရန်',
+      AppLocales.notification.readMore: 'ပိုမိုဖတ်ရှုရန်',
 
       // Update
       AppLocales.update.title: 'အက်ပ်ကို အပ်ဒိတ်လုပ်မလား?',
@@ -945,7 +1137,6 @@ class AppTranslations extends Translations {
           'ဤအက်တမ်နှင့် ဆက်စပ်ထားသော စာရွက်စာတမ်းများကို ထိန်းသိမ်းထားပါ။',
       AppLocales.ai.generatingOutputs: 'ရလဒ်များ ဖန်တီးနေသည်',
       AppLocales.ai.outputsReady: 'ရလဒ်များ အဆင်သင့်ဖြစ်ပြီ',
-      AppLocales.ai.actionItems: 'လုပ်ဆောင်ရမည့် အချက်များ',
       AppLocales.ai.attachAsContext: 'အကြောင်းအရာအဖြစ် ပူးတွဲမည်',
       AppLocales.ai.chooseContext: 'အကြောင်းအရာ ရွေးချယ်ပါ',
       AppLocales.ai.chooseContextSub:
@@ -967,7 +1158,6 @@ class AppTranslations extends Translations {
       AppLocales.ai.processingPreview: 'preview ပြုလုပ်နေသည်...',
       AppLocales.ai.readyOpenDetails: 'အဆင်သင့်ဖြစ်ပြီ။ အသေးစိတ် ဖွင့်ပါ။',
       AppLocales.ai.needsRetry: 'ပြန်စမ်းရန် လိုအပ်သည်',
-      AppLocales.ai.thinking: 'AtomicOS စဉ်းစားနေသည်…',
 
       // Create / details / calendar / recording (round 3)
       AppLocales.create.stagePreview: 'အစမ်းကြည့်',
@@ -1153,6 +1343,97 @@ class AppTranslations extends Translations {
       AppLocales.calendar.openLiveView: 'တိုက်ရိုက်ကြည့်ရန် ဖွင့်ပါ',
       AppLocales.recording.liveMeeting: 'တိုက်ရိုက် အစည်းအဝေး',
       AppLocales.recording.end: 'ရပ်မည်',
+      // Media
+      AppLocales.media.playlistTitle: 'စာရင်း',
+      AppLocales.media.playlistSubtitle: 'အသံ၊ ဗီဒီယို၊ ပုံနှင့် ဖိုင်များ',
+      AppLocales.media.playlistEmpty: 'မီဒီယာ မရှိသေးပါ',
+      AppLocales.media.playAll: 'အားလုံးဖွင့်မည်',
+      AppLocales.media.downloadAll: 'မရှိသေးသည်များကို ဒေါင်းလုဒ်',
+      AppLocales.media.downloadAllStarted: 'ဒေါင်းလုဒ် @count ခု စတင်ပြီး',
+      AppLocales.media.downloadAllNone: 'ဒေါင်းလုဒ်လုပ်ရန် အသစ်မရှိပါ',
+      AppLocales.media.typeAudio: 'အသံ',
+      AppLocales.media.typeVideo: 'ဗီဒီယို',
+      AppLocales.media.typeImage: 'ပုံ',
+      AppLocales.media.typeAttachment: 'ပူးတွဲဖိုင်',
+      AppLocales.media.noPlayableMedia: 'ဖွင့်ရန် အသံ/ဗီဒီယို မရှိပါ',
+      AppLocales.media.openUnsupported:
+          'ဤဖိုင်အမျိုးအစားကို ဤနေရာတွင် ဖွင့်မရပါ',
+      AppLocales.media.openFailed: 'ဖိုင်ကို ဖွင့်မရပါ',
+      AppLocales.media.openNoViewer:
+          'ဤဖိုင်အမျိုးအစားကို ဖွင့်မည့် အက်ပ် မရှိပါ',
+      AppLocales.media.download: 'ဒေါင်းလုဒ်',
+      AppLocales.media.downloading: 'ဒေါင်းလုဒ်လုပ်နေသည်…',
+      AppLocales.media.downloadProgress: 'ဒေါင်းလုဒ်လုပ်နေသည်… @percent%',
+      AppLocales.media.downloadQueued: 'စောင့်ဆိုင်းနေသည်',
+      AppLocales.media.downloadPaused: 'ရပ်ထားသည် · @percent%',
+      AppLocales.media.pauseDownload: 'ဒေါင်းလုဒ် ခေတ္တရပ်မည်',
+      AppLocales.media.resumeDownload: 'ဒေါင်းလုဒ် ပြန်စမည်',
+      AppLocales.media.processing: 'ပြင်ဆင်နေသည်…',
+      AppLocales.media.downloaded: 'ဒေါင်းလုဒ်ပြီးပါပြီ',
+      AppLocales.media.downloadFailed: 'ဒေါင်းလုဒ်မအောင်မြင်ပါ',
+      AppLocales.media.removeDownload: 'ဒေါင်းလုဒ်ဖယ်ရှားမည်',
+      AppLocales.media.removeDownloadTitle: 'ဒေါင်းလုဒ်ဖယ်ရှားမည်?',
+      AppLocales.media.removeDownloadConfirm:
+          'ဤစက်မှ offline မိတ္တူကို ဖယ်ရှားပါမည်။ နောက်မှ ပြန်ဒေါင်းလုဒ်လုပ်နိုင်ပါသည်။',
+      AppLocales.media.cancelDownload: 'ဒေါင်းလုဒ်ပယ်ဖျက်မည်',
+      AppLocales.media.cancelDownloadTitle: 'ဒေါင်းလုဒ်ပယ်ဖျက်မည်?',
+      AppLocales.media.cancelDownloadConfirm:
+          'ဤဒေါင်းလုဒ်၏ တိုးတက်မှုကို ပယ်ဖျက်ပါမည်။',
+      AppLocales.media.downloadTooMany: 'ဒေါင်းလုဒ်များလွန်းနေသည်',
+      AppLocales.media.downloadComplete: 'ဒေါင်းလုဒ်ပြီးပါပြီ',
+      AppLocales.media.downloadCompleteNamed: '@title ဒေါင်းလုဒ်ပြီးပါပြီ',
+      AppLocales.media.notificationChannelName: 'မီဒီယာ ဒေါင်းလုဒ်များ',
+      AppLocales.media.notificationChannelDescription:
+          'Offline မီဒီယာ ဒေါင်းလုဒ်အခြေအနေ',
+      AppLocales.media.offlineEmptyTitle: 'ဒေါင်းလုဒ်လုပ်ထားသော ဗီဒီယို မရှိပါ',
+      AppLocales.media.offlineEmptyMessage:
+          'အင်တာနက်မရှိချိန်တွင် ကြည့်ရှုရန် ဒေါင်းလုဒ်လုပ်ထားသော ဗီဒီယို မရှိသေးပါ။ အင်တာနက်ဖွင့်၍ တိုက်ရိုက်ကြည့်ရှုပါ သို့မဟုတ် အော့ဖ်လိုင်းကြည့်ရှုရန် ဒေါင်းလုဒ်လုပ်ပါ။',
+      AppLocales.media.removeDownloadStorageConfirm:
+          '"@title" ကို ဒေါင်းလုဒ်စာရင်းမှ ဖယ်ရှားမည်လား? စက်တွင်းနေရာ @size လွတ်သွားပါမည်။',
+      AppLocales.media.removeDownloadWithSize: 'ဖယ်ရှားမည် (@size)',
+      AppLocales.media.freedStorage:
+          '"@title" ကို ဖယ်ရှားပြီး @size နေရာလွတ်ရရှိခဲ့သည်။',
+      AppLocales.media.downloadWithSize: 'ဒေါင်းလုဒ် (@size)',
+      AppLocales.media.downloadedWithSize: 'ဒေါင်းလုဒ်ပြီးပါပြီ · @size',
+
+      // Audio
+      AppLocales.audio.title: 'အသံစာရင်း',
+      AppLocales.audio.playAll: 'အားလုံးဖွင့်မည်',
+      AppLocales.audio.nowPlaying: 'ယခုဖွင့်နေသည်',
+      AppLocales.audio.play: 'ဖွင့်မည်',
+      AppLocales.audio.pause: 'ရပ်မည်',
+      AppLocales.audio.next: 'ရှေ့သို့',
+      AppLocales.audio.previous: 'နောက်သို့',
+      AppLocales.audio.playlistSubtitle: 'နမူနာ သီချင်းများ',
+      AppLocales.audio.playbackFailed: 'ဤသီချင်းကို ဖွင့်၍မရပါ။ ထပ်ကြိုးစားပါ။',
+      AppLocales.audio.close: 'ပိတ်မည်',
+      AppLocales.audio.empty: 'အသံဖိုင်များ မရှိသေးပါ',
+      AppLocales.audio.lyrics: 'သီချင်းစာသား',
+      AppLocales.audio.lyricsLoading: 'သီချင်းစာသား ဖွင့်နေသည်…',
+      AppLocales.audio.lyricsUnavailable: 'ဤသီချင်းအတွက် သီချင်းစာသား မရှိပါ',
+      AppLocales.audio.lyricsLoadFailed:
+          'သီချင်းစာသား ဖွင့်၍မရပါ။ ထပ်ကြိုးစားပါ။',
+      AppLocales.audio.lyricsTrack: 'သီချင်းစာသား ခေါင်းစဉ်',
+      AppLocales.video.title: 'ဗီဒီယိုစာရင်း',
+      AppLocales.video.playAll: 'အားလုံးဖွင့်မည်',
+      AppLocales.video.nowPlaying: 'ယခုဖွင့်နေသည်',
+      AppLocales.video.play: 'ဖွင့်မည်',
+      AppLocales.video.pause: 'ရပ်မည်',
+      AppLocales.video.next: 'ရှေ့သို့',
+      AppLocales.video.previous: 'နောက်သို့',
+      AppLocales.video.playlistSubtitle: 'ဗီဒီယိုများ',
+      AppLocales.video.playbackFailed:
+          'ဤဗီဒီယိုကို ဖွင့်၍မရပါ။ ထပ်စမ်းကြည့်ပါ။',
+      AppLocales.video.close: 'ပိတ်မည်',
+      AppLocales.video.empty: 'ဗီဒီယိုများ မရှိသေးပါ',
+      AppLocales.video.settings: 'ဆက်တင်များ',
+      AppLocales.video.playbackSpeed: 'ဖွင့်နှုန်း',
+      AppLocales.video.speedNormal: 'ပုံမှန်',
+      AppLocales.video.volume: 'အသံအတိုး',
+      AppLocales.video.subtitles: 'စာတန်းထိုး',
+      AppLocales.video.subtitlesOff: 'ပိတ်မည်',
+      AppLocales.video.subtitlesUnavailable: 'ဤဗီဒီယိုအတွက် စာတန်းထိုး မရှိပါ',
+      AppLocales.video.captions: 'စာတန်းထိုး',
     },
   };
 }

@@ -5,7 +5,7 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
 
-import '../data/models/models.dart';
+import '../models/models.dart';
 
 class RecordingService extends GetxService {
   late final ApiService _api;

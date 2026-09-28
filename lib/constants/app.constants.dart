@@ -1,6 +1,5 @@
 // lib/constants/app.constants.dart
 import 'dart:io' show Platform;
-import 'package:package_info_plus/package_info_plus.dart';
 
 class AppConstants {
   const AppConstants._();
@@ -14,22 +13,7 @@ class AppConstants {
   static String get oneSignalAppIdKey => 'ONE_SIGNAL_APP_ID';
   static String get androidAppIdKey => 'ANDROID_APP_ID';
   static String get iosAppIdKey => 'IOS_APP_ID';
-
-  // ===== VERSIONS from pubspec.yaml (Runtime) =====
-  Future<String> getVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    return packageInfo.version;
-  }
-
-  Future<String> getBuildNumber() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    return packageInfo.buildNumber;
-  }
-
-  Future<String> getFullVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    return '${packageInfo.version}+${packageInfo.buildNumber}';
-  }
+  static String get mediaOfflineEncryptionKey => 'MEDIA_OFFLINE_ENCRYPTION_KEY';
 
   // Validation Rules
   static const minPasswordLength = 6;
@@ -39,20 +23,12 @@ class AppConstants {
   static const minNameLength = 2;
   static const maxNameLength = 50;
 
-  // HTTP Headers
-  static const headerContentType = 'Content-Type';
-  static const headerAccept = 'Accept';
-  static const headerAuthorization = 'Authorization';
-  static const headerXPlatform = 'X-Platform';
-  static const headerXLocale = 'X-Locale';
-  static const headerAcceptLanguage = 'Accept-Language';
   static const contentTypeJson = 'application/json';
   static const platformAndroid = 'android';
   static const platformIos = 'ios';
   static const platformWeb = 'web';
   static const platformMobile = 'mobile';
   static const bearerPrefix = 'Bearer ';
-
 
   // Chat voice
   static const chatVoiceLevelBarCount = 12;

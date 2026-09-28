@@ -39,38 +39,63 @@ class AppLoading extends StatelessWidget {
   final LoadingType type;
 
   // ===== GLOBAL LOADING STATE =====
+  // Overlay Mode (Modal / Screen-blocking)
   static final RxBool isGlobalLoading = false.obs;
   static final RxnString globalLoadingMessage = RxnString();
-  static int _activeCount = 0;
+  static int _activeOverlayCount = 0;
 
-  static void show([String? message]) {
-    _activeCount++;
+  // Inline Mode (Non-blocking top linear indicator)
+  static final RxBool isGlobalInlineLoading = false.obs;
+  static int _activeInlineCount = 0;
+
+  /// Shows blocking full-screen overlay (e.g. checkout, auth, delete).
+  static void show([String? message]) => showOverlay(message);
+  static void showOverlay([String? message]) {
+    _activeOverlayCount++;
     _applyState(() {
       // A matching hide may already have run (request finished before the
       // deferred retry below) — never resurrect a cleared overlay.
-      if (_activeCount <= 0) return;
+      if (_activeOverlayCount <= 0) return;
       globalLoadingMessage.value = message;
       isGlobalLoading.value = true;
     });
   }
 
-  static void hide() {
-    if (_activeCount > 0) _activeCount--;
-    if (_activeCount <= 0) {
-      _activeCount = 0;
+  /// Hides blocking full-screen overlay.
+  static void hide() => hideOverlay();
+  static void hideOverlay() {
+    if (_activeOverlayCount > 0) _activeOverlayCount--;
+    if (_activeOverlayCount <= 0) {
+      _activeOverlayCount = 0;
       _applyState(() {
         // A newer show is active — keep its overlay up.
-        if (_activeCount > 0) return;
+        if (_activeOverlayCount > 0) return;
         isGlobalLoading.value = false;
         globalLoadingMessage.value = null;
       });
     }
   }
 
+  static void showInline() {
+    _activeInlineCount++;
+    _applyState(() => isGlobalInlineLoading.value = true);
+  }
+
+  /// Hides non-blocking top progress indicator.
+  static void hideInline() {
+    if (_activeInlineCount > 0) _activeInlineCount--;
+    if (_activeInlineCount <= 0) {
+      _activeInlineCount = 0;
+      _applyState(() => isGlobalInlineLoading.value = false);
+    }
+  }
+
   static void reset() {
-    _activeCount = 0;
+    _activeOverlayCount = 0;
+    _activeInlineCount = 0;
     _applyState(() {
       isGlobalLoading.value = false;
+      isGlobalInlineLoading.value = false;
       globalLoadingMessage.value = null;
     });
   }
@@ -93,12 +118,32 @@ class AppLoading extends StatelessWidget {
     }
   }
 
-  /// Mounts the global blocking overlay at the app root.
+  /// Mounts the global blocking overlay and top inline indicator at the app root.
   /// Use as `GetMaterialApp(builder: AppLoading.builder)`.
   static Widget builder(BuildContext context, Widget? child) {
     return Stack(
       children: [
         ?child,
+        // Global non-blocking top linear progress indicator
+        Obx(() {
+          if (isGlobalInlineLoading.value) {
+            return Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: LinearProgressIndicator(
+                  minHeight: 2.5,
+                  backgroundColor: Colors.transparent,
+                  color: Design.colors.primary,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+        // Global blocking overlay
         Obx(() {
           if (isGlobalLoading.value) {
             return Positioned.fill(
@@ -355,6 +400,8 @@ class AppLoadingOverlay extends StatelessWidget {
 // ===== CONVENIENCE EXTENSIONS =====
 
 extension AppLoadingExtension on BuildContext {
-  void showLoading([String? message]) => AppLoading.show(message);
-  void hideLoading() => AppLoading.hide();
+  void showLoading([String? message]) => AppLoading.showOverlay(message);
+  void hideLoading() => AppLoading.hideOverlay();
+  void showInlineLoading() => AppLoading.showInline();
+  void hideInlineLoading() => AppLoading.hideInline();
 }

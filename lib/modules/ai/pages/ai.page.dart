@@ -1381,7 +1381,7 @@ class _AiPageState extends State<AiPage> {
                 SizedBox(width: Design.spacing.sm),
                 Expanded(
                   child: Text(
-                    '${asset.type.toUpperCase()} • ${asset.format.toUpperCase()}',
+                    '${asset.type.toUpperCase()} • ${asset.format?.toUpperCase() ?? ''}',
                     style: context.typo.bodySmall.copyWith(
                       color: context.colors.textSecondary,
                     ),

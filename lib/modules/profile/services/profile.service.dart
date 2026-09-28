@@ -1,10 +1,9 @@
 import 'package:get/get.dart';
-import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
-import '../data/requests/requests.dart';
+import '../requests/requests.dart';
 
 class ProfileService extends GetxService {
   late final ApiService _api;
@@ -22,9 +21,9 @@ class ProfileService extends GetxService {
       ServerRoutes.currentUser,
       request.toJson(),
     );
-    return _api.parseResponse<UserModel>(
+    return _api.parseRecord<UserModel>(
       response,
-      (data) => UserModel.fromJson(data[AuthKeys.user]),
+      UserModel.fromJson,
     );
   }
 }

@@ -7,12 +7,17 @@ class NotificationKeys {
   static const String title = 'title';
   static const String message = 'message';
   static const String link = 'link';
+  static const String ctaText = 'cta_text';
+  static const String clients = 'clients';
+  static const String metadata = 'metadata';
   static const String data = 'data';
+  static const String type = 'type';
   static const String read = 'read';
   static const String readAt = 'read_at';
   static const String notificationId = 'notification_id';
   static const String templateId = 'template_id';
   static const String createdAt = 'created_at';
+  static const String updatedAt = 'updated_at';
   static const String unreadCount = 'unread_count';
   static const String filter = 'filter';
   static const String updatedCount = 'updated_count';

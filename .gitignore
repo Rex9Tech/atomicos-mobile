@@ -64,3 +64,5 @@ coverage/
 # Firebase / Google Services
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
+# Flutter golden-test failure artifacts
+test/design/failures/

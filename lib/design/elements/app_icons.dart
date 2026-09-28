@@ -87,11 +87,34 @@ class AppIcons {
   IconData get stop => Icons.stop_rounded;
   IconData get play => Icons.play_arrow_rounded;
   IconData get speaker => Icons.volume_up_rounded;
+  IconData get volumeOff => Icons.volume_off_rounded;
+  IconData get volumeDown => Icons.volume_down_rounded;
+  IconData get listCheck => Icons.check_rounded;
+
+  // ── Audio ─────────────────────────────────────────────────────
+ 
+  IconData get skipNext => Icons.skip_next_rounded;
+  IconData get skipPrevious => Icons.skip_previous_rounded;
+  IconData get musicNote => Icons.music_note_rounded;
+  IconData get playlist => Icons.queue_music_rounded;
+  IconData get chevronDown => Icons.expand_more_rounded;
+  IconData get videoLibrary => Icons.video_library_rounded;
+  IconData get captions => Icons.closed_caption_outlined;
+  IconData get captionsActive => Icons.closed_caption;
+  IconData get lyrics => Icons.lyrics_outlined;
+  IconData get lyricsActive => Icons.lyrics;
+  IconData get download => Icons.download_rounded;
+  IconData get downloadDone => Icons.download_done_rounded;
+  IconData get downloadCancel => Icons.cancel_outlined;
+  IconData get downloadResume => Icons.play_arrow_rounded;
+  IconData get image => Icons.image_outlined;
 
   // ── Payment / Subscription ────────────────────────────────────
   IconData get activeSubscription => Icons.check_circle_outline;
   IconData get scheduledCancel => Icons.access_time;
   IconData get canceledSubscription => Icons.cancel_outlined;
+  IconData get coupon => Icons.local_offer_outlined;
+  IconData get discount => Icons.percent_rounded;
 
   // ── Network / Connectivity ─────────────────────────────────────
   IconData get wifi => Icons.wifi_rounded;

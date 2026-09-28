@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("org.jetbrains.kotlin.android")
+    // AGP 9.0+ has built-in Kotlin compilation. The Flutter Gradle Plugin must be applied after the Android plugin.
     id("dev.flutter.flutter-gradle-plugin")
     // Firebase
     id("com.google.gms.google-services")
@@ -11,7 +11,7 @@ plugins {
 // Somehow no need
 // dependencies {
 //   // Import the Firebase BoM
-//   implementation(platform("com.google.firebase:firebase-bom:34.18.0"))
+//   implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
 
 
 //   // TODO: Add the dependencies for Firebase products you want to use
@@ -23,18 +23,26 @@ plugins {
 //   // https://firebase.google.com/docs/android/setup#available-libraries
 // }
 
+dependencies {
+    // Required by 'flutter_local_notifications' (and 'background_downloader'):
+    // Modern Android Gradle plugin requires core library desugaring to backport
+    // Java 8+ APIs (such as java.time and streams) to older Android versions without runtime crashes.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+
 android {
     namespace = "com.rex9.uat.atomic" // $APPLICATION_ID
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android requires API 37. Platform is installed
+    // (or symlinked) as android-37.
+    compileSdk = 37
     ndkVersion = "28.2.13676358"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+        // Flag to enable Java 8+ API desugaring for flutter_local_notifications
+        isCoreLibraryDesugaringEnabled = true
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     defaultConfig {
@@ -55,6 +63,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 }
 

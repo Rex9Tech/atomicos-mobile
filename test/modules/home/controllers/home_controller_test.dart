@@ -1,9 +1,10 @@
-// test/modules/home/controllers/home_controller_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
 import 'package:rexone_mobile/services/category.service.dart';
+import 'package:rexone_mobile/services/storage.service.dart';
 import 'package:rexone_mobile/services/version.service.dart';
 import '../../../mocks/test_services.dart';
 
@@ -12,16 +13,18 @@ void main() {
 
   late FakeVersionService fakeVersion;
   late FakeHomeService fakeHome;
+  late FakeStorageService fakeStorage;
   late HomeController controller;
 
-  setUpAll(() {
+  setUpAll(() async {
     PackageInfo.setMockInitialValues(
-      appName: 'Rexone',
-      packageName: 'com.rexone.mobile',
+      appName: 'RexOne',
+      packageName: 'com.rex9.rexone',
       version: '1.4.0',
       buildNumber: '42',
       buildSignature: '',
     );
+    await AppInfo.init();
   });
 
   setUp(() {
@@ -31,6 +34,9 @@ void main() {
     Get.put<VersionService>(fakeVersion);
     Get.put<HomeService>(fakeHome);
     Get.put<CategoryService>(FakeCategoryService());
+    fakeStorage = FakeStorageService();
+    Get.put<VersionService>(fakeVersion);
+    Get.put<StorageService>(fakeStorage);
     controller = Get.put(HomeController());
   });
 
@@ -39,12 +45,15 @@ void main() {
   });
 
   group('HomeController', () {
-    test('reportUserVersion posts installed version and build number', () async {
-      await controller.reportUserVersion();
+    test(
+      'reportUserVersion posts installed version and build number',
+      () async {
+        await controller.reportUserVersion();
 
-      expect(fakeVersion.lastReportedVersion, equals('1.4.0'));
-      expect(fakeVersion.lastReportedVersionCode, equals(42));
-    });
+        expect(fakeVersion.lastReportedVersion, equals('1.4.0'));
+        expect(fakeVersion.lastReportedBuildNumber, equals(42));
+      },
+    );
 
     test('reportUserVersion does not throw when the request fails', () async {
       fakeVersion.throwOnReport = true;

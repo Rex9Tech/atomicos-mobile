@@ -103,13 +103,12 @@ class AppDialog {
     );
   }
 
-  /// Update prompt. When [mustUpdate] is true the dialog cannot be dismissed;
-  /// [onUpdate] should open the store and leave the dialog open.
+  /// Optional update prompt with 'Later' and 'Update' actions.
+  /// Mandatory updates are handled by the sovereign full-screen SplashPage view.
   static Future<void> update({
     required BuildContext context,
     required String title,
     required String message,
-    required bool mustUpdate,
     required VoidCallback onUpdate,
   }) {
     Get.addTranslations(AppTranslations().keys);
@@ -138,11 +137,10 @@ class AppDialog {
         title: Text(title, style: context.typo.headline4),
         content: content,
         actions: [
-          if (!mustUpdate)
-            CupertinoDialogAction(
-              onPressed: Get.back,
-              child: Text(laterLabel),
-            ),
+          CupertinoDialogAction(
+            onPressed: Get.back,
+            child: Text(laterLabel),
+          ),
           CupertinoDialogAction(
             onPressed: onUpdate,
             isDefaultAction: true,
@@ -163,12 +161,11 @@ class AppDialog {
         ),
         content: content,
         actions: [
-          if (!mustUpdate)
-            AppButton(
-              type: EButtonType.text,
-              onPressed: Get.back,
-              text: laterLabel,
-            ),
+          AppButton(
+            type: EButtonType.text,
+            onPressed: Get.back,
+            text: laterLabel,
+          ),
           AppButton(
             type: EButtonType.text,
             onPressed: onUpdate,
@@ -179,8 +176,8 @@ class AppDialog {
     }
 
     return Get.dialog<void>(
-      PopScope(canPop: !mustUpdate, child: dialog),
-      barrierDismissible: !mustUpdate,
+      dialog,
+      barrierDismissible: true,
     );
   }
 
@@ -336,7 +333,10 @@ class AppDialog {
               return CupertinoDialogAction(
                 onPressed: action.onPressed,
                 isDestructiveAction:
-                    action.style?.foregroundColor?.resolve({}) == Colors.red,
+                    action.style?.foregroundColor?.resolve({}) ==
+                        Design.colors.error ||
+                    action.style?.foregroundColor?.resolve({}) ==
+                        Colors.red,
                 child: action.child ?? const Text(''),
               );
             }

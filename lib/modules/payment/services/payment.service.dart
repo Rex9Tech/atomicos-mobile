@@ -5,8 +5,8 @@ import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
 
-import '../data/requests/requests.dart';
-import '../data/models/models.dart';
+import '../requests/requests.dart';
+import '../models/models.dart';
 
 class PaymentService extends GetxService {
   late final ApiService _api;
@@ -23,15 +23,25 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<ProductModel>> getProducts({
     int? page,
     int? limit,
+    String? search,
+    bool? recurring,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
-    final response = await _api.get(ServerRoutes.paymentProducts, query: query);
-    return _api.parsePaginatedResponse<ProductModel>(
-      response,
-      (data) => ProductModel.fromJson(data),
+    if (search != null && search.trim().isNotEmpty) {
+      query[ApiKeys.search] = search.trim();
+    }
+    if (recurring != null) {
+      query[PaymentKeys.recurring] = recurring.toString();
+    }
+    final response = await _api.get(
+      ServerRoutes.paymentProducts,
+      query: query,
+      showLoading: showLoading,
     );
+    return _api.parsePagyList<ProductModel>(response, ProductModel.fromJson);
   }
 
   // ============================================================
@@ -40,6 +50,7 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<SubscriptionModel>> getSubscriptions({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
@@ -47,46 +58,59 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.paymentSubscriptions,
       query: query,
+      showLoading: showLoading,
     );
-    return _api.parsePaginatedResponse<SubscriptionModel>(
+    return _api.parsePagyList<SubscriptionModel>(
       response,
-      (data) => SubscriptionModel.fromJson(data),
+      SubscriptionModel.fromJson,
     );
   }
 
-  Future<ApiResponse<dynamic>> cancelSubscription(String subscriptionId) async {
+  Future<ApiResponse<SubscriptionModel>> cancelSubscription(
+    String subscriptionId,
+  ) async {
     final response = await _api.post(
       ServerRoutes.paymentSubscriptionCancel(subscriptionId),
       {},
     );
-    return _api.parseResponse(response, (data) => data);
+    return _api.parseRecord<SubscriptionModel>(
+      response,
+      SubscriptionModel.fromJson,
+    );
   }
 
-  Future<ApiResponse<dynamic>> resumeSubscription(String subscriptionId) async {
+  Future<ApiResponse<SubscriptionModel>> resumeSubscription(
+    String subscriptionId,
+  ) async {
     final response = await _api.post(
       ServerRoutes.paymentSubscriptionResume(subscriptionId),
       {},
     );
-    return _api.parseResponse(response, (data) => data);
+    return _api.parseRecord<SubscriptionModel>(
+      response,
+      SubscriptionModel.fromJson,
+    );
   }
 
   // ============================================================
-  // TRANSACTIONS
+  // PURCHASES
   // ============================================================
-  Future<PaginatedResponse<TransactionModel>> getTransactions({
+  Future<PaginatedResponse<PurchaseModel>> getPurchases({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
     if (limit != null) query[ApiKeys.limit] = limit.toString();
     final response = await _api.get(
-      ServerRoutes.paymentTransactions,
+      ServerRoutes.paymentPurchases,
       query: query,
+      showLoading: showLoading,
     );
-    return _api.parsePaginatedResponse<TransactionModel>(
+    return _api.parsePagyList<PurchaseModel>(
       response,
-      (data) => TransactionModel.fromJson(data),
+      PurchaseModel.fromJson,
     );
   }
 
@@ -96,6 +120,7 @@ class PaymentService extends GetxService {
   Future<PaginatedResponse<AccessModel>> getActiveAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
@@ -103,16 +128,15 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.activeAccesses,
       query: query,
+      showLoading: showLoading,
     );
-    return _api.parsePaginatedResponse<AccessModel>(
-      response,
-      (data) => AccessModel.fromJson(data),
-    );
+    return _api.parsePagyList<AccessModel>(response, AccessModel.fromJson);
   }
 
   Future<PaginatedResponse<AccessModel>> getAccesses({
     int? page,
     int? limit,
+    bool showLoading = false,
   }) async {
     final query = <String, dynamic>{};
     if (page != null) query[ApiKeys.page] = page.toString();
@@ -120,11 +144,9 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.accesses,
       query: query,
+      showLoading: showLoading,
     );
-    return _api.parsePaginatedResponse<AccessModel>(
-      response,
-      (data) => AccessModel.fromJson(data),
-    );
+    return _api.parsePagyList<AccessModel>(response, AccessModel.fromJson);
   }
 
   // ============================================================
@@ -137,10 +159,7 @@ class PaymentService extends GetxService {
       ServerRoutes.paymentSession,
       request.toJson(),
     );
-    return _api.parseResponse<Map<String, dynamic>>(
-      response,
-      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
-    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
   }
 
   Future<ApiResponse<Map<String, dynamic>>> getSessionStatus(
@@ -149,9 +168,36 @@ class PaymentService extends GetxService {
     final response = await _api.get(
       ServerRoutes.paymentSessionStatus(sessionId),
     );
-    return _api.parseResponse<Map<String, dynamic>>(
+    return _api.parseRecord<Map<String, dynamic>>(response);
+  }
+
+  // ============================================================
+  // COUPONS
+  // ============================================================
+  Future<ApiResponse<CouponValidationModel>> validateCoupon(
+    String code,
+    String productId,
+  ) async {
+    final response = await _api.post(ServerRoutes.paymentCouponsValidate, {
+      PaymentKeys.code: code,
+      PaymentKeys.productId: productId,
+    });
+    return _api.parseRecord<CouponValidationModel>(
       response,
-      (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+      CouponValidationModel.fromJson,
     );
+  }
+
+  // ============================================================
+  // IN-APP PURCHASES
+  // ============================================================
+  Future<ApiResponse<Map<String, dynamic>>> verifyInAppPurchase(
+    Map<String, dynamic> body,
+  ) async {
+    final response = await _api.post(
+      ServerRoutes.paymentVerify,
+      body,
+    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
   }
 }

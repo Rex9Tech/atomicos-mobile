@@ -4,9 +4,8 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
-import 'package:rexone_mobile/routes/routes.dart';
 import '../controllers/notification.controller.dart';
-import '../data/models/notification.model.dart';
+import '../models/notification.model.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -46,11 +45,170 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  void _handleNotificationTap(NotificationModel item) {
-    _controller.markAsRead(item);
+  String _formatTimeAgo(DateTime dateTime) {
+    final diff = DateTime.now().difference(dateTime);
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}';
+  }
 
-    if (item.link != null && item.link!.isNotEmpty) {
-      AppRoutes.handleNotificationLink(item.link);
+  bool _isOverflowing(NotificationModel item) {
+    return item.message.length > 85 ||
+        item.message.contains('\n') ||
+        item.title.length > 50;
+  }
+
+  Widget? _resolveBadge(NotificationModel item) {
+    final typeStr = (item.metadata['type'] ??
+            item.metadata['category'] ??
+            item.metadata['operation_type'] ??
+            '')
+        .toString()
+        .toLowerCase();
+    if (typeStr.isEmpty) return null;
+
+    if (typeStr.contains('error') || typeStr.contains('fail')) {
+      return const AppBadge(text: 'Error', type: EBadgeVariant.error);
+    }
+    if (typeStr.contains('warn')) {
+      return const AppBadge(text: 'Warning', type: EBadgeVariant.warning);
+    }
+    if (typeStr.contains('success') ||
+        typeStr.contains('complete') ||
+        typeStr.contains('paid')) {
+      return const AppBadge(text: 'Success', type: EBadgeVariant.success);
+    }
+    if (typeStr.contains('marketing') || typeStr.contains('promo')) {
+      return const AppBadge(text: 'Promo', type: EBadgeVariant.secondary);
+    }
+    if (typeStr.contains('system') ||
+        typeStr.contains('iam') ||
+        typeStr.contains('broadcast')) {
+      return const AppBadge(text: 'System', type: EBadgeVariant.info);
+    }
+    return null;
+  }
+
+  void _showDetailBottomSheet(NotificationModel item) {
+    final colors = context.colors;
+    final typo = context.typo;
+    final ctaText = item.ctaText?.isNotEmpty == true
+        ? item.ctaText!
+        : (item.metadata['cta_text'] as String?)?.isNotEmpty == true
+            ? item.metadata['cta_text'] as String
+            : AppLocales.notification.openLink.tr;
+    final badge = _resolveBadge(item);
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(sheetContext).size.height * 0.85,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Design.spacing.radiusLarge),
+          ),
+          border: Border.all(color: colors.border),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(Design.spacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: EdgeInsets.only(bottom: Design.spacing.md),
+                    decoration: BoxDecoration(
+                      color: colors.textSecondary.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    if (badge != null) ...[
+                      badge,
+                      SizedBox(width: Design.spacing.sm),
+                    ],
+                    const Spacer(),
+                    Text(
+                      _formatTimeAgo(item.createdAt),
+                      style: typo.caption.copyWith(
+                        color: colors.textSecondary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: Design.spacing.sm),
+                Text(
+                  item.title,
+                  style: typo.headline3.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: Design.spacing.md),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      item.message,
+                      style: typo.bodyLarge.copyWith(
+                        color: colors.textPrimary.withValues(alpha: 0.9),
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Design.spacing.xl),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppButton(
+                        text: AppLocales.common.cancel.tr,
+                        type: EButtonType.secondary,
+                        onPressed: () => Navigator.pop(sheetContext),
+                      ),
+                    ),
+                    if (item.link != null && item.link!.isNotEmpty) ...[
+                      SizedBox(width: Design.spacing.md),
+                      Expanded(
+                        child: AppButton(
+                          text: ctaText,
+                          type: EButtonType.primary,
+                          icon: Design.icons.openLink,
+                          onPressed: () {
+                            Navigator.pop(sheetContext);
+                            _controller.handleNotificationTap(item);
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleNotificationTap(NotificationModel item) {
+    if (_isOverflowing(item)) {
+      _controller.markAsRead(item);
+      _showDetailBottomSheet(item);
+    } else {
+      _controller.handleNotificationTap(item);
     }
   }
 
@@ -366,6 +524,14 @@ class _NotificationPageState extends State<NotificationPage> {
     return Dismissible(
       key: Key('notif_${item.id}'),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (_) async {
+        return await AppDialog.confirm(
+          context: context,
+          title: AppLocales.notification.deleteTitle.tr,
+          message: AppLocales.notification.deleteConfirm.tr,
+          confirmLabel: AppLocales.common.delete.tr,
+        );
+      },
       onDismissed: (_) {
         _controller.deleteNotification(item);
         AppSnackbar.info(AppLocales.notification.deleted.tr);
@@ -422,16 +588,28 @@ class _NotificationPageState extends State<NotificationPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          item.title,
-                          style: item.read
-                              ? typo.bodyLarge.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                )
-                              : typo.bodyLarge.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.primary,
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_resolveBadge(item) != null) ...[
+                              _resolveBadge(item)!,
+                              SizedBox(height: Design.spacing.xs),
+                            ],
+                            Text(
+                              item.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: item.read
+                                  ? typo.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: colors.textSecondary,
+                                    )
+                                  : typo.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.textPrimary,
+                                    ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(width: Design.spacing.sm),
@@ -446,13 +624,27 @@ class _NotificationPageState extends State<NotificationPage> {
                   SizedBox(height: Design.spacing.xs),
                   Text(
                     item.message,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: typo.bodyMedium.copyWith(
                       color: item.read
                           ? colors.textSecondary
                           : colors.textPrimary,
                     ),
                   ),
-                  if (item.link != null && item.link!.isNotEmpty) ...[
+                  if (_isOverflowing(item)) ...[
+                    SizedBox(height: Design.spacing.xs),
+                    Text(
+                      AppLocales.notification.readMore.tr,
+                      style: typo.caption.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  if (!_isOverflowing(item) &&
+                      item.link != null &&
+                      item.link!.isNotEmpty) ...[
                     SizedBox(height: Design.spacing.sm),
                     Row(
                       children: [
@@ -462,7 +654,8 @@ class _NotificationPageState extends State<NotificationPage> {
                           color: colors.primary,
                         ),
                         SizedBox(width: Design.spacing.xs),
-                        // Long deep links must ellipsize, not overflow.
+                        // Long deep links must ellipsize, not overflow
+                        // (tester report: a 1428px link blew the card).
                         Expanded(
                           child: Text(
                             item.link!,
@@ -491,9 +684,17 @@ class _NotificationPageState extends State<NotificationPage> {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               tooltip: AppLocales.common.delete.tr,
-              onPressed: () {
-                _controller.deleteNotification(item);
-                AppSnackbar.info(AppLocales.notification.deleted.tr);
+              onPressed: () async {
+                final confirmed = await AppDialog.confirm(
+                  context: context,
+                  title: AppLocales.notification.deleteTitle.tr,
+                  message: AppLocales.notification.deleteConfirm.tr,
+                  confirmLabel: AppLocales.common.delete.tr,
+                );
+                if (confirmed) {
+                  _controller.deleteNotification(item);
+                  AppSnackbar.info(AppLocales.notification.deleted.tr);
+                }
               },
             ),
           ],

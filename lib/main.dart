@@ -6,12 +6,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rexone_mobile/config/config.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 import 'bindings/initial.binding.dart';
-import 'locales/app_translations.dart';
+import 'locales/locales.dart';
+import 'modules/media/media.dart';
 import 'modules/setting/setting.dart';
 
 void main() async {
@@ -40,7 +43,16 @@ void main() async {
     debugPrint('⚠️ Firebase initializeApp skipped or failed: $e');
   }
   await GetStorage.init();
+  await JustAudioBackground.init(
+    androidNotificationChannelId: '${AppConfig.androidAppId}.audio',
+    androidNotificationChannelName: AppConfig.appName,
+    androidNotificationOngoing: true,
+  );
+  await AppInfo.init();
   InitialBinding().dependencies();
+  await Get.find<PushNotificationService>().initializePlatform();
+  await Get.find<MediaDownloadNotificationService>().initialize();
+  await Get.find<MediaDownloadService>().initializeDownloader();
 
   runApp(const MyApp());
 }
@@ -51,15 +63,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final analytics = Get.find<AnalyticsService>();
-
-    // DEBUG: Test ENV...
-    // print('APP_NAME: ${AppConfig.appName}');
-    // print('APP_VERSION: ${AppConfig.appVersion}');
-    // print('API_BASE_URL: ${AppConfig.apiBaseUrl}');
-    // print('GOOGLE_CLIENT_ID: ${AppConfig.googleServerClientId}');
-    // print('ONE_SIGNAL_APP_ID: ${AppConfig.oneSignalAppId}');
-    // print('APP_STORE_APP_ID: ${AppConfig.appStoreAppId}');
-    // print('APP_STORE_BUNDLE_ID: ${AppConfig.appStoreBundleId}');
 
     return GetBuilder<SettingController>(
       builder: (settings) => ScreenUtilInit(
@@ -72,14 +75,20 @@ class MyApp extends StatelessWidget {
           translations: AppTranslations(),
           locale: settings.locale,
           fallbackLocale: const Locale('en', 'US'),
+          localizationsDelegates: AppLocalizations.delegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.splash,
           getPages: AppRoutes.pages,
           unknownRoute: AppRoutes.notFound,
-          navigatorObservers: [analytics.observer],
+          navigatorObservers: [analytics.observer, MiniPlayerRouteObserver()],
           builder: (context, child) {
-            return AppNetworkBanner(
-              child: AppLoading.builder(context, child),
+            return Overlay.wrap(
+              child: AppNetworkBanner(
+                child: AppMiniPlayerHost(
+                  child: AppLoading.builder(context, child),
+                ),
+              ),
             );
           },
         ),

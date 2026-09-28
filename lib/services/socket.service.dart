@@ -8,27 +8,38 @@ import 'package:rexone_mobile/config/config.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 
 class SocketMessage {
+  final String? id;
   final String type;
+  final String? title;
   final String? message;
+  final String? link;
+  final List<String>? clients;
   final Map<String, dynamic>? data;
   final String? createdAt;
   final String? channel;
 
   SocketMessage({
+    this.id,
     required this.type,
+    this.title,
     this.message,
+    this.link,
+    this.clients,
     this.data,
     this.createdAt,
     this.channel,
   });
 
-  factory SocketMessage.fromJson(
-    Map<String, dynamic> json, {
-    String? channel,
-  }) {
+  factory SocketMessage.fromJson(Map<String, dynamic> json, {String? channel}) {
     return SocketMessage(
+      id: json[ApiKeys.id]?.toString(),
       type: json[SocketKeys.type]?.toString() ?? '',
+      title: json[NotificationKeys.title]?.toString(),
       message: json[SocketKeys.message]?.toString(),
+      link: json[NotificationKeys.link]?.toString(),
+      clients: json[NotificationKeys.clients] is List
+          ? List<String>.from(json[NotificationKeys.clients] as List)
+          : null,
       data: json[SocketKeys.data] is Map
           ? Map<String, dynamic>.from(json[SocketKeys.data] as Map)
           : null,
@@ -184,7 +195,9 @@ class SocketService extends GetxService with WidgetsBindingObserver {
     if (_ws != null) {
       try {
         _ws!.close();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🔌 [SocketService] Error closing socket: $e');
+      }
       _ws = null;
     }
 
@@ -201,26 +214,30 @@ class SocketService extends GetxService with WidgetsBindingObserver {
     _subscribed.clear();
   }
 
-
   String _identifierFor(String channel) =>
       jsonEncode({SocketKeys.channel: channel});
 
   String? _channelFromIdentifier(dynamic identifier) {
     if (identifier == null) return null;
     try {
-      final decoded = identifier is String ? jsonDecode(identifier) : identifier;
+      final decoded = identifier is String
+          ? jsonDecode(identifier)
+          : identifier;
       if (decoded is Map) {
         return decoded[SocketKeys.channel]?.toString();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('🔌 [SocketService] Error decoding channel identifier: $e');
+    }
     return null;
   }
-
 
   /// `confirm_subscription`, `false` on reject or timeout.
   Future<bool> subscribe(String channel) async {
     if (!isConnected.value) {
-      debugPrint('🔌 [SocketService] Cannot subscribe, socket is not connected');
+      debugPrint(
+        '🔌 [SocketService] Cannot subscribe, socket is not connected',
+      );
       return false;
     }
     if (_subscribed.contains(channel)) return true;
@@ -261,18 +278,11 @@ class SocketService extends GetxService with WidgetsBindingObserver {
   }
 
   /// Sends an Action Cable `perform` (`command: message`) on [channel].
-  void perform(
-    String channel,
-    String action, [
-    Map<String, dynamic>? data,
-  ]) {
+  void perform(String channel, String action, [Map<String, dynamic>? data]) {
     send({
       SocketKeys.command: SocketKeys.message,
       SocketKeys.identifier: _identifierFor(channel),
-      SocketKeys.data: jsonEncode({
-        SpeechKeys.action: action,
-        ...?data,
-      }),
+      SocketKeys.data: jsonEncode({SpeechKeys.action: action, ...?data}),
     });
   }
 

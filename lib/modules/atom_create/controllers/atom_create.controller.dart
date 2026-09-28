@@ -210,7 +210,7 @@ class AtomCreateController extends GetxController {
         return;
       }
 
-      final assetId = upload.data?.asset.id ?? '';
+      final assetId = upload.data?.id ?? '';
       if (assetId.isEmpty) {
         AppSnackbar.error('Upload finished without an asset id');
         return;

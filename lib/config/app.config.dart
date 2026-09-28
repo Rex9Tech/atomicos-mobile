@@ -2,6 +2,7 @@
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rexone_mobile/constants/constants.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 
 class AppEnvironment {
   const AppEnvironment._();
@@ -31,8 +32,7 @@ class AppConfig {
     _ => AppEnvironment.development,
   };
   static String get appName => dotenv.env[AppConstants.nameKey] ?? 'AtomicOS';
-  static String get appVersion =>
-      dotenv.env[AppConstants.versionKey] ?? '1.0.0';
+  static String get appVersion => AppInfo.version;
   static String get apiBaseUrl =>
       dotenv.env[AppConstants.apiBaseUrlKey] ?? 'api base url not found';
   static String get wsBaseUrl {
@@ -54,8 +54,11 @@ class AppConfig {
       'one signal app id not found';
 
   static String get androidAppId =>
-      dotenv.env[AppConstants.androidAppIdKey] ?? 'com.rexone.mobile';
+      dotenv.env[AppConstants.androidAppIdKey] ?? 'com.rex9.rexone';
 
   static String get iosAppId =>
-      dotenv.env[AppConstants.iosAppIdKey] ?? 'com.rexone.mobile';
+      dotenv.env[AppConstants.iosAppIdKey] ?? 'com.rex9.rexone';
+
+  static String get offlineEncryptionKey =>
+      dotenv.env[AppConstants.mediaOfflineEncryptionKey]?.trim() ?? '';
 }

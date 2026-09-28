@@ -2,6 +2,7 @@
 class AiKeys {
   const AiKeys._();
 
+  static const message = 'message';
   static const messages = 'messages';
   static const processing = 'processing';
   static const roomTitle = 'room_title';
@@ -22,6 +23,7 @@ class AiKeys {
   static const url = 'url';
   static const type = 'type';
   static const audio = 'audio';
+  static const tts = 'tts';
   static const name = 'name';
   static const format = 'format';
   static const extension = 'extension';
@@ -33,4 +35,7 @@ class AiKeys {
   static const jobId = 'job_id';
   static const systemPrompt = 'system_prompt';
   static const context = 'context';
+  static const operationId = 'operation_id';
+  static const operationType = 'operation_type';
+  static const link = 'link';
 }
