@@ -163,9 +163,14 @@ class SearchPage extends GetView<AtomSearchController> {
         return _buildEmptyState(context);
       }
       return ListView.separated(
-        // Soft-UI card shadows bleed past the card bounds; hard clip kills them.
-        clipBehavior: Clip.none,
-        padding: EdgeInsets.only(bottom: Design.spacing.xl),
+        // Clip to the viewport: with Clip.none, results scrolled out of the
+        // list kept painting over the search field / filters above. The
+        // top/bottom padding keeps the first/last card's shadow visible.
+        clipBehavior: Clip.hardEdge,
+        padding: EdgeInsets.only(
+          top: Design.spacing.md,
+          bottom: Design.spacing.xxl,
+        ),
         itemCount: controller.results.length,
         separatorBuilder: (_, _) => SizedBox(height: Design.spacing.lg),
         itemBuilder: (_, index) => AtomCard(atom: controller.results[index]),

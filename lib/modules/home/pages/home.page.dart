@@ -67,9 +67,15 @@ class HomePage extends GetView<AuthController> {
         return false;
       },
       child: ListView.separated(
-        // Soft-UI card shadows bleed past the card bounds; hard clip kills them.
-        clipBehavior: Clip.none,
-        padding: EdgeInsets.only(bottom: Design.spacing.lg),
+        // Clip to the viewport: with Clip.none, cards scrolled out of the list
+        // kept painting over the search bar / header above (reported overlap).
+        // The top/bottom padding keeps the first/last card's soft shadow
+        // visible inside the viewport instead.
+        clipBehavior: Clip.hardEdge,
+        padding: EdgeInsets.only(
+          top: Design.spacing.md,
+          bottom: Design.spacing.xxl,
+        ),
         itemCount: atoms.length + (homeController.hasMoreAtoms.value ? 1 : 0),
         separatorBuilder: (_, index) => SizedBox(height: Design.spacing.lg),
         itemBuilder: (context, index) {
@@ -341,8 +347,12 @@ class HomePage extends GetView<AuthController> {
     final colors = context.colors;
 
     return ListView.separated(
-      clipBehavior: Clip.none,
-      padding: EdgeInsets.only(bottom: Design.spacing.lg),
+      // Same viewport clipping rule as the main list (see _buildHomeBody).
+      clipBehavior: Clip.hardEdge,
+      padding: EdgeInsets.only(
+        top: Design.spacing.md,
+        bottom: Design.spacing.xxl,
+      ),
       itemCount: 3,
       separatorBuilder: (_, index) => SizedBox(height: Design.spacing.lg),
       itemBuilder: (context, index) {
