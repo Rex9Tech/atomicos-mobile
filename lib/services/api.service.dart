@@ -198,6 +198,27 @@ class ApiService extends GetConnect {
 
   // ===== RECORD & LIST PARSERS =====
 
+  /// Single-record wrapper keys used by the core's JSON envelope. Records are
+  /// merged into the root map so flat `fromJson` factories parse directly.
+  static const List<String> _recordWrapperKeys = [
+    'user',
+    'atom',
+    'recording',
+    'category',
+    'event',
+    'notification',
+    'subscription',
+    'coupon',
+    'asset',
+    'version',
+    'room',
+    'message',
+    'product',
+    'transaction',
+    'access',
+    'feedback',
+  ];
+
   /// Flattens a Rails JSON:API `{id, type, attributes}` map into a flat map.
   static Map<String, dynamic> flattenRecord(dynamic data) {
     if (data is! Map) return const {};
@@ -256,8 +277,28 @@ class ApiService extends GetConnect {
       }
     }
 
-    final T? parsedData = (fromJson != null && data is Map)
-        ? fromJson(flattenRecord(data))
+    // Single-record envelopes: our core wraps records as `{ <singular>: {…} }`
+    // (auth adds siblings like `token`). Merge the inner map up so flat models
+    // (UserModel, AtomModel, …) parse directly — the pre-merge client
+    // unwrapped these at call sites; merged upstream callers rely on this
+    // parser instead.
+    var recordData = data is Map ? flattenRecord(data) : null;
+    if (recordData != null && recordData.length <= 4) {
+      final flat = recordData;
+      for (final key in _recordWrapperKeys) {
+        final inner = flat[key];
+        if (inner is Map) {
+          recordData = {
+            ...flat,
+            ...Map<String, dynamic>.from(inner),
+          };
+          break;
+        }
+      }
+    }
+
+    final T? parsedData = (fromJson != null && recordData != null)
+        ? fromJson(recordData)
         : (data is T ? data : null);
 
     if (response.hasError || !(status[ApiKeys.success] as bool? ?? false)) {
@@ -409,11 +450,17 @@ class ApiService extends GetConnect {
         response.statusText ??
         HttpStatusMap.getMessage(statusCode);
 
+    // Items are JSON:API records (`{id, type, attributes}`) — flatten each one
+    // (attributes merged + id lifted) exactly like the pre-merge
+    // ApiHelper.parseList did; without this every model parsed empty (that was
+    // the "atom cards show no text" bug).
     final List<T> records = [];
     if (data is List) {
       for (final item in data) {
         if (item is Map) {
-          records.add(fromJson(Map<String, dynamic>.from(item)));
+          records.add(
+            fromJson(flattenRecord(Map<String, dynamic>.from(item))),
+          );
         }
       }
     }

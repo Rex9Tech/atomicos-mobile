@@ -188,4 +188,85 @@ void main() {
       expect(result.pagination, isNull);
     });
   });
+
+  group('ApiService.parsePaginatedResponse', () {
+    test('flattens JSON:API items — regression: atom cards parsed empty', () {
+      final response = Response(
+        statusCode: 200,
+        body: {
+          'status': {'code': 200, 'success': true, 'message': 'Records loaded'},
+          'data': [
+            {
+              'id': 'atom_1',
+              'type': 'atom',
+              'attributes': {'title': 'Weekly Sync', 'status': 'completed'},
+            },
+          ],
+          'meta': {
+            'pagination': {
+              'current_page': 1,
+              'total_pages': 1,
+              'total_count': 1,
+              'limit': 20,
+              'next_page': null,
+              'prev_page': null,
+            },
+          },
+        },
+      );
+
+      final result = apiService.parsePaginatedResponse<SampleItem>(
+        response,
+        SampleItem.fromJson,
+      );
+
+      expect(result.records.length, 1);
+      expect(result.records.first.id, 'atom_1');
+      expect(result.records.first.title, 'Weekly Sync');
+    });
+  });
+
+  group('ApiService.parseRecord single-record envelopes', () {
+    test('unwraps { user: {...}, token } — regression: empty profile', () {
+      final response = Response(
+        statusCode: 200,
+        body: {
+          'status': {'code': 200, 'success': true, 'message': 'Signed in'},
+          'data': {
+            'user': {'id': 'u1', 'title': 'Khant Si Thu'},
+            'token': 'jwt-abc',
+          },
+        },
+      );
+
+      final result = apiService.parseRecord<SampleItem>(
+        response,
+        SampleItem.fromJson,
+      );
+
+      expect(result.data?.id, 'u1');
+      expect(result.data?.title, 'Khant Si Thu');
+      expect(result.meta?['token'], 'jwt-abc');
+    });
+
+    test('unwraps { atom: {...} }', () {
+      final response = Response(
+        statusCode: 200,
+        body: {
+          'status': {'code': 200, 'success': true, 'message': 'OK'},
+          'data': {
+            'atom': {'id': 'a1', 'title': 'Deep Work'},
+          },
+        },
+      );
+
+      final result = apiService.parseRecord<SampleItem>(
+        response,
+        SampleItem.fromJson,
+      );
+
+      expect(result.data?.id, 'a1');
+      expect(result.data?.title, 'Deep Work');
+    });
+  });
 }
