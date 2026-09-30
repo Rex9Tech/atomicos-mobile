@@ -44,8 +44,11 @@ class ServerRoutes {
   static String get currentUser => api('/users/current');
   static String get currentUserIam => api('/users/current/iam');
 
-  // Media
-  static String get uploadAsset => api('/assets/upload');
+  // Media — the core serves uploads at /v1/media/upload (assets#create_upload).
+  // '/assets/upload' does NOT exist: a Sept-2026 rename (bed242f) slipped in
+  // unpaired and broke every mobile upload with a 404 "Not Found". Do not
+  // reintroduce it.
+  static String get uploadAsset => api('/media/upload');
   static String get assets => api('/assets');
   static String assetPlayback(String id) => api('/assets/$id/playback');
 

@@ -91,6 +91,11 @@ void main() {
       );
 
       expect(mockApi.lastUrl, equals(ServerRoutes.uploadAsset));
+      // Pin the literal path too: the Sept-2026 route rename shipped broken
+      // because both sides of the assertion above moved together
+      // ('/assets/upload' 404s with "Not Found" on the real core).
+      expect(ServerRoutes.uploadAsset, endsWith('/v1/media/upload'));
+      expect(mockApi.lastUrl, endsWith('/v1/media/upload'));
       expect(mockApi.lastForm, isNotNull);
       expect(res.success, isTrue);
       expect(res.data?.id, equals('ast_test_1'));
