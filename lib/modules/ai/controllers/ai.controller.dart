@@ -65,6 +65,10 @@ class AiController extends GetxController {
   Timer? _processingWatchdog;
   int _processingPolls = 0;
 
+  /// Monotonic token for history loads: late/stale responses are dropped so an
+  /// older request can never overwrite the room the user just opened.
+  int _historyLoadSeq = 0;
+
   /// How much of an attached atom is sent to the model.
   static const int _contextCharLimit = 4000;
 
@@ -201,6 +205,16 @@ class AiController extends GetxController {
   // HISTORY & MESSAGES
   // ============================================================
   Future<void> loadHistory([String? roomId]) async {
+    // Room-less calls (page open, post-delete fallback) target the room the
+    // user is currently on; only with nothing selected do they defer to the
+    // server's default room. Previously a late room-less load could clobber
+    // the conversation the user had just opened with another room's history.
+    final targetRoomId = roomId ?? currentRoomId.value;
+    final seq = ++_historyLoadSeq;
+    debugPrint(
+      '🤖 [AiController] loadHistory room=${targetRoomId ?? "(default)"} seq=$seq',
+    );
+
     if (isMeetingWorkspace) {
       messages.clear();
       isProcessing.value = false;
@@ -208,7 +222,9 @@ class AiController extends GetxController {
     }
 
     try {
-      final result = await _ai.getHistory(roomId: roomId);
+      final result = await _ai.getHistory(roomId: targetRoomId);
+      // A newer load superseded this one — drop the stale response.
+      if (seq != _historyLoadSeq) return;
       if (result.success) {
         if (result.records.isEmpty) {
           resetAskFlow();
@@ -467,6 +483,14 @@ class AiController extends GetxController {
     contextAtoms.clear();
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
+    // Drop the previous room's bubbles so the new thread never flashes stale
+    // messages while the history request is in flight.
+    messages.clear();
+    // resetAskFlow() parks the ask surface on the 'landing' hero, which kept
+    // rendering (as "new conversation") even after the room's history loaded.
+    // Raise the stage to the conversation view so the thread shows; an empty
+    // room's loadHistory() falls back to landing + welcome on its own.
+    askStage.value = 'prompt_result';
     loadHistory(room.id);
   }
 

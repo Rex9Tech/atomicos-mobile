@@ -1,4 +1,6 @@
 // test/modules/ai/controllers/ai_controller_test.dart
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
@@ -160,6 +162,86 @@ void main() {
         controller.entryMode.value,
         equals('ask'),
         reason: 'selecting a conversation must open the chat, not details',
+      );
+      expect(
+        controller.askStage.value,
+        equals('prompt_result'),
+        reason:
+            'selecting a conversation must show the thread, not the '
+            'new-conversation landing',
+      );
+    });
+
+    test('room-less loadHistory targets the currently open room', () async {
+      controller.currentRoomId.value = 'r_current';
+      fakeAi.historyResponse = PaginatedResponse<AiMessageModel>(
+        records: [
+          AiMessageModel(
+            id: 'm1',
+            role: EChatRole.assistant.name,
+            content: 'hello',
+            roomId: 'r_current',
+            createdAt: DateTime.now().toIso8601String(),
+          ),
+        ],
+        message: 'OK',
+        statusCode: 200,
+        success: true,
+      );
+
+      await controller.loadHistory();
+
+      expect(
+        fakeAi.lastHistoryRoomId,
+        equals('r_current'),
+        reason: 'a room-less load must not fall back to a different room',
+      );
+      expect(controller.messages.single.content, equals('hello'));
+    });
+
+    test('stale history responses are dropped when a newer load wins', () async {
+      final msgA = AiMessageModel(
+        id: 'm_a',
+        role: EChatRole.assistant.name,
+        content: 'A',
+        roomId: 'room_a',
+        createdAt: DateTime.now().toIso8601String(),
+      );
+      final msgB = AiMessageModel(
+        id: 'm_b',
+        role: EChatRole.assistant.name,
+        content: 'B',
+        roomId: 'room_b',
+        createdAt: DateTime.now().toIso8601String(),
+      );
+
+      fakeAi.historyResponse = PaginatedResponse<AiMessageModel>(
+        records: [msgA],
+        message: 'OK',
+        statusCode: 200,
+        success: true,
+      );
+      fakeAi.delayFirstHistory = Completer<void>();
+
+      final firstLoad = controller.loadHistory('room_a'); // parked in flight
+      await Future<void>.delayed(Duration.zero);
+
+      fakeAi.historyResponse = PaginatedResponse<AiMessageModel>(
+        records: [msgB],
+        message: 'OK',
+        statusCode: 200,
+        success: true,
+      );
+      await controller.loadHistory('room_b'); // the newer load finishes first
+      expect(controller.messages.single.content, equals('B'));
+
+      fakeAi.delayFirstHistory!.complete(); // room_a's response arrives late
+      await firstLoad;
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        controller.messages.single.content,
+        equals('B'),
+        reason: 'the late room_a response must not overwrite room_b',
       );
     });
 

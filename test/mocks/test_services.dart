@@ -651,6 +651,16 @@ class FakeAiService extends AiService {
   ApiResponse<void>? deleteRoomResponse;
   ApiResponse<void>? clearHistoryResponse;
 
+  /// Records the room id of the most recent [getHistory] call.
+  String? lastHistoryRoomId;
+
+  /// Total [getHistory] calls made.
+  int historyCalls = 0;
+
+  /// When set, the FIRST [getHistory] call awaits this before returning —
+  /// lets tests park an older request while a newer one completes.
+  Completer<void>? delayFirstHistory;
+
   @override
   void onInit() {}
 
@@ -670,13 +680,22 @@ class FakeAiService extends AiService {
 
   @override
   Future<PaginatedResponse<AiMessageModel>> getHistory({String? roomId}) async {
-    return historyResponse ??
+    lastHistoryRoomId = roomId;
+    historyCalls++;
+    // Capture the response at call time so a later field change cannot leak
+    // into this request's result.
+    final captured =
+        historyResponse ??
         const PaginatedResponse<AiMessageModel>(
           records: [],
           message: 'OK',
           statusCode: 200,
           success: true,
         );
+    if (historyCalls == 1 && delayFirstHistory != null) {
+      await delayFirstHistory!.future;
+    }
+    return captured;
   }
 
   @override
