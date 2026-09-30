@@ -156,6 +156,11 @@ void main() {
 
       expect(controller.currentRoomId.value, equals('r_selected'));
       expect(controller.currentRoomTitle.value, equals('Project Discussion'));
+      expect(
+        controller.entryMode.value,
+        equals('ask'),
+        reason: 'selecting a conversation must open the chat, not details',
+      );
     });
 
     test('createNewRoom creates and prepends room to list', () async {

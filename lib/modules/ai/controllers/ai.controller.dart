@@ -457,7 +457,14 @@ class AiController extends GetxController {
   }
 
   void selectRoom(AiRoomModel room) {
-    entryMode.value = 'details';
+    // Choosing a conversation must open the CHAT for it — this used to force
+    // entryMode 'details', so picking a conversation landed on the
+    // atom-details canvas instead of the conversation itself. The details
+    // canvas is only for the Ask-with-atom flow.
+    entryMode.value = 'ask';
+    resetAskFlow();
+    contextAtom.value = null;
+    contextAtoms.clear();
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
     loadHistory(room.id);
