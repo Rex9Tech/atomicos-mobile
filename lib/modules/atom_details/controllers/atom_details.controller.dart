@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/services/services.dart';
@@ -217,13 +218,29 @@ class AtomDetailsController extends GetxController {
         return;
       }
       if (_player.audioSource == null) {
-        await _player.setUrl(url);
+        await _player.setAudioSource(_atomAudioSource(url));
       }
       unawaited(_player.play());
     } catch (error) {
       debugPrint('▶️ [AtomDetailsController] playback error: $error');
       AppSnackbar.error('Could not play this recording');
     }
+  }
+
+  /// just_audio_background (initialized in main) requires every audio source to
+  /// carry a MediaItem tag — an untagged source (plain `setUrl`) fails with
+  /// "type 'Null' is not a subtype of type 'MediaItem'" and the recording never
+  /// plays. That was the atom-details play bug.
+  AudioSource _atomAudioSource(String url) {
+    final title = (atom.value?.title ?? '').trim();
+    return AudioSource.uri(
+      Uri.parse(url),
+      tag: MediaItem(
+        id: atomId.value ?? url,
+        title: title.isEmpty ? 'Recording' : title,
+        album: 'AtomicOS',
+      ),
+    );
   }
 
   Future<void> skip(int seconds) async {
