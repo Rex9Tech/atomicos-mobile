@@ -360,13 +360,16 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         SizedBox(height: Design.spacing.sm),
         Obx(() {
           final meetingAt = controller.meetingAt.value;
+          final synced = controller.calendarLink.value != null;
           return Row(
             children: [
               Flexible(
                 child: GestureDetector(
                   onTap: controller.isSavingDate.value
                       ? null
-                      : () => _pickMeetingDate(context),
+                      : () => synced
+                            ? _showMeetingActions(context)
+                            : _pickMeetingDate(context),
                   child: AppNeumoSurface(
                     soft: true,
                     radius: 999,
@@ -388,7 +391,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                           )
                         else
                           Icon(
-                            Design.icons.calendar,
+                            synced
+                                ? Design.icons.check
+                                : Design.icons.calendar,
                             size: 13,
                             color: colors.primary,
                           ),
@@ -1099,7 +1104,230 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       time?.hour ?? current.hour,
       time?.minute ?? current.minute,
     );
-    await controller.saveMeetingDate(picked);
+    final result = await controller.saveMeetingDate(picked);
+    if (result == CalendarSyncResult.needCalendar && context.mounted) {
+      await _showCalendarPicker(context, retryWith: picked);
+    }
+  }
+
+  /// Actions for an atom whose meeting already lives in the device calendar.
+  Future<void> _showMeetingActions(BuildContext context) async {
+    final colors = context.colors;
+    final meetingAt = controller.meetingAt.value;
+    Get.bottomSheet<void>(
+      Container(
+        decoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Design.spacing.radiusXLarge),
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          Design.spacing.lg,
+          Design.spacing.lg,
+          Design.spacing.lg,
+          Design.spacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              meetingAt == null
+                  ? AppLocales.calendar.title.tr
+                  : _dateTimeLabel(context, meetingAt),
+              textAlign: TextAlign.center,
+              style: context.typo.labelLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: Design.spacing.md),
+            _sheetAction(
+              context,
+              icon: Design.icons.edit,
+              label: AppLocales.calendar.updateDateTime.tr,
+              onTap: () {
+                Get.back<void>();
+                _pickMeetingDate(context);
+              },
+            ),
+            _sheetAction(
+              context,
+              icon: Design.icons.calendar,
+              label: AppLocales.calendar.changeCalendar.tr,
+              onTap: () {
+                Get.back<void>();
+                _showCalendarPicker(context);
+              },
+            ),
+            _sheetAction(
+              context,
+              icon: Design.icons.delete,
+              label: AppLocales.calendar.removeFromCalendar.tr,
+              onTap: () {
+                Get.back<void>();
+                controller.removeMeetingFromCalendar();
+              },
+            ),
+            _sheetAction(
+              context,
+              icon: Design.icons.history,
+              label: AppLocales.calendar.openCalendarApp.tr,
+              onTap: () {
+                Get.back<void>();
+                Get.find<DeviceCalendarService>().openCalendarApp();
+              },
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  Widget _sheetAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final colors = context.colors;
+    return InkWell(
+      borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: Design.spacing.sm,
+          horizontal: Design.spacing.xs,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: colors.primary),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: Text(
+                label,
+                style: context.typo.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(Design.icons.rightArrow, size: 18, color: colors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Lets the user pick which device calendar meetings go to; retries the
+  /// pending write — or re-homes the existing event — once one is chosen.
+  Future<void> _showCalendarPicker(
+    BuildContext context, {
+    DateTime? retryWith,
+  }) async {
+    final service = Get.find<DeviceCalendarService>();
+    final calendars = await service.availableCalendars();
+    if (!context.mounted) return;
+    if (calendars.isEmpty) {
+      AppSnackbar.warning(AppLocales.calendar.noWritableCalendar.tr);
+      return;
+    }
+    final colors = context.colors;
+    Get.bottomSheet<void>(
+      Container(
+        decoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Design.spacing.radiusXLarge),
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          Design.spacing.lg,
+          Design.spacing.lg,
+          Design.spacing.lg,
+          Design.spacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              AppLocales.calendar.chooseCalendar.tr,
+              textAlign: TextAlign.center,
+              style: context.typo.labelLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: Design.spacing.md),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: calendars.length,
+                itemBuilder: (context, index) {
+                  final calendar = calendars[index];
+                  final name = calendar.name.isEmpty
+                      ? calendar.accountName
+                      : calendar.name;
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(
+                      Design.spacing.radiusLarge,
+                    ),
+                    onTap: () async {
+                      Get.back<void>();
+                      if (retryWith != null) {
+                        await service.setTargetCalendar(calendar);
+                        await controller.saveMeetingDate(retryWith);
+                      } else {
+                        await controller.moveMeetingToCalendar(calendar);
+                      }
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: Design.spacing.sm,
+                        horizontal: Design.spacing.xs,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Design.icons.calendar,
+                            size: 18,
+                            color: colors.primary,
+                          ),
+                          SizedBox(width: Design.spacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: context.typo.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (calendar.accountName.isNotEmpty)
+                                  Text(
+                                    calendar.accountName,
+                                    style: context.typo.caption.copyWith(
+                                      color: colors.textMuted,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+    );
   }
 
   String _dateTimeLabel(BuildContext context, DateTime value) {

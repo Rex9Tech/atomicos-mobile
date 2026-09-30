@@ -542,6 +542,18 @@ class _CalendarLocales {
   final scheduleLoadFailed = 'calendar.schedule_load_failed';
   final noEvents = 'calendar.no_events';
   final scheduled = 'calendar.scheduled';
+
+  // Device-calendar sync workflow
+  final addedToCalendar = 'calendar.added_to_calendar';
+  final removedFromCalendar = 'calendar.removed_from_calendar';
+  final syncFailed = 'calendar.sync_failed';
+  final noWritableCalendar = 'calendar.no_writable_calendar';
+  final saveInCalendarApp = 'calendar.save_in_calendar_app';
+  final updateDateTime = 'calendar.update_date_time';
+  final changeCalendar = 'calendar.change_calendar';
+  final removeFromCalendar = 'calendar.remove_from_calendar';
+  final openCalendarApp = 'calendar.open_calendar_app';
+  final chooseCalendar = 'calendar.choose_calendar';
 }
 
 class _PermissionLocales {

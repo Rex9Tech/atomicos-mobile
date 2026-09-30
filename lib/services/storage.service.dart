@@ -106,6 +106,23 @@ class StorageService extends GetxService {
   void setLocaleCode(String code) => _box.write(StorageKeys.locale, code);
   String? getLocaleCode() => _box.read(StorageKeys.locale);
 
+  // ===== DEVICE CALENDAR SYNC =====
+  void setCalendarTarget(Map<String, dynamic> target) =>
+      _box.write(StorageKeys.calendarTarget, target);
+
+  Map<String, dynamic>? getCalendarTarget() {
+    final value = _box.read(StorageKeys.calendarTarget);
+    return value is Map ? Map<String, dynamic>.from(value) : null;
+  }
+
+  Map<String, dynamic> getCalendarEventLinks() {
+    final value = _box.read(StorageKeys.calendarLinks);
+    return value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  }
+
+  void setCalendarEventLinks(Map<String, dynamic> links) =>
+      _box.write(StorageKeys.calendarLinks, links);
+
   // ============================================================
   // APP VERSION FLAGS
   // ============================================================

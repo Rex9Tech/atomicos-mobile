@@ -353,6 +353,18 @@ class AppTranslations extends Translations {
       AppLocales.calendar.scheduleLoadFailed: "Couldn't load your schedule",
       AppLocales.calendar.noEvents: 'No events for the selected range',
       AppLocales.calendar.scheduled: 'Scheduled',
+      AppLocales.calendar.addedToCalendar: 'Added to your device calendar',
+      AppLocales.calendar.removedFromCalendar: 'Removed from your calendar',
+      AppLocales.calendar.syncFailed: "Couldn't update your calendar",
+      AppLocales.calendar.noWritableCalendar:
+          'No writable calendar found on this device',
+      AppLocales.calendar.saveInCalendarApp:
+          'Save the event in your calendar app',
+      AppLocales.calendar.updateDateTime: 'Update date & time',
+      AppLocales.calendar.changeCalendar: 'Change calendar',
+      AppLocales.calendar.removeFromCalendar: 'Remove from calendar',
+      AppLocales.calendar.openCalendarApp: 'Open calendar app',
+      AppLocales.calendar.chooseCalendar: 'Choose a calendar',
 
       // Permission
       AppLocales.permission.title: 'Permissions',
@@ -1064,6 +1076,18 @@ class AppTranslations extends Translations {
       AppLocales.calendar.scheduleLoadFailed: 'အချိန်ဇယား ရယူ၍မရပါ',
       AppLocales.calendar.noEvents: 'ရွေးထားသော အချိန်တွင် အစီအစဉ် မရှိပါ',
       AppLocales.calendar.scheduled: 'စီစဉ်ထားသည်',
+      AppLocales.calendar.addedToCalendar: 'သင့်စက်၏ ပြက္ခဒိန်ထဲသို့ ထည့်ပြီးပါပြီ',
+      AppLocales.calendar.removedFromCalendar: 'သင့်ပြက္ခဒိန်မှ ဖယ်ရှားပြီးပါပြီ',
+      AppLocales.calendar.syncFailed: 'ပြက္ခဒိန်ကို မွမ်းမံ၍ မရပါ',
+      AppLocales.calendar.noWritableCalendar:
+          'ဤစက်တွင် ရေးသားနိုင်သော ပြက္ခဒိန် မတွေ့ပါ',
+      AppLocales.calendar.saveInCalendarApp:
+          'သင့်ပြက္ခဒိန်အက်ပ်တွင် ဖြစ်ရပ်ကို သိမ်းဆည်းပါ',
+      AppLocales.calendar.updateDateTime: 'ရက်စွဲနှင့် အချိန် ပြင်ရန်',
+      AppLocales.calendar.changeCalendar: 'ပြက္ခဒိန် ပြောင်းရန်',
+      AppLocales.calendar.removeFromCalendar: 'ပြက္ခဒိန်မှ ဖယ်ရှားရန်',
+      AppLocales.calendar.openCalendarApp: 'ပြက္ခဒိန်အက်ပ် ဖွင့်ရန်',
+      AppLocales.calendar.chooseCalendar: 'ပြက္ခဒိန် ရွေးချယ်ပါ',
 
       // Permission
       AppLocales.permission.title: 'ခွင့်ပြုချက်များ',

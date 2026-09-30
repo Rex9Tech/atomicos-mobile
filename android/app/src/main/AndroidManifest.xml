@@ -15,6 +15,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS"/>
+    <!-- Device-calendar sync: meeting events are written into the user's own
+         calendar so they appear in the built-in calendar app automatically. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <!-- $APP_NAME -->
     <!-- Allows cleartext HTTP traffic for local development (e.g. Garage S3 at http://10.0.2.2:3100 and backend API at http://10.0.2.2:3000).
          Required by better_player (video playback) and background_downloader to stream and download media assets over unencrypted HTTP. -->

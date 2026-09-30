@@ -84,6 +84,26 @@ class FakeStorageService extends StorageService {
   }
 
   @override
+  void setCalendarTarget(Map<String, dynamic> target) =>
+      memory[StorageKeys.calendarTarget] = target;
+
+  @override
+  Map<String, dynamic>? getCalendarTarget() {
+    final value = memory[StorageKeys.calendarTarget];
+    return value is Map ? Map<String, dynamic>.from(value) : null;
+  }
+
+  @override
+  Map<String, dynamic> getCalendarEventLinks() {
+    final value = memory[StorageKeys.calendarLinks];
+    return value is Map ? Map<String, dynamic>.from(value) : {};
+  }
+
+  @override
+  void setCalendarEventLinks(Map<String, dynamic> links) =>
+      memory[StorageKeys.calendarLinks] = links;
+
+  @override
   void setThemeName(String name) => memory[StorageKeys.theme] = name;
 
   @override
