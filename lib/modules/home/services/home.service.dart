@@ -127,4 +127,13 @@ class HomeService extends GetxService {
           AtomModel.fromJson(const {});
     });
   }
+
+  /// DELETE /v1/atoms/:id — soft-removes the atom from the user's library.
+  Future<ApiResponse<dynamic>> deleteAtom(String atomId) async {
+    final response = await _api.delete(
+      ServerRoutes.atomDetail(atomId),
+      showLoading: false,
+    );
+    return _api.parseResponse(response, (data) => data);
+  }
 }

@@ -515,6 +515,13 @@ class _AtomLocales {
   final retry = 'atom.retry';
   final copiedToClipboard = 'atom.copied_to_clipboard';
   final copy = 'atom.copy';
+
+  // Delete flow
+  final deleteAtom = 'atom.delete_atom';
+  final deleteTitle = 'atom.delete_title';
+  final deleteConfirmMsg = 'atom.delete_confirm_msg';
+  final deleted = 'atom.deleted';
+  final deleteFailed = 'atom.delete_failed';
 }
 
 class _CalendarLocales {

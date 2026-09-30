@@ -890,6 +890,19 @@ class FakeHomeService extends GetxService implements HomeService {
       }),
     );
   }
+
+  /// Every atom id sent to [deleteAtom], in call order.
+  final List<String> deletedAtomIds = [];
+
+  /// When true, [deleteAtom] throws — exercises the failure path.
+  bool throwOnDelete = false;
+
+  @override
+  Future<ApiResponse<dynamic>> deleteAtom(String atomId) async {
+    if (throwOnDelete) throw Exception('offline');
+    deletedAtomIds.add(atomId);
+    return ApiResponse.success(message: 'Deleted', statusCode: 200);
+  }
 }
 
 /// Fake Recording Service avoiding network calls.

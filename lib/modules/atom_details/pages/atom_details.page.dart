@@ -150,11 +150,45 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                   Get.find<DeviceCalendarService>().openCalendarApp();
                 },
               ),
+              SizedBox(height: Design.spacing.sm),
+              _SheetAction(
+                icon: Design.icons.delete,
+                label: AppLocales.atom.deleteAtom.tr,
+                destructive: true,
+                onTap: () {
+                  Get.back();
+                  _confirmDelete(context, atom);
+                },
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// Confirms, then soft-deletes the atom: drops its device-calendar event,
+  /// leaves the details screen and refreshes the list behind it.
+  Future<void> _confirmDelete(BuildContext context, AtomModel atom) async {
+    final ok = await AppDialog.confirm(
+      context: context,
+      title: AppLocales.atom.deleteTitle.tr,
+      message: AppLocales.atom.deleteConfirmMsg.trParams({
+        'title': atom.title,
+      }),
+      confirmLabel: AppLocales.setting.confirmDelete.tr,
+      confirmColor: context.colors.error,
+    );
+    if (!ok) return;
+
+    final deleted = await controller.deleteAtom();
+    if (!deleted) return;
+
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().loadAtoms();
+    }
+    Get.back();
+    AppSnackbar.success(AppLocales.atom.deleted.tr);
   }
 
   /// Category picker — 'No category' plus the current user's own list, with
@@ -1474,6 +1508,7 @@ class _SheetAction extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.selected = false,
+    this.destructive = false,
   });
 
   final IconData icon;
@@ -1482,6 +1517,9 @@ class _SheetAction extends StatelessWidget {
 
   /// Shows a check instead of the chevron — used by the category picker.
   final bool selected;
+
+  /// Danger styling for destructive actions (delete).
+  final bool destructive;
 
   @override
   Widget build(BuildContext context) {
@@ -1494,13 +1532,18 @@ class _SheetAction extends StatelessWidget {
         padding: EdgeInsets.all(Design.spacing.md),
         child: Row(
           children: [
-            Icon(icon, size: Design.spacing.iconSmall, color: colors.primary),
+            Icon(
+              icon,
+              size: Design.spacing.iconSmall,
+              color: destructive ? colors.error : colors.primary,
+            ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
               child: Text(
                 label,
                 style: context.typo.labelMedium.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: destructive ? colors.error : null,
                 ),
               ),
             ),

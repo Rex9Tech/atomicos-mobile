@@ -347,6 +347,12 @@ class AppTranslations extends Translations {
       AppLocales.atom.retry: 'Retry',
       AppLocales.atom.copiedToClipboard: 'Copied to clipboard',
       AppLocales.atom.copy: 'Copy',
+      AppLocales.atom.deleteAtom: 'Delete atom',
+      AppLocales.atom.deleteTitle: 'Delete this atom?',
+      AppLocales.atom.deleteConfirmMsg:
+          '“{title}” will be removed from your atoms. This cannot be undone.',
+      AppLocales.atom.deleted: 'Atom deleted',
+      AppLocales.atom.deleteFailed: "Couldn't delete the atom",
 
       // Calendar
       AppLocales.calendar.title: 'Planner',
@@ -1070,6 +1076,12 @@ class AppTranslations extends Translations {
       AppLocales.atom.retry: 'ထပ်စမ်းမည်',
       AppLocales.atom.copiedToClipboard: 'ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ',
       AppLocales.atom.copy: 'ကူးယူမည်',
+      AppLocales.atom.deleteAtom: 'အက်တမ် ဖျက်ရန်',
+      AppLocales.atom.deleteTitle: 'ဤအက်တမ်ကို ဖျက်မလား?',
+      AppLocales.atom.deleteConfirmMsg:
+          '“{title}” ကို သင့်အက်တမ်များမှ ဖယ်ရှားပါမည်။ ပြန်လည်ရယူ၍ မရနိုင်ပါ။',
+      AppLocales.atom.deleted: 'အက်တမ် ဖျက်ပြီးပါပြီ',
+      AppLocales.atom.deleteFailed: 'အက်တမ်ကို ဖျက်၍ မရပါ',
 
       // Calendar
       AppLocales.calendar.title: 'ပြက္ခဒိန်',

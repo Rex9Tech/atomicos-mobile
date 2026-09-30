@@ -40,6 +40,9 @@ class AtomDetailsController extends GetxController {
   /// The atom's persisted event in the device calendar, when one exists.
   final Rxn<CalendarEventLink> calendarLink = Rxn<CalendarEventLink>();
 
+  // ===== Delete =====
+  final RxBool isDeleting = false.obs;
+
   /// Supporting files — the raw source recording is excluded (it lives in the
   /// player card instead of the file list).
   List<AtomAssetModel> get attachments => _allAssets
@@ -254,6 +257,31 @@ class AtomDetailsController extends GetxController {
     }
     final date = meetingAt.value;
     if (date != null) await saveMeetingDate(date);
+  }
+
+  /// Soft-deletes this atom on the server and drops its device-calendar
+  /// event; returns false when the delete did not go through.
+  Future<bool> deleteAtom() async {
+    final id = atom.value?.id ?? '';
+    if (id.isEmpty || isDeleting.value) return false;
+    isDeleting.value = true;
+    try {
+      final result = await _home.deleteAtom(id);
+      if (!result.success) {
+        AppSnackbar.error(AppLocales.atom.deleteFailed.tr);
+        return false;
+      }
+      if (Get.isRegistered<DeviceCalendarService>()) {
+        await Get.find<DeviceCalendarService>().removeMeeting(id);
+      }
+      return true;
+    } catch (error) {
+      debugPrint('🗑️ [AtomDetailsController] deleteAtom error: $error');
+      AppSnackbar.error(AppLocales.atom.deleteFailed.tr);
+      return false;
+    } finally {
+      isDeleting.value = false;
+    }
   }
 
   /// Keeps the player's source url + duration in sync with the loaded atom.
