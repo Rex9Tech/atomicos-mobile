@@ -147,7 +147,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 label: AppLocales.calendar.title.tr,
                 onTap: () {
                   Get.back();
-                  AppRoutes.toCalendar();
+                  Get.find<DeviceCalendarService>().openCalendarApp();
                 },
               ),
             ],
@@ -360,7 +360,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         SizedBox(height: Design.spacing.sm),
         Obx(() {
           final meetingAt = controller.meetingAt.value;
-          final linked = controller.linkedEvent.value != null;
           return Row(
             children: [
               Flexible(
@@ -427,18 +426,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 ),
               ],
               _buildCategoryChip(context, atom),
-              if (linked) ...[
-                SizedBox(width: Design.spacing.sm),
-                Icon(Design.icons.check, size: 13, color: colors.primary),
-                const SizedBox(width: 3),
-                Text(
-                  AppLocales.atom.inPlanner.tr,
-                  style: context.typo.caption.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
             ],
           );
         }),
@@ -865,7 +852,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           _CircleButton(
             icon: Design.icons.history,
             size: 40,
-            onTap: AppRoutes.toCalendar,
+            onTap: () => Get.find<DeviceCalendarService>().openCalendarApp(),
           ),
           SizedBox(width: Design.spacing.md),
           Expanded(

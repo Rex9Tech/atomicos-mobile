@@ -6,7 +6,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/modules/atom_details/controllers/atom_details.controller.dart';
-import 'package:rexone_mobile/modules/calendar/services/calendar.service.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
 import 'package:rexone_mobile/modules/home/data/models/category.model.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
@@ -27,7 +26,6 @@ void main() {
     categories = FakeCategoryService();
     Get.put<HomeService>(home);
     Get.put<MediaService>(FakeMediaService());
-    Get.put<CalendarService>(FakeCalendarService());
     Get.put<CategoryService>(categories);
   });
 

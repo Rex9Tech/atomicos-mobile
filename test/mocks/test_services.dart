@@ -9,8 +9,6 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/ai/ai.dart';
 import 'package:rexone_mobile/modules/auth/auth.dart';
-import 'package:rexone_mobile/modules/calendar/data/models/calendar_event.model.dart';
-import 'package:rexone_mobile/modules/calendar/services/calendar.service.dart';
 import 'package:rexone_mobile/modules/feedback/models/feedback.model.dart';
 import 'package:rexone_mobile/modules/feedback/services/feedback.service.dart';
 import 'package:rexone_mobile/modules/home/data/models/atom.model.dart';
@@ -453,103 +451,6 @@ class FakeNotificationService extends NotificationService {
     deletedIds.add(id);
     return ApiResponse.success(message: 'Deleted', statusCode: 200);
   }
-}
-
-/// Fake Calendar Service with an in-memory event list.
-class FakeCalendarService extends GetxService implements CalendarService {
-  List<CalendarEventModel> eventsResponse = const [];
-
-  @override
-  void onInit() {}
-
-  @override
-  Future<PaginatedResponse<CalendarEventModel>> getEvents({
-    int? page,
-    int? limit,
-    bool upcoming = false,
-  }) async => PaginatedResponse<CalendarEventModel>(
-    records: List<CalendarEventModel>.from(eventsResponse),
-    message: 'OK',
-    statusCode: 200,
-    success: true,
-  );
-
-  @override
-  Future<ApiResponse<CalendarEventModel>> createEvent({
-    required String title,
-    String? startAt,
-    String? endAt,
-    String? description,
-    Map<String, dynamic>? metadata,
-  }) async => ApiResponse.success(
-    message: 'Created',
-    statusCode: 201,
-    data: CalendarEventModel(
-      id: 'ev_new',
-      title: title,
-      startAt: startAt,
-      endAt: endAt,
-      description: description,
-      status: 'scheduled',
-      metadata: metadata ?? const {},
-      createdAt: '',
-      updatedAt: '',
-    ),
-  );
-
-  @override
-  Future<ApiResponse<CalendarEventModel>> updateEvent({
-    required String id,
-    String? title,
-    String? startAt,
-    String? endAt,
-    String? description,
-    Map<String, dynamic>? metadata,
-  }) async => ApiResponse.success(
-    message: 'Updated',
-    statusCode: 200,
-    data: CalendarEventModel(
-      id: id,
-      title: title ?? '',
-      startAt: startAt,
-      endAt: endAt,
-      description: description,
-      status: 'scheduled',
-      metadata: metadata ?? const {},
-      createdAt: '',
-      updatedAt: '',
-    ),
-  );
-
-  @override
-  Future<ApiResponse<CalendarEventModel>> getEvent(String id) async =>
-      ApiResponse.success(
-        message: 'Fetched',
-        statusCode: 200,
-        data: CalendarEventModel(
-          id: id,
-          title: 'Event',
-          status: 'scheduled',
-          createdAt: '',
-          updatedAt: '',
-        ),
-      );
-
-  @override
-  Future<ApiResponse<CalendarEventModel>> renameEvent({
-    required String id,
-    required String title,
-  }) async => ApiResponse.success(
-    message: 'Renamed',
-    statusCode: 200,
-    data: CalendarEventModel(
-      id: id,
-      title: title,
-      status: 'scheduled',
-      createdAt: '',
-      updatedAt: '',
-    ),
-  );
 }
 
 /// Fake Feedback Service.

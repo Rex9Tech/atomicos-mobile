@@ -103,8 +103,6 @@ class ServerRoutes {
   static String recordingFinish(String id) => api('/recordings/$id/finish');
 
   // Calendar
-  static String get calendarEvents => api('/calendar/events');
-  static String calendarEventDetail(String id) => api('/calendar/events/$id');
 
   // Speech service api
   static String get textToSpeech => api('/speech/tts');

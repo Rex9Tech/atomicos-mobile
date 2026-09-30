@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../modules/ai/ai.dart';
 import '../modules/auth/auth.dart';
 import '../modules/atom_create/atom_create.dart';
-import '../modules/calendar/calendar.dart';
 import '../modules/home/home.dart';
 import '../modules/payment/payment.dart';
 import '../modules/profile/profile.dart';
@@ -84,7 +83,7 @@ class InitialBinding extends Bindings {
     Get.put(HomeService(), permanent: true);
     Get.put(AtomCreateService(), permanent: true);
     Get.put(RecordingService(), permanent: true);
-    Get.put(CalendarService(), permanent: true);
+    Get.put(DeviceCalendarService(), permanent: true);
     Get.put(CategoryService(), permanent: true);
 
     // Auth Service (depends on ApiService)

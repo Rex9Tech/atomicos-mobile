@@ -12,7 +12,6 @@ import '../modules/ai/ai.dart';
 import '../modules/atom_create/atom_create.dart';
 import '../modules/atom_details/atom_details.dart';
 import '../modules/auth/auth.dart';
-import '../modules/calendar/calendar.dart';
 import '../modules/home/home.dart';
 import '../modules/live_activity/live_activity.dart';
 import '../modules/search/search.dart';
@@ -42,7 +41,6 @@ class AppRoutes {
   static const String home = '/home';
   static const String atomCreate = '/atom-create';
   static const String atomDetail = '/atom-detail';
-  static const String calendar = '/calendar';
   static const String settings = '/settings';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
@@ -103,7 +101,6 @@ class AppRoutes {
     }
     Get.toNamed(atomDetail, arguments: arguments);
   }
-  static void toCalendar() => Get.toNamed(calendar);
   static void toSettings() => Get.toNamed(settings);
   static void toPayment() => Get.toNamed(payment);
   static void toCheckout({required String url}) =>
@@ -299,14 +296,6 @@ class AppRoutes {
       page: () => const AtomDetailsPage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<AtomDetailsController>(() => AtomDetailsController());
-      }),
-      middlewares: [GuardRoutes()],
-    ),
-    GetPage(
-      name: calendar,
-      page: () => const CalendarPage(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<CalendarController>(() => CalendarController());
       }),
       middlewares: [GuardRoutes()],
     ),

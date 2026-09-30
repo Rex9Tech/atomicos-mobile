@@ -311,7 +311,7 @@ class HomePage extends GetView<AuthController> {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: AppRoutes.toCalendar,
+            onTap: () => Get.find<DeviceCalendarService>().openCalendarApp(),
             child: AppNeumoSurface(
               circle: true,
               soft: true,
