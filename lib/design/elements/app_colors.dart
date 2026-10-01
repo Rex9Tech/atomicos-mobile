@@ -57,7 +57,7 @@ class AppNightColors {
   const AppNightColors();
 
   // Soft-UI dark base: lifted from near-black so the dual shadows have room.
-  Color get background => const Color(0xFF0F2118);
+  Color get background => const Color(0xFF2F3642);
   Color get surface => const Color(0xFF10231A);
   Color get card => const Color(0xFF13261A);
   Color get border => const Color(0xFF23412E);

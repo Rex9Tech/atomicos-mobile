@@ -26,10 +26,6 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>GIDClientID</key>
-	<string>54879929968-ibr9td347m1kjfubjuvbv70c1d4gsg5i.apps.googleusercontent.com</string>
-	<key>GIDServerClientID</key>
-	<string>185385204303-s4cke96fb64dvlptrbjpjmm8jg1dmk9d.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -37,12 +33,26 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.54879929968-ibr9td347m1kjfubjuvbv70c1d4gsg5i</string>
+				<string>com.googleusercontent.apps.690728597235-gn4u93uln936upb7ohrpq2q35v92eg3e</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.rexone.mobile.download</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>rexonemobile</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GIDClientID</key>
+	<string>54879929968-ibr9td347m1kjfubjuvbv70c1d4gsg5i.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>185385204303-s4cke96fb64dvlptrbjpjmm8jg1dmk9d.apps.googleusercontent.com</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
@@ -105,33 +115,6 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<!-- iOS OAuth Client ID -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.690728597235-gn4u93uln936upb7ohrpq2q35v92eg3e</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.rexone.mobile.download</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>rexonemobile</string>
-			</array>
-		</dict>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>https</string>
-		<string>http</string>
 	</array>
 </dict>
 </plist>
