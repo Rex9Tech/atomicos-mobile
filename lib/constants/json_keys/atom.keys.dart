@@ -19,6 +19,7 @@ class AtomKeys {
   static const text = 'text';
   static const url = 'url';
   static const assetId = 'asset_id';
+  static const language = 'language';
   static const createdAt = 'created_at';
   static const updatedAt = 'updated_at';
 

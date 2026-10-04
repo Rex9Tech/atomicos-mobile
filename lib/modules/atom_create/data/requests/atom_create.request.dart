@@ -42,11 +42,13 @@ class AtomFromAssetRequest {
   final String? title;
   final String assetId;
   final String? categoryId;
+  final String? language;
 
   const AtomFromAssetRequest({
     this.title,
     required this.assetId,
     this.categoryId,
+    this.language,
   });
 
   Map<String, dynamic> toJson() => {
@@ -54,6 +56,7 @@ class AtomFromAssetRequest {
     AtomKeys.assetId: assetId,
     if (categoryId != null && categoryId!.isNotEmpty)
       CategoryKeys.categoryId: categoryId,
+    if (language != null && language!.isNotEmpty) AtomKeys.language: language,
   };
 }
 

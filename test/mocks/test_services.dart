@@ -984,6 +984,9 @@ class FakeSpeechService extends GetxService
   bool get isBusy => isListenSessionActive || isPlaying.value;
 
   @override
+  String get sttLanguage => 'my-MM';
+
+  @override
   bool allowBackgroundListening = false;
 @override
   Future<void> Function()? beforeTtsPlayback;
@@ -1046,6 +1049,7 @@ class FakeSpeechService extends GetxService
     dynamic audioBytes, {
     String filename = 'audio.wav',
     bool showLoading = true,
+    String? language,
   }) async {
     return ApiResponse.success(
       message: 'STT complete',
@@ -1058,6 +1062,7 @@ class FakeSpeechService extends GetxService
   Future<ApiResponse<String>> speechToTextFromUrl(
     String audioUrl, {
     bool showLoading = true,
+    String? language,
   }) async {
     return ApiResponse.success(
       message: 'STT complete',

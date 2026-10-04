@@ -178,6 +178,7 @@ class AtomCreateController extends GetxController {
         AtomFromAssetRequest(
           assetId: assetId,
           categoryId: selectedCategoryId.value,
+          language: Get.find<SpeechService>().sttLanguage,
         ),
       ),
     );
@@ -220,6 +221,7 @@ class AtomCreateController extends GetxController {
         AtomFromAssetRequest(
           assetId: assetId,
           categoryId: selectedCategoryId.value,
+          language: Get.find<SpeechService>().sttLanguage,
         ),
       );
       if (result.success) {

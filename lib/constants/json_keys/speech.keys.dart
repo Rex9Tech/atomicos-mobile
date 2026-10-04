@@ -3,6 +3,7 @@ class SpeechKeys {
   const SpeechKeys._();
 
   static const channel = 'SpeechLiveChannel';
+  static const language = 'language';
   static const action = 'action';
   static const audio = 'audio';
   static const ttsMediaId = 'tts';

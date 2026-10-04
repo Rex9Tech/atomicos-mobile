@@ -36,6 +36,15 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   /// to stop, so the final phrase is not lost.
   static const Duration _finalPhraseGrace = Duration(milliseconds: 1800);
 
+  /// Recognition language for backend STT (BCP-47), following the app locale:
+  /// a Burmese UI transcribes Burmese speech. Without a hint the live model
+  /// mis-detects real recordings (observed Spanish / Chinese / Vietnamese
+  /// fragments on Burmese audio).
+  String get sttLanguage {
+    final code = (Get.locale?.languageCode ?? 'en').toLowerCase();
+    return code == 'my' ? 'my-MM' : 'en-US';
+  }
+
   // ===== Audio capture =====
   // The mic stream is written to a WAV file while it is being forwarded to the
   // live STT socket, so a recording keeps its audio too.
@@ -137,6 +146,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     Uint8List audioBytes, {
     String filename = 'audio.wav',
     bool showLoading = true,
+    String? language,
   }) async {
     final form = FormData({
       SpeechKeys.audio: MultipartFile(
@@ -144,6 +154,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
         filename: filename,
         contentType: 'audio/wav',
       ),
+      SpeechKeys.language: language ?? sttLanguage,
     });
     final response = await _api.postMultipart(
       ServerRoutes.speechToText,
@@ -160,9 +171,11 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   Future<ApiResponse<String>> speechToTextFromUrl(
     String audioUrl, {
     bool showLoading = true,
+    String? language,
   }) async {
     final response = await _api.post(ServerRoutes.speechToText, {
       SpeechKeys.audioUrl: audioUrl,
+      SpeechKeys.language: language ?? sttLanguage,
     }, showLoading: showLoading);
     return _api.parseRecord<String>(
       response,
@@ -247,7 +260,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       _captureOnly = !canStream;
 
       if (canStream) {
-        final subscribed = await _socket.subscribe(SpeechKeys.channel);
+        final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: sttLanguage});
         if (epoch != _listenEpoch) {
           if (subscribed) {
             _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
@@ -525,7 +538,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     if (!_socket.isConnected.value) return;
 
     final epoch = _listenEpoch;
-    final subscribed = await _socket.subscribe(SpeechKeys.channel);
+    final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: sttLanguage});
     if (epoch != _listenEpoch) {
       if (subscribed) {
         _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
