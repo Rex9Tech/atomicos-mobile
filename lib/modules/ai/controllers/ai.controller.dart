@@ -488,11 +488,14 @@ class AiController extends GetxController {
       }
 
       if (molecule != null) {
-        attachContextMolecule(molecule);
+        // Quiet attach (like _attachAtomContext): this runs from onInit, so a
+        // snackbar here would insert into the Overlay mid-build and crash.
+        // The composer chip is the feedback; the picker path toasts instead.
+        contextMolecule.value = molecule;
+        contextAtom.value = null;
       } else if (name != null && name.isNotEmpty) {
-        attachContextMolecule(
-          CategoryModel(id: moleculeId, name: name),
-        );
+        contextMolecule.value = CategoryModel(id: moleculeId, name: name);
+        contextAtom.value = null;
       }
       if (contextMolecule.value != null) {
         _seedQuestion(contextMolecule.value!.name);

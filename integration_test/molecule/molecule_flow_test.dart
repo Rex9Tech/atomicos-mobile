@@ -32,17 +32,28 @@ void main() {
       final auth = Get.find<AuthController>();
       auth.email.value = 'super@admin.com';
       auth.password.value = '111111';
-      await auth.signIn();
-      for (var i = 0; i < 60; i++) {
-        await tester.pump(const Duration(milliseconds: 500));
+      // The Myanmar network drops TLS handshakes intermittently — retry the
+      // sign-in a few times before giving up.
+      for (var attempt = 1; attempt <= 3; attempt++) {
+        try {
+          await auth.signIn();
+        } catch (error) {
+          debugPrint('MOLTEST signin attempt $attempt threw: $error');
+        }
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 500));
+          if (find.byType(HomePage).evaluate().isNotEmpty) break;
+        }
         if (find.byType(HomePage).evaluate().isNotEmpty) break;
+        debugPrint('MOLTEST signin attempt $attempt did not reach home — retrying');
+        await Future<void>.delayed(const Duration(seconds: 2));
       }
     }
     expect(find.byType(HomePage), findsOneWidget, reason: 'home available');
 
     // The molecule list (categories) must arrive.
     final categories = Get.find<CategoryService>();
-    for (var i = 0; i < 40; i++) {
+    for (var i = 0; i < 60; i++) {
       await tester.pump(const Duration(milliseconds: 250));
       if (categories.categories.isNotEmpty) break;
     }
