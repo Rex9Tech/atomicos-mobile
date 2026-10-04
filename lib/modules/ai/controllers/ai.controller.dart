@@ -58,6 +58,9 @@ class AiController extends GetxController {
   final RxBool isLoadingContext = false.obs;
   final RxnString contextFilter = RxnString('All');
   final Rxn<AtomModel> contextAtom = Rxn<AtomModel>();
+
+  /// Whole-molecule context (every atom inside it) — one context at a time.
+  final Rxn<CategoryModel> contextMolecule = Rxn<CategoryModel>();
   final RxnString attachmentName = RxnString();
   final RxnString attachmentPath = RxnString();
   final searchContextController = TextEditingController();
@@ -71,6 +74,10 @@ class AiController extends GetxController {
 
   /// How much of an attached atom is sent to the model.
   static const int _contextCharLimit = 4000;
+
+  /// Shared budget when the WHOLE molecule travels as context — every atom in
+  /// it, digested, up to this many characters.
+  static const int _moleculeCharLimit = 12000;
 
   /// Keeps replies structured so the chat can render them as markdown.
   static const String _markdownSystemPrompt =
@@ -129,6 +136,16 @@ class AiController extends GetxController {
     // Fallback for callers that only pass a title.
     if (args is Map && args['atom_title'] != null) {
       _seedQuestion(args['atom_title'].toString());
+    }
+    // Opened from a molecule: pin the WHOLE molecule (every atom inside it)
+    // as conversation context, so "Ask about this molecule" knows it all.
+    if (args is Map && args['molecule_id'] != null) {
+      final id = args['molecule_id'].toString();
+      if (id.isNotEmpty) {
+        unawaited(
+          _attachMoleculeContext(id, args['molecule_name']?.toString()),
+        );
+      }
     }
     // Meeting workspace starts idle; the user taps the record control to start
     // a backend session (startRecording) + device mic.
@@ -284,7 +301,7 @@ class AiController extends GetxController {
     _startProcessingWatchdog();
 
     try {
-      final context = _composeContext();
+      final context = await _composeContext();
       final response = await _ai.chat(
         AiChatRequest(
           message: clean,
@@ -357,11 +374,18 @@ class AiController extends GetxController {
     await sendMessage(prompt);
   }
 
-  /// Hidden context sent alongside the question — attached atom digest and/or
-  /// file name. Travels in its own field so the chat UI and stored history
-  /// only ever show what the user actually typed.
-  String _composeContext() {
+  /// Hidden context sent alongside the question — attached molecule digest
+  /// and/or atom digest and/or file name. Travels in its own field so the
+  /// chat UI and stored history only ever show what the user actually typed.
+  Future<String> _composeContext() async {
     final parts = <String>[];
+    final molecule = contextMolecule.value;
+    if (molecule != null) {
+      final digest = await _moleculeSnippet(molecule);
+      parts.add(
+        'Context — molecule "${molecule.name}" (every atom in this molecule):\n$digest',
+      );
+    }
     final atom = contextAtom.value;
     if (atom != null) {
       final snippet = _contextSnippet(atom);
@@ -372,6 +396,36 @@ class AiController extends GetxController {
       parts.add('Attached file: $attachment');
     }
     return parts.join('\n\n');
+  }
+
+  /// The whole molecule for the model: every atom inside it, digested like a
+  /// single-atom context but with a larger shared budget, so the AI is aware
+  /// of the complete molecule before answering.
+  Future<String> _moleculeSnippet(CategoryModel molecule) async {
+    try {
+      final result = await _home.getAtoms(categoryId: molecule.id, limit: 50);
+      final atoms = result.records;
+      if (atoms.isEmpty) return '(no atoms in this molecule yet)';
+
+      final entries = <String>[];
+      var used = 0;
+      for (final atom in atoms) {
+        final snippet = _contextSnippet(atom);
+        final entry =
+            '- ${atom.title} [${atom.source}]'
+            '${snippet.isEmpty ? '' : ': $snippet'}';
+        entries.add(entry);
+        used += entry.length;
+        if (used >= _moleculeCharLimit) break;
+      }
+
+      final text = entries.join('\n\n');
+      if (text.length <= _moleculeCharLimit) return text;
+      return '${text.substring(0, _moleculeCharLimit)}…';
+    } catch (error) {
+      debugPrint('🤖 [AiController] molecule snippet error: $error');
+      return '(could not load this molecule\'s atoms)';
+    }
   }
 
   /// Short, model-friendly digest of an atom used as conversation context:
@@ -420,6 +474,32 @@ class AiController extends GetxController {
     textController.selection = TextSelection.fromPosition(
       TextPosition(offset: seeded.length),
     );
+  }
+
+  /// Loads the molecule handed over by the molecule screen and pins the whole
+  /// molecule — every atom inside it — as conversation context.
+  Future<void> _attachMoleculeContext(String moleculeId, [String? name]) async {
+    try {
+      final categories = Get.find<CategoryService>();
+      var molecule = categories.byId(moleculeId);
+      if (molecule == null) {
+        await categories.refresh();
+        molecule = categories.byId(moleculeId);
+      }
+
+      if (molecule != null) {
+        attachContextMolecule(molecule);
+      } else if (name != null && name.isNotEmpty) {
+        attachContextMolecule(
+          CategoryModel(id: moleculeId, name: name),
+        );
+      }
+      if (contextMolecule.value != null) {
+        _seedQuestion(contextMolecule.value!.name);
+      }
+    } catch (error) {
+      debugPrint('🤖 [AiController] attachMoleculeContext error: $error');
+    }
   }
 
   // ===== Processing watchdog: never leave the composer stuck =====
@@ -665,6 +745,8 @@ class AiController extends GetxController {
 
   void attachContextAtom(AtomModel atom) {
     contextAtom.value = atom;
+    // One context at a time: a specific atom replaces any whole molecule.
+    contextMolecule.value = null;
     AppSnackbar.success(
       AppLocales.ai.usingAsContext.trParams({'name': atom.title}),
     );
@@ -672,6 +754,19 @@ class AiController extends GetxController {
 
   void clearContextAtom() {
     contextAtom.value = null;
+  }
+
+  /// Pins the WHOLE molecule (all of its atoms) as context for the chat.
+  void attachContextMolecule(CategoryModel molecule) {
+    contextMolecule.value = molecule;
+    contextAtom.value = null;
+    AppSnackbar.success(
+      AppLocales.ai.usingMoleculeAsContext.trParams({'name': molecule.name}),
+    );
+  }
+
+  void clearContextMolecule() {
+    contextMolecule.value = null;
   }
 
   /// Atoms for the picker after applying the source filter chip.

@@ -51,6 +51,7 @@ class AppIcons {
   IconData get calendar => Icons.calendar_month_rounded;
   IconData get folder => Icons.folder_copy_outlined;
   IconData get category => Icons.sell_outlined;
+  IconData get molecule => Icons.hub_outlined;
   IconData get emptyBox => Icons.inventory_2_outlined;
   IconData get micOutline => Icons.mic_none_rounded;
   IconData get home => Icons.home_outlined;

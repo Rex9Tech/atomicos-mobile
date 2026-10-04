@@ -152,10 +152,10 @@ class AtomDetailsController extends GetxController {
         AppSnackbar.success(AppLocales.category.updated.tr);
         return true;
       }
-      AppSnackbar.error(result.error ?? 'Could not update the category.');
+      AppSnackbar.error(result.error ?? 'Could not update the molecule.');
     } catch (error) {
       debugPrint('🏷️ [AtomDetailsController] category error: $error');
-      AppSnackbar.error('Could not update the category.');
+      AppSnackbar.error('Could not update the molecule.');
     }
     return false;
   }

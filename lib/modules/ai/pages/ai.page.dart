@@ -5,8 +5,10 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/modules/home/data/models/models.dart';
+import 'package:rexone_mobile/services/services.dart';
 
 import '../ai.dart';
+import 'widgets/molecule_pick_card.dart';
 
 class AiPage extends StatefulWidget {
   const AiPage({super.key});
@@ -891,8 +893,11 @@ class _AiPageState extends State<AiPage> {
           children: [
             Obx(() {
               final atom = controller.contextAtom.value;
+              final molecule = controller.contextMolecule.value;
               final attachment = controller.attachmentName.value;
-              if (atom == null && (attachment == null || attachment.isEmpty)) {
+              if (molecule == null &&
+                  atom == null &&
+                  (attachment == null || attachment.isEmpty)) {
                 return const SizedBox.shrink();
               }
 
@@ -904,6 +909,12 @@ class _AiPageState extends State<AiPage> {
                     spacing: Design.spacing.sm,
                     runSpacing: Design.spacing.sm,
                     children: [
+                      if (molecule != null)
+                        _ComposerChip(
+                          icon: Design.icons.molecule,
+                          label: molecule.name,
+                          onRemove: controller.clearContextMolecule,
+                        ),
                       if (atom != null)
                         _ComposerChip(
                           icon: Design.icons.atomAdd,
@@ -2647,13 +2658,16 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
   static const _filters = <String>['All', 'Meetings', 'Links', 'Notes'];
 
   bool _showContext = false;
+  bool _showMolecules = false;
 
   AiController get controller => widget.controller;
 
   @override
   Widget build(BuildContext context) {
     return _SheetShell(
-      child: _showContext
+      child: _showMolecules
+          ? _buildMoleculesPanel(context)
+          : _showContext
           ? _buildContextPanel(context)
           : _buildOptionsPanel(context),
     );
@@ -2704,6 +2718,20 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
             // shows the current selection alongside the full list.
             controller.searchContextController.clear();
             controller.loadContextAtoms();
+          },
+        ),
+        SizedBox(height: Design.spacing.sm),
+        _AttachOption(
+          icon: Design.icons.molecule,
+          title: AppLocales.ai.askSourceMolecule.tr,
+          subtitle: AppLocales.ai.sourceMoleculeSub.tr,
+          onTap: () {
+            setState(() {
+              _showContext = false;
+              _showMolecules = true;
+            });
+            // The user's own molecules; silent refresh keeps the last state.
+            Get.find<CategoryService>().refresh();
           },
         ),
       ],
@@ -2848,6 +2876,93 @@ class _AskAttachSheetState extends State<_AskAttachSheet> {
                   Get.closeAllSnackbars();
                   Get.back();
                   controller.attachContextAtom(atoms[index]);
+                },
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  /// The user's molecules — picking one grounds the conversation in the WHOLE
+  /// molecule: the AI receives every atom inside it.
+  Widget _buildMoleculesPanel(BuildContext context) {
+    final colors = context.colors;
+    final categoryService = Get.find<CategoryService>();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () => setState(() => _showMolecules = false),
+              child: Icon(
+                Design.icons.backArrow,
+                size: Design.spacing.iconSmall,
+                color: colors.textSecondary,
+              ),
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Text(
+              AppLocales.ai.chooseMolecule.tr,
+              style: context.typo.labelLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: Design.spacing.xs),
+        Text(
+          AppLocales.ai.chooseMoleculeSub.tr,
+          style: context.typo.caption.copyWith(color: colors.textSecondary),
+        ),
+        SizedBox(height: Design.spacing.md),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.40,
+          ),
+          child: Obx(() {
+            final molecules = categoryService.categories;
+            if (molecules.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: Design.spacing.xl),
+                child: Column(
+                  children: [
+                    Icon(
+                      Design.icons.molecule,
+                      size: 32,
+                      color: colors.textMuted,
+                    ),
+                    SizedBox(height: Design.spacing.sm),
+                    Text(
+                      AppLocales.ai.noMoleculesHere.tr,
+                      textAlign: TextAlign.center,
+                      style: context.typo.bodySmall.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.separated(
+              shrinkWrap: true,
+              itemCount: molecules.length,
+              separatorBuilder: (_, _) => SizedBox(height: Design.spacing.sm),
+              itemBuilder: (context, index) => MoleculePickCard(
+                molecule: molecules[index],
+                selected:
+                    controller.contextMolecule.value?.id == molecules[index].id,
+                onTap: () {
+                  // Close the sheet BEFORE attaching (GetX trap: an open
+                  // snackbar makes Get.back() close the snackbar instead).
+                  Get.closeAllSnackbars();
+                  Get.back();
+                  controller.attachContextMolecule(molecules[index]);
                 },
               ),
             );

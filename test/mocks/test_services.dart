@@ -674,6 +674,9 @@ class FakeAiService extends AiService {
   /// Records the room id of the most recent [getHistory] call.
   String? lastHistoryRoomId;
 
+  /// The most recent [chat] request — lets tests assert the composed context.
+  AiChatRequest? lastChatRequest;
+
   /// Total [getHistory] calls made.
   int historyCalls = 0;
 
@@ -720,6 +723,7 @@ class FakeAiService extends AiService {
 
   @override
   Future<ApiResponse<AiMessageModel>> chat(AiChatRequest request) async {
+    lastChatRequest = request;
     return chatResponse ??
         ApiResponse.success(
           message: 'Chat response queued',

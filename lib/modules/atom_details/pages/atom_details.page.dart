@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
+import 'package:rexone_mobile/modules/molecule/molecule.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -184,9 +185,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     final deleted = await controller.deleteAtom();
     if (!deleted) return;
 
-    if (Get.isRegistered<HomeController>()) {
-      Get.find<HomeController>().loadAtoms();
-    }
+    // Keep the molecule screen fresh if it's open — the deleted atom may be
+    // shown on it.
+    MoleculeController.active?.reload();
     Get.back();
     AppSnackbar.success(AppLocales.atom.deleted.tr);
   }

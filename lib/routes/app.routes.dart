@@ -22,6 +22,7 @@ import '../modules/notification/notification.dart';
 import '../modules/permission/permission.dart';
 import '../modules/splash/splash.dart';
 import '../modules/media/media.dart';
+import '../modules/molecule/molecule.dart';
 
 class AppRoutes {
   // ===== SERVER ROUTES =====
@@ -41,6 +42,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String atomCreate = '/atom-create';
   static const String atomDetail = '/atom-detail';
+  static const String molecule = '/molecule';
   static const String settings = '/settings';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
@@ -109,14 +111,29 @@ class AppRoutes {
     String mode = 'auto',
     String? atomId,
     String? atomTitle,
+    String? moleculeId,
+    String? moleculeName,
   }) => Get.toNamed(
     ai,
     arguments: {
       'mode': mode,
       if (atomId != null && atomId.isNotEmpty) 'atom_id': atomId,
       if (atomTitle != null && atomTitle.isNotEmpty) 'atom_title': atomTitle,
+      if (moleculeId != null && moleculeId.isNotEmpty) 'molecule_id': moleculeId,
+      if (moleculeName != null && moleculeName.isNotEmpty)
+        'molecule_name': moleculeName,
     },
   );
+
+  static void toMolecule({required String moleculeId, String? moleculeName}) =>
+      Get.toNamed(
+        molecule,
+        arguments: {
+          'molecule_id': moleculeId,
+          if (moleculeName != null && moleculeName.isNotEmpty)
+            'molecule_name': moleculeName,
+        },
+      );
   static void toLiveActivity() => Get.toNamed(liveActivity);
 
   /// Dedicated search screen; the fade keeps the eye on the search bar, which
@@ -297,6 +314,11 @@ class AppRoutes {
       binding: BindingsBuilder(() {
         Get.lazyPut<AtomDetailsController>(() => AtomDetailsController());
       }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: molecule,
+      page: () => const MoleculePage(),
       middlewares: [GuardRoutes()],
     ),
     GetPage(
