@@ -56,7 +56,21 @@ void main() {
       if (find.text('မြန်မာ').evaluate().isNotEmpty) break;
     }
     expect(find.text('မြန်မာ'), findsWidgets, reason: 'language sheet shown');
-    expect(find.text('English'), findsOneWidget);
+    // "English" can appear twice: the sheet option + the page's language tag
+    // behind it (the tag shows the active language, which is English by
+    // default on an English-locale app).
+    expect(find.text('English'), findsWidgets);
+
+    // The sheet's text exists in the tree before the slide-up finishes —
+    // wait until the option is actually on-screen before tapping (a tap
+    // mid-animation derives an off-screen offset and misses).
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      final center = tester.getCenter(find.text('မြန်မာ').last);
+      final viewHeight =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      if (center.dy > 0 && center.dy < viewHeight - 16) break;
+    }
 
     // The sheet sits above the page (its option renders last in the tree).
     await tester.tap(find.text('မြန်မာ').last);

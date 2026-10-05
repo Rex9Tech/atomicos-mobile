@@ -56,6 +56,14 @@ class LiveActivityController extends GetxController {
   String get activeLanguageLabel =>
       recordingLanguageLabel(_speech.activeRecordingLanguage);
 
+  /// Completes after the next rendered frame — defers UI side effects that
+  /// would otherwise run while the page is still building (onInit).
+  Future<void> _waitForPostFrame() {
+    final completer = Completer<void>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
+    return completer.future;
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -90,6 +98,11 @@ class LiveActivityController extends GetxController {
   Future<void> startRecording() async {
     if (_started) return;
     _started = true;
+
+    // The controller is created while the page is still building; showing the
+    // language sheet synchronously here would insert an overlay mid-build
+    // ("visitChildElements() called during build"). Wait one frame first.
+    await _waitForPostFrame();
 
     // Ask which language to transcribe before the mic goes live; dismissing
     // keeps the current selection.
