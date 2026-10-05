@@ -140,6 +140,15 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                   ),
                 ),
                 const Spacer(),
+                Obx(
+                  () => Text(
+                    controller.activeLanguageLabel,
+                    style: context.typo.labelMedium.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ),
+                SizedBox(width: Design.spacing.sm),
                 _LiveBadge(active: controller.isTranscriptLive.value),
               ],
             ),

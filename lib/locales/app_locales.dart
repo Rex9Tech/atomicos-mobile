@@ -71,6 +71,9 @@ class _RecordingLocales {
   final transcriptOfflineRecording = 'recording.transcriptOfflineRecording';
   final transcriptUnavailable = 'recording.transcriptUnavailable';
 
+  final languageTitle = 'recording.language_title';
+  final languageSub = 'recording.language_sub';
+
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
   final endConfirm = 'recording.end_confirm';

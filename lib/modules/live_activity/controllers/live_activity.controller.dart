@@ -52,6 +52,10 @@ class LiveActivityController extends GetxController {
     return '$m:$s';
   }
 
+  /// Native label of the language the live transcript is using.
+  String get activeLanguageLabel =>
+      recordingLanguageLabel(_speech.activeRecordingLanguage);
+
   @override
   void onInit() {
     super.onInit();
@@ -86,6 +90,11 @@ class LiveActivityController extends GetxController {
   Future<void> startRecording() async {
     if (_started) return;
     _started = true;
+
+    // Ask which language to transcribe before the mic goes live; dismissing
+    // keeps the current selection.
+    await showRecordingLanguageSheet();
+
     isRecording.value = true;
     _startTicker();
 

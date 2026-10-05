@@ -667,6 +667,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.metricDay: 'Day',
       AppLocales.calendar.openLiveView: 'Open live view',
       AppLocales.recording.liveMeeting: 'Live meeting',
+      AppLocales.recording.languageTitle: 'Recording language',
+      AppLocales.recording.languageSub:
+          'Used for the live transcript of this recording.',
       AppLocales.recording.end: 'End',
       // Media
       AppLocales.media.playlistTitle: 'Playlist',
@@ -1421,6 +1424,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.metricDay: 'နေ့',
       AppLocales.calendar.openLiveView: 'တိုက်ရိုက်ကြည့်ရန် ဖွင့်ပါ',
       AppLocales.recording.liveMeeting: 'တိုက်ရိုက် အစည်းအဝေး',
+      AppLocales.recording.languageTitle: 'မှတ်တမ်းတင်မည့် ဘာသာစကား',
+      AppLocales.recording.languageSub:
+          'ဤအသံဖမ်းမှု၏ တိုက်ရိုက်စာသားအတွက် အသုံးပြုသည်။',
       AppLocales.recording.end: 'ရပ်မည်',
       // Media
       AppLocales.media.playlistTitle: 'စာရင်း',

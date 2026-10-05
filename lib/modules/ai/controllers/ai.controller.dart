@@ -922,6 +922,10 @@ class AiController extends GetxController {
   Future<void> startRecording() async {
     if (currentRecordingId.value != null) return;
 
+    // Ask which language to transcribe before the mic goes live; dismissing
+    // keeps the current selection.
+    await showRecordingLanguageSheet();
+
     final result = await _recording.start(AppLocales.ai.title.tr);
     if (!result.success || result.data == null) {
       AppSnackbar.error(

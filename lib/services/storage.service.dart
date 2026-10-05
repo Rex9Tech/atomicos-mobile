@@ -106,6 +106,11 @@ class StorageService extends GetxService {
   void setLocaleCode(String code) => _box.write(StorageKeys.locale, code);
   String? getLocaleCode() => _box.read(StorageKeys.locale);
 
+  // ===== LIVE RECORDING LANGUAGE =====
+  void setRecordingLanguage(String code) =>
+      _box.write(StorageKeys.recordingLanguage, code);
+  String? getRecordingLanguage() => _box.read(StorageKeys.recordingLanguage);
+
   // ===== DEVICE CALENDAR SYNC =====
   void setCalendarTarget(Map<String, dynamic> target) =>
       _box.write(StorageKeys.calendarTarget, target);

@@ -45,6 +45,14 @@ class FakeStorageService extends StorageService {
   String? getToken() => memory[StorageKeys.token] as String?;
 
   @override
+  void setRecordingLanguage(String code) =>
+      memory[StorageKeys.recordingLanguage] = code;
+
+  @override
+  String? getRecordingLanguage() =>
+      memory[StorageKeys.recordingLanguage] as String?;
+
+  @override
   void setUserEmail(String email) => memory[StorageKeys.userEmail] = email;
 
   @override
@@ -985,6 +993,15 @@ class FakeSpeechService extends GetxService
 
   @override
   String get sttLanguage => 'my-MM';
+
+  @override
+  final RxString recordingLanguage = ''.obs;
+
+  @override
+  String get activeRecordingLanguage =>
+      recordingLanguage.value.isNotEmpty
+          ? recordingLanguage.value
+          : sttLanguage;
 
   @override
   bool allowBackgroundListening = false;

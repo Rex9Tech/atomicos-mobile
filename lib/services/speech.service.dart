@@ -15,6 +15,7 @@ import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
+import 'package:rexone_mobile/services/storage.service.dart';
 
 /// Shared live STT + TTS client. Any controller can `Get.find<SpeechService>()`.
 ///
@@ -44,6 +45,17 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     final code = (Get.locale?.languageCode ?? 'en').toLowerCase();
     return code == 'my' ? 'my-MM' : 'en-US';
   }
+
+  /// The user's chosen language for live recordings (persisted; empty until a
+  /// choice is made). [activeRecordingLanguage] falls back to the locale
+  /// default while empty.
+  final RxString recordingLanguage = ''.obs;
+
+  /// The language a live session uses: the user's pick, else the locale one.
+  String get activeRecordingLanguage =>
+      recordingLanguage.value.isNotEmpty
+          ? recordingLanguage.value
+          : sttLanguage;
 
   // ===== Audio capture =====
   // The mic stream is written to a WAV file while it is being forwarded to the
@@ -84,6 +96,11 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     _api = Get.find<ApiService>();
     _socket = Get.find<SocketService>();
     _permissions = Get.find<PermissionService>();
+    // Restore the last live-recording language choice.
+    final stored = Get.find<StorageService>().getRecordingLanguage();
+    if (stored != null && stored.isNotEmpty) {
+      recordingLanguage.value = stored;
+    }
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -260,7 +277,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
       _captureOnly = !canStream;
 
       if (canStream) {
-        final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: sttLanguage});
+        final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: activeRecordingLanguage});
         if (epoch != _listenEpoch) {
           if (subscribed) {
             _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
@@ -538,7 +555,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     if (!_socket.isConnected.value) return;
 
     final epoch = _listenEpoch;
-    final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: sttLanguage});
+    final subscribed = await _socket.subscribe(SpeechKeys.channel, params: {SpeechKeys.language: activeRecordingLanguage});
     if (epoch != _listenEpoch) {
       if (subscribed) {
         _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
