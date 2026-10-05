@@ -243,6 +243,15 @@ class LiveActivityController extends GetxController {
         if (audioPath != null) {
           await _uploadAudio(atomId, audioPath);
         }
+        // Ask which molecule the new atom belongs to — dismissing leaves it
+        // uncategorized, and a failure here must never block the finish.
+        try {
+          final picked = await showMoleculePickerSheet();
+          if (picked != null && picked.isNotEmpty) {
+            await _home.setCategory(atomId: atomId, categoryId: picked);
+            await Get.find<CategoryService>().refresh();
+          }
+        } catch (_) {}
         // Replace the finished recording sheet so Back lands on the screen the
         // recording was started from, not on a dead recording session.
         AppRoutes.toAtomDetail(atomId: atomId, replace: true);

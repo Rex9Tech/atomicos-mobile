@@ -54,6 +54,8 @@ class _MoleculeLocales {
   final emptySub = 'molecule.emptySub';
   final ask = 'molecule.ask';
   final atomsCount = 'molecule.atomsCount';
+  final atomsCountOne = 'molecule.atomsCountOne';
+  final assignSub = 'molecule.assignSub';
   final loadFailed = 'molecule.loadFailed';
   final loadFailedSub = 'molecule.loadFailedSub';
 }

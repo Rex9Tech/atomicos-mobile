@@ -650,7 +650,10 @@ class _MoleculeCard extends StatelessWidget {
                   ),
                   SizedBox(height: 2),
                   Text(
-                    AppLocales.molecule.atomsCount.trParams({
+                    (molecule.atomsCount == 1
+                            ? AppLocales.molecule.atomsCountOne
+                            : AppLocales.molecule.atomsCount)
+                        .trParams({
                       'count': '${molecule.atomsCount}',
                     }),
                     style: context.typo.caption.copyWith(

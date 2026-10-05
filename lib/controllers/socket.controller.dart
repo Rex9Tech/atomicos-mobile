@@ -161,6 +161,9 @@ class SocketController extends GetxController {
       // The atom list now lives on the molecule screen; keep it fresh while
       // it is open (Home itself renders molecules, which don't change here).
       MoleculeController.active?.reload();
+      // Home's molecule cards show atom counts — keep them in step with the
+      // event that just changed an atom.
+      Get.find<CategoryService>().refresh();
     }
   }
 }

@@ -511,6 +511,9 @@ class AppTranslations extends Translations {
           'Atoms you organise into this molecule appear here.',
       AppLocales.molecule.ask: 'Ask about this molecule',
       AppLocales.molecule.atomsCount: '@count atoms',
+      AppLocales.molecule.atomsCountOne: '@count atom',
+      AppLocales.molecule.assignSub:
+          'Where should this atom go? You can change it later.',
       AppLocales.molecule.loadFailed: 'Could not load this molecule',
       AppLocales.molecule.loadFailedSub:
           'Check your connection and try again.',
@@ -1269,6 +1272,9 @@ class AppTranslations extends Translations {
           'ဤမော်လီကျူးထဲ ထည့်ထားသော အက်တမ်များ ဤနေရာတွင် ပေါ်လာမည်။',
       AppLocales.molecule.ask: 'ဤမော်လီကျူးအကြောင်း မေးမည်',
       AppLocales.molecule.atomsCount: 'အက်တမ် @count ခု',
+      AppLocales.molecule.atomsCountOne: 'အက်တမ် @count ခု',
+      AppLocales.molecule.assignSub:
+          'ဤအက်တမ် ဘယ်မော်လီကျူးထဲ ထည့်မလဲ? နောက်မှ ပြောင်းနိုင်ပါသည်။',
       AppLocales.molecule.loadFailed: 'ဤမော်လီကျူးကို မဖွင့်နိုင်ပါ',
       AppLocales.molecule.loadFailedSub: 'ချိတ်ဆက်မှု စစ်ပြီး ထပ်စမ်းပါ။',
       AppLocales.create.pickSourceHint:

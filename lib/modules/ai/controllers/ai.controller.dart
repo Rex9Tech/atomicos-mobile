@@ -988,6 +988,15 @@ class AiController extends GetxController {
       currentRecordingId.value = null;
       setRecordingStage('complete');
       if (atomId != null && atomId.isNotEmpty) {
+        // File it under a molecule (dismiss = leave uncategorized; failures
+        // never block the finish).
+        try {
+          final picked = await showMoleculePickerSheet();
+          if (picked != null && picked.isNotEmpty) {
+            await _home.setCategory(atomId: atomId, categoryId: picked);
+            await Get.find<CategoryService>().refresh();
+          }
+        } catch (_) {}
         AppSnackbar.success('Recording saved');
         AppRoutes.toAtomDetail(atomId: atomId);
       }

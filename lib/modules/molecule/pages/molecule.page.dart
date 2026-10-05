@@ -92,7 +92,10 @@ class _MoleculePageState extends State<MoleculePage> {
               SizedBox(height: 2),
               Obx(
                 () => Text(
-                  AppLocales.molecule.atomsCount.trParams({
+                  (controller.atoms.length == 1
+                          ? AppLocales.molecule.atomsCountOne
+                          : AppLocales.molecule.atomsCount)
+                      .trParams({
                     'count': '${controller.atoms.length}',
                   }),
                   style: context.typo.caption.copyWith(
