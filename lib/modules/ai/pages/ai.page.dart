@@ -358,8 +358,8 @@ class _AiPageState extends State<AiPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                AppLocales.ai.askTitle.tr,
+              _askTitleText(
+                context,
                 style: context.typo.headline3.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -854,13 +854,32 @@ class _AiPageState extends State<AiPage> {
     );
   }
 
+  /// The ask title: molecule conversations announce their molecule
+  /// ("Ask General"); everything else stays the generic "Ask AtomicOS".
+  Widget _askTitleText(
+    BuildContext context, {
+    required TextStyle style,
+    TextAlign? textAlign,
+  }) {
+    return Obx(() {
+      final molecule = controller.currentMoleculeName.value;
+      return Text(
+        (molecule == null || molecule.isEmpty)
+            ? AppLocales.ai.askTitle.tr
+            : AppLocales.ai.askNamed.trParams({'name': molecule}),
+        textAlign: textAlign,
+        style: style,
+      );
+    });
+  }
+
   Widget _buildAskTopBar(BuildContext context) {
     return Row(
       children: [
         _CircleIconButton(icon: Design.icons.backArrow, onTap: Get.back),
         Expanded(
-          child: Text(
-            AppLocales.ai.askTitle.tr,
+          child: _askTitleText(
+            context,
             textAlign: TextAlign.center,
             style: context.typo.labelLarge.copyWith(
               fontWeight: FontWeight.w700,

@@ -411,6 +411,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.recordingPausedSub:
           'Notes stay editable while the mic is paused. Resume when the meeting continues.',
       AppLocales.ai.askTitle: 'Ask AtomicOS',
+      AppLocales.ai.askNamed: 'Ask @name',
       AppLocales.ai.askSubtitle:
           'Start with a question, attach context, and turn the answer into structured next steps.',
       AppLocales.ai.resultSummary: 'Summary',
@@ -1171,6 +1172,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.recordingPausedSub:
           'မိုက်ခေတ္တရပ်ထားစဉ် မှတ်စုများ ရေးသားနိုင်သည်။ အစည်းအဝေး ဆက်လုပ်သည့်အခါ ပြန်စပါ။',
       AppLocales.ai.askTitle: 'AtomicOS ကို မေးမြန်းပါ',
+      AppLocales.ai.askNamed: '@name ကို မေးမြန်းပါ',
       AppLocales.ai.askSubtitle:
           'မေးခွန်းတစ်ခုဖြင့် စတင်ပါ၊ အကြောင်းအရာ ပူးတွဲပါ၊ အဖြေကို စနစ်တကျ နောက်ဆက်တွဲ အဆင့်များအဖြစ် ပြောင်းလဲပါ။',
       AppLocales.ai.resultSummary: 'အနှစ်ချုပ်',

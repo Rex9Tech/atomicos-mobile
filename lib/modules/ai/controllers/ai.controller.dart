@@ -33,6 +33,10 @@ class AiController extends GetxController {
   final RxnString currentRoomId = RxnString();
   final RxString currentRoomTitle = AppLocales.ai.title.tr.obs;
 
+  /// The molecule the OPEN conversation belongs to — drives the "Ask {name}"
+  /// header; null for plain chats.
+  final RxnString currentMoleculeName = RxnString();
+
   final RxBool isProcessing = false.obs;
   final RxnString activeTtsMessageId = RxnString();
   final RxBool isTtsLoading = false.obs;
@@ -529,6 +533,7 @@ class AiController extends GetxController {
       final categoryId = room.categoryId;
       if (categoryId == null || categoryId.isEmpty) {
         contextMolecule.value = null;
+        currentMoleculeName.value = null;
         return;
       }
       final categories = Get.find<CategoryService>();
@@ -537,8 +542,10 @@ class AiController extends GetxController {
         await categories.refresh();
         molecule = categories.byId(categoryId);
       }
-      contextMolecule.value =
+      final resolved =
           molecule ?? CategoryModel(id: categoryId, name: room.title);
+      contextMolecule.value = resolved;
+      currentMoleculeName.value = resolved.name;
     } catch (error) {
       debugPrint('🤖 [AiController] pinRoomMolecule skipped: $error');
     }
@@ -664,6 +671,7 @@ class AiController extends GetxController {
         if (currentRoomId.value == roomId) {
           currentRoomId.value = null;
           currentRoomTitle.value = AppLocales.ai.title.tr;
+          currentMoleculeName.value = null;
           loadHistory();
         }
       }

@@ -57,10 +57,12 @@ void main() {
     );
 
     await controller.openMoleculeChat(molecule);
+    await Future<void>.delayed(const Duration(milliseconds: 5));
 
     expect(fakeAi.lastCreateRoomRequest?.categoryId, 'cat-1');
     expect(controller.currentRoomId.value, 'room-cat-1');
     expect(controller.contextMolecule.value?.id, 'cat-1');
+    expect(controller.currentMoleculeName.value, 'General');
   });
 
   test('selectRoom clears the molecule context for plain chats', () async {
@@ -72,12 +74,14 @@ void main() {
 
     expect(controller.currentRoomId.value, 'room-plain');
     expect(controller.contextMolecule.value, isNull);
+    expect(controller.currentMoleculeName.value, isNull);
   });
 
   test('selectRoom re-pins the molecule for a molecule room', () async {
     controller.selectRoom(room('room-cat-2', 'Nova', categoryId: 'cat-2'));
-    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(const Duration(milliseconds: 5));
 
     expect(controller.contextMolecule.value?.id, 'cat-2');
+    expect(controller.currentMoleculeName.value, 'Nova');
   });
 }

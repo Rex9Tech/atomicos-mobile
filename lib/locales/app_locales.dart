@@ -311,6 +311,7 @@ class _AiLocales {
   final recordingPausedTitle = 'ai.recordingPausedTitle';
   final recordingPausedSub = 'ai.recordingPausedSub';
   final askTitle = 'ai.askTitle';
+  final askNamed = 'ai.askNamed';
   final askSubtitle = 'ai.askSubtitle';
   final resultSummary = 'ai.resultSummary';
   final resultDecisions = 'ai.resultDecisions';
