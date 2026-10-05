@@ -137,13 +137,13 @@ class AiController extends GetxController {
     if (args is Map && args['atom_title'] != null) {
       _seedQuestion(args['atom_title'].toString());
     }
-    // Opened from a molecule: pin the WHOLE molecule (every atom inside it)
-    // as conversation context, so "Ask about this molecule" knows it all.
+    // Opened from a molecule: open the molecule's OWN conversation so asks
+    // stay in one history per molecule (created on first ask).
     if (args is Map && args['molecule_id'] != null) {
       final id = args['molecule_id'].toString();
       if (id.isNotEmpty) {
         unawaited(
-          _attachMoleculeContext(id, args['molecule_name']?.toString()),
+          _openMoleculeAsk(id, args['molecule_name']?.toString()),
         );
       }
     }
@@ -476,32 +476,71 @@ class AiController extends GetxController {
     );
   }
 
-  /// Loads the molecule handed over by the molecule screen and pins the whole
-  /// molecule — every atom inside it — as conversation context.
-  Future<void> _attachMoleculeContext(String moleculeId, [String? name]) async {
-    try {
-      final categories = Get.find<CategoryService>();
-      var molecule = categories.byId(moleculeId);
-      if (molecule == null) {
+  /// Loads the molecule handed over by the molecule screen and opens ITS own
+  /// conversation — asking about a molecule must land in that molecule's
+  /// history, not in whatever room was last active.
+  Future<void> _openMoleculeAsk(String moleculeId, String? name) async {
+    final categories = Get.find<CategoryService>();
+    var molecule = categories.byId(moleculeId);
+    if (molecule == null) {
+      try {
         await categories.refresh();
-        molecule = categories.byId(moleculeId);
-      }
+      } catch (_) {}
+      molecule = categories.byId(moleculeId);
+    }
+    molecule ??= (name != null && name.isNotEmpty)
+        ? CategoryModel(id: moleculeId, name: name)
+        : null;
+    if (molecule == null) return;
+    await openMoleculeChat(molecule);
+  }
 
-      if (molecule != null) {
-        // Quiet attach (like _attachAtomContext): this runs from onInit, so a
-        // snackbar here would insert into the Overlay mid-build and crash.
-        // The composer chip is the feedback; the picker path toasts instead.
+  /// Opens the molecule's home conversation, creating it on the first ask.
+  /// The server get-or-creates one room per molecule, so the thread persists
+  /// across asks. Quiet on purpose: this runs from onInit (no snackbars).
+  Future<void> openMoleculeChat(CategoryModel molecule) async {
+    try {
+      final response = await _ai.createRoom(
+        CreateRoomRequest(title: molecule.name, categoryId: molecule.id),
+      );
+      if (response.success && response.data != null) {
+        final room = response.data!;
+        if (!rooms.any((r) => r.id == room.id)) {
+          rooms.insert(0, room);
+        }
         contextMolecule.value = molecule;
         contextAtom.value = null;
-      } else if (name != null && name.isNotEmpty) {
-        contextMolecule.value = CategoryModel(id: moleculeId, name: name);
-        contextAtom.value = null;
-      }
-      if (contextMolecule.value != null) {
-        _seedQuestion(contextMolecule.value!.name);
+        selectRoom(room);
+        // Only a brand-new molecule chat gets the suggested question; a
+        // returning thread shows its history instead.
+        if (room.messageCount == 0) _seedQuestion(molecule.name);
       }
     } catch (error) {
-      debugPrint('🤖 [AiController] attachMoleculeContext error: $error');
+      debugPrint('🤖 [AiController] openMoleculeChat error: $error');
+    }
+  }
+
+  /// Pins (or clears) the molecule context for a room: a molecule's room
+  /// carries its molecule so every question in the thread stays grounded in
+  /// it; plain chats drop any stale molecule instead of leaking it into
+  /// another conversation.
+  Future<void> _pinRoomMolecule(AiRoomModel room) async {
+    try {
+      final categoryId = room.categoryId;
+      if (categoryId == null || categoryId.isEmpty) {
+        contextMolecule.value = null;
+        return;
+      }
+      final categories = Get.find<CategoryService>();
+      var molecule = categories.byId(categoryId);
+      if (molecule == null) {
+        await categories.refresh();
+        molecule = categories.byId(categoryId);
+      }
+      contextMolecule.value =
+          molecule ?? CategoryModel(id: categoryId, name: room.title);
+    } catch (error) {
+      debugPrint('🤖 [AiController] pinRoomMolecule skipped: $error');
     }
   }
 
@@ -566,6 +605,10 @@ class AiController extends GetxController {
     contextAtoms.clear();
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
+    // A molecule's room carries its molecule: re-pin it so questions in this
+    // thread keep the whole molecule as context (plain chats drop any stale
+    // molecule instead of leaking it into another conversation).
+    unawaited(_pinRoomMolecule(room));
     // Drop the previous room's bubbles so the new thread never flashes stale
     // messages while the history request is in flight.
     messages.clear();

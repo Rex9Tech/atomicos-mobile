@@ -116,6 +116,9 @@ class AiRoomModel {
   final String updatedAt;
   final bool processing;
 
+  /// The molecule this room belongs to — null for plain chats.
+  final String? categoryId;
+
   AiRoomModel({
     required this.id,
     required this.title,
@@ -124,6 +127,7 @@ class AiRoomModel {
     required this.createdAt,
     required this.updatedAt,
     required this.processing,
+    this.categoryId,
   });
 
   factory AiRoomModel.fromJson(Map<String, dynamic> json) {
@@ -137,6 +141,7 @@ class AiRoomModel {
       createdAt: json[AiKeys.createdAt]?.toString() ?? '',
       updatedAt: json[AiKeys.updatedAt]?.toString() ?? '',
       processing: json[AiKeys.processing] == true,
+      categoryId: json[CategoryKeys.categoryId]?.toString(),
     );
   }
 

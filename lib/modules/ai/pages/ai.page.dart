@@ -1842,7 +1842,9 @@ class _AiPageState extends State<AiPage> {
 
                       return AppListTile(
                         leading: Icon(
-                          Design.icons.chat,
+                          (room.categoryId ?? '').isEmpty
+                              ? Design.icons.chat
+                              : Design.icons.molecule,
                           color: isSelected
                               ? context.colors.primary
                               : context.colors.textSecondary,

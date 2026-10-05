@@ -675,6 +675,10 @@ class FakeAiService extends AiService {
   PaginatedResponse<AiMessageModel>? historyResponse;
   ApiResponse<AiMessageModel>? chatResponse;
   ApiResponse<AiRoomModel>? createRoomResponse;
+
+  /// The most recent [createRoom] request — lets tests assert which molecule
+  /// a room was opened for.
+  CreateRoomRequest? lastCreateRoomRequest;
   ApiResponse<AiRoomModel>? renameRoomResponse;
   ApiResponse<void>? deleteRoomResponse;
   ApiResponse<void>? clearHistoryResponse;
@@ -751,6 +755,7 @@ class FakeAiService extends AiService {
 
   @override
   Future<ApiResponse<AiRoomModel>> createRoom(CreateRoomRequest request) async {
+    lastCreateRoomRequest = request;
     return createRoomResponse ??
         ApiResponse.success(
           message: 'Created',
