@@ -159,15 +159,24 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           decoration: InputDecoration(
             hintText: AppLocales.category.nameHint.tr,
           ),
-          onSubmitted: (value) => Get.back(result: value.trim()),
+          onSubmitted: (value) {
+            Get.closeAllSnackbars();
+            Get.back(result: value.trim());
+          },
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back();
+            },
             child: Text(AppLocales.common.cancel.tr),
           ),
           TextButton(
-            onPressed: () => Get.back(result: textController.text.trim()),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: textController.text.trim());
+            },
             child: Text(AppLocales.category.add.tr),
           ),
         ],

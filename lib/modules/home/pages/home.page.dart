@@ -178,26 +178,108 @@ class HomePage extends GetView<AuthController> {
     final colors = context.colors;
     final categoryService = Get.find<CategoryService>();
 
-    return Obx(
-      () => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocales.home.molecules.tr,
-            style: context.typo.labelLarge,
-          ),
-          SizedBox(height: 2),
-          Text(
-            AppLocales.home.moleculesCount.trParams({
-              'count': '${categoryService.categories.length}',
-            }),
-            style: context.typo.caption.copyWith(
-              color: colors.textSecondary,
+    return Row(
+      children: [
+        Expanded(
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocales.home.molecules.tr,
+                  style: context.typo.labelLarge,
+                ),
+                SizedBox(height: 2),
+                Text(
+                  AppLocales.home.moleculesCount.trParams({
+                    'count': '${categoryService.categories.length}',
+                  }),
+                  style: context.typo.caption.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
             ),
+          ),
+        ),
+        SizedBox(width: Design.spacing.sm),
+        // Opposite the title: add a new molecule.
+        GestureDetector(
+          onTap: () => _showAddMoleculeDialog(context),
+          behavior: HitTestBehavior.opaque,
+          child: AppNeumoSurface(
+            circle: true,
+            soft: true,
+            width: 38,
+            height: 38,
+            padding: EdgeInsets.zero,
+            child: Icon(
+              Design.icons.add,
+              size: Design.spacing.iconSmall,
+              color: colors.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// "+" next to the Molecules title: name a new molecule in a small dialog;
+  /// it is created via the user endpoint and the home list refreshes in place.
+  Future<void> _showAddMoleculeDialog(BuildContext context) async {
+    final categoryService = Get.find<CategoryService>();
+    final textController = TextEditingController();
+    final name = await Get.dialog<String>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.category.quickAdd.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: AppLocales.category.nameHint.tr,
+          ),
+          onSubmitted: (value) {
+            Get.closeAllSnackbars();
+            Get.back(result: value.trim());
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back();
+            },
+            child: Text(AppLocales.common.cancel.tr),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: textController.text.trim());
+            },
+            child: Text(AppLocales.category.add.tr),
           ),
         ],
       ),
     );
+
+    final clean = name?.trim() ?? '';
+    if (clean.isEmpty) return;
+
+    final result = await categoryService.create(clean);
+    if (result.success) {
+      await categoryService.refresh();
+      AppSnackbar.success(AppLocales.category.created.tr);
+    } else {
+      AppSnackbar.error(result.error ?? result.message);
+    }
   }
 
   Widget _buildMoleculesBody(BuildContext context) {
@@ -555,13 +637,27 @@ class _MoleculeCard extends StatelessWidget {
             ),
             SizedBox(width: Design.spacing.md),
             Expanded(
-              child: Text(
-                molecule.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.typo.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    molecule.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    AppLocales.molecule.atomsCount.trParams({
+                      'count': '${molecule.atomsCount}',
+                    }),
+                    style: context.typo.caption.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
               ),
             ),
             Icon(
