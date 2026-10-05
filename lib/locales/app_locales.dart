@@ -73,6 +73,8 @@ class _RecordingLocales {
 
   final languageTitle = 'recording.language_title';
   final languageSub = 'recording.language_sub';
+  final languageUploadTitle = 'recording.language_upload_title';
+  final languageUploadSub = 'recording.language_upload_sub';
 
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
