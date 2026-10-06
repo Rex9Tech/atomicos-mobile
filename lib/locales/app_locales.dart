@@ -22,6 +22,7 @@ class AppLocales {
   static const create = _CreateLocales();
   static const home = _HomeLocales();
   static const category = _CategoryLocales();
+  static const molecule = _MoleculeLocales();
   static const audio = _AudioLocales();
   static const video = _VideoLocales();
   static const media = _MediaLocales();
@@ -46,6 +47,22 @@ class _CategoryLocales {
   final updated = 'category.updated';
 }
 
+class _MoleculeLocales {
+  const _MoleculeLocales();
+
+  final empty = 'molecule.empty';
+  final emptySub = 'molecule.emptySub';
+  final ask = 'molecule.ask';
+  final atomsCount = 'molecule.atomsCount';
+  final atomsCountOne = 'molecule.atomsCountOne';
+  final assignSub = 'molecule.assignSub';
+  final seeAll = 'molecule.seeAll';
+  final inlineEmpty = 'molecule.inlineEmpty';
+  final open = 'molecule.open';
+  final loadFailed = 'molecule.loadFailed';
+  final loadFailedSub = 'molecule.loadFailedSub';
+}
+
 class _RecordingLocales {
   const _RecordingLocales();
   final liveMeeting = 'recording.liveMeeting';
@@ -58,6 +75,11 @@ class _RecordingLocales {
   final transcriptMicNeeded = 'recording.transcriptMicNeeded';
   final transcriptOfflineRecording = 'recording.transcriptOfflineRecording';
   final transcriptUnavailable = 'recording.transcriptUnavailable';
+
+  final languageTitle = 'recording.language_title';
+  final languageSub = 'recording.language_sub';
+  final languageUploadTitle = 'recording.language_upload_title';
+  final languageUploadSub = 'recording.language_upload_sub';
 
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
@@ -268,6 +290,11 @@ class _AiLocales {
   final chooseContextSub = 'ai.chooseContextSub';
   final noAtomsHere = 'ai.noAtomsHere';
   final noAtomsHereSub = 'ai.noAtomsHereSub';
+  final chooseMolecule = 'ai.chooseMolecule';
+  final chooseMoleculeSub = 'ai.chooseMoleculeSub';
+  final noMoleculesHere = 'ai.noMoleculesHere';
+  final usingMoleculeAsContext = 'ai.usingMoleculeAsContext';
+  final sourceMoleculeSub = 'ai.sourceMoleculeSub';
   final workWithAnswer = 'ai.workWithAnswer';
   final runActionHint = 'ai.runActionHint';
   final detailsTab = 'ai.detailsTab';
@@ -287,6 +314,7 @@ class _AiLocales {
   final recordingPausedTitle = 'ai.recordingPausedTitle';
   final recordingPausedSub = 'ai.recordingPausedSub';
   final askTitle = 'ai.askTitle';
+  final askNamed = 'ai.askNamed';
   final askSubtitle = 'ai.askSubtitle';
   final resultSummary = 'ai.resultSummary';
   final resultDecisions = 'ai.resultDecisions';
@@ -345,6 +373,7 @@ class _AiLocales {
   final askSourcePhoto = 'ai.ask_source_photo';
   final askSourceFiles = 'ai.ask_source_files';
   final askSourceAtom = 'ai.ask_source_atom';
+  final askSourceMolecule = 'ai.ask_source_molecule';
 
   // AI chat
   final aiSendMessageFailed = 'ai.ai_send_message_failed';
@@ -644,6 +673,10 @@ class _HomeLocales {
   final greeting = 'home.greeting';
   final weekInAtoms = 'home.weekInAtoms';
   final recentAtoms = 'home.recentAtoms';
+  final molecules = 'home.molecules';
+  final moleculesCount = 'home.moleculesCount';
+  final noMolecules = 'home.noMolecules';
+  final noMoleculesSub = 'home.noMoleculesSub';
   final noAtoms = 'home.noAtoms';
   final noAtomsFilterSub = 'home.noAtomsFilterSub';
   final noAtomsEmptySub = 'home.noAtomsEmptySub';

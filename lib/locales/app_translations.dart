@@ -186,6 +186,8 @@ class AppTranslations extends Translations {
       AppLocales.ai.attachSheetTitle: 'Attach to your message',
       AppLocales.ai.sourceAtomSub: 'Ask about one of your atoms',
       AppLocales.ai.usingAsContext: 'Using "@name" as context',
+      AppLocales.ai.usingMoleculeAsContext:
+          'Using "@name" — every atom in it — as context',
       AppLocales.ai.selected: 'Selected',
       AppLocales.ai.processing: 'AI is thinking...',
       AppLocales.ai.clearHistory: 'Clear History',
@@ -196,6 +198,8 @@ class AppTranslations extends Translations {
       AppLocales.ai.askSourcePhoto: 'Photo',
       AppLocales.ai.askSourceFiles: 'Files',
       AppLocales.ai.askSourceAtom: 'Add Atom',
+      AppLocales.ai.askSourceMolecule: 'Add Molecule',
+      AppLocales.ai.sourceMoleculeSub: 'Ask about a whole molecule',
       AppLocales.ai.aiSendMessageFailed: 'Failed to send message',
       AppLocales.ai.aiResponseFailed: 'Failed to get AI response',
       AppLocales.ai.aiHistoryCleared: 'Chat history cleared',
@@ -407,6 +411,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.recordingPausedSub:
           'Notes stay editable while the mic is paused. Resume when the meeting continues.',
       AppLocales.ai.askTitle: 'Ask AtomicOS',
+      AppLocales.ai.askNamed: 'Ask @name',
       AppLocales.ai.askSubtitle:
           'Start with a question, attach context, and turn the answer into structured next steps.',
       AppLocales.ai.resultSummary: 'Summary',
@@ -451,6 +456,11 @@ class AppTranslations extends Translations {
       AppLocales.ai.noAtomsHere: 'No atoms here yet',
       AppLocales.ai.noAtomsHereSub:
           'Create an atom first, then attach it as context.',
+      AppLocales.ai.chooseMolecule: 'Choose a molecule',
+      AppLocales.ai.chooseMoleculeSub:
+          'Pick one of your molecules — AtomicOS will be aware of every atom inside it.',
+      AppLocales.ai.noMoleculesHere:
+          'No molecules yet — create one from Settings.',
       AppLocales.ai.workWithAnswer: 'Work with this answer',
       AppLocales.ai.runActionHint:
           'Run an action to generate a backend response preview.',
@@ -480,23 +490,37 @@ class AppTranslations extends Translations {
       AppLocales.create.continueLabel: 'Continue',
       AppLocales.create.turnTasksIntoAtom: 'Turn tasks into Atom',
       AppLocales.create.saveNote: 'Save note',
-      AppLocales.create.category: 'Category',
-      AppLocales.category.title: 'Categories',
-      AppLocales.category.manage: 'Manage Categories',
+      AppLocales.create.category: 'Molecule',
+      AppLocales.category.title: 'Molecules',
+      AppLocales.category.manage: 'Manage Molecules',
       AppLocales.category.manageSub:
-          'Create categories to organise your own atoms',
-      AppLocales.category.nameHint: 'New category name',
+          'Create molecules to organise your own atoms',
+      AppLocales.category.nameHint: 'New molecule name',
       AppLocales.category.add: 'Add',
-      AppLocales.category.empty: 'No categories yet',
-      AppLocales.category.deleteTitle: 'Delete category',
+      AppLocales.category.empty: 'No molecules yet',
+      AppLocales.category.deleteTitle: 'Delete molecule',
       AppLocales.category.deleteMessage:
-          'Atoms keep their content — they only lose this category.',
-      AppLocales.category.created: 'Category added',
-      AppLocales.category.deleted: 'Category deleted',
+          'Atoms keep their content — they only lose this molecule.',
+      AppLocales.category.created: 'Molecule added',
+      AppLocales.category.deleted: 'Molecule deleted',
       AppLocales.category.quickAdd: 'New',
-      AppLocales.category.none: 'No category',
-      AppLocales.category.selectTitle: 'Select category',
-      AppLocales.category.updated: 'Category updated',
+      AppLocales.category.none: 'No molecule',
+      AppLocales.category.selectTitle: 'Select molecule',
+      AppLocales.category.updated: 'Molecule updated',
+      AppLocales.molecule.empty: 'No atoms in this molecule yet',
+      AppLocales.molecule.emptySub:
+          'Atoms you organise into this molecule appear here.',
+      AppLocales.molecule.ask: 'Ask about this molecule',
+      AppLocales.molecule.atomsCount: '@count atoms',
+      AppLocales.molecule.atomsCountOne: '@count atom',
+      AppLocales.molecule.assignSub:
+          'Where should this atom go? You can change it later.',
+      AppLocales.molecule.seeAll: 'See all @count atoms',
+      AppLocales.molecule.inlineEmpty: 'No atoms here yet',
+      AppLocales.molecule.open: 'Open molecule',
+      AppLocales.molecule.loadFailed: 'Could not load this molecule',
+      AppLocales.molecule.loadFailedSub:
+          'Check your connection and try again.',
       AppLocales.create.pickSourceHint:
           'Pick a source above to bring it into your workspace.',
       AppLocales.create.sharedReviewHint:
@@ -509,7 +533,7 @@ class AppTranslations extends Translations {
       AppLocales.create.pasteSharedHint: 'Paste shared text here...',
       AppLocales.create.noteFieldHint: 'Type or paste a note...',
       AppLocales.atom.setMeetingDate: 'Set meeting date',
-      AppLocales.atom.setCategory: 'Set category',
+      AppLocales.atom.setCategory: 'Set molecule',
       AppLocales.atom.addFiles: 'Add files',
       AppLocales.atom.name: 'Atom name',
       AppLocales.calendar.rangeDay: 'Day',
@@ -588,6 +612,11 @@ class AppTranslations extends Translations {
       AppLocales.ai.attachedFile: 'Attached @name',
       AppLocales.ai.filePickerFailed: 'Could not open the file picker',
       AppLocales.home.itemsCount: '@count items in this workspace',
+      AppLocales.home.molecules: 'Molecules',
+      AppLocales.home.moleculesCount: '@count molecules',
+      AppLocales.home.noMolecules: 'No molecules yet',
+      AppLocales.home.noMoleculesSub:
+          'Create your first molecule to organise your atoms.',
       AppLocales.create.title: 'Create Atom',
       AppLocales.create.heading: 'Bring anything into AtomicOS',
       AppLocales.create.headingSub:
@@ -645,6 +674,12 @@ class AppTranslations extends Translations {
       AppLocales.calendar.metricDay: 'Day',
       AppLocales.calendar.openLiveView: 'Open live view',
       AppLocales.recording.liveMeeting: 'Live meeting',
+      AppLocales.recording.languageTitle: 'Recording language',
+      AppLocales.recording.languageSub:
+          'Used for the live transcript of this recording.',
+      AppLocales.recording.languageUploadTitle: 'Transcription language',
+      AppLocales.recording.languageUploadSub:
+          'Used to transcribe this audio file.',
       AppLocales.recording.end: 'End',
       // Media
       AppLocales.media.playlistTitle: 'Playlist',
@@ -915,6 +950,8 @@ class AppTranslations extends Translations {
       AppLocales.ai.attachSheetTitle: 'သင့်မက်ဆေ့ဂျ်နှင့် တွဲပါ',
       AppLocales.ai.sourceAtomSub: 'သင့် အက်တမ်တစ်ခုအကြောင်း မေးပါ',
       AppLocales.ai.usingAsContext: '"@name" ကို context အဖြစ် သုံးမည်',
+      AppLocales.ai.usingMoleculeAsContext:
+          '"@name" မော်လီကျူးတစ်ခုလုံးကို context အဖြစ် သုံးမည်',
       AppLocales.ai.selected: 'ရွေးထားသည်',
       AppLocales.ai.processing: 'AI စဉ်းစားနေဆဲ...',
       AppLocales.ai.clearHistory: 'မှတ်တမ်းရှင်းမည်',
@@ -925,6 +962,8 @@ class AppTranslations extends Translations {
       AppLocales.ai.askSourcePhoto: 'ဓာတ်ပုံ',
       AppLocales.ai.askSourceFiles: 'ဖိုင်များ',
       AppLocales.ai.askSourceAtom: 'အက်တမ် ထည့်မည်',
+      AppLocales.ai.askSourceMolecule: 'မော်လီကျူး ထည့်မည်',
+      AppLocales.ai.sourceMoleculeSub: 'မော်လီကျူးတစ်ခုလုံးအကြောင်း မေးပါ',
       AppLocales.ai.aiSendMessageFailed: 'မက်ဆေ့ဂျ် ပို့၍မရပါ',
       AppLocales.ai.aiResponseFailed: 'AI အဖြေ မရပါ',
       AppLocales.ai.aiHistoryCleared: 'မှတ်တမ်း ရှင်းပြီးပါပြီ',
@@ -1136,6 +1175,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.recordingPausedSub:
           'မိုက်ခေတ္တရပ်ထားစဉ် မှတ်စုများ ရေးသားနိုင်သည်။ အစည်းအဝေး ဆက်လုပ်သည့်အခါ ပြန်စပါ။',
       AppLocales.ai.askTitle: 'AtomicOS ကို မေးမြန်းပါ',
+      AppLocales.ai.askNamed: '@name ကို မေးမြန်းပါ',
       AppLocales.ai.askSubtitle:
           'မေးခွန်းတစ်ခုဖြင့် စတင်ပါ၊ အကြောင်းအရာ ပူးတွဲပါ၊ အဖြေကို စနစ်တကျ နောက်ဆက်တွဲ အဆင့်များအဖြစ် ပြောင်းလဲပါ။',
       AppLocales.ai.resultSummary: 'အနှစ်ချုပ်',
@@ -1180,6 +1220,11 @@ class AppTranslations extends Translations {
       AppLocales.ai.noAtomsHere: 'ဤနေရာတွင် အက်တမ် မရှိသေးပါ',
       AppLocales.ai.noAtomsHereSub:
           'အက်တမ်တစ်ခု အရင်ဖန်တီးပြီးမှ အကြောင်းအရာအဖြစ် ပူးတွဲပါ။',
+      AppLocales.ai.chooseMolecule: 'မော်လီကျူး ရွေးချယ်ပါ',
+      AppLocales.ai.chooseMoleculeSub:
+          'သင့်မော်လီကျူးတစ်ခုကို ရွေးပါ — အတွင်းရှိ အက်တမ်တိုင်းကို AtomicOS သိရှိမည်။',
+      AppLocales.ai.noMoleculesHere:
+          'မော်လီကျူး မရှိသေးပါ — Settings မှ ဖန်တီးပါ။',
       AppLocales.ai.workWithAnswer: 'ဤအဖြေဖြင့် ဆက်လုပ်ပါ',
       AppLocales.ai.runActionHint:
           'အဖြေ preview ဖန်တီးရန် လုပ်ဆောင်ချက်တစ်ခု လုပ်ဆောင်ပါ။',
@@ -1210,23 +1255,36 @@ class AppTranslations extends Translations {
       AppLocales.create.turnTasksIntoAtom:
           'လုပ်ဆောင်ချက်များကို အက်တမ်အဖြစ် ပြောင်းမည်',
       AppLocales.create.saveNote: 'မှတ်စု သိမ်းမည်',
-      AppLocales.create.category: 'အမျိုးအစား',
-      AppLocales.category.title: 'အမျိုးအစားများ',
-      AppLocales.category.manage: 'အမျိုးအစားများ စီမံရန်',
+      AppLocales.create.category: 'မော်လီကျူး',
+      AppLocales.category.title: 'မော်လီကျူးများ',
+      AppLocales.category.manage: 'မော်လီကျူးများ စီမံရန်',
       AppLocales.category.manageSub:
-          'သင့်အက်တမ်များကို စီစဉ်ရန် အမျိုးအစားများ ဖန်တီးပါ',
-      AppLocales.category.nameHint: 'အမျိုးအစား အမည်သစ်',
+          'သင့်အက်တမ်များကို စီစဉ်ရန် မော်လီကျူးများ ဖန်တီးပါ',
+      AppLocales.category.nameHint: 'မော်လီကျူး အမည်သစ်',
       AppLocales.category.add: 'ထည့်မည်',
-      AppLocales.category.empty: 'အမျိုးအစား မရှိသေးပါ',
-      AppLocales.category.deleteTitle: 'အမျိုးအစား ဖျက်မည်',
+      AppLocales.category.empty: 'မော်လီကျူး မရှိသေးပါ',
+      AppLocales.category.deleteTitle: 'မော်လီကျူး ဖျက်မည်',
       AppLocales.category.deleteMessage:
-          'အက်တမ်များ၏ အကြောင်းအရာ ကျန်ရှိမည် — ဤအမျိုးအစားသာ ဖြုတ်ခံရမည်။',
-      AppLocales.category.created: 'အမျိုးအစား ထည့်ပြီးပါပြီ',
-      AppLocales.category.deleted: 'အမျိုးအစား ဖျက်ပြီးပါပြီ',
+          'အက်တမ်များ၏ အကြောင်းအရာ ကျန်ရှိမည် — ဤမော်လီကျူးသာ ဖြုတ်ခံရမည်။',
+      AppLocales.category.created: 'မော်လီကျူး ထည့်ပြီးပါပြီ',
+      AppLocales.category.deleted: 'မော်လီကျူး ဖျက်ပြီးပါပြီ',
       AppLocales.category.quickAdd: 'အသစ်',
-      AppLocales.category.none: 'အမျိုးအစား မရှိ',
-      AppLocales.category.selectTitle: 'အမျိုးအစား ရွေးချယ်ပါ',
-      AppLocales.category.updated: 'အမျိုးအစား ပြောင်းလဲပြီးပါပြီ',
+      AppLocales.category.none: 'မော်လီကျူး မရှိ',
+      AppLocales.category.selectTitle: 'မော်လီကျူး ရွေးချယ်ပါ',
+      AppLocales.category.updated: 'မော်လီကျူး ပြောင်းလဲပြီးပါပြီ',
+      AppLocales.molecule.empty: 'ဤမော်လီကျူးတွင် အက်တမ် မရှိသေးပါ',
+      AppLocales.molecule.emptySub:
+          'ဤမော်လီကျူးထဲ ထည့်ထားသော အက်တမ်များ ဤနေရာတွင် ပေါ်လာမည်။',
+      AppLocales.molecule.ask: 'ဤမော်လီကျူးအကြောင်း မေးမည်',
+      AppLocales.molecule.atomsCount: 'အက်တမ် @count ခု',
+      AppLocales.molecule.atomsCountOne: 'အက်တမ် @count ခု',
+      AppLocales.molecule.assignSub:
+          'ဤအက်တမ် ဘယ်မော်လီကျူးထဲ ထည့်မလဲ? နောက်မှ ပြောင်းနိုင်ပါသည်။',
+      AppLocales.molecule.seeAll: 'အက်တမ် @count ခုလုံး ကြည့်ပါ',
+      AppLocales.molecule.inlineEmpty: 'အက်တမ် မရှိသေးပါ',
+      AppLocales.molecule.open: 'မော်လီကျူး ဖွင့်ပါ',
+      AppLocales.molecule.loadFailed: 'ဤမော်လီကျူးကို မဖွင့်နိုင်ပါ',
+      AppLocales.molecule.loadFailedSub: 'ချိတ်ဆက်မှု စစ်ပြီး ထပ်စမ်းပါ။',
       AppLocales.create.pickSourceHint:
           'အထက်မှ ရင်းမြစ်တစ်ခု ရွေးပြီး သင့် workspace ထဲ ထည့်ပါ။',
       AppLocales.create.sharedReviewHint:
@@ -1241,7 +1299,7 @@ class AppTranslations extends Translations {
           'မျှဝေစာသားကို ဤနေရာတွင် paste လုပ်ပါ...',
       AppLocales.create.noteFieldHint: 'မှတ်စု ရေးပါ သို့မဟုတ် paste လုပ်ပါ...',
       AppLocales.atom.setMeetingDate: 'အစည်းအဝေး ရက်စွဲ သတ်မှတ်ပါ',
-      AppLocales.atom.setCategory: 'အမျိုးအစား သတ်မှတ်ပါ',
+      AppLocales.atom.setCategory: 'မော်လီကျူး သတ်မှတ်ပါ',
       AppLocales.atom.addFiles: 'ဖိုင်များ ထည့်ပါ',
       AppLocales.atom.name: 'အက်တမ် အမည်',
       AppLocales.calendar.rangeDay: 'နေ့',
@@ -1320,6 +1378,11 @@ class AppTranslations extends Translations {
       AppLocales.ai.attachedFile: '@name ပူးတွဲပြီးပါပြီ',
       AppLocales.ai.filePickerFailed: 'ဖိုင်ရွေးချယ်ရေး ကို ဖွင့်၍မရပါ',
       AppLocales.home.itemsCount: 'ဤ workspace တွင် @count ခု',
+      AppLocales.home.molecules: 'မော်လီကျူးများ',
+      AppLocales.home.moleculesCount: 'မော်လီကျူး @count ခု',
+      AppLocales.home.noMolecules: 'မော်လီကျူး မရှိသေးပါ',
+      AppLocales.home.noMoleculesSub:
+          'သင့်အက်တမ်များကို စီစဉ်ရန် ပထမဆုံး မော်လီကျူး ဖန်တီးပါ။',
       AppLocales.create.title: 'အက်တမ် ဖန်တီးပါ',
       AppLocales.create.heading: 'မည်သည့်အရာမဆို AtomicOS ထဲ ယူလာပါ',
       AppLocales.create.headingSub:
@@ -1378,6 +1441,12 @@ class AppTranslations extends Translations {
       AppLocales.calendar.metricDay: 'နေ့',
       AppLocales.calendar.openLiveView: 'တိုက်ရိုက်ကြည့်ရန် ဖွင့်ပါ',
       AppLocales.recording.liveMeeting: 'တိုက်ရိုက် အစည်းအဝေး',
+      AppLocales.recording.languageTitle: 'မှတ်တမ်းတင်မည့် ဘာသာစကား',
+      AppLocales.recording.languageSub:
+          'ဤအသံဖမ်းမှု၏ တိုက်ရိုက်စာသားအတွက် အသုံးပြုသည်။',
+      AppLocales.recording.languageUploadTitle: 'စာသားပြောင်းမည့် ဘာသာစကား',
+      AppLocales.recording.languageUploadSub:
+          'ဤအသံဖိုင် စာသားပြောင်းရန် အသုံးပြုသည်။',
       AppLocales.recording.end: 'ရပ်မည်',
       // Media
       AppLocales.media.playlistTitle: 'စာရင်း',

@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../search/search.dart';
 import '../controllers/home.controller.dart';
-import 'widgets/atom_card.dart';
+import '../data/models/models.dart';
 import 'widgets/notification_bell.dart';
 
+/// The workspace home: the user's molecules. Each molecule card opens that
+/// molecule's atoms; the list of atoms itself lives on the molecule screen.
 class HomePage extends GetView<AuthController> {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final homeController = Get.find<HomeController>();
 
     return AppPage(
       backgroundColor: colors.background,
@@ -30,84 +32,12 @@ class HomePage extends GetView<AuthController> {
           SizedBox(height: Design.spacing.md),
           _buildSearchBar(context),
           SizedBox(height: Design.spacing.md),
-          _buildFilterRow(context),
+          _buildMoleculesHeader(context),
           SizedBox(height: Design.spacing.md),
-          _buildSectionHeader(context),
-          SizedBox(height: Design.spacing.md),
-          Expanded(child: Obx(() => _buildHomeBody(context, homeController))),
+          Expanded(child: _buildMoleculesBody(context)),
           SizedBox(height: Design.spacing.md),
           _buildBottomDock(context),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHomeBody(BuildContext context, HomeController homeController) {
-    if (homeController.isLoadingAtoms.value) {
-      return _buildLoadingState(context);
-    }
-
-    // Only surface the error when there is nothing to show — a failed refresh
-    // must never blank out a workspace the user can still read.
-    if (homeController.hasAtomsError.value && homeController.atoms.isEmpty) {
-      return _buildErrorState(context);
-    }
-
-    final atoms = homeController.atoms;
-    if (atoms.isEmpty) {
-      return _buildEmptyState(context);
-    }
-
-    return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        // Infinite scroll: pull the next page as the user nears the end.
-        if (notification.metrics.extentAfter < 320) {
-          homeController.loadMore();
-        }
-        return false;
-      },
-      child: ListView.separated(
-        // Clip to the viewport: with Clip.none, cards scrolled out of the list
-        // kept painting over the search bar / header above (reported overlap).
-        // The top/bottom padding keeps the first/last card's soft shadow
-        // visible inside the viewport instead.
-        clipBehavior: Clip.hardEdge,
-        padding: EdgeInsets.only(
-          top: Design.spacing.md,
-          bottom: Design.spacing.xxl,
-        ),
-        itemCount: atoms.length + (homeController.hasMoreAtoms.value ? 1 : 0),
-        separatorBuilder: (_, index) => SizedBox(height: Design.spacing.lg),
-        itemBuilder: (context, index) {
-          if (index == atoms.length) {
-            return _buildLoadMoreFooter(context, homeController);
-          }
-          return AtomCard(atom: atoms[index]);
-        },
-      ),
-    );
-  }
-
-  /// Footer slot of the atoms list while the next page is being fetched.
-  Widget _buildLoadMoreFooter(
-    BuildContext context,
-    HomeController homeController,
-  ) {
-    if (!homeController.isLoadingMore.value) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
-      child: Center(
-        child: SizedBox(
-          height: 22,
-          width: 22,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: context.colors.primary,
-          ),
-        ),
       ),
     );
   }
@@ -238,18 +168,6 @@ class HomePage extends GetView<AuthController> {
                     ),
                   ),
                 ),
-                AppNeumoSurface(
-                  circle: true,
-                  soft: true,
-                  width: 28,
-                  height: 28,
-                  padding: EdgeInsets.zero,
-                  child: Icon(
-                    Design.icons.filter,
-                    size: Design.spacing.iconSmall,
-                    color: colors.textSecondary,
-                  ),
-                ),
               ],
             ),
           ),
@@ -258,96 +176,152 @@ class HomePage extends GetView<AuthController> {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context) {
-    final homeController = Get.find<HomeController>();
+  Widget _buildMoleculesHeader(BuildContext context) {
+    final colors = context.colors;
     final categoryService = Get.find<CategoryService>();
 
-    return Obx(
-      () => Wrap(
-        spacing: Design.spacing.sm,
-        runSpacing: Design.spacing.sm,
-        children: [
-          // 'All' is fixed; the rest are admin-managed categories.
-          _FilterChip(
-            label: AppLocales.home.filterAll.tr,
-            selected: homeController.selectedFilter.value == 'all',
-            onTap: () => homeController.selectFilter('all'),
-          ),
-          for (final category in categoryService.categories)
-            _FilterChip(
-              label: category.name,
-              selected: homeController.selectedFilter.value == category.id,
-              onTap: () => homeController.selectFilter(category.id),
+    return Row(
+      children: [
+        Expanded(
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocales.home.molecules.tr,
+                  style: context.typo.labelLarge,
+                ),
+                SizedBox(height: 2),
+                Text(
+                  AppLocales.home.moleculesCount.trParams({
+                    'count': '${categoryService.categories.length}',
+                  }),
+                  style: context.typo.caption.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
             ),
-        ],
-      ),
+          ),
+        ),
+        SizedBox(width: Design.spacing.sm),
+        // Opposite the title: add a new molecule.
+        GestureDetector(
+          onTap: () => _showAddMoleculeDialog(context),
+          behavior: HitTestBehavior.opaque,
+          child: AppNeumoSurface(
+            circle: true,
+            soft: true,
+            width: 38,
+            height: 38,
+            padding: EdgeInsets.zero,
+            child: Icon(
+              Design.icons.add,
+              size: Design.spacing.iconSmall,
+              color: colors.primary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context) {
-    final colors = context.colors;
-    final homeController = Get.find<HomeController>();
-
-    return Obx(
-      () => Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocales.home.recentAtoms.tr,
-                style: context.typo.labelLarge,
-              ),
-              SizedBox(height: 2),
-              Text(
-                AppLocales.home.itemsCount.trParams({
-                  'count': '${homeController.atoms.length}',
-                }),
-                style: context.typo.caption.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
+  /// "+" next to the Molecules title: name a new molecule in a small dialog;
+  /// it is created via the user endpoint and the home list refreshes in place.
+  Future<void> _showAddMoleculeDialog(BuildContext context) async {
+    final categoryService = Get.find<CategoryService>();
+    final textController = TextEditingController();
+    final name = await Get.dialog<String>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.category.quickAdd.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          controller: textController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: AppLocales.category.nameHint.tr,
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => Get.find<DeviceCalendarService>().openCalendarApp(),
-            child: AppNeumoSurface(
-              circle: true,
-              soft: true,
-              width: 30,
-              height: 30,
-              margin: EdgeInsets.only(right: Design.spacing.sm),
-              padding: EdgeInsets.zero,
-              child: Icon(
-                Design.icons.calendar,
-                size: Design.spacing.iconSmall,
-                color: colors.textSecondary,
-              ),
-            ),
+          onSubmitted: (value) {
+            Get.closeAllSnackbars();
+            Get.back(result: value.trim());
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back();
+            },
+            child: Text(AppLocales.common.cancel.tr),
           ),
-          AppNeumoSurface(
-            circle: true,
-            soft: true,
-            width: 30,
-            height: 30,
-            padding: EdgeInsets.zero,
-            child: Icon(
-              Design.icons.search,
-              size: Design.spacing.iconSmall,
-              color: colors.textSecondary,
-            ),
+          TextButton(
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: textController.text.trim());
+            },
+            child: Text(AppLocales.category.add.tr),
           ),
         ],
       ),
     );
+
+    final clean = name?.trim() ?? '';
+    if (clean.isEmpty) return;
+
+    final result = await categoryService.create(clean);
+    if (result.success) {
+      await categoryService.refresh();
+      AppSnackbar.success(AppLocales.category.created.tr);
+    } else {
+      AppSnackbar.error(result.error ?? result.message);
+    }
+  }
+
+  Widget _buildMoleculesBody(BuildContext context) {
+    final categoryService = Get.find<CategoryService>();
+
+    return Obx(() {
+      final molecules = categoryService.categories;
+
+      // First load of the list wears the skeleton; later refreshes keep the
+      // last state silently (the service never blanks the list on failure).
+      if (categoryService.isLoading.value &&
+          !categoryService.hasLoaded.value &&
+          molecules.isEmpty) {
+        return _buildLoadingState(context);
+      }
+
+      if (molecules.isEmpty) {
+        return _buildNoMoleculesState(context);
+      }
+
+      return ListView.separated(
+        // Same viewport clipping rule as the other lists: cards scrolled out
+        // of the viewport must never paint over the header above.
+        clipBehavior: Clip.hardEdge,
+        padding: EdgeInsets.only(
+          top: Design.spacing.md,
+          bottom: Design.spacing.xxl,
+        ),
+        itemCount: molecules.length,
+        separatorBuilder: (_, index) => SizedBox(height: Design.spacing.sm),
+        itemBuilder: (context, index) =>
+            _MoleculeCard(molecule: molecules[index]),
+      );
+    });
   }
 
   Widget _buildLoadingState(BuildContext context) {
     final colors = context.colors;
 
     return ListView.separated(
-      // Same viewport clipping rule as the main list (see _buildHomeBody).
       clipBehavior: Clip.hardEdge,
       padding: EdgeInsets.only(
         top: Design.spacing.md,
@@ -409,31 +383,13 @@ class HomePage extends GetView<AuthController> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final homeController = Get.find<HomeController>();
-
+  Widget _buildNoMoleculesState(BuildContext context) {
     return _StatusCard(
-      icon: Design.icons.emptyBox,
-      title: AppLocales.home.noAtoms.tr,
-      subtitle:
-          homeController.searchQuery.value.isNotEmpty ||
-              homeController.selectedFilter.value != 'All'
-          ? AppLocales.home.noAtomsFilterSub.tr
-          : AppLocales.home.noAtomsEmptySub.tr,
-      primaryLabel: AppLocales.home.newAtom.tr,
-      onPrimaryTap: () => _showCreateSheet(context),
-    );
-  }
-
-  Widget _buildErrorState(BuildContext context) {
-    final homeController = Get.find<HomeController>();
-
-    return _StatusCard(
-      icon: Design.icons.warning,
-      title: AppLocales.home.loadFailed.tr,
-      subtitle: AppLocales.home.loadFailedSub.tr,
-      primaryLabel: AppLocales.atom.retry.tr,
-      onPrimaryTap: () => homeController.loadAtoms(),
+      icon: Design.icons.molecule,
+      title: AppLocales.home.noMolecules.tr,
+      subtitle: AppLocales.home.noMoleculesSub.tr,
+      primaryLabel: AppLocales.category.manage.tr,
+      onPrimaryTap: AppRoutes.toAdminCategories,
     );
   }
 
@@ -644,61 +600,293 @@ class HomePage extends GetView<AuthController> {
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+/// One molecule in the home list — tap to expand its atoms inline; the
+/// expanded panel keeps the full molecule screen one tap away.
+class _MoleculeCard extends StatelessWidget {
+  const _MoleculeCard({required this.molecule});
 
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+  final CategoryModel molecule;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final home = Get.find<HomeController>();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: selected
-          ? Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: Design.spacing.md,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(999),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.primary.withValues(alpha: 0.28),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+    return Obx(() {
+      final expanded = home.expandedMolecules.contains(molecule.id);
+      final loading = home.loadingMolecules.contains(molecule.id);
+      final atoms = home.moleculeAtoms[molecule.id] ?? const <AtomModel>[];
+
+      return InkWell(
+        onTap: () => home.toggleMolecule(molecule.id),
+        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        child: AppNeumoSurface(
+          radius: Design.spacing.radiusXLarge,
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.lg,
+            vertical: Design.spacing.md,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  AppNeumoSurface(
+                    circle: true,
+                    soft: true,
+                    width: 40,
+                    height: 40,
+                    padding: EdgeInsets.zero,
+                    color: colors.primary.withValues(alpha: 0.12),
+                    child: Icon(
+                      Design.icons.molecule,
+                      size: Design.spacing.iconSmall,
+                      color: colors.primary,
+                    ),
+                  ),
+                  SizedBox(width: Design.spacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          molecule.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typo.labelLarge.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          (molecule.atomsCount == 1
+                                  ? AppLocales.molecule.atomsCountOne
+                                  : AppLocales.molecule.atomsCount)
+                              .trParams({
+                            'count': '${molecule.atomsCount}',
+                          }),
+                          style: context.typo.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => AppRoutes.toMolecule(
+                      moleculeId: molecule.id,
+                      moleculeName: molecule.name,
+                    ),
+                    customBorder: const CircleBorder(),
+                    child: AppNeumoSurface(
+                      circle: true,
+                      soft: true,
+                      width: 32,
+                      height: 32,
+                      padding: EdgeInsets.zero,
+                      child: Icon(
+                        Design.icons.rightArrow,
+                        size: Design.spacing.iconSmall,
+                        color: colors.primary,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: Design.spacing.sm),
+                  AnimatedRotation(
+                    turns: expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    child: Icon(
+                      Design.icons.chevronDown,
+                      size: Design.spacing.iconSmall,
+                      color: colors.textMuted,
+                    ),
                   ),
                 ],
               ),
-              child: Text(
-                label,
-                style: context.typo.labelMedium.copyWith(
-                  color: colors.onPrimary,
-                ),
-              ),
-            )
-          : AppNeumoSurface(
-              soft: true,
-              radius: 999,
-              padding: EdgeInsets.symmetric(
-                horizontal: Design.spacing.md,
-                vertical: 6,
-              ),
-              child: Text(
-                label,
-                style: context.typo.labelMedium.copyWith(
-                  color: colors.textSecondary,
-                ),
+              if (expanded) ..._expandedAtoms(context, home, loading, atoms),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  /// The inline atom panel under an expanded molecule.
+  List<Widget> _expandedAtoms(
+    BuildContext context,
+    HomeController home,
+    bool loading,
+    List<AtomModel> atoms,
+  ) {
+    final colors = context.colors;
+
+    if (loading && atoms.isEmpty) {
+      return [
+        SizedBox(height: Design.spacing.md),
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: colors.primary,
+          ),
+        ),
+      ];
+    }
+
+    if (atoms.isEmpty) {
+      return [
+        SizedBox(height: Design.spacing.sm),
+        Text(
+          AppLocales.molecule.inlineEmpty.tr,
+          style: context.typo.caption.copyWith(color: colors.textMuted),
+        ),
+        _detailsRow(context),
+      ];
+    }
+
+    final shown = atoms.take(5).toList();
+    return [
+      SizedBox(height: Design.spacing.sm),
+      for (final atom in shown) _InlineAtomRow(atom: atom),
+      _detailsRow(
+        context,
+        label: molecule.atomsCount > shown.length
+            ? AppLocales.molecule.seeAll.trParams({
+                'count': '${molecule.atomsCount}',
+              })
+            : null,
+      ),
+    ];
+  }
+
+  /// The panel's footer link: "See all N atoms" when more exist, otherwise
+  /// "Open molecule" — the molecule screen stays reachable even when every
+  /// atom already fits inline (or none exist yet).
+  Widget _detailsRow(BuildContext context, {String? label}) {
+    final colors = context.colors;
+
+    return InkWell(
+      onTap: () => AppRoutes.toMolecule(
+        moleculeId: molecule.id,
+        moleculeName: molecule.name,
+      ),
+      borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+        child: Text(
+          label ?? AppLocales.molecule.open.tr,
+          style: context.typo.labelMedium.copyWith(
+            color: colors.primary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A compact atom row inside an expanded molecule on home: source icon,
+/// title, then date · time · duration · status under it.
+class _InlineAtomRow extends StatelessWidget {
+  const _InlineAtomRow({required this.atom});
+
+  final AtomModel atom;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final date = atomShortDate(atom.createdAt);
+    final time = atomShortTime(atom.createdAt);
+    final duration = atomCompactDuration(atom.durationSecs);
+    final status = atomStatusLabel(atom.status);
+    final statusColor = switch (atom.status.toLowerCase()) {
+      'completed' => colors.success,
+      'processing' => colors.warning,
+      'failed' => colors.error,
+      _ => colors.textMuted,
+    };
+    final metaStyle = context.typo.caption.copyWith(color: colors.textMuted);
+
+    return InkWell(
+      onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
+      borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+        child: Row(
+          children: [
+            Icon(
+              atomSourceIcon(atom.source),
+              size: Design.spacing.iconSmall,
+              color: colors.textSecondary,
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    atom.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.bodySmall,
+                  ),
+                  SizedBox(height: 2),
+                  // A Wrap keeps every segment visible on narrow screens
+                  // instead of overflowing the row.
+                  Wrap(
+                    spacing: Design.spacing.sm,
+                    runSpacing: 2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (date.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Design.icons.calendar,
+                              size: 12,
+                              color: colors.textMuted,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(date, style: metaStyle),
+                          ],
+                        ),
+                      if (time.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Design.icons.clock,
+                              size: 12,
+                              color: colors.textMuted,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(time, style: metaStyle),
+                          ],
+                        ),
+                      if (duration.isNotEmpty)
+                        Text(duration, style: metaStyle),
+                      Text(
+                        status,
+                        style: metaStyle.copyWith(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
+            Icon(
+              Design.icons.rightArrow,
+              size: Design.spacing.iconSmall,
+              color: colors.textMuted,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

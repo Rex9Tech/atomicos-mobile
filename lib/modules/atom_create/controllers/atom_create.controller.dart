@@ -178,9 +178,24 @@ class AtomCreateController extends GetxController {
         AtomFromAssetRequest(
           assetId: assetId,
           categoryId: selectedCategoryId.value,
+          language: Get.find<SpeechService>().sttLanguage,
         ),
       ),
     );
+  }
+
+  /// Extensions the backend transcribes — mirrors the core's
+  /// GeminiSpeech::AUDIO_MIME_TYPES; the language sheet shows only for these.
+  static const Set<String> _audioExtensions = {
+    'wav', 'mp3', 'm4a', 'mp4', 'aac', 'ogg', 'oga', 'opus', 'flac',
+    'webm', 'aiff', 'aif', '3gp', 'amr',
+  };
+
+  bool _isAudioFile(String? name) {
+    final clean = (name ?? '').toLowerCase();
+    final dot = clean.lastIndexOf('.');
+    if (dot < 0 || dot == clean.length - 1) return false;
+    return _audioExtensions.contains(clean.substring(dot + 1));
   }
 
   Future<void> createFromUpload() async {
@@ -189,6 +204,16 @@ class AtomCreateController extends GetxController {
     if (path == null || path.isEmpty) {
       await pickUploadAsset();
       if ((pickedUploadPath.value ?? '').isEmpty) return;
+    }
+
+    // Audio files get transcribed after upload — ask which language first
+    // (same sheet as the recorder; dismissing keeps the last choice). Other
+    // files aren't transcribed, so they skip straight through.
+    if (_isAudioFile(pickedUploadName.value)) {
+      await showRecordingLanguageSheet(
+        title: AppLocales.recording.languageUploadTitle.tr,
+        subtitle: AppLocales.recording.languageUploadSub.tr,
+      );
     }
 
     isSubmitting.value = true;
@@ -220,6 +245,7 @@ class AtomCreateController extends GetxController {
         AtomFromAssetRequest(
           assetId: assetId,
           categoryId: selectedCategoryId.value,
+          language: Get.find<SpeechService>().activeRecordingLanguage,
         ),
       );
       if (result.success) {

@@ -22,6 +22,7 @@ import '../modules/notification/notification.dart';
 import '../modules/permission/permission.dart';
 import '../modules/splash/splash.dart';
 import '../modules/media/media.dart';
+import '../modules/molecule/molecule.dart';
 
 class AppRoutes {
   // ===== SERVER ROUTES =====
@@ -41,6 +42,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String atomCreate = '/atom-create';
   static const String atomDetail = '/atom-detail';
+  static const String molecule = '/molecule';
   static const String settings = '/settings';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
@@ -109,14 +111,31 @@ class AppRoutes {
     String mode = 'auto',
     String? atomId,
     String? atomTitle,
+    String? moleculeId,
+    String? moleculeName,
+    String? roomId,
   }) => Get.toNamed(
     ai,
     arguments: {
       'mode': mode,
       if (atomId != null && atomId.isNotEmpty) 'atom_id': atomId,
       if (atomTitle != null && atomTitle.isNotEmpty) 'atom_title': atomTitle,
+      if (moleculeId != null && moleculeId.isNotEmpty) 'molecule_id': moleculeId,
+      if (moleculeName != null && moleculeName.isNotEmpty)
+        'molecule_name': moleculeName,
+      if (roomId != null && roomId.isNotEmpty) 'room_id': roomId,
     },
   );
+
+  static void toMolecule({required String moleculeId, String? moleculeName}) =>
+      Get.toNamed(
+        molecule,
+        arguments: {
+          'molecule_id': moleculeId,
+          if (moleculeName != null && moleculeName.isNotEmpty)
+            'molecule_name': moleculeName,
+        },
+      );
   static void toLiveActivity() => Get.toNamed(liveActivity);
 
   /// Dedicated search screen; the fade keeps the eye on the search bar, which
@@ -178,7 +197,14 @@ class AppRoutes {
         return;
       }
       if (target == ai || target.startsWith('$ai?')) {
-        Get.toNamed(target);
+        // AI links carry the room (and its molecule) so the tap lands on the
+        // related conversation rather than the default one.
+        final query = Uri.tryParse(target)?.queryParameters ?? const {};
+        toAi(
+          roomId: query['room_id'],
+          moleculeId: query['molecule_id'],
+          moleculeName: query['molecule_name'],
+        );
         return;
       }
       if (target == profile) {
@@ -297,6 +323,11 @@ class AppRoutes {
       binding: BindingsBuilder(() {
         Get.lazyPut<AtomDetailsController>(() => AtomDetailsController());
       }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: molecule,
+      page: () => const MoleculePage(),
       middlewares: [GuardRoutes()],
     ),
     GetPage(

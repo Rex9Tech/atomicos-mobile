@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,27 +10,16 @@ import 'package:rexone_mobile/services/services.dart';
 import '../data/models/models.dart';
 import '../services/home.service.dart';
 
+/// Home-page lifecycle only: version reporting/update checks, the one-time
+/// notification permission prompt and the user's molecules refresh.
+///
+/// The atoms list no longer lives here — Home renders the user's molecules
+/// and each molecule screen owns its own atom list ([MoleculeController]).
 class HomeController extends GetxController with WidgetsBindingObserver {
   final VersionService _version = Get.find<VersionService>();
-  final HomeService _home = Get.find<HomeService>();
   final CategoryService _categories = Get.find<CategoryService>();
   final StorageService _storage = Get.find<StorageService>();
-
-  final RxString selectedFilter = 'all'.obs;
-  final RxString searchQuery = ''.obs;
-
-  final RxList<AtomModel> atoms = <AtomModel>[].obs;
-  final RxBool isLoadingAtoms = false.obs;
-  final RxBool isLoadingMore = false.obs;
-  final RxBool hasMoreAtoms = true.obs;
-  final RxBool hasAtomsError = false.obs;
-  final searchController = TextEditingController();
-  Timer? _searchDebounce;
-
-  int _currentPage = 1;
-  static const int _pageSize = 20;
-  static const int _loadAttempts = 4;
-  static const Duration _retryBackoff = Duration(milliseconds: 900);
+  final HomeService _home = Get.find<HomeService>();
 
   @override
   void onInit() {
@@ -40,13 +27,11 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     if (Get.testMode) return;
     // Deferred one frame: the controller is constructed lazily while the
-    // first HomePage build is still running, and starting the request (plus
-    // its global-loading Rx writes) inside a build phase trips flutter's
-    // markNeedsBuild guard. Post-frame keeps the whole load lifecycle
-    // outside the build phase.
+    // first HomePage build is still running, and mutating Rx state inside a
+    // build phase trips flutter's markNeedsBuild guard.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadAtoms();
-      // Dynamic chips: admin-managed categories, refreshed silently.
+      // Molecules come from the user's own list; refreshed silently so the
+      // home list keeps its last state on failure.
       _categories.refresh();
     });
     // Best-effort telemetry — staggered so it doesn't compete for the first
@@ -95,8 +80,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
   @override
   void onClose() {
-    _searchDebounce?.cancel();
-    searchController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.onClose();
   }
@@ -118,109 +101,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       debugPrint('Error: $error');
     }
   }
-
-  /// Loads the workspace atoms.
-  ///
-  /// The first request after a cold start can fail while the device network is
-  /// still coming up, so transient failures are retried silently before the
-  /// error state is surfaced — and already-loaded atoms are never discarded.
-  Future<void> loadAtoms({String? search, String? filter}) async {
-    final resolvedSearch = search ?? searchQuery.value;
-    final resolvedFilter = filter ?? selectedFilter.value;
-    isLoadingAtoms.value = true;
-    hasAtomsError.value = false;
-
-    for (var attempt = 1; attempt <= _loadAttempts; attempt++) {
-      try {
-        final result = await _home.getAtoms(
-          page: 1,
-          limit: _pageSize,
-          search: resolvedSearch,
-          categoryId: _categoryIdFor(resolvedFilter),
-        );
-        atoms.assignAll(result.records);
-        _currentPage = 1;
-        hasMoreAtoms.value =
-            result.pagination?.hasNextPage ??
-            (result.records.length >= _pageSize);
-        hasAtomsError.value = false;
-        isLoadingAtoms.value = false;
-        return;
-      } catch (error) {
-        debugPrint(
-          'HomeController.loadAtoms attempt $attempt/$_loadAttempts failed: $error',
-        );
-        if (attempt < _loadAttempts) {
-          await Future<void>.delayed(_retryBackoff * attempt);
-          continue;
-        }
-        hasAtomsError.value = true;
-      }
-    }
-
-    isLoadingAtoms.value = false;
-  }
-
-  /// Appends the next page of atoms — driven by infinite scroll on Home.
-  ///
-  /// Never touches the global loading overlay and never blanks the list: a
-  /// failed page simply leaves [hasMoreAtoms] as it was, so the next scroll
-  /// retries.
-  Future<void> loadMore() async {
-    if (isLoadingAtoms.value || isLoadingMore.value || !hasMoreAtoms.value) {
-      return;
-    }
-
-    isLoadingMore.value = true;
-    final nextPage = _currentPage + 1;
-    final resolvedFilter = selectedFilter.value;
-
-    try {
-      final result = await _home.getAtoms(
-        page: nextPage,
-        limit: _pageSize,
-        search: searchQuery.value,
-        categoryId: _categoryIdFor(resolvedFilter),
-      );
-
-      // Guard against a refresh that landed while this page was in flight.
-      if (nextPage == _currentPage + 1) {
-        atoms.addAll(result.records);
-        _currentPage = nextPage;
-      }
-      hasMoreAtoms.value =
-          result.pagination?.hasNextPage ??
-          (result.records.length >= _pageSize);
-    } catch (error) {
-      debugPrint('HomeController.loadMore page $nextPage failed: $error');
-    } finally {
-      isLoadingMore.value = false;
-    }
-  }
-
-  void selectFilter(String value) {
-    if (selectedFilter.value == value) return;
-    selectedFilter.value = value;
-    loadAtoms();
-  }
-
-  void updateSearch(String value) {
-    searchQuery.value = value.trim();
-    _searchDebounce?.cancel();
-    _searchDebounce = Timer(Design.timers.debounce, loadAtoms);
-  }
-
-  void clearSearch() {
-    if (searchQuery.value.isEmpty && searchController.text.isEmpty) return;
-    searchController.clear();
-    searchQuery.value = '';
-    _searchDebounce?.cancel();
-    loadAtoms(search: '');
-  }
-
-  /// 'all' → no category filter; anything else is a category id.
-  String? _categoryIdFor(String filter) =>
-      filter == 'all' || filter.isEmpty ? null : filter;
 
   Future<void> _checkVersionOnResume() async {
     try {
@@ -264,6 +144,60 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       }
     } catch (error) {
       debugPrint('Resume version check error: $error');
+    }
+  }
+
+  // ============================================================
+  // MOLECULE EXPANSION (home accordion)
+  // ============================================================
+
+  /// Molecules the user expanded inline on home.
+  final RxSet<String> expandedMolecules = <String>{}.obs;
+
+  /// First-page atoms per expanded molecule — lazily fetched on first
+  /// expand and kept fresh by socket atom events via
+  /// [refreshExpandedMolecules].
+  final RxMap<String, List<AtomModel>> moleculeAtoms =
+      <String, List<AtomModel>>{}.obs;
+
+  /// Molecules whose inline atoms are currently loading.
+  final RxSet<String> loadingMolecules = <String>{}.obs;
+
+  /// Toggles a molecule's inline atom list on home; the first expand loads
+  /// it, later expands reuse the cache.
+  Future<void> toggleMolecule(String moleculeId) async {
+    if (expandedMolecules.contains(moleculeId)) {
+      expandedMolecules.remove(moleculeId);
+      return;
+    }
+    expandedMolecules.add(moleculeId);
+    if (!moleculeAtoms.containsKey(moleculeId)) {
+      await _loadMoleculeAtoms(moleculeId);
+    }
+  }
+
+  Future<void> _loadMoleculeAtoms(String moleculeId) async {
+    loadingMolecules.add(moleculeId);
+    try {
+      final result = await _home.getAtoms(
+        categoryId: moleculeId,
+        page: 1,
+        limit: 20,
+      );
+      if (result.success) {
+        moleculeAtoms[moleculeId] = result.records;
+      }
+    } catch (error) {
+      debugPrint('🏠 [HomeController] molecule atoms error: $error');
+    } finally {
+      loadingMolecules.remove(moleculeId);
+    }
+  }
+
+  /// Socket atom events: keep every expanded molecule's inline list fresh.
+  Future<void> refreshExpandedMolecules() async {
+    for (final moleculeId in expandedMolecules.toList()) {
+      await _loadMoleculeAtoms(moleculeId);
     }
   }
 }

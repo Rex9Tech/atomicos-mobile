@@ -20,6 +20,9 @@ class StorageKeys {
   static const audioSession = 'audio_session';
   static const mediaDownloads = 'media_downloads';
 
+  // Live recording language (SpeechService)
+  static const recordingLanguage = 'recording_language';
+
   // Device-calendar sync
   static const calendarTarget = 'calendar_target';
   static const calendarLinks = 'calendar_event_links';

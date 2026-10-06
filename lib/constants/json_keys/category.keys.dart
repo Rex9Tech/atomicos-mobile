@@ -10,5 +10,6 @@ class CategoryKeys {
   static const description = 'description';
   static const position = 'position';
   static const categoryId = 'category_id';
+  static const atomsCount = 'atoms_count';
   static const isAdmin = 'is_admin';
 }

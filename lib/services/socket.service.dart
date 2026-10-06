@@ -214,8 +214,13 @@ class SocketService extends GetxService with WidgetsBindingObserver {
     _subscribed.clear();
   }
 
+  /// Full identifier strings per channel — remembers subscribe-time parameters
+  /// (e.g. the STT language) so `perform`/`unsubscribe` reuse the SAME
+  /// identifier Action Cable matched on subscribe.
+  final Map<String, String> _identifiers = {};
+
   String _identifierFor(String channel) =>
-      jsonEncode({SocketKeys.channel: channel});
+      _identifiers[channel] ?? jsonEncode({SocketKeys.channel: channel});
 
   String? _channelFromIdentifier(dynamic identifier) {
     if (identifier == null) return null;
@@ -233,7 +238,7 @@ class SocketService extends GetxService with WidgetsBindingObserver {
   }
 
   /// `confirm_subscription`, `false` on reject or timeout.
-  Future<bool> subscribe(String channel) async {
+  Future<bool> subscribe(String channel, {Map<String, dynamic>? params}) async {
     if (!isConnected.value) {
       debugPrint(
         '🔌 [SocketService] Cannot subscribe, socket is not connected',
@@ -248,9 +253,13 @@ class SocketService extends GetxService with WidgetsBindingObserver {
     final completer = Completer<bool>();
     _pendingSubs[channel] = completer;
 
+    _identifiers[channel] = jsonEncode({
+      SocketKeys.channel: channel,
+      ...?params,
+    });
     send({
       SocketKeys.command: SocketKeys.subscribe,
-      SocketKeys.identifier: _identifierFor(channel),
+      SocketKeys.identifier: _identifiers[channel],
     });
 
     try {
@@ -270,6 +279,7 @@ class SocketService extends GetxService with WidgetsBindingObserver {
       SocketKeys.command: SocketKeys.unsubscribe,
       SocketKeys.identifier: _identifierFor(channel),
     });
+    _identifiers.remove(channel);
     _subscribed.remove(channel);
     final completer = _pendingSubs.remove(channel);
     if (completer != null && !completer.isCompleted) {

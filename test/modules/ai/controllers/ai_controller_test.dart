@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/modules/ai/ai.dart';
+import 'package:rexone_mobile/modules/home/data/models/models.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/services/services.dart';
 import '../../../mocks/test_services.dart';
@@ -19,6 +20,15 @@ void main() {
   late FakeRecordingService fakeRecording;
   late FakeHomeService fakeHome;
   late AiController controller;
+
+  AtomModel atomModel(String id, String title) => AtomModel(
+    id: id,
+    title: title,
+    source: 'note',
+    status: 'completed',
+    createdAt: '2026-09-01T00:00:00Z',
+    updatedAt: '2026-09-01T00:00:00Z',
+  );
 
   setUp(() {
     Get.testMode = true;
@@ -363,6 +373,63 @@ void main() {
       expect(controller.messages[0].id, equals('msg_c1'));
       expect(controller.messages[1].id, equals('msg_c2'));
       expect(controller.currentRoomId.value, equals('room_chunks'));
+    });
+  });
+
+  group('AiController - Molecule context', () {
+    test(
+      'a molecule context carries every atom of the molecule with the question',
+      () async {
+        fakeHome.pages.addAll([
+          [atomModel('m1', 'Standup notes'), atomModel('m2', 'Launch plan')],
+        ]);
+
+        controller.attachContextMolecule(
+          const CategoryModel(id: 'mol-1', name: 'Work'),
+        );
+
+        // One context at a time — a molecule replaces any pinned atom.
+        expect(controller.contextAtom.value, isNull);
+        expect(controller.contextMolecule.value?.id, 'mol-1');
+
+        await controller.sendMessage('Summarise my work molecule');
+
+        final request = fakeAi.lastChatRequest;
+        expect(request, isNotNull);
+        expect(request!.context, isNotNull);
+        expect(request.context, contains('molecule "Work"'));
+        expect(request.context, contains('Standup notes'));
+        expect(request.context, contains('Launch plan'));
+        expect(fakeHome.requestedCategoryIds, contains('mol-1'));
+      },
+    );
+
+    test('clearing the molecule context drops it from the next send', () async {
+      fakeHome.pages.addAll([
+        [atomModel('m1', 'Standup notes')],
+      ]);
+
+      controller.attachContextMolecule(
+        const CategoryModel(id: 'mol-1', name: 'Work'),
+      );
+      controller.clearContextMolecule();
+
+      await controller.sendMessage('No context question');
+
+      expect(fakeAi.lastChatRequest?.context, isNull);
+    });
+
+    test('an empty molecule still sends a usable context note', () async {
+      controller.attachContextMolecule(
+        const CategoryModel(id: 'mol-empty', name: 'Empty'),
+      );
+
+      await controller.sendMessage('Anything in this molecule?');
+
+      expect(
+        fakeAi.lastChatRequest?.context,
+        contains('no atoms in this molecule yet'),
+      );
     });
   });
 }

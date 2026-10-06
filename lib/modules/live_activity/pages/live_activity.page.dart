@@ -123,23 +123,40 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                   color: colors.textSecondary,
                 ),
                 SizedBox(width: Design.spacing.xs),
-                Text(
-                  AppLocales.recording.liveMeeting.tr,
-                  style: context.typo.labelMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          AppLocales.recording.liveMeeting.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typo.labelMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: Design.spacing.sm),
+                      Text(
+                        controller.isRecording.value ? 'recording' : 'paused',
+                        style: context.typo.bodySmall.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: Design.spacing.sm),
-                Text(
-                  controller.isRecording.value
-                      ? 'recording in progress'
-                      : 'paused',
-                  style: context.typo.bodySmall.copyWith(
-                    color: colors.textMuted,
+                SizedBox(width: Design.spacing.xs),
+                Obx(
+                  () => Text(
+                    controller.activeLanguageLabel,
+                    style: context.typo.labelMedium.copyWith(
+                      color: colors.textMuted,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                SizedBox(width: Design.spacing.xs),
                 _LiveBadge(active: controller.isTranscriptLive.value),
               ],
             ),

@@ -52,6 +52,18 @@ class LiveActivityController extends GetxController {
     return '$m:$s';
   }
 
+  /// Native label of the language the live transcript is using.
+  String get activeLanguageLabel =>
+      recordingLanguageLabel(_speech.activeRecordingLanguage);
+
+  /// Completes after the next rendered frame — defers UI side effects that
+  /// would otherwise run while the page is still building (onInit).
+  Future<void> _waitForPostFrame() {
+    final completer = Completer<void>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
+    return completer.future;
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -86,6 +98,16 @@ class LiveActivityController extends GetxController {
   Future<void> startRecording() async {
     if (_started) return;
     _started = true;
+
+    // The controller is created while the page is still building; showing the
+    // language sheet synchronously here would insert an overlay mid-build
+    // ("visitChildElements() called during build"). Wait one frame first.
+    await _waitForPostFrame();
+
+    // Ask which language to transcribe before the mic goes live; dismissing
+    // keeps the current selection.
+    await showRecordingLanguageSheet();
+
     isRecording.value = true;
     _startTicker();
 
@@ -221,6 +243,15 @@ class LiveActivityController extends GetxController {
         if (audioPath != null) {
           await _uploadAudio(atomId, audioPath);
         }
+        // Ask which molecule the new atom belongs to — dismissing leaves it
+        // uncategorized, and a failure here must never block the finish.
+        try {
+          final picked = await showMoleculePickerSheet();
+          if (picked != null && picked.isNotEmpty) {
+            await _home.setCategory(atomId: atomId, categoryId: picked);
+            await Get.find<CategoryService>().refresh();
+          }
+        } catch (_) {}
         // Replace the finished recording sheet so Back lands on the screen the
         // recording was started from, not on a dead recording session.
         AppRoutes.toAtomDetail(atomId: atomId, replace: true);

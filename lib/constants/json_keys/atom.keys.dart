@@ -4,6 +4,8 @@ class AtomKeys {
 
   static const atom = 'atom';
   static const title = 'title';
+  static const atomId = 'atom_id';
+  static const atomTitle = 'atom_title';
   static const source = 'source';
   static const status = 'status';
   static const durationSecs = 'duration_secs';
@@ -19,6 +21,7 @@ class AtomKeys {
   static const text = 'text';
   static const url = 'url';
   static const assetId = 'asset_id';
+  static const language = 'language';
   static const createdAt = 'created_at';
   static const updatedAt = 'updated_at';
 

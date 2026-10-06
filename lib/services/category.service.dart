@@ -1,4 +1,6 @@
 // lib/services/category.service.dart
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
@@ -26,6 +28,14 @@ class CategoryService extends GetxService {
     _api = Get.find<ApiService>();
   }
 
+  /// True while the framework is building/laying out the current frame — Rx
+  /// writes are not allowed then.
+  bool get _inBuildPhase {
+    final phase = WidgetsBinding.instance.schedulerPhase;
+    return phase == SchedulerPhase.persistentCallbacks ||
+        phase == SchedulerPhase.midFrameMicrotasks;
+  }
+
   /// GET /v1/categories
   Future<ApiResponse<List<CategoryModel>>> list() async {
     final response = await _api.get(
@@ -42,8 +52,18 @@ class CategoryService extends GetxService {
   }
 
   /// Silent refresh into [categories] — chips keep their last state on failure.
+  ///
+  /// Callers include route `onInit`s (they run while the page is still
+  /// building), and the first Rx write here would throw "markNeedsBuild
+  /// during build" — defer to after the frame in that case.
   Future<void> refresh() async {
     if (isLoading.value) return;
+    if (_inBuildPhase) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        refresh();
+      });
+      return;
+    }
     isLoading.value = true;
     try {
       final result = await list();

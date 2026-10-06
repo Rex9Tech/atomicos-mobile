@@ -33,6 +33,10 @@ class AiController extends GetxController {
   final RxnString currentRoomId = RxnString();
   final RxString currentRoomTitle = AppLocales.ai.title.tr.obs;
 
+  /// The molecule the OPEN conversation belongs to — drives the "Ask {name}"
+  /// header; null for plain chats.
+  final RxnString currentMoleculeName = RxnString();
+
   final RxBool isProcessing = false.obs;
   final RxnString activeTtsMessageId = RxnString();
   final RxBool isTtsLoading = false.obs;
@@ -58,6 +62,9 @@ class AiController extends GetxController {
   final RxBool isLoadingContext = false.obs;
   final RxnString contextFilter = RxnString('All');
   final Rxn<AtomModel> contextAtom = Rxn<AtomModel>();
+
+  /// Whole-molecule context (every atom inside it) — one context at a time.
+  final Rxn<CategoryModel> contextMolecule = Rxn<CategoryModel>();
   final RxnString attachmentName = RxnString();
   final RxnString attachmentPath = RxnString();
   final searchContextController = TextEditingController();
@@ -71,6 +78,10 @@ class AiController extends GetxController {
 
   /// How much of an attached atom is sent to the model.
   static const int _contextCharLimit = 4000;
+
+  /// Shared budget when the WHOLE molecule travels as context — every atom in
+  /// it, digested, up to this many characters.
+  static const int _moleculeCharLimit = 12000;
 
   /// Keeps replies structured so the chat can render them as markdown.
   static const String _markdownSystemPrompt =
@@ -129,6 +140,29 @@ class AiController extends GetxController {
     // Fallback for callers that only pass a title.
     if (args is Map && args['atom_title'] != null) {
       _seedQuestion(args['atom_title'].toString());
+    }
+    // Opened from a notification: land on the room it points at (the
+    // related molecule's conversation when it has one).
+    if (args is Map && args['room_id'] != null) {
+      final roomId = args['room_id'].toString();
+      if (roomId.isNotEmpty) {
+        unawaited(
+          openNotificationRoom(
+            roomId: roomId,
+            moleculeId: args['molecule_id']?.toString(),
+            moleculeName: args['molecule_name']?.toString(),
+          ),
+        );
+      }
+    } else if (args is Map && args['molecule_id'] != null) {
+      // Opened from a molecule: open the molecule's OWN conversation so asks
+      // stay in one history per molecule (created on first ask).
+      final id = args['molecule_id'].toString();
+      if (id.isNotEmpty) {
+        unawaited(
+          _openMoleculeAsk(id, args['molecule_name']?.toString()),
+        );
+      }
     }
     // Meeting workspace starts idle; the user taps the record control to start
     // a backend session (startRecording) + device mic.
@@ -284,13 +318,15 @@ class AiController extends GetxController {
     _startProcessingWatchdog();
 
     try {
-      final context = _composeContext();
+      final context = await _composeContext();
       final response = await _ai.chat(
         AiChatRequest(
           message: clean,
           roomId: currentRoomId.value,
           systemPrompt: _markdownSystemPrompt,
           context: context.isEmpty ? null : context,
+          atomId: contextAtom.value?.id,
+          atomTitle: contextAtom.value?.title,
         ),
       );
       if (response.success && response.data != null) {
@@ -357,11 +393,18 @@ class AiController extends GetxController {
     await sendMessage(prompt);
   }
 
-  /// Hidden context sent alongside the question — attached atom digest and/or
-  /// file name. Travels in its own field so the chat UI and stored history
-  /// only ever show what the user actually typed.
-  String _composeContext() {
+  /// Hidden context sent alongside the question — attached molecule digest
+  /// and/or atom digest and/or file name. Travels in its own field so the
+  /// chat UI and stored history only ever show what the user actually typed.
+  Future<String> _composeContext() async {
     final parts = <String>[];
+    final molecule = contextMolecule.value;
+    if (molecule != null) {
+      final digest = await _moleculeSnippet(molecule);
+      parts.add(
+        'Context — molecule "${molecule.name}" (every atom in this molecule):\n$digest',
+      );
+    }
     final atom = contextAtom.value;
     if (atom != null) {
       final snippet = _contextSnippet(atom);
@@ -372,6 +415,36 @@ class AiController extends GetxController {
       parts.add('Attached file: $attachment');
     }
     return parts.join('\n\n');
+  }
+
+  /// The whole molecule for the model: every atom inside it, digested like a
+  /// single-atom context but with a larger shared budget, so the AI is aware
+  /// of the complete molecule before answering.
+  Future<String> _moleculeSnippet(CategoryModel molecule) async {
+    try {
+      final result = await _home.getAtoms(categoryId: molecule.id, limit: 50);
+      final atoms = result.records;
+      if (atoms.isEmpty) return '(no atoms in this molecule yet)';
+
+      final entries = <String>[];
+      var used = 0;
+      for (final atom in atoms) {
+        final snippet = _contextSnippet(atom);
+        final entry =
+            '- ${atom.title} [${atom.source}]'
+            '${snippet.isEmpty ? '' : ': $snippet'}';
+        entries.add(entry);
+        used += entry.length;
+        if (used >= _moleculeCharLimit) break;
+      }
+
+      final text = entries.join('\n\n');
+      if (text.length <= _moleculeCharLimit) return text;
+      return '${text.substring(0, _moleculeCharLimit)}…';
+    } catch (error) {
+      debugPrint('🤖 [AiController] molecule snippet error: $error');
+      return '(could not load this molecule\'s atoms)';
+    }
   }
 
   /// Short, model-friendly digest of an atom used as conversation context:
@@ -420,6 +493,107 @@ class AiController extends GetxController {
     textController.selection = TextSelection.fromPosition(
       TextPosition(offset: seeded.length),
     );
+  }
+
+  /// Loads the molecule handed over by the molecule screen and opens ITS own
+  /// conversation — asking about a molecule must land in that molecule's
+  /// history, not in whatever room was last active.
+  Future<void> _openMoleculeAsk(String moleculeId, String? name) async {
+    final categories = Get.find<CategoryService>();
+    var molecule = categories.byId(moleculeId);
+    if (molecule == null) {
+      try {
+        await categories.refresh();
+      } catch (_) {}
+      molecule = categories.byId(moleculeId);
+    }
+    molecule ??= (name != null && name.isNotEmpty)
+        ? CategoryModel(id: moleculeId, name: name)
+        : null;
+    if (molecule == null) return;
+    await openMoleculeChat(molecule);
+  }
+
+  /// Opens the molecule's home conversation, creating it on the first ask.
+  /// The server get-or-creates one room per molecule, so the thread persists
+  /// across asks. Quiet on purpose: this runs from onInit (no snackbars).
+  Future<void> openMoleculeChat(CategoryModel molecule) async {
+    try {
+      final response = await _ai.createRoom(
+        CreateRoomRequest(title: molecule.name, categoryId: molecule.id),
+      );
+      if (response.success && response.data != null) {
+        final room = response.data!;
+        if (!rooms.any((r) => r.id == room.id)) {
+          rooms.insert(0, room);
+        }
+        contextMolecule.value = molecule;
+        contextAtom.value = null;
+        selectRoom(room);
+        // Only a brand-new molecule chat gets the suggested question; a
+        // returning thread shows its history instead.
+        if (room.messageCount == 0) _seedQuestion(molecule.name);
+      }
+    } catch (error) {
+      debugPrint('🤖 [AiController] openMoleculeChat error: $error');
+    }
+  }
+
+  /// Opens the room a notification points at: a tap on "Your AI response is
+  /// ready" lands in the related molecule's conversation, history included.
+  Future<void> openNotificationRoom({
+    required String roomId,
+    String? moleculeId,
+    String? moleculeName,
+  }) async {
+    if (roomId.isEmpty) return;
+
+    AiRoomModel? room;
+    for (final r in rooms) {
+      if (r.id == roomId) {
+        room = r;
+        break;
+      }
+    }
+    room ??= AiRoomModel(
+      id: roomId,
+      title: (moleculeName == null || moleculeName.isEmpty)
+          ? AppLocales.ai.title.tr
+          : moleculeName,
+      messageCount: 0,
+      createdAt: AppDateTime.toUtcIso(DateTime.now())!,
+      updatedAt: AppDateTime.toUtcIso(DateTime.now())!,
+      processing: false,
+      categoryId: moleculeId,
+    );
+    selectRoom(room);
+  }
+
+  /// Pins (or clears) the molecule context for a room: a molecule's room
+  /// carries its molecule so every question in the thread stays grounded in
+  /// it; plain chats drop any stale molecule instead of leaking it into
+  /// another conversation.
+  Future<void> _pinRoomMolecule(AiRoomModel room) async {
+    try {
+      final categoryId = room.categoryId;
+      if (categoryId == null || categoryId.isEmpty) {
+        contextMolecule.value = null;
+        currentMoleculeName.value = null;
+        return;
+      }
+      final categories = Get.find<CategoryService>();
+      var molecule = categories.byId(categoryId);
+      if (molecule == null) {
+        await categories.refresh();
+        molecule = categories.byId(categoryId);
+      }
+      final resolved =
+          molecule ?? CategoryModel(id: categoryId, name: room.title);
+      contextMolecule.value = resolved;
+      currentMoleculeName.value = resolved.name;
+    } catch (error) {
+      debugPrint('🤖 [AiController] pinRoomMolecule skipped: $error');
+    }
   }
 
   // ===== Processing watchdog: never leave the composer stuck =====
@@ -483,6 +657,10 @@ class AiController extends GetxController {
     contextAtoms.clear();
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
+    // A molecule's room carries its molecule: re-pin it so questions in this
+    // thread keep the whole molecule as context (plain chats drop any stale
+    // molecule instead of leaking it into another conversation).
+    unawaited(_pinRoomMolecule(room));
     // Drop the previous room's bubbles so the new thread never flashes stale
     // messages while the history request is in flight.
     messages.clear();
@@ -538,6 +716,7 @@ class AiController extends GetxController {
         if (currentRoomId.value == roomId) {
           currentRoomId.value = null;
           currentRoomTitle.value = AppLocales.ai.title.tr;
+          currentMoleculeName.value = null;
           loadHistory();
         }
       }
@@ -665,6 +844,8 @@ class AiController extends GetxController {
 
   void attachContextAtom(AtomModel atom) {
     contextAtom.value = atom;
+    // One context at a time: a specific atom replaces any whole molecule.
+    contextMolecule.value = null;
     AppSnackbar.success(
       AppLocales.ai.usingAsContext.trParams({'name': atom.title}),
     );
@@ -672,6 +853,19 @@ class AiController extends GetxController {
 
   void clearContextAtom() {
     contextAtom.value = null;
+  }
+
+  /// Pins the WHOLE molecule (all of its atoms) as context for the chat.
+  void attachContextMolecule(CategoryModel molecule) {
+    contextMolecule.value = molecule;
+    contextAtom.value = null;
+    AppSnackbar.success(
+      AppLocales.ai.usingMoleculeAsContext.trParams({'name': molecule.name}),
+    );
+  }
+
+  void clearContextMolecule() {
+    contextMolecule.value = null;
   }
 
   /// Atoms for the picker after applying the source filter chip.
@@ -824,6 +1018,10 @@ class AiController extends GetxController {
   Future<void> startRecording() async {
     if (currentRecordingId.value != null) return;
 
+    // Ask which language to transcribe before the mic goes live; dismissing
+    // keeps the current selection.
+    await showRecordingLanguageSheet();
+
     final result = await _recording.start(AppLocales.ai.title.tr);
     if (!result.success || result.data == null) {
       AppSnackbar.error(
@@ -886,6 +1084,15 @@ class AiController extends GetxController {
       currentRecordingId.value = null;
       setRecordingStage('complete');
       if (atomId != null && atomId.isNotEmpty) {
+        // File it under a molecule (dismiss = leave uncategorized; failures
+        // never block the finish).
+        try {
+          final picked = await showMoleculePickerSheet();
+          if (picked != null && picked.isNotEmpty) {
+            await _home.setCategory(atomId: atomId, categoryId: picked);
+            await Get.find<CategoryService>().refresh();
+          }
+        } catch (_) {}
         AppSnackbar.success('Recording saved');
         AppRoutes.toAtomDetail(atomId: atomId);
       }

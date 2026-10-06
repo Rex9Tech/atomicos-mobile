@@ -201,12 +201,18 @@ class AppDialog {
           ),
           actions: [
             CupertinoDialogAction(
-              onPressed: () => Get.back(result: false),
+              onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: false);
+            },
               isDefaultAction: true,
               child: Text(AppLocales.common.cancel.tr),
             ),
             CupertinoDialogAction(
-              onPressed: () => Get.back(result: true),
+              onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: true);
+            },
               isDestructiveAction: true,
               child: Text(label),
             ),
@@ -235,13 +241,19 @@ class AppDialog {
         actions: [
           AppButton(
             type: EButtonType.text,
-            onPressed: () => Get.back(result: false),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: false);
+            },
             text: AppLocales.common.cancel.tr,
             color: cancelColor,
           ),
           AppButton(
             type: EButtonType.text,
-            onPressed: () => Get.back(result: true),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: true);
+            },
             text: label,
             color: confirmColor,
           ),
@@ -269,12 +281,18 @@ class AppDialog {
           ),
           actions: [
             CupertinoDialogAction(
-              onPressed: () => Get.back(result: false),
+              onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: false);
+            },
               isDefaultAction: true,
               child: Text(AppLocales.common.cancel.tr),
             ),
             CupertinoDialogAction(
-              onPressed: () => Get.back(result: true),
+              onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: true);
+            },
               isDestructiveAction: true,
               child: Text(AppLocales.common.exit.tr),
             ),
@@ -303,12 +321,18 @@ class AppDialog {
         actions: [
           AppButton(
             type: EButtonType.text,
-            onPressed: () => Get.back(result: false),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: false);
+            },
             text: AppLocales.common.cancel.tr,
           ),
           AppButton(
             type: EButtonType.text,
-            onPressed: () => Get.back(result: true),
+            onPressed: () {
+              Get.closeAllSnackbars();
+              Get.back(result: true);
+            },
             text: AppLocales.common.exit.tr,
           ),
         ],

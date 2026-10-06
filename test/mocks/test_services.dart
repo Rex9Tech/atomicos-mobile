@@ -45,6 +45,14 @@ class FakeStorageService extends StorageService {
   String? getToken() => memory[StorageKeys.token] as String?;
 
   @override
+  void setRecordingLanguage(String code) =>
+      memory[StorageKeys.recordingLanguage] = code;
+
+  @override
+  String? getRecordingLanguage() =>
+      memory[StorageKeys.recordingLanguage] as String?;
+
+  @override
   void setUserEmail(String email) => memory[StorageKeys.userEmail] = email;
 
   @override
@@ -667,12 +675,19 @@ class FakeAiService extends AiService {
   PaginatedResponse<AiMessageModel>? historyResponse;
   ApiResponse<AiMessageModel>? chatResponse;
   ApiResponse<AiRoomModel>? createRoomResponse;
+
+  /// The most recent [createRoom] request — lets tests assert which molecule
+  /// a room was opened for.
+  CreateRoomRequest? lastCreateRoomRequest;
   ApiResponse<AiRoomModel>? renameRoomResponse;
   ApiResponse<void>? deleteRoomResponse;
   ApiResponse<void>? clearHistoryResponse;
 
   /// Records the room id of the most recent [getHistory] call.
   String? lastHistoryRoomId;
+
+  /// The most recent [chat] request — lets tests assert the composed context.
+  AiChatRequest? lastChatRequest;
 
   /// Total [getHistory] calls made.
   int historyCalls = 0;
@@ -720,6 +735,7 @@ class FakeAiService extends AiService {
 
   @override
   Future<ApiResponse<AiMessageModel>> chat(AiChatRequest request) async {
+    lastChatRequest = request;
     return chatResponse ??
         ApiResponse.success(
           message: 'Chat response queued',
@@ -739,6 +755,7 @@ class FakeAiService extends AiService {
 
   @override
   Future<ApiResponse<AiRoomModel>> createRoom(CreateRoomRequest request) async {
+    lastCreateRoomRequest = request;
     return createRoomResponse ??
         ApiResponse.success(
           message: 'Created',
@@ -980,6 +997,18 @@ class FakeSpeechService extends GetxService
   bool get isBusy => isListenSessionActive || isPlaying.value;
 
   @override
+  String get sttLanguage => 'my-MM';
+
+  @override
+  final RxString recordingLanguage = ''.obs;
+
+  @override
+  String get activeRecordingLanguage =>
+      recordingLanguage.value.isNotEmpty
+          ? recordingLanguage.value
+          : sttLanguage;
+
+  @override
   bool allowBackgroundListening = false;
 @override
   Future<void> Function()? beforeTtsPlayback;
@@ -1042,6 +1071,7 @@ class FakeSpeechService extends GetxService
     dynamic audioBytes, {
     String filename = 'audio.wav',
     bool showLoading = true,
+    String? language,
   }) async {
     return ApiResponse.success(
       message: 'STT complete',
@@ -1054,6 +1084,7 @@ class FakeSpeechService extends GetxService
   Future<ApiResponse<String>> speechToTextFromUrl(
     String audioUrl, {
     bool showLoading = true,
+    String? language,
   }) async {
     return ApiResponse.success(
       message: 'STT complete',
