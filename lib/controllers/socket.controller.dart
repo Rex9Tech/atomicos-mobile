@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/components/components.dart';
 import 'package:rexone_mobile/services/services.dart';
 import '../modules/ai/ai.dart';
+import '../modules/home/home.dart';
 import '../modules/molecule/molecule.dart';
 import '../modules/payment/payment.dart';
 import '../modules/notification/notification.dart';
@@ -162,8 +163,12 @@ class SocketController extends GetxController {
       // it is open (Home itself renders molecules, which don't change here).
       MoleculeController.active?.reload();
       // Home's molecule cards show atom counts — keep them in step with the
-      // event that just changed an atom.
+      // event that just changed an atom. Expanded molecules also reload
+      // their inline atom rows.
       Get.find<CategoryService>().refresh();
+      if (Get.isRegistered<HomeController>()) {
+        unawaited(Get.find<HomeController>().refreshExpandedMolecules());
+      }
     }
   }
 }

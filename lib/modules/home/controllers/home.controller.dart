@@ -7,6 +7,9 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
+import '../data/models/models.dart';
+import '../services/home.service.dart';
+
 /// Home-page lifecycle only: version reporting/update checks, the one-time
 /// notification permission prompt and the user's molecules refresh.
 ///
@@ -16,6 +19,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   final VersionService _version = Get.find<VersionService>();
   final CategoryService _categories = Get.find<CategoryService>();
   final StorageService _storage = Get.find<StorageService>();
+  final HomeService _home = Get.find<HomeService>();
 
   @override
   void onInit() {
@@ -140,6 +144,60 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       }
     } catch (error) {
       debugPrint('Resume version check error: $error');
+    }
+  }
+
+  // ============================================================
+  // MOLECULE EXPANSION (home accordion)
+  // ============================================================
+
+  /// Molecules the user expanded inline on home.
+  final RxSet<String> expandedMolecules = <String>{}.obs;
+
+  /// First-page atoms per expanded molecule — lazily fetched on first
+  /// expand and kept fresh by socket atom events via
+  /// [refreshExpandedMolecules].
+  final RxMap<String, List<AtomModel>> moleculeAtoms =
+      <String, List<AtomModel>>{}.obs;
+
+  /// Molecules whose inline atoms are currently loading.
+  final RxSet<String> loadingMolecules = <String>{}.obs;
+
+  /// Toggles a molecule's inline atom list on home; the first expand loads
+  /// it, later expands reuse the cache.
+  Future<void> toggleMolecule(String moleculeId) async {
+    if (expandedMolecules.contains(moleculeId)) {
+      expandedMolecules.remove(moleculeId);
+      return;
+    }
+    expandedMolecules.add(moleculeId);
+    if (!moleculeAtoms.containsKey(moleculeId)) {
+      await _loadMoleculeAtoms(moleculeId);
+    }
+  }
+
+  Future<void> _loadMoleculeAtoms(String moleculeId) async {
+    loadingMolecules.add(moleculeId);
+    try {
+      final result = await _home.getAtoms(
+        categoryId: moleculeId,
+        page: 1,
+        limit: 20,
+      );
+      if (result.success) {
+        moleculeAtoms[moleculeId] = result.records;
+      }
+    } catch (error) {
+      debugPrint('🏠 [HomeController] molecule atoms error: $error');
+    } finally {
+      loadingMolecules.remove(moleculeId);
+    }
+  }
+
+  /// Socket atom events: keep every expanded molecule's inline list fresh.
+  Future<void> refreshExpandedMolecules() async {
+    for (final moleculeId in expandedMolecules.toList()) {
+      await _loadMoleculeAtoms(moleculeId);
     }
   }
 }

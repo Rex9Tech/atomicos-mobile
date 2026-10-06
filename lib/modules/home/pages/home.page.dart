@@ -7,6 +7,7 @@ import 'package:rexone_mobile/services/services.dart';
 
 import '../../auth/auth.dart';
 import '../../search/search.dart';
+import '../controllers/home.controller.dart';
 import '../data/models/models.dart';
 import 'widgets/notification_bell.dart';
 
@@ -598,7 +599,8 @@ class HomePage extends GetView<AuthController> {
   }
 }
 
-/// One molecule in the home list — opens the molecule's atoms.
+/// One molecule in the home list — tap to expand its atoms inline; the
+/// expanded panel keeps the full molecule screen one tap away.
 class _MoleculeCard extends StatelessWidget {
   const _MoleculeCard({required this.molecule});
 
@@ -607,60 +609,189 @@ class _MoleculeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final home = Get.find<HomeController>();
 
-    return InkWell(
-      onTap: () => AppRoutes.toMolecule(
-        moleculeId: molecule.id,
-        moleculeName: molecule.name,
-      ),
-      borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
-      child: AppNeumoSurface(
-        radius: Design.spacing.radiusXLarge,
-        padding: EdgeInsets.symmetric(
-          horizontal: Design.spacing.lg,
-          vertical: Design.spacing.md,
-        ),
-        child: Row(
-          children: [
-            AppNeumoSurface(
-              circle: true,
-              soft: true,
-              width: 40,
-              height: 40,
-              padding: EdgeInsets.zero,
-              color: colors.primary.withValues(alpha: 0.12),
-              child: Icon(
-                Design.icons.molecule,
-                size: Design.spacing.iconSmall,
-                color: colors.primary,
-              ),
-            ),
-            SizedBox(width: Design.spacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() {
+      final expanded = home.expandedMolecules.contains(molecule.id);
+      final loading = home.loadingMolecules.contains(molecule.id);
+      final atoms = home.moleculeAtoms[molecule.id] ?? const <AtomModel>[];
+
+      return InkWell(
+        onTap: () => home.toggleMolecule(molecule.id),
+        borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        child: AppNeumoSurface(
+          radius: Design.spacing.radiusXLarge,
+          padding: EdgeInsets.symmetric(
+            horizontal: Design.spacing.lg,
+            vertical: Design.spacing.md,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    molecule.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.typo.labelLarge.copyWith(
-                      fontWeight: FontWeight.w700,
+                  AppNeumoSurface(
+                    circle: true,
+                    soft: true,
+                    width: 40,
+                    height: 40,
+                    padding: EdgeInsets.zero,
+                    color: colors.primary.withValues(alpha: 0.12),
+                    child: Icon(
+                      Design.icons.molecule,
+                      size: Design.spacing.iconSmall,
+                      color: colors.primary,
                     ),
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    (molecule.atomsCount == 1
-                            ? AppLocales.molecule.atomsCountOne
-                            : AppLocales.molecule.atomsCount)
-                        .trParams({
-                      'count': '${molecule.atomsCount}',
-                    }),
-                    style: context.typo.caption.copyWith(
+                  SizedBox(width: Design.spacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          molecule.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typo.labelLarge.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          (molecule.atomsCount == 1
+                                  ? AppLocales.molecule.atomsCountOne
+                                  : AppLocales.molecule.atomsCount)
+                              .trParams({
+                            'count': '${molecule.atomsCount}',
+                          }),
+                          style: context.typo.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    child: Icon(
+                      Design.icons.chevronDown,
+                      size: Design.spacing.iconSmall,
                       color: colors.textMuted,
                     ),
                   ),
                 ],
+              ),
+              if (expanded) ..._expandedAtoms(context, home, loading, atoms),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  /// The inline atom panel under an expanded molecule.
+  List<Widget> _expandedAtoms(
+    BuildContext context,
+    HomeController home,
+    bool loading,
+    List<AtomModel> atoms,
+  ) {
+    final colors = context.colors;
+
+    if (loading && atoms.isEmpty) {
+      return [
+        SizedBox(height: Design.spacing.md),
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: colors.primary,
+          ),
+        ),
+      ];
+    }
+
+    if (atoms.isEmpty) {
+      return [
+        SizedBox(height: Design.spacing.sm),
+        Text(
+          AppLocales.molecule.inlineEmpty.tr,
+          style: context.typo.caption.copyWith(color: colors.textMuted),
+        ),
+      ];
+    }
+
+    final shown = atoms.take(5).toList();
+    return [
+      SizedBox(height: Design.spacing.sm),
+      for (final atom in shown) _InlineAtomRow(atom: atom),
+      if (molecule.atomsCount > shown.length)
+        InkWell(
+          onTap: () => AppRoutes.toMolecule(
+            moleculeId: molecule.id,
+            moleculeName: molecule.name,
+          ),
+          borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+            child: Text(
+              AppLocales.molecule.seeAll.trParams({
+                'count': '${molecule.atomsCount}',
+              }),
+              style: context.typo.labelMedium.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+    ];
+  }
+}
+
+/// A compact atom row inside an expanded molecule on home.
+class _InlineAtomRow extends StatelessWidget {
+  const _InlineAtomRow({required this.atom});
+
+  final AtomModel atom;
+
+  IconData get _sourceIcon {
+    switch (atom.source) {
+      case 'meeting':
+      case 'asset':
+        return Design.icons.micOutline;
+      case 'url':
+        return Design.icons.link;
+      default:
+        return Design.icons.note;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return InkWell(
+      onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
+      borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+        child: Row(
+          children: [
+            Icon(
+              _sourceIcon,
+              size: Design.spacing.iconSmall,
+              color: colors.textSecondary,
+            ),
+            SizedBox(width: Design.spacing.sm),
+            Expanded(
+              child: Text(
+                atom.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.typo.bodySmall,
               ),
             ),
             Icon(
