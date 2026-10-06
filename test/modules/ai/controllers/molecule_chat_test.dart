@@ -84,4 +84,28 @@ void main() {
     expect(controller.contextMolecule.value?.id, 'cat-2');
     expect(controller.currentMoleculeName.value, 'Nova');
   });
+
+  test('a notification tap opens the related room and pins its molecule',
+      () async {
+    await controller.openNotificationRoom(
+      roomId: 'room-9',
+      moleculeId: 'cat-9',
+      moleculeName: 'General',
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(controller.currentRoomId.value, 'room-9');
+    expect(controller.currentMoleculeName.value, 'General');
+  });
+
+  test('the chat request carries the atom pointer', () {
+    const request = AiChatRequest(
+      message: 'Summarize this',
+      atomId: 'atom-1',
+      atomTitle: 'Live meeting',
+    );
+
+    expect(request.toJson()['atom_id'], 'atom-1');
+    expect(request.toJson()['atom_title'], 'Live meeting');
+  });
 }

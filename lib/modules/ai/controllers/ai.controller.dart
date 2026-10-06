@@ -141,9 +141,22 @@ class AiController extends GetxController {
     if (args is Map && args['atom_title'] != null) {
       _seedQuestion(args['atom_title'].toString());
     }
-    // Opened from a molecule: open the molecule's OWN conversation so asks
-    // stay in one history per molecule (created on first ask).
-    if (args is Map && args['molecule_id'] != null) {
+    // Opened from a notification: land on the room it points at (the
+    // related molecule's conversation when it has one).
+    if (args is Map && args['room_id'] != null) {
+      final roomId = args['room_id'].toString();
+      if (roomId.isNotEmpty) {
+        unawaited(
+          openNotificationRoom(
+            roomId: roomId,
+            moleculeId: args['molecule_id']?.toString(),
+            moleculeName: args['molecule_name']?.toString(),
+          ),
+        );
+      }
+    } else if (args is Map && args['molecule_id'] != null) {
+      // Opened from a molecule: open the molecule's OWN conversation so asks
+      // stay in one history per molecule (created on first ask).
       final id = args['molecule_id'].toString();
       if (id.isNotEmpty) {
         unawaited(
@@ -312,6 +325,8 @@ class AiController extends GetxController {
           roomId: currentRoomId.value,
           systemPrompt: _markdownSystemPrompt,
           context: context.isEmpty ? null : context,
+          atomId: contextAtom.value?.id,
+          atomTitle: contextAtom.value?.title,
         ),
       );
       if (response.success && response.data != null) {
@@ -522,6 +537,36 @@ class AiController extends GetxController {
     } catch (error) {
       debugPrint('🤖 [AiController] openMoleculeChat error: $error');
     }
+  }
+
+  /// Opens the room a notification points at: a tap on "Your AI response is
+  /// ready" lands in the related molecule's conversation, history included.
+  Future<void> openNotificationRoom({
+    required String roomId,
+    String? moleculeId,
+    String? moleculeName,
+  }) async {
+    if (roomId.isEmpty) return;
+
+    AiRoomModel? room;
+    for (final r in rooms) {
+      if (r.id == roomId) {
+        room = r;
+        break;
+      }
+    }
+    room ??= AiRoomModel(
+      id: roomId,
+      title: (moleculeName == null || moleculeName.isEmpty)
+          ? AppLocales.ai.title.tr
+          : moleculeName,
+      messageCount: 0,
+      createdAt: AppDateTime.toUtcIso(DateTime.now())!,
+      updatedAt: AppDateTime.toUtcIso(DateTime.now())!,
+      processing: false,
+      categoryId: moleculeId,
+    );
+    selectRoom(room);
   }
 
   /// Pins (or clears) the molecule context for a room: a molecule's room

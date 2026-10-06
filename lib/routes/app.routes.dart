@@ -113,6 +113,7 @@ class AppRoutes {
     String? atomTitle,
     String? moleculeId,
     String? moleculeName,
+    String? roomId,
   }) => Get.toNamed(
     ai,
     arguments: {
@@ -122,6 +123,7 @@ class AppRoutes {
       if (moleculeId != null && moleculeId.isNotEmpty) 'molecule_id': moleculeId,
       if (moleculeName != null && moleculeName.isNotEmpty)
         'molecule_name': moleculeName,
+      if (roomId != null && roomId.isNotEmpty) 'room_id': roomId,
     },
   );
 
@@ -195,7 +197,14 @@ class AppRoutes {
         return;
       }
       if (target == ai || target.startsWith('$ai?')) {
-        Get.toNamed(target);
+        // AI links carry the room (and its molecule) so the tap lands on the
+        // related conversation rather than the default one.
+        final query = Uri.tryParse(target)?.queryParameters ?? const {};
+        toAi(
+          roomId: query['room_id'],
+          moleculeId: query['molecule_id'],
+          moleculeName: query['molecule_name'],
+        );
         return;
       }
       if (target == profile) {
