@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 
 import '../../data/models/atom.model.dart';
@@ -18,8 +19,8 @@ class AtomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final date = _shortDate(atom.createdAt);
-    final duration = _compactDuration(atom.durationSecs);
+    final date = atomShortDate(atom.createdAt);
+    final duration = atomCompactDuration(atom.durationSecs);
     // Cards have a fixed size budget: the body is capped to a few lines'
     // worth of text (first paragraph, collapsed, word-safe ellipsis).
     final summary = _cardSummary(atom);
@@ -149,7 +150,7 @@ class _SourceChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            _sourceIcon(source),
+            atomSourceIcon(source),
             size: Design.spacing.iconSmall,
             color: colors.textSecondary,
           ),
@@ -166,41 +167,6 @@ class _SourceChip extends StatelessWidget {
       ),
     );
   }
-}
-
-IconData _sourceIcon(String source) {
-  switch (source.toLowerCase()) {
-    case 'url':
-      return Design.icons.link;
-    case 'share':
-      return Design.icons.shareIos;
-    case 'asset':
-      return Design.icons.attachment;
-    case 'meeting':
-      return Design.icons.mic;
-    default:
-      return Design.icons.note;
-  }
-}
-
-String _shortDate(String? iso) {
-  if (iso == null || iso.isEmpty) return '';
-  final dt = DateTime.tryParse(iso)?.toLocal();
-  if (dt == null) return '';
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-  return '${months[dt.month - 1]} ${dt.day}';
-}
-
-String _compactDuration(int? secs) {
-  if (secs == null || secs <= 0) return '';
-  final h = secs ~/ 3600;
-  final m = (secs % 3600) ~/ 60;
-  if (h > 0) return '${h}h ${m}m';
-  if (m > 0) return '${m}m';
-  return '${secs}s';
 }
 
 Widget _statusBadge(String status) {

@@ -1,6 +1,7 @@
 export 'flag.helper.dart';
 export 'api.helper.dart';
 export 'time_ago.helper.dart';
+export 'atom.helper.dart';
 export 'username_validator.helper.dart';
 export 'date_time.helper.dart';
 export 'srt.helper.dart';

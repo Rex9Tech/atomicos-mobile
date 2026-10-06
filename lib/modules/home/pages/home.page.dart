@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
@@ -785,27 +786,27 @@ class _MoleculeCard extends StatelessWidget {
   }
 }
 
-/// A compact atom row inside an expanded molecule on home.
+/// A compact atom row inside an expanded molecule on home: source icon,
+/// title, then date · time · duration · status under it.
 class _InlineAtomRow extends StatelessWidget {
   const _InlineAtomRow({required this.atom});
 
   final AtomModel atom;
 
-  IconData get _sourceIcon {
-    switch (atom.source) {
-      case 'meeting':
-      case 'asset':
-        return Design.icons.micOutline;
-      case 'url':
-        return Design.icons.link;
-      default:
-        return Design.icons.note;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final date = atomShortDate(atom.createdAt);
+    final time = atomShortTime(atom.createdAt);
+    final duration = atomCompactDuration(atom.durationSecs);
+    final status = atomStatusLabel(atom.status);
+    final statusColor = switch (atom.status.toLowerCase()) {
+      'completed' => colors.success,
+      'processing' => colors.warning,
+      'failed' => colors.error,
+      _ => colors.textMuted,
+    };
+    final metaStyle = context.typo.caption.copyWith(color: colors.textMuted);
 
     return InkWell(
       onTap: () => AppRoutes.toAtomDetail(atomId: atom.id),
@@ -815,17 +816,67 @@ class _InlineAtomRow extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              _sourceIcon,
+              atomSourceIcon(atom.source),
               size: Design.spacing.iconSmall,
               color: colors.textSecondary,
             ),
             SizedBox(width: Design.spacing.sm),
             Expanded(
-              child: Text(
-                atom.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.typo.bodySmall,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    atom.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typo.bodySmall,
+                  ),
+                  SizedBox(height: 2),
+                  // A Wrap keeps every segment visible on narrow screens
+                  // instead of overflowing the row.
+                  Wrap(
+                    spacing: Design.spacing.sm,
+                    runSpacing: 2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (date.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Design.icons.calendar,
+                              size: 12,
+                              color: colors.textMuted,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(date, style: metaStyle),
+                          ],
+                        ),
+                      if (time.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Design.icons.clock,
+                              size: 12,
+                              color: colors.textMuted,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(time, style: metaStyle),
+                          ],
+                        ),
+                      if (duration.isNotEmpty)
+                        Text(duration, style: metaStyle),
+                      Text(
+                        status,
+                        style: metaStyle.copyWith(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             Icon(
