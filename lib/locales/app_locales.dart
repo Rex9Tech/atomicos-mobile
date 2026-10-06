@@ -58,6 +58,7 @@ class _MoleculeLocales {
   final assignSub = 'molecule.assignSub';
   final seeAll = 'molecule.seeAll';
   final inlineEmpty = 'molecule.inlineEmpty';
+  final open = 'molecule.open';
   final loadFailed = 'molecule.loadFailed';
   final loadFailedSub = 'molecule.loadFailedSub';
 }

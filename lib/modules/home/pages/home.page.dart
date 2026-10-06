@@ -671,6 +671,26 @@ class _MoleculeCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  InkWell(
+                    onTap: () => AppRoutes.toMolecule(
+                      moleculeId: molecule.id,
+                      moleculeName: molecule.name,
+                    ),
+                    customBorder: const CircleBorder(),
+                    child: AppNeumoSurface(
+                      circle: true,
+                      soft: true,
+                      width: 32,
+                      height: 32,
+                      padding: EdgeInsets.zero,
+                      child: Icon(
+                        Design.icons.rightArrow,
+                        size: Design.spacing.iconSmall,
+                        color: colors.primary,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: Design.spacing.sm),
                   AnimatedRotation(
                     turns: expanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 180),
@@ -720,6 +740,7 @@ class _MoleculeCard extends StatelessWidget {
           AppLocales.molecule.inlineEmpty.tr,
           style: context.typo.caption.copyWith(color: colors.textMuted),
         ),
+        _detailsRow(context),
       ];
     }
 
@@ -727,27 +748,40 @@ class _MoleculeCard extends StatelessWidget {
     return [
       SizedBox(height: Design.spacing.sm),
       for (final atom in shown) _InlineAtomRow(atom: atom),
-      if (molecule.atomsCount > shown.length)
-        InkWell(
-          onTap: () => AppRoutes.toMolecule(
-            moleculeId: molecule.id,
-            moleculeName: molecule.name,
-          ),
-          borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
-            child: Text(
-              AppLocales.molecule.seeAll.trParams({
+      _detailsRow(
+        context,
+        label: molecule.atomsCount > shown.length
+            ? AppLocales.molecule.seeAll.trParams({
                 'count': '${molecule.atomsCount}',
-              }),
-              style: context.typo.labelMedium.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+              })
+            : null,
+      ),
+    ];
+  }
+
+  /// The panel's footer link: "See all N atoms" when more exist, otherwise
+  /// "Open molecule" — the molecule screen stays reachable even when every
+  /// atom already fits inline (or none exist yet).
+  Widget _detailsRow(BuildContext context, {String? label}) {
+    final colors = context.colors;
+
+    return InkWell(
+      onTap: () => AppRoutes.toMolecule(
+        moleculeId: molecule.id,
+        moleculeName: molecule.name,
+      ),
+      borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Design.spacing.sm),
+        child: Text(
+          label ?? AppLocales.molecule.open.tr,
+          style: context.typo.labelMedium.copyWith(
+            color: colors.primary,
+            fontWeight: FontWeight.w700,
           ),
         ),
-    ];
+      ),
+    );
   }
 }
 
