@@ -590,6 +590,9 @@ class _CalendarLocales {
   final removeFromCalendar = 'calendar.remove_from_calendar';
   final openCalendarApp = 'calendar.open_calendar_app';
   final chooseCalendar = 'calendar.choose_calendar';
+  final clearDate = 'calendar.clear_date';
+  final dateSaved = 'calendar.date_saved';
+  final dateCleared = 'calendar.date_cleared';
 }
 
 class _PermissionLocales {

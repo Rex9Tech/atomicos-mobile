@@ -6,6 +6,7 @@ class AtomKeys {
   static const title = 'title';
   static const atomId = 'atom_id';
   static const atomTitle = 'atom_title';
+  static const meetingAt = 'meeting_at';
   static const source = 'source';
   static const status = 'status';
   static const durationSecs = 'duration_secs';

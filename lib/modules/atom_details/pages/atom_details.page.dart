@@ -144,15 +144,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
               ),
               SizedBox(height: Design.spacing.sm),
               _SheetAction(
-                icon: Design.icons.calendar,
-                label: AppLocales.calendar.title.tr,
-                onTap: () {
-                  Get.back();
-                  Get.find<DeviceCalendarService>().openCalendarApp();
-                },
-              ),
-              SizedBox(height: Design.spacing.sm),
-              _SheetAction(
                 icon: Design.icons.delete,
                 label: AppLocales.atom.deleteAtom.tr,
                 destructive: true,
@@ -395,14 +386,15 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         SizedBox(height: Design.spacing.sm),
         Obx(() {
           final meetingAt = controller.meetingAt.value;
-          final synced = controller.calendarLink.value != null;
+          final hasCustomDate =
+              (controller.atom.value?.meetingAt ?? '').isNotEmpty;
           return Row(
             children: [
               Flexible(
                 child: GestureDetector(
                   onTap: controller.isSavingDate.value
                       ? null
-                      : () => synced
+                      : () => hasCustomDate
                             ? _showMeetingActions(context)
                             : _pickMeetingDate(context),
                   child: AppNeumoSurface(
@@ -426,7 +418,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                           )
                         else
                           Icon(
-                            synced
+                            hasCustomDate
                                 ? Design.icons.check
                                 : Design.icons.calendar,
                             size: 13,
@@ -889,12 +881,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       ),
       child: Row(
         children: [
-          _CircleButton(
-            icon: Design.icons.history,
-            size: 40,
-            onTap: () => Get.find<DeviceCalendarService>().openCalendarApp(),
-          ),
-          SizedBox(width: Design.spacing.md),
           Expanded(
             child: GestureDetector(
               onTap: () => AppRoutes.toAi(
@@ -1139,13 +1125,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       time?.hour ?? current.hour,
       time?.minute ?? current.minute,
     );
-    final result = await controller.saveMeetingDate(picked);
-    if (result == CalendarSyncResult.needCalendar && context.mounted) {
-      await _showCalendarPicker(context, retryWith: picked);
-    }
+    await controller.saveMeetingDate(picked);
   }
 
-  /// Actions for an atom whose meeting already lives in the device calendar.
+  /// Actions for an atom whose meeting date is set: update or clear it.
   Future<void> _showMeetingActions(BuildContext context) async {
     final colors = context.colors;
     final meetingAt = controller.meetingAt.value;
@@ -1188,29 +1171,11 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
             ),
             _sheetAction(
               context,
-              icon: Design.icons.calendar,
-              label: AppLocales.calendar.changeCalendar.tr,
-              onTap: () {
-                Get.back<void>();
-                _showCalendarPicker(context);
-              },
-            ),
-            _sheetAction(
-              context,
               icon: Design.icons.delete,
-              label: AppLocales.calendar.removeFromCalendar.tr,
+              label: AppLocales.calendar.clearDate.tr,
               onTap: () {
                 Get.back<void>();
-                controller.removeMeetingFromCalendar();
-              },
-            ),
-            _sheetAction(
-              context,
-              icon: Design.icons.history,
-              label: AppLocales.calendar.openCalendarApp.tr,
-              onTap: () {
-                Get.back<void>();
-                Get.find<DeviceCalendarService>().openCalendarApp();
+                controller.clearMeetingDate();
               },
             ),
           ],
@@ -1251,117 +1216,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           ],
         ),
       ),
-    );
-  }
-
-  /// Lets the user pick which device calendar meetings go to; retries the
-  /// pending write — or re-homes the existing event — once one is chosen.
-  Future<void> _showCalendarPicker(
-    BuildContext context, {
-    DateTime? retryWith,
-  }) async {
-    final service = Get.find<DeviceCalendarService>();
-    final calendars = await service.availableCalendars();
-    if (!context.mounted) return;
-    if (calendars.isEmpty) {
-      AppSnackbar.warning(AppLocales.calendar.noWritableCalendar.tr);
-      return;
-    }
-    final colors = context.colors;
-    Get.bottomSheet<void>(
-      Container(
-        decoration: BoxDecoration(
-          color: colors.card,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Design.spacing.radiusXLarge),
-          ),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          Design.spacing.lg,
-          Design.spacing.lg,
-          Design.spacing.lg,
-          Design.spacing.xl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              AppLocales.calendar.chooseCalendar.tr,
-              textAlign: TextAlign.center,
-              style: context.typo.labelLarge.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: Design.spacing.md),
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: calendars.length,
-                itemBuilder: (context, index) {
-                  final calendar = calendars[index];
-                  final name = calendar.name.isEmpty
-                      ? calendar.accountName
-                      : calendar.name;
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(
-                      Design.spacing.radiusLarge,
-                    ),
-                    onTap: () async {
-                      Get.back<void>();
-                      if (retryWith != null) {
-                        await service.setTargetCalendar(calendar);
-                        await controller.saveMeetingDate(retryWith);
-                      } else {
-                        await controller.moveMeetingToCalendar(calendar);
-                      }
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: Design.spacing.sm,
-                        horizontal: Design.spacing.xs,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Design.icons.calendar,
-                            size: 18,
-                            color: colors.primary,
-                          ),
-                          SizedBox(width: Design.spacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  style: context.typo.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (calendar.accountName.isNotEmpty)
-                                  Text(
-                                    calendar.accountName,
-                                    style: context.typo.caption.copyWith(
-                                      color: colors.textMuted,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.transparent,
     );
   }
 

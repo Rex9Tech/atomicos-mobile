@@ -7,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/services/services.dart';
 
 import '../../home/data/models/models.dart';
@@ -33,12 +34,9 @@ class AtomDetailsController extends GetxController {
   // ===== Supporting files =====
   final RxBool isUploadingAsset = false.obs;
 
-  // ===== Meeting date (device calendar sync) =====
+  // ===== Meeting date (stored on the atom) =====
   final Rxn<DateTime> meetingAt = Rxn<DateTime>();
   final RxBool isSavingDate = false.obs;
-
-  /// The atom's persisted event in the device calendar, when one exists.
-  final Rxn<CalendarEventLink> calendarLink = Rxn<CalendarEventLink>();
 
   // ===== Delete =====
   final RxBool isDeleting = false.obs;
@@ -102,7 +100,6 @@ class AtomDetailsController extends GetxController {
         atom.value = result.data;
         _syncAudioSource();
         resolveMeetingDate();
-        _loadCalendarLink();
       } else {
         hasError.value = true;
       }
@@ -160,10 +157,14 @@ class AtomDetailsController extends GetxController {
     return false;
   }
 
-  /// Meeting date shown on the details header. The device calendar owns the
-  /// event once synced; otherwise this resolves from the atom's own date.
+  /// Meeting date shown on the details header: the atom's own meeting date
+  /// (persisted server-side) when set, else its creation date. Device
+  /// calendars are never involved.
   void resolveMeetingDate() {
-    meetingAt.value = _fallbackMeetingDate();
+    final iso = atom.value?.meetingAt;
+    final parsed =
+        (iso == null || iso.isEmpty) ? null : DateTime.tryParse(iso)?.toLocal();
+    meetingAt.value = parsed ?? _fallbackMeetingDate();
   }
 
   DateTime? _fallbackMeetingDate() {
@@ -172,95 +173,50 @@ class AtomDetailsController extends GetxController {
     return DateTime.tryParse(iso)?.toLocal();
   }
 
-  /// Restores the persisted device-calendar link for this atom — once an
-  /// event exists, its date is the source of truth for the chip.
-  void _loadCalendarLink() {
-    if (!Get.isRegistered<DeviceCalendarService>()) return;
-    final id = atom.value?.id ?? '';
-    if (id.isEmpty) return;
-    final link = Get.find<DeviceCalendarService>().linkFor(id);
-    calendarLink.value = link;
-    if (link != null) meetingAt.value = link.date.toLocal();
+  /// Persists the picked date on the ATOM (server) — this is the update the
+  /// whole app sees; nothing is written to any device calendar.
+  Future<bool> saveMeetingDate(DateTime value) {
+    final iso = AppDateTime.toUtcIso(value);
+    if (iso == null) return Future.value(false);
+    return _writeMeetingDate(iso);
   }
 
-  /// Writes the meeting into the DEVICE calendar — silently, keeping one
-  /// event per atom in sync on every later edit. When access was refused it
-  /// falls back to the calendar app's prefilled insert screen.
-  Future<CalendarSyncResult?> saveMeetingDate(DateTime value) async {
+  /// Clears the atom's meeting date (the chip falls back to the atom's own
+  /// creation date).
+  Future<bool> clearMeetingDate() => _writeMeetingDate(null);
+
+  Future<bool> _writeMeetingDate(String? iso) async {
     final atomId = atom.value?.id ?? '';
-    if (atomId.isEmpty) return null;
-    final title = (atom.value?.title ?? '').trim();
-    final safeTitle = title.isEmpty ? 'AtomicOS meeting' : title;
+    if (atomId.isEmpty) return false;
 
     isSavingDate.value = true;
     try {
-      final service = Get.find<DeviceCalendarService>();
-      final result = await service.syncMeeting(
+      final result = await _home.setMeetingDate(
         atomId: atomId,
-        title: safeTitle,
-        start: value,
+        meetingAt: iso,
       );
-      if (result == CalendarSyncResult.synced) {
-        meetingAt.value = value;
-        calendarLink.value = service.linkFor(atomId);
-        AppSnackbar.success(AppLocales.calendar.addedToCalendar.tr);
-      } else if (result == CalendarSyncResult.permissionDenied) {
-        // No provider access — hand off to the calendar app instead.
-        final opened = await service.addEvent(
-          title: safeTitle,
-          start: value,
-          end: value.add(const Duration(hours: 1)),
+      if (result.success && result.data != null) {
+        atom.value = result.data;
+        resolveMeetingDate();
+        AppSnackbar.success(
+          iso == null
+              ? AppLocales.calendar.dateCleared.tr
+              : AppLocales.calendar.dateSaved.tr,
         );
-        if (!opened) {
-          AppSnackbar.error(AppLocales.calendar.syncFailed.tr);
-          return result;
-        }
-        meetingAt.value = value;
-        AppSnackbar.info(AppLocales.calendar.saveInCalendarApp.tr);
-      } else if (result == CalendarSyncResult.needCalendar) {
-        AppSnackbar.warning(AppLocales.calendar.noWritableCalendar.tr);
-      } else {
-        AppSnackbar.error(AppLocales.calendar.syncFailed.tr);
+        return true;
       }
-      return result;
+      AppSnackbar.error(result.error ?? AppLocales.calendar.syncFailed.tr);
     } catch (error) {
-      debugPrint('📅 [AtomDetailsController] saveMeetingDate error: $error');
+      debugPrint('📅 [AtomDetailsController] meeting date error: $error');
       AppSnackbar.error(AppLocales.calendar.syncFailed.tr);
-      return CalendarSyncResult.failed;
     } finally {
       isSavingDate.value = false;
     }
+    return false;
   }
 
-  /// Removes this atom's event from the device calendar.
-  Future<void> removeMeetingFromCalendar() async {
-    final atomId = atom.value?.id ?? '';
-    if (atomId.isEmpty) return;
-    final removed = await Get.find<DeviceCalendarService>().removeMeeting(atomId);
-    if (removed) {
-      calendarLink.value = null;
-      AppSnackbar.success(AppLocales.calendar.removedFromCalendar.tr);
-    } else {
-      AppSnackbar.error(AppLocales.calendar.syncFailed.tr);
-    }
-  }
-
-  /// Moves the synced meeting into another device calendar.
-  Future<void> moveMeetingToCalendar(DeviceCalendar calendar) async {
-    final service = Get.find<DeviceCalendarService>();
-    await service.setTargetCalendar(calendar);
-    final atomId = atom.value?.id ?? '';
-    if (atomId.isEmpty) return;
-    if (calendarLink.value != null) {
-      await service.removeMeeting(atomId);
-      calendarLink.value = null;
-    }
-    final date = meetingAt.value;
-    if (date != null) await saveMeetingDate(date);
-  }
-
-  /// Soft-deletes this atom on the server and drops its device-calendar
-  /// event; returns false when the delete did not go through.
+  /// Soft-deletes this atom on the server; returns false when the delete
+  /// did not go through.
   Future<bool> deleteAtom() async {
     final id = atom.value?.id ?? '';
     if (id.isEmpty || isDeleting.value) return false;
@@ -270,9 +226,6 @@ class AtomDetailsController extends GetxController {
       if (!result.success) {
         AppSnackbar.error(AppLocales.atom.deleteFailed.tr);
         return false;
-      }
-      if (Get.isRegistered<DeviceCalendarService>()) {
-        await Get.find<DeviceCalendarService>().removeMeeting(id);
       }
       return true;
     } catch (error) {

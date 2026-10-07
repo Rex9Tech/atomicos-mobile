@@ -59,6 +59,10 @@ class AtomModel {
   final Map<String, dynamic> metadata;
   final List<AtomAssetModel> assets;
   final String? categoryId;
+
+  /// The atom's meeting date (ISO-8601, server-persisted) — set from the
+  /// details header; null when none was assigned.
+  final String? meetingAt;
   final String createdAt;
   final String updatedAt;
 
@@ -77,6 +81,7 @@ class AtomModel {
     this.metadata = const {},
     this.assets = const [],
     this.categoryId,
+    this.meetingAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -111,6 +116,7 @@ class AtomModel {
           : const {},
       assets: assets,
       categoryId: json[CategoryKeys.categoryId]?.toString(),
+      meetingAt: json[AtomKeys.meetingAt]?.toString(),
       createdAt: json[AtomKeys.createdAt]?.toString() ?? '',
       updatedAt: json[AtomKeys.updatedAt]?.toString() ?? '',
     );

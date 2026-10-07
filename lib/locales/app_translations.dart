@@ -371,6 +371,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.saveInCalendarApp:
           'Save the event in your calendar app',
       AppLocales.calendar.updateDateTime: 'Update date & time',
+      AppLocales.calendar.clearDate: 'Clear date',
+      AppLocales.calendar.dateSaved: 'Meeting date saved',
+      AppLocales.calendar.dateCleared: 'Meeting date cleared',
       AppLocales.calendar.changeCalendar: 'Change calendar',
       AppLocales.calendar.removeFromCalendar: 'Remove from calendar',
       AppLocales.calendar.openCalendarApp: 'Open calendar app',
@@ -1135,6 +1138,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.saveInCalendarApp:
           'သင့်ပြက္ခဒိန်အက်ပ်တွင် ဖြစ်ရပ်ကို သိမ်းဆည်းပါ',
       AppLocales.calendar.updateDateTime: 'ရက်စွဲနှင့် အချိန် ပြင်ရန်',
+      AppLocales.calendar.clearDate: 'ရက်စွဲ ဖျက်ရန်',
+      AppLocales.calendar.dateSaved: 'အစည်းအဝေး ရက်စွဲ သိမ်းပြီးပါပြီ',
+      AppLocales.calendar.dateCleared: 'အစည်းအဝေး ရက်စွဲ ဖျက်ပြီးပါပြီ',
       AppLocales.calendar.changeCalendar: 'ပြက္ခဒိန် ပြောင်းရန်',
       AppLocales.calendar.removeFromCalendar: 'ပြက္ခဒိန်မှ ဖယ်ရှားရန်',
       AppLocales.calendar.openCalendarApp: 'ပြက္ခဒိန်အက်ပ် ဖွင့်ရန်',

@@ -908,6 +908,30 @@ class FakeHomeService extends GetxService implements HomeService {
     );
   }
 
+  /// Every meeting-date value sent to [setMeetingDate], in call order
+  /// (null = clear).
+  final List<String?> requestedMeetingDates = [];
+
+  @override
+  Future<ApiResponse<AtomModel>> setMeetingDate({
+    required String atomId,
+    required String? meetingAt,
+  }) async {
+    requestedMeetingDates.add(meetingAt);
+    return ApiResponse.success(
+      message: 'Meeting date updated',
+      statusCode: 200,
+      data: AtomModel.fromJson({
+        ApiKeys.id: atomId,
+        // The real server always returns the atom's timestamps; the chip's
+        // fallback relies on created_at.
+        AtomKeys.createdAt: '2026-10-01T08:00:00Z',
+        AtomKeys.updatedAt: '2026-10-01T08:00:00Z',
+        AtomKeys.meetingAt: ?meetingAt,
+      }),
+    );
+  }
+
   /// Every atom id sent to [deleteAtom], in call order.
   final List<String> deletedAtomIds = [];
 
