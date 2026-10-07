@@ -20,6 +20,12 @@ class AtomDetailsController extends GetxController {
   final AudioPlayer _player = AudioPlayer();
 
   final RxnString atomId = RxnString();
+
+  /// The controller of the currently open details page — the socket router
+  /// reloads it when ITS atom changes server-side (audio processing
+  /// finishing, molecule assignments, date edits), so the page updates
+  /// without leaving it.
+  static AtomDetailsController? active;
   final Rxn<AtomModel> atom = Rxn<AtomModel>();
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
@@ -60,6 +66,8 @@ class AtomDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    active = this;
+
     final args = Get.arguments;
     final id = args is Map
         ? args['atom_id']?.toString()
@@ -84,6 +92,7 @@ class AtomDetailsController extends GetxController {
 
   @override
   void onClose() {
+    if (active == this) active = null;
     _player.dispose();
     super.onClose();
   }

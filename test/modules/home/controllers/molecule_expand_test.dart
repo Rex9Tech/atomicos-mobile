@@ -76,4 +76,15 @@ void main() {
     expect(requests, 2);
     expect(fakeHome.requestedCategoryIds.contains('cat-2'), isFalse);
   });
+
+  test('onHomeVisible refreshes molecules and expanded atoms', () async {
+    fakeHome.pages.add([atom('a1', 'First')]);
+    await controller.toggleMolecule('cat-1');
+
+    await controller.onHomeVisible();
+
+    final requests =
+        fakeHome.requestedCategoryIds.where((id) => id == 'cat-1').length;
+    expect(requests, 2);
+  });
 }

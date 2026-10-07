@@ -200,4 +200,11 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       await _loadMoleculeAtoms(moleculeId);
     }
   }
+
+  /// The home surface became visible again — refresh silently so items that
+  /// changed elsewhere are current even if a socket event was missed.
+  Future<void> onHomeVisible() async {
+    _categories.refresh();
+    await refreshExpandedMolecules();
+  }
 }
