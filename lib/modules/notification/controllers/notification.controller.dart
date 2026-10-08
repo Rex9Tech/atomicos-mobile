@@ -138,6 +138,10 @@ class NotificationController extends GetxController {
       return;
     }
 
+    // Sign-in alerts are informational — tap keeps only the mark-as-read
+    // side effect (no navigation, no external/web dialogs).
+    if (item.isSignInAlert) return;
+
     if (item.link?.isNotEmpty ?? false) {
       await AppRoutes.handleNotificationLink(item.link);
     }

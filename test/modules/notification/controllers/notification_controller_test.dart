@@ -248,5 +248,25 @@ void main() {
       expect(fakeStorageService.getUserData()?.iam?.isAdmin, isTrue);
       expect(fakeService.markedReadIds, contains('iam_1'));
     });
+
+    test('sign-in alert tap keeps only the mark-as-read behavior', () async {
+      final alert = NotificationModel(
+        id: 'signin_1',
+        title: 'New Sign In',
+        message: 'A new sign-in to your account was detected.',
+        link: '/settings',
+        metadata: const {
+          NotificationKeys.type: NotificationConstants.signInAlert,
+        },
+        createdAt: DateTime.now(),
+      );
+      controller.notifications.assignAll([alert]);
+      controller.unreadCount.value = 1;
+
+      await controller.handleNotificationTap(alert);
+
+      expect(fakeService.markedReadIds, contains('signin_1'));
+      expect(controller.notifications.first.read, isTrue);
+    });
   });
 }
