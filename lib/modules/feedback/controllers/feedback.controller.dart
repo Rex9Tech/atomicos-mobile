@@ -74,11 +74,13 @@ class FeedbackController extends GetxController {
       if (response.success) {
         textController.clear();
         rating.value = 8;
+        // Drop the keyboard, then leave the form — without this the IME
+        // could float over the next screen.
+        FocusManager.instance.primaryFocus?.unfocus();
         if (Get.isBottomSheetOpen == true || Get.isDialogOpen == true) {
-          // Drop the keyboard BEFORE closing — the sheet's focused field
-          // used to keep the IME floating over the next screen.
-          FocusManager.instance.primaryFocus?.unfocus();
           Get.back(); // Close bottom sheet/dialog smoothly
+        } else if (Get.key.currentState?.canPop() ?? false) {
+          Get.back(); // Leave the feedback screen
         }
         AppSnackbar.success(
           response.message.isNotEmpty

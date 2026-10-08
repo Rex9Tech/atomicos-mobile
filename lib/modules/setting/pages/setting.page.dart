@@ -8,7 +8,6 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
 import '../../auth/auth.dart';
-import '../../feedback/feedback.dart';
 import '../setting.dart';
 
 class SettingPage extends GetView<SettingController> {
@@ -73,7 +72,7 @@ class SettingPage extends GetView<SettingController> {
         subtitle: Text(AppLocales.feedback.description.tr),
         trailing:
             Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
-        onTap: () => FeedbackBottomSheet.show(),
+        onTap: () => Get.toNamed(AppRoutes.feedback),
       ),
     );
   }
