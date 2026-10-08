@@ -24,6 +24,7 @@ class AuthPage extends GetView<AuthController> {
     }
 
     return AppPage(
+      showTimeZone: false,
       actions: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,

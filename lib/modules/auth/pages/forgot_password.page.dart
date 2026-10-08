@@ -14,6 +14,7 @@ class ForgotPasswordPage extends GetView<AuthController> {
     final emailController = TextEditingController(text: controller.email.value);
 
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.forgotPasscode.title.tr,
       child: Center(
         child: SingleChildScrollView(

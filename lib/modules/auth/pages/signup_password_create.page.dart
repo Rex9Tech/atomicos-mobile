@@ -15,6 +15,7 @@ class SignUpPasswordCreatePage extends GetView<AuthController> {
     final isGoogle = controller.isGooglePasswordSetup;
 
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.signUpPasscodeCreate.title.tr,
       child: Center(
         child: SingleChildScrollView(

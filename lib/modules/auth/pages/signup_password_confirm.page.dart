@@ -12,6 +12,7 @@ class SignUpPasswordConfirmPage extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.signUpPasscodeConfirm.title.tr,
       child: Center(
         child: SingleChildScrollView(

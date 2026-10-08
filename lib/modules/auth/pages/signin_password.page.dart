@@ -13,6 +13,7 @@ class SignInPasswordPage extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.signInPasscode.title.tr,
       child: Center(
         child: SingleChildScrollView(
