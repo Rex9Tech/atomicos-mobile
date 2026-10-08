@@ -198,6 +198,7 @@ class MediaPlaylistController extends GetxController {
       title: AppLocales.media.removeDownloadTitle.tr,
       message: confirmMessage,
       confirmLabel: confirmButton,
+      destructive: true,
     );
     if (!confirmed) return;
 
@@ -227,6 +228,7 @@ class MediaPlaylistController extends GetxController {
       title: AppLocales.media.cancelDownloadTitle.tr,
       message: AppLocales.media.cancelDownloadConfirm.tr,
       confirmLabel: AppLocales.media.cancelDownload.tr,
+      destructive: true,
     );
     if (!confirmed) return;
 

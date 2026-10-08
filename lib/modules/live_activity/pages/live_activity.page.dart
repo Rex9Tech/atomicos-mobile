@@ -56,6 +56,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
       confirmLabel: AppLocales.recording.endConfirm.tr,
       confirmColor: context.colors.error,
       cancelColor: context.colors.textSecondary,
+      destructive: true,
     );
     if (confirmed) {
       await controller.finishRecording();

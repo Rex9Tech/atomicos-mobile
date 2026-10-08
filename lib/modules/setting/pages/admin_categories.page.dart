@@ -56,6 +56,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
       message: AppLocales.category.deleteMessage.tr,
       confirmLabel: AppLocales.common.delete.tr,
       confirmColor: context.colors.error,
+      destructive: true,
     );
     if (!confirmed) return;
 

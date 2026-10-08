@@ -170,6 +170,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       }),
       confirmLabel: AppLocales.setting.confirmDelete.tr,
       confirmColor: context.colors.error,
+      destructive: true,
     );
     if (!ok) return;
 

@@ -261,6 +261,7 @@ class SettingPage extends GetView<SettingController> {
       title: AppLocales.common.signOut.tr,
       message: AppLocales.setting.logoutConfirmation.tr,
       confirmLabel: AppLocales.common.signOut.tr,
+      destructive: true,
     );
     if (confirmed) authController.signOut();
   }

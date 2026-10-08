@@ -67,7 +67,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       message: AppLocales.permission.notificationMessage.tr,
       confirmLabel: AppLocales.permission.notificationEnable.tr,
       confirmColor: context.colors.primary,
-      cancelColor: context.colors.error,
+      cancelColor: context.colors.textSecondary,
     );
 
     if (enable) {

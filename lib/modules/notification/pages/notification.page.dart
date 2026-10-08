@@ -536,6 +536,7 @@ class _NotificationPageState extends State<NotificationPage> {
           title: AppLocales.notification.deleteTitle.tr,
           message: AppLocales.notification.deleteConfirm.tr,
           confirmLabel: AppLocales.common.delete.tr,
+          destructive: true,
         );
       },
       onDismissed: (_) {
@@ -696,6 +697,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   title: AppLocales.notification.deleteTitle.tr,
                   message: AppLocales.notification.deleteConfirm.tr,
                   confirmLabel: AppLocales.common.delete.tr,
+                  destructive: true,
                 );
                 if (confirmed) {
                   _controller.deleteNotification(item);

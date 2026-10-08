@@ -188,9 +188,17 @@ class AppDialog {
     String? confirmLabel,
     Color? confirmColor,
     Color? cancelColor,
+    bool destructive = false,
   }) async {
     Get.addTranslations(AppTranslations().keys);
     final label = confirmLabel ?? AppLocales.setting.confirmDelete.tr;
+    // The primary action reads as the app's green (Atomic Green) unless the
+    // caller asked for a destructive confirm — red is reserved for
+    // destructive/dangerous actions, never for ordinary actions like
+    // "Enable" or "Open Settings".
+    final actionColor = destructive
+        ? (confirmColor ?? context.colors.error)
+        : (confirmColor ?? context.colors.primary);
     if (isIOS) {
       final result = await Get.dialog<bool>(
         CupertinoAlertDialog(
@@ -202,19 +210,29 @@ class AppDialog {
           actions: [
             CupertinoDialogAction(
               onPressed: () {
-              Get.closeAllSnackbars();
-              Get.back(result: false);
-            },
+                Get.closeAllSnackbars();
+                Get.back(result: false);
+              },
               isDefaultAction: true,
-              child: Text(AppLocales.common.cancel.tr),
+              child: Text(
+                AppLocales.common.cancel.tr,
+                style: cancelColor == null
+                    ? null
+                    : TextStyle(color: cancelColor),
+              ),
             ),
             CupertinoDialogAction(
               onPressed: () {
-              Get.closeAllSnackbars();
-              Get.back(result: true);
-            },
-              isDestructiveAction: true,
-              child: Text(label),
+                Get.closeAllSnackbars();
+                Get.back(result: true);
+              },
+              isDestructiveAction: destructive,
+              child: Text(
+                label,
+                style: destructive && confirmColor == null
+                    ? null
+                    : TextStyle(color: actionColor),
+              ),
             ),
           ],
         ),
@@ -255,7 +273,7 @@ class AppDialog {
               Get.back(result: true);
             },
             text: label,
-            color: confirmColor,
+            color: actionColor,
           ),
         ],
       ),
