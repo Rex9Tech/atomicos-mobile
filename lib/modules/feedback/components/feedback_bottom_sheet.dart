@@ -58,7 +58,12 @@ class FeedbackBottomSheet extends GetView<FeedbackController> {
                   type: EButtonType.icon,
                   icon: Design.icons.close,
                   color: context.colors.textSecondary,
-                  onPressed: () => Get.back(),
+                  onPressed: () {
+                    // Drop the keyboard with the sheet — leaving the field
+                    // focused kept the IME floating over the next screen.
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    Get.back();
+                  },
                 ),
               ],
             ),

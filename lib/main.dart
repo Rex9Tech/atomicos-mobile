@@ -116,6 +116,7 @@ class MyApp extends StatelessWidget {
             analytics.observer,
             MiniPlayerRouteObserver(),
             HomeResumeObserver(),
+            KeyboardDismissObserver(),
           ],
           builder: (context, child) {
             return Overlay.wrap(
