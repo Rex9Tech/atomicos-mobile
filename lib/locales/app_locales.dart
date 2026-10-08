@@ -84,6 +84,7 @@ class _RecordingLocales {
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
   final endConfirm = 'recording.end_confirm';
+  final finishFailed = 'recording.finish_failed';
 }
 
 class _SearchLocales {

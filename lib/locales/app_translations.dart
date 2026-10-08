@@ -401,6 +401,8 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'This stops the recording and turns the transcript into an atom. You can read and edit it afterwards.',
       AppLocales.recording.endConfirm: 'End & create atom',
+      AppLocales.recording.finishFailed:
+          'Couldn\'t finish the recording. Please try again.',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'Write a Meeting Note...',
@@ -1168,6 +1170,8 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'ဖမ်းယူမှုကို ရပ်ပြီး စကားပြောစာသားမှ အက်တမ်တစ်ခု ဖန်တီးပါမည်။ နောက်မှ ဖတ်ရှု ပြင်ဆင်နိုင်ပါသည်။',
       AppLocales.recording.endConfirm: 'ရပ်ပြီး အက်တမ် ဖန်တီးမည်',
+      AppLocales.recording.finishFailed:
+          'အသံဖမ်းခြင်းကို ပြီးဆုံးအောင် မလုပ်ဆောင်နိုင်ပါ။ တစ်ခါထပ် ကြိုးစားပါ။',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'အစည်းအဝေး မှတ်စု ရေးသားပါ...',
