@@ -606,6 +606,7 @@ class _PermissionLocales {
   final notificationTitle = 'permission.notification_title';
   final notificationMessage = 'permission.notification_message';
   final notificationEnable = 'permission.notification_enable';
+  final notificationSettingsMessage = 'permission.notification_settings_message';
 }
 
 class _CreateLocales {

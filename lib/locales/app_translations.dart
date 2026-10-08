@@ -389,6 +389,8 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'Allow notifications so a recording keeps running in the background and you can pause or stop it from the notification.',
       AppLocales.permission.notificationEnable: 'Enable',
+      AppLocales.permission.notificationSettingsMessage:
+          'Turn on notifications for Atomic: in the settings that open, select Notifications and enable \'Allow Notifications\'.',
 
       // Search
       AppLocales.search.placeholder: 'Search atoms or meetings',
@@ -1158,6 +1160,8 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'အသံဖမ်းနေစဉ် နောက်ခံတွင် ဆက်လက်လည်ပတ်နိုင်ရန်နှင့် အသိပေးချက်မှ ခေတ္တရပ်/ရပ်နိုင်ရန် အသိပေးချက်များကို ခွင့်ပြုပေးပါ။',
       AppLocales.permission.notificationEnable: 'ဖွင့်မည်',
+      AppLocales.permission.notificationSettingsMessage:
+          'Atomic အတွက် အသိပေးချက်များကို ဖွင့်ပါ — ဖွင့်လာသည့် ဆက်တင်တွင် Notifications ကို ရွေးပြီး \'Allow Notifications\' ကို ဖွင့်ပေးပါ။',
 
       // Search
       AppLocales.search.placeholder: 'အက်တမ်များ သို့မဟုတ် အစည်းအဝေးများ ရှာပါ',

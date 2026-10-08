@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,6 +44,7 @@ class PermissionService extends GetxService {
       title: title,
       message: message,
       confirmLabel: AppLocales.ai.openSettings.tr,
+      confirmColor: context.colors.primary,
     );
 
     if (openSettings) {
@@ -83,7 +86,7 @@ class PermissionService extends GetxService {
     if (status.isGranted || status.isLimited) return true;
 
     if (status.isPermanentlyDenied || status.isRestricted) {
-      await promptSettings(title: title, message: message);
+      await _promptNotificationSettings(title: title);
     }
     return false;
   }
@@ -109,5 +112,40 @@ class PermissionService extends GetxService {
     if (status.isDenied || status.isPermanentlyDenied || status.isRestricted) {
       await promptPhotosSettings();
     }
+  }
+
+  /// Settings hop shown when notifications were denied for good.
+  ///
+  /// Android is deep-linked straight to Atomic's notification screen — the
+  /// general app settings page hides the toggle one level down and testers
+  /// could not find it. iOS only allows opening the app's settings page, so
+  /// the copy spells out where to tap.
+  Future<void> _promptNotificationSettings({required String title}) async {
+    final context = Get.context;
+    if (context == null || !context.mounted) return;
+
+    final open = await AppDialog.confirm(
+      context: context,
+      title: title,
+      message: AppLocales.permission.notificationSettingsMessage.tr,
+      confirmLabel: AppLocales.ai.openSettings.tr,
+      confirmColor: context.colors.primary,
+    );
+    if (!open) return;
+
+    if (GetPlatform.isAndroid) {
+      try {
+        await const MethodChannel(
+          'atomicos/notifications',
+        ).invokeMethod<void>('openNotificationSettings');
+        return;
+      } catch (error) {
+        debugPrint(
+          '🔔 [PermissionService] notification settings deep link failed, '
+          'falling back to app settings: $error',
+        );
+      }
+    }
+    await openAppSettings();
   }
 }
