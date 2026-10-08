@@ -21,6 +21,7 @@ class SettingPage extends GetView<SettingController> {
     return AppPage(
       title: AppLocales.setting.settings.tr,
       showBackButton: true,
+      showTimeZone: false,
       child: ListView(
         padding: EdgeInsets.all(Design.spacing.lg),
         children: [

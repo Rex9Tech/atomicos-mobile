@@ -22,6 +22,7 @@ class AppPage extends StatelessWidget {
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.showExitConfirmation = true,
+    this.showTimeZone = true,
   });
 
   final Widget child;
@@ -35,6 +36,11 @@ class AppPage extends StatelessWidget {
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final bool showExitConfirmation;
+
+  /// Whether the app bar shows the small device-timezone chip (e.g.
+  /// "UTC+6:30") on the right. Pages that don't want the extra chrome pass
+  /// `showTimeZone: false`.
+  final bool showTimeZone;
 
   static bool get isIOS => GetPlatform.isIOS;
 
@@ -126,7 +132,10 @@ class AppPage extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
-        children: [_timeZoneIndicator(context), ...?actions],
+        children: [
+          if (showTimeZone) _timeZoneIndicator(context),
+          ...?actions,
+        ],
       ),
     );
   }
@@ -150,7 +159,7 @@ class AppPage extends StatelessWidget {
             )
           : null,
       title: title != null ? Text(title!, style: context.typo.headline4) : null,
-      actions: [_timeZoneIndicator(context), ...?actions],
+      actions: [if (showTimeZone) _timeZoneIndicator(context), ...?actions],
     );
   }
 
