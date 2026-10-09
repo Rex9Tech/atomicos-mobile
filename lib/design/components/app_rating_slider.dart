@@ -41,13 +41,17 @@ class AppRatingSlider extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (label != null)
-              Text(
-                label!,
-                style: context.typo.caption.copyWith(
-                  color: context.colors.textSecondary,
-                  fontWeight: FontWeight.w500,
+              Flexible(
+                child: Text(
+                  label!,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typo.caption.copyWith(
+                    color: context.colors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
+            SizedBox(width: Design.spacing.sm),
             Container(
               padding: EdgeInsets.symmetric(
                 horizontal: Design.spacing.sm,

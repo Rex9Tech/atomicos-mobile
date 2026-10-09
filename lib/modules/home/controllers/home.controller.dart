@@ -67,7 +67,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       message: AppLocales.permission.notificationMessage.tr,
       confirmLabel: AppLocales.permission.notificationEnable.tr,
       confirmColor: context.colors.primary,
-      cancelColor: context.colors.error,
+      cancelColor: context.colors.textSecondary,
     );
 
     if (enable) {
@@ -199,5 +199,12 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     for (final moleculeId in expandedMolecules.toList()) {
       await _loadMoleculeAtoms(moleculeId);
     }
+  }
+
+  /// The home surface became visible again — refresh silently so items that
+  /// changed elsewhere are current even if a socket event was missed.
+  Future<void> onHomeVisible() async {
+    _categories.refresh();
+    await refreshExpandedMolecules();
   }
 }

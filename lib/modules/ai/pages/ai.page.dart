@@ -1896,6 +1896,7 @@ class _AiPageState extends State<AiPage> {
                               message:
                                   AppLocales.setting.deleteRoomConfirmMsg.tr,
                               confirmLabel: AppLocales.setting.confirmDelete.tr,
+                              destructive: true,
                             );
                             if (ok) {
                               controller.deleteRoom(room.id);

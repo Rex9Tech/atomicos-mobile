@@ -19,6 +19,7 @@ class ConfirmEmailPage extends GetView<AuthController> {
     final colors = context.colors;
 
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.confirmEmail.title.tr,
       child: Center(
         child: SingleChildScrollView(

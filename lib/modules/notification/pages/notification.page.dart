@@ -204,6 +204,12 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   void _handleNotificationTap(NotificationModel item) {
+    // Sign-in alerts keep only the mark-as-read behavior — no detail sheet,
+    // no navigation, no web dialogs.
+    if (item.isSignInAlert) {
+      _controller.markAsRead(item);
+      return;
+    }
     if (_isOverflowing(item)) {
       _controller.markAsRead(item);
       _showDetailBottomSheet(item);
@@ -530,6 +536,7 @@ class _NotificationPageState extends State<NotificationPage> {
           title: AppLocales.notification.deleteTitle.tr,
           message: AppLocales.notification.deleteConfirm.tr,
           confirmLabel: AppLocales.common.delete.tr,
+          destructive: true,
         );
       },
       onDismissed: (_) {
@@ -690,6 +697,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   title: AppLocales.notification.deleteTitle.tr,
                   message: AppLocales.notification.deleteConfirm.tr,
                   confirmLabel: AppLocales.common.delete.tr,
+                  destructive: true,
                 );
                 if (confirmed) {
                   _controller.deleteNotification(item);

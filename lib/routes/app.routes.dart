@@ -12,6 +12,7 @@ import '../modules/ai/ai.dart';
 import '../modules/atom_create/atom_create.dart';
 import '../modules/atom_details/atom_details.dart';
 import '../modules/auth/auth.dart';
+import '../modules/feedback/feedback.dart';
 import '../modules/home/home.dart';
 import '../modules/live_activity/live_activity.dart';
 import '../modules/search/search.dart';
@@ -44,6 +45,7 @@ class AppRoutes {
   static const String atomDetail = '/atom-detail';
   static const String molecule = '/molecule';
   static const String settings = '/settings';
+  static const String feedback = '/feedback';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
   static const String ai = '/ai';
@@ -333,6 +335,14 @@ class AppRoutes {
     GetPage(
       name: settings,
       page: () => const SettingPage(),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: feedback,
+      page: () => const FeedbackPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<FeedbackController>(() => FeedbackController());
+      }),
       middlewares: [GuardRoutes()],
     ),
     GetPage(

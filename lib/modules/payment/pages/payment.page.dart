@@ -252,6 +252,7 @@ class PaymentPage extends GetView<PaymentController> {
                 title: AppLocales.setting.cancelSubTitle.tr,
                 message: AppLocales.setting.cancelSubConfirmMsg.tr,
                 confirmLabel: AppLocales.setting.cancelSubTitle.tr,
+                destructive: true,
               );
               if (ok) controller.cancelSubscription(activeSub.id);
             },

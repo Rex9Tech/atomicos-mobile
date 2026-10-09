@@ -19,6 +19,10 @@ class RecordingSessionService extends GetxService {
 
   static const int _serviceId = 4201;
 
+  /// Bounds each plugin call of the service teardown — on some OEM builds
+  /// (MIUI) these can stall for minutes while the service is long gone.
+  static const Duration _pluginStopTimeout = Duration(seconds: 12);
+
   bool _initialized = false;
   bool _active = false;
 
@@ -136,19 +140,36 @@ class RecordingSessionService extends GetxService {
   );
 
   /// Stops the service — the recording UI is gone or the session ended.
-  /// Checks the real state first: a session whose start was misreported would
-  /// otherwise leave the notification running forever.
+  ///
+  /// Deliberately not awaited internally (same MIUI reason as [start]): the
+  /// plugin's own state calls can wait out an OEM-defined eternity even when
+  /// the service is long gone, and finishing a recording must never sit on
+  /// that verdict. The teardown still runs — bounded and retried — in the
+  /// background.
   Future<void> stop() async {
     _generation++;
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     _active = false;
 
-    try {
-      if (await FlutterForegroundTask.isRunningService) {
-        await FlutterForegroundTask.stopService();
+    unawaited(_stopService());
+  }
+
+  /// Bounded teardown for [stop]: every plugin call gets a timeout, and the
+  /// whole stop is retried once before giving up.
+  Future<void> _stopService() async {
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        if (!await FlutterForegroundTask.isRunningService
+            .timeout(_pluginStopTimeout)) {
+          return;
+        }
+        await FlutterForegroundTask.stopService().timeout(_pluginStopTimeout);
+        return;
+      } catch (error) {
+        debugPrint(
+          '🎙️ [RecordingSession] stop attempt ${attempt + 1} failed: $error',
+        );
       }
-    } catch (error) {
-      debugPrint('🎙️ [RecordingSession] stop failed: $error');
     }
   }
 

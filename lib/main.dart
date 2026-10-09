@@ -112,7 +112,12 @@ class MyApp extends StatelessWidget {
           initialRoute: AppRoutes.splash,
           getPages: AppRoutes.pages,
           unknownRoute: AppRoutes.notFound,
-          navigatorObservers: [analytics.observer, MiniPlayerRouteObserver()],
+          navigatorObservers: [
+            analytics.observer,
+            MiniPlayerRouteObserver(),
+            HomeResumeObserver(),
+            KeyboardDismissObserver(),
+          ],
           builder: (context, child) {
             return Overlay.wrap(
               child: AppNetworkBanner(

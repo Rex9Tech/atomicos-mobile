@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/components/components.dart';
 import 'package:rexone_mobile/services/services.dart';
 import '../modules/ai/ai.dart';
+import '../modules/atom_details/atom_details.dart';
 import '../modules/home/home.dart';
 import '../modules/molecule/molecule.dart';
 import '../modules/payment/payment.dart';
@@ -159,6 +160,16 @@ class SocketController extends GetxController {
     if (eventType == EWsEventType.atomUpdated ||
         eventType == EWsEventType.recordingCompleted ||
         eventType == EWsEventType.assetProcessed) {
+      // An open atom-details page reloads itself when ITS atom changes —
+      // audio processing finishing lands here, so summary/transcript appear
+      // without leaving the page.
+      final atomId = event.data?[AtomKeys.atomId]?.toString();
+      if (atomId != null &&
+          atomId.isNotEmpty &&
+          AtomDetailsController.active?.atomId.value == atomId) {
+        unawaited(AtomDetailsController.active!.loadAtom());
+      }
+
       // The atom list now lives on the molecule screen; keep it fresh while
       // it is open (Home itself renders molecules, which don't change here).
       MoleculeController.active?.reload();

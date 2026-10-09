@@ -287,7 +287,8 @@ class _NotificationRow extends StatelessWidget {
         Get.closeAllSnackbars();
         Get.back();
 
-        if (item.link != null && item.link!.isNotEmpty) {
+        // Sign-in alerts are informational — mark read is the whole action.
+        if (item.link != null && item.link!.isNotEmpty && !item.isSignInAlert) {
           AppRoutes.handleNotificationLink(item.link);
         }
       },

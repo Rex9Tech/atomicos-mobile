@@ -371,6 +371,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.saveInCalendarApp:
           'Save the event in your calendar app',
       AppLocales.calendar.updateDateTime: 'Update date & time',
+      AppLocales.calendar.clearDate: 'Clear date',
+      AppLocales.calendar.dateSaved: 'Meeting date saved',
+      AppLocales.calendar.dateCleared: 'Meeting date cleared',
       AppLocales.calendar.changeCalendar: 'Change calendar',
       AppLocales.calendar.removeFromCalendar: 'Remove from calendar',
       AppLocales.calendar.openCalendarApp: 'Open calendar app',
@@ -386,6 +389,8 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'Allow notifications so a recording keeps running in the background and you can pause or stop it from the notification.',
       AppLocales.permission.notificationEnable: 'Enable',
+      AppLocales.permission.notificationSettingsMessage:
+          'Turn on notifications for Atomic: in the settings that open, select Notifications and enable \'Allow Notifications\'.',
 
       // Search
       AppLocales.search.placeholder: 'Search atoms or meetings',
@@ -398,6 +403,8 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'This stops the recording and turns the transcript into an atom. You can read and edit it afterwards.',
       AppLocales.recording.endConfirm: 'End & create atom',
+      AppLocales.recording.finishFailed:
+          'Couldn\'t finish the recording. Please try again.',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'Write a Meeting Note...',
@@ -1135,6 +1142,9 @@ class AppTranslations extends Translations {
       AppLocales.calendar.saveInCalendarApp:
           'သင့်ပြက္ခဒိန်အက်ပ်တွင် ဖြစ်ရပ်ကို သိမ်းဆည်းပါ',
       AppLocales.calendar.updateDateTime: 'ရက်စွဲနှင့် အချိန် ပြင်ရန်',
+      AppLocales.calendar.clearDate: 'ရက်စွဲ ဖျက်ရန်',
+      AppLocales.calendar.dateSaved: 'အစည်းအဝေး ရက်စွဲ သိမ်းပြီးပါပြီ',
+      AppLocales.calendar.dateCleared: 'အစည်းအဝေး ရက်စွဲ ဖျက်ပြီးပါပြီ',
       AppLocales.calendar.changeCalendar: 'ပြက္ခဒိန် ပြောင်းရန်',
       AppLocales.calendar.removeFromCalendar: 'ပြက္ခဒိန်မှ ဖယ်ရှားရန်',
       AppLocales.calendar.openCalendarApp: 'ပြက္ခဒိန်အက်ပ် ဖွင့်ရန်',
@@ -1150,6 +1160,8 @@ class AppTranslations extends Translations {
       AppLocales.permission.notificationMessage:
           'အသံဖမ်းနေစဉ် နောက်ခံတွင် ဆက်လက်လည်ပတ်နိုင်ရန်နှင့် အသိပေးချက်မှ ခေတ္တရပ်/ရပ်နိုင်ရန် အသိပေးချက်များကို ခွင့်ပြုပေးပါ။',
       AppLocales.permission.notificationEnable: 'ဖွင့်မည်',
+      AppLocales.permission.notificationSettingsMessage:
+          'Atomic အတွက် အသိပေးချက်များကို ဖွင့်ပါ — ဖွင့်လာသည့် ဆက်တင်တွင် Notifications ကို ရွေးပြီး \'Allow Notifications\' ကို ဖွင့်ပေးပါ။',
 
       // Search
       AppLocales.search.placeholder: 'အက်တမ်များ သို့မဟုတ် အစည်းအဝေးများ ရှာပါ',
@@ -1162,6 +1174,8 @@ class AppTranslations extends Translations {
       AppLocales.recording.endMessage:
           'ဖမ်းယူမှုကို ရပ်ပြီး စကားပြောစာသားမှ အက်တမ်တစ်ခု ဖန်တီးပါမည်။ နောက်မှ ဖတ်ရှု ပြင်ဆင်နိုင်ပါသည်။',
       AppLocales.recording.endConfirm: 'ရပ်ပြီး အက်တမ် ဖန်တီးမည်',
+      AppLocales.recording.finishFailed:
+          'အသံဖမ်းခြင်းကို ပြီးဆုံးအောင် မလုပ်ဆောင်နိုင်ပါ။ တစ်ခါထပ် ကြိုးစားပါ။',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'အစည်းအဝေး မှတ်စု ရေးသားပါ...',

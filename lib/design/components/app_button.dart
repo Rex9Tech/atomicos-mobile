@@ -51,7 +51,11 @@ class AppButton extends StatelessWidget {
 
       case EButtonType.tertiary:
       case EButtonType.text:
-        return osTextButton(onPressed: onPressed, child: child);
+        return osTextButton(
+          onPressed: onPressed,
+          child: child,
+          color: color,
+        );
 
       case EButtonType.icon:
         return osIconButton(
@@ -103,6 +107,7 @@ class AppButton extends StatelessWidget {
   static Widget osTextButton({
     required VoidCallback? onPressed,
     required Widget child,
+    Color? color,
   }) {
     if (isIOS) {
       return CupertinoButton(
@@ -113,7 +118,7 @@ class AppButton extends StatelessWidget {
         ),
         child: DefaultTextStyle(
           style: Design.typo.labelLarge.copyWith(
-            color: Get.theme.colorScheme.primary,
+            color: color ?? Get.theme.colorScheme.primary,
           ),
           child: child,
         ),
@@ -121,7 +126,15 @@ class AppButton extends StatelessWidget {
     }
     return TextButton(
       onPressed: onPressed,
-      style: Design.styles.buttonText,
+      // Explicit colors must survive to the rendered button — they used to be
+      // dropped here, which forced every dialog action to the default style
+      // (the "Open Settings" action rendered red on iOS, green-on-green
+      // elsewhere, regardless of what the caller asked for).
+      style: color == null
+          ? Design.styles.buttonText
+          : Design.styles.buttonText.copyWith(
+              foregroundColor: WidgetStatePropertyAll<Color?>(color),
+            ),
       child: child,
     );
   }

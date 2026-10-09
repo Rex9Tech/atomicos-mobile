@@ -128,6 +128,29 @@ class HomeService extends GetxService {
     });
   }
 
+  /// PUT /v1/atoms/:id — sets (or clears, with a null [meetingAt]) this
+  /// atom's meeting date. Explicit null is sent so the server sees the
+  /// clear; nothing touches the device calendar.
+  Future<ApiResponse<AtomModel>> setMeetingDate({
+    required String atomId,
+    required String? meetingAt,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.atomDetail(atomId),
+      {
+        AtomKeys.atom: {AtomKeys.meetingAt: meetingAt},
+      },
+      showLoading: false,
+    );
+    return _api.parseResponse<AtomModel>(response, (data) {
+      final record = data is Map && data[AtomKeys.atom] is Map
+          ? data[AtomKeys.atom]
+          : data;
+      return ApiHelper.parseRecord<AtomModel>(record, AtomModel.fromJson) ??
+          AtomModel.fromJson(const {});
+    });
+  }
+
   /// DELETE /v1/atoms/:id — soft-removes the atom from the user's library.
   Future<ApiResponse<dynamic>> deleteAtom(String atomId) async {
     final response = await _api.delete(

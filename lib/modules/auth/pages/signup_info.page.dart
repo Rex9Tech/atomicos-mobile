@@ -19,6 +19,7 @@ class SignUpInfoPage extends GetView<AuthController> {
         arguments['confirm_password'] ?? arguments['password'] ?? '';
 
     return AppPage(
+      showTimeZone: false,
       title: AppLocales.auth.signUpInfo.title.tr,
       child: Center(
         child: SingleChildScrollView(

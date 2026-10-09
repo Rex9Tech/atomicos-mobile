@@ -43,6 +43,16 @@ class LiveActivityController extends GetxController {
   Worker? _transcriptWorker;
   bool _started = false;
 
+  /// Bounds how long every teardown step of [finishRecording] may wait — a
+  /// stalled mic, socket or OEM plugin must never trap the user on the
+  /// recording screen. Static so tests can shorten it.
+  static Duration teardownTimeout = const Duration(seconds: 12);
+
+  /// How long the finish may wait on the audio upload before moving on — the
+  /// request keeps running in the background and the attach broadcasts when
+  /// it lands. Static so tests can shorten it.
+  static Duration uploadWaitTimeout = const Duration(seconds: 20);
+
   /// Where the captured audio lands while recording.
   String? _capturePath;
 
@@ -211,55 +221,81 @@ class LiveActivityController extends GetxController {
     if (isFinishing.value) return;
     isFinishing.value = true;
     _ticker?.cancel();
-    await _speech.stopListening();
-    isTranscriptLive.value = false;
-    // The session is over — drop the foreground service (and its notification)
-    // now that the mic no longer needs background access.
-    _speech.allowBackgroundListening = false;
-    _socket.allowBackgroundReconnect = false;
-    await _background.stop();
-    // Closes the WAV so it can be uploaded.
-    final audioPath = await _speech.finishCapture();
-    // Report the file's real length, not the timer — background chunks can be
-    // dropped, which made the atom show more time than the audio actually has.
-    final capturedSecs = capturedAudioSeconds(audioPath);
 
-    final id = recordingId.value;
-    if (id == null || id.isEmpty) {
-      isFinishing.value = false;
-      Get.back();
-      return;
-    }
+    try {
+      // Best-effort teardown: every step is bounded so a stalled mic, socket
+      // or OEM plugin can never wedge the finish (testers: "End does nothing,
+      // can't exit"). On timeout the underlying step keeps running in the
+      // background — only the wait ends.
+      await _speech
+          .stopListening()
+          .timeout(teardownTimeout, onTimeout: () {});
+      isTranscriptLive.value = false;
+      // The session is over — drop the foreground service (and its
+      // notification) now that the mic no longer needs background access.
+      _speech.allowBackgroundListening = false;
+      _socket.allowBackgroundReconnect = false;
+      await _background.stop();
+      // Closes the WAV so it can be uploaded.
+      final audioPath = await _speech.finishCapture();
+      // Report the file's real length, not the timer — background chunks can
+      // be dropped, which made the atom show more time than the audio
+      // actually has.
+      final capturedSecs = capturedAudioSeconds(audioPath);
 
-    final result = await _recording.finish(
-      id,
-      durationSecs: capturedSecs ?? elapsedSeconds.value,
-      transcript: liveTranscript.value.trim(),
-      note: noteController.text.trim(),
-    );
-    if (result.success) {
-      final atomId = result.data?.atomId ?? '';
-      if (atomId.isNotEmpty) {
-        if (audioPath != null) {
-          await _uploadAudio(atomId, audioPath);
-        }
-        // Ask which molecule the new atom belongs to — dismissing leaves it
-        // uncategorized, and a failure here must never block the finish.
-        try {
-          final picked = await showMoleculePickerSheet();
-          if (picked != null && picked.isNotEmpty) {
-            await _home.setCategory(atomId: atomId, categoryId: picked);
-            await Get.find<CategoryService>().refresh();
-          }
-        } catch (_) {}
-        // Replace the finished recording sheet so Back lands on the screen the
-        // recording was started from, not on a dead recording session.
-        AppRoutes.toAtomDetail(atomId: atomId, replace: true);
+      final id = recordingId.value;
+      if (id == null || id.isEmpty) {
+        isFinishing.value = false;
+        Get.closeAllSnackbars();
+        Get.back();
         return;
       }
-      Get.back();
-    } else {
-      AppSnackbar.error(result.error ?? result.message);
+
+      final result = await _recording
+          .finish(
+            id,
+            durationSecs: capturedSecs ?? elapsedSeconds.value,
+            transcript: liveTranscript.value.trim(),
+            note: noteController.text.trim(),
+          )
+          .timeout(const Duration(seconds: 60));
+      if (result.success) {
+        final atomId = result.data?.atomId ?? '';
+        if (atomId.isNotEmpty) {
+          if (audioPath != null) {
+            // A slow upload must not hold the screen hostage — the atom
+            // already exists, and the attach broadcasts when it lands so
+            // atom details picks the audio up live.
+            await _uploadAudio(
+              atomId,
+              audioPath,
+            ).timeout(uploadWaitTimeout, onTimeout: () {});
+          }
+          // Ask which molecule the new atom belongs to — dismissing leaves it
+          // uncategorized, and a failure here must never block the finish.
+          try {
+            final picked = await showMoleculePickerSheet();
+            if (picked != null && picked.isNotEmpty) {
+              await _home.setCategory(atomId: atomId, categoryId: picked);
+              await Get.find<CategoryService>().refresh();
+            }
+          } catch (_) {}
+          // Replace the finished recording sheet so Back lands on the screen
+          // the recording was started from, not on a dead recording session.
+          AppRoutes.toAtomDetail(atomId: atomId, replace: true);
+          return;
+        }
+        Get.closeAllSnackbars();
+        Get.back();
+      } else {
+        AppSnackbar.error(result.error ?? result.message);
+        isFinishing.value = false;
+      }
+    } catch (error) {
+      // Anything unexpected (a timed-out finish call, a platform error) must
+      // leave the screen usable — the user can retry or leave normally.
+      debugPrint('🎙️ [LiveActivity] finish failed: $error');
+      AppSnackbar.error(AppLocales.recording.finishFailed.tr);
       isFinishing.value = false;
     }
   }

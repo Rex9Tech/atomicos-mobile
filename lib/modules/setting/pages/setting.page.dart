@@ -8,7 +8,6 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
 import '../../auth/auth.dart';
-import '../../feedback/feedback.dart';
 import '../setting.dart';
 
 class SettingPage extends GetView<SettingController> {
@@ -21,6 +20,7 @@ class SettingPage extends GetView<SettingController> {
     return AppPage(
       title: AppLocales.setting.settings.tr,
       showBackButton: true,
+      showTimeZone: false,
       child: ListView(
         padding: EdgeInsets.all(Design.spacing.lg),
         children: [
@@ -72,7 +72,7 @@ class SettingPage extends GetView<SettingController> {
         subtitle: Text(AppLocales.feedback.description.tr),
         trailing:
             Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
-        onTap: () => FeedbackBottomSheet.show(),
+        onTap: () => Get.toNamed(AppRoutes.feedback),
       ),
     );
   }
@@ -260,6 +260,7 @@ class SettingPage extends GetView<SettingController> {
       title: AppLocales.common.signOut.tr,
       message: AppLocales.setting.logoutConfirmation.tr,
       confirmLabel: AppLocales.common.signOut.tr,
+      destructive: true,
     );
     if (confirmed) authController.signOut();
   }

@@ -84,6 +84,7 @@ class _RecordingLocales {
   final endTitle = 'recording.end_title';
   final endMessage = 'recording.end_message';
   final endConfirm = 'recording.end_confirm';
+  final finishFailed = 'recording.finish_failed';
 }
 
 class _SearchLocales {
@@ -590,6 +591,9 @@ class _CalendarLocales {
   final removeFromCalendar = 'calendar.remove_from_calendar';
   final openCalendarApp = 'calendar.open_calendar_app';
   final chooseCalendar = 'calendar.choose_calendar';
+  final clearDate = 'calendar.clear_date';
+  final dateSaved = 'calendar.date_saved';
+  final dateCleared = 'calendar.date_cleared';
 }
 
 class _PermissionLocales {
@@ -602,6 +606,7 @@ class _PermissionLocales {
   final notificationTitle = 'permission.notification_title';
   final notificationMessage = 'permission.notification_message';
   final notificationEnable = 'permission.notification_enable';
+  final notificationSettingsMessage = 'permission.notification_settings_message';
 }
 
 class _CreateLocales {

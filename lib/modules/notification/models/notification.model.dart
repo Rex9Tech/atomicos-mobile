@@ -21,6 +21,11 @@ class NotificationModel {
   bool get isIamUpdated =>
       metadata[NotificationKeys.type] == NotificationConstants.iamUpdated;
 
+  /// Security notice ("New Sign In") — purely informational: tapping it must
+  /// only mark it read, never navigate or open a dialog.
+  bool get isSignInAlert =>
+      metadata[NotificationKeys.type] == NotificationConstants.signInAlert;
+
   NotificationModel({
     required this.id,
     required this.title,
@@ -52,7 +57,12 @@ class NotificationModel {
           : const [AppConstants.platformWeb, AppConstants.platformMobile],
       metadata: json[NotificationKeys.metadata] is Map
           ? Map<String, dynamic>.from(json[NotificationKeys.metadata] as Map)
-          : const {},
+          // The core serializes this map as `data` — older/other payloads may
+          // still call it `metadata`; accept both so type-gated behavior
+          // (badges, sign-in alerts) works from the API and the socket alike.
+          : json[NotificationKeys.data] is Map
+              ? Map<String, dynamic>.from(json[NotificationKeys.data] as Map)
+              : const {},
       read: json[NotificationKeys.read] as bool? ?? false,
       readAt: AppDateTime.fromUtc(json[NotificationKeys.readAt]),
       notificationId:

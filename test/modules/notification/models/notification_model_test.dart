@@ -125,5 +125,33 @@ void main() {
       expect(modified.read, true);
       expect(modified.readAt, isNotNull);
     });
+
+    test('reads the core `data` map as metadata and flags sign-in alerts', () {
+      final model = NotificationModel.fromJson({
+        'id': 'notif-signin',
+        'title': 'New Sign In',
+        'message': 'A new sign-in was detected.',
+        'link': '/settings',
+        'data': {'type': 'sign_in_alert', 'time': '2026-10-07T04:47:00Z'},
+        'created_at': '2026-10-07T04:47:27.189Z',
+      });
+
+      expect(model.isSignInAlert, isTrue);
+      expect(model.isIamUpdated, isFalse);
+      expect(model.metadata['time'], '2026-10-07T04:47:00Z');
+    });
+
+    test('an explicit metadata map wins over the data fallback', () {
+      final model = NotificationModel.fromJson({
+        'id': 'notif-meta',
+        'title': 'T',
+        'message': 'M',
+        'metadata': {'type': 'sign_in_alert'},
+        'data': {'type': 'welcome'},
+        'created_at': '2026-10-07T04:47:27.189Z',
+      });
+
+      expect(model.isSignInAlert, isTrue);
+    });
   });
 }
