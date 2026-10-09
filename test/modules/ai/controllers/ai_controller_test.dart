@@ -428,7 +428,7 @@ void main() {
 
       expect(
         fakeAi.lastChatRequest?.context,
-        contains('no atoms in this molecule yet'),
+        contains('0 atoms so far'),
       );
     });
   });

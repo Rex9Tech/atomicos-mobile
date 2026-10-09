@@ -79,9 +79,10 @@ class AiController extends GetxController {
   /// How much of an attached atom is sent to the model.
   static const int _contextCharLimit = 4000;
 
-  /// Shared budget when the WHOLE molecule travels as context — every atom in
-  /// it, digested, up to this many characters.
-  static const int _moleculeCharLimit = 12000;
+  /// Shared budget when the WHOLE molecule travels as context — every atom
+  /// in it gets a fair slice of these many characters; the total count is
+  /// always stated and no atom ever silently falls off.
+  static const int _moleculeCharLimit = 24000;
 
   /// Keeps replies structured so the chat can render them as markdown.
   static const String _markdownSystemPrompt =
@@ -401,9 +402,7 @@ class AiController extends GetxController {
     final molecule = contextMolecule.value;
     if (molecule != null) {
       final digest = await _moleculeSnippet(molecule);
-      parts.add(
-        'Context — molecule "${molecule.name}" (every atom in this molecule):\n$digest',
-      );
+      parts.add('Context — molecule "${molecule.name}":\n$digest');
     }
     final atom = contextAtom.value;
     if (atom != null) {
@@ -417,34 +416,101 @@ class AiController extends GetxController {
     return parts.join('\n\n');
   }
 
-  /// The whole molecule for the model: every atom inside it, digested like a
-  /// single-atom context but with a larger shared budget, so the AI is aware
-  /// of the complete molecule before answering.
+  /// The whole molecule for the model: the total atom count is always spelled
+  /// out, and EVERY atom contributes its digest — when the combined content
+  /// exceeds the shared budget, each atom gets a fair slice instead of the
+  /// atoms past the budget silently falling off.
   Future<String> _moleculeSnippet(CategoryModel molecule) async {
     try {
-      final result = await _home.getAtoms(categoryId: molecule.id, limit: 50);
+      final result = await _home.getAtoms(categoryId: molecule.id, limit: 100);
       final atoms = result.records;
-      if (atoms.isEmpty) return '(no atoms in this molecule yet)';
-
-      final entries = <String>[];
-      var used = 0;
-      for (final atom in atoms) {
-        final snippet = _contextSnippet(atom);
-        final entry =
-            '- ${atom.title} [${atom.source}]'
-            '${snippet.isEmpty ? '' : ': $snippet'}';
-        entries.add(entry);
-        used += entry.length;
-        if (used >= _moleculeCharLimit) break;
+      final total = result.pagination?.totalCount ?? atoms.length;
+      if (atoms.isEmpty) {
+        return 'The molecule "${molecule.name}" has 0 atoms so far — '
+            'it is empty.';
       }
 
-      final text = entries.join('\n\n');
-      if (text.length <= _moleculeCharLimit) return text;
-      return '${text.substring(0, _moleculeCharLimit)}…';
+      final prefixes = <String>[];
+      final bodies = <String>[];
+      for (final atom in atoms) {
+        prefixes.add('- ${atom.title} [${atom.source}]');
+        bodies.add(_contextSnippet(atom));
+      }
+
+      final header = atoms.length < total
+          ? 'The molecule "${molecule.name}" contains $total atoms in '
+                'total; the first ${atoms.length} of them and their '
+                'contents follow:'
+          : 'The molecule "${molecule.name}" contains $total atom'
+                '${total == 1 ? '' : 's'}; every atom and its content '
+                'follows:';
+
+      final chrome = prefixes.fold<int>(
+        0,
+        (sum, prefix) => sum + prefix.length + 3, // ": " + "\n\n"
+      );
+      final shares = _allocateContextShares(
+        [for (final body in bodies) body.length],
+        _moleculeCharLimit - header.length - chrome,
+      );
+
+      final buffer = StringBuffer(header);
+      for (var i = 0; i < prefixes.length; i++) {
+        final body = _trimToShare(bodies[i], shares[i]);
+        buffer.write('\n\n');
+        buffer.write(prefixes[i]);
+        if (body.isNotEmpty) buffer.write(': $body');
+      }
+      return buffer.toString();
     } catch (error) {
       debugPrint('🤖 [AiController] molecule snippet error: $error');
       return '(could not load this molecule\'s atoms)';
     }
+  }
+
+  /// Water-filling split of [budget] characters across body [lengths]: any
+  /// body that fits its equal share keeps its full text, and the space it
+  /// leaves rolls over to the longer bodies. Every non-empty body gets at
+  /// least 1 character whenever any budget remains, so no atom is ever
+  /// silently dropped from the context.
+  List<int> _allocateContextShares(List<int> lengths, int budget) {
+    final shares = List<int>.filled(lengths.length, 0);
+    var remaining = budget;
+    var pending = <int>[
+      for (var i = 0; i < lengths.length; i++)
+        if (lengths[i] > 0) i,
+    ];
+
+    while (pending.isNotEmpty && remaining > 0) {
+      var share = remaining ~/ pending.length;
+      if (share < 1) share = 1;
+      final stillPending = <int>[];
+      for (final index in pending) {
+        if (lengths[index] <= share) {
+          shares[index] = lengths[index];
+          remaining -= lengths[index];
+        } else {
+          stillPending.add(index);
+        }
+      }
+      if (stillPending.length == pending.length) {
+        // Every remaining body is longer than the equal share — hand each
+        // the same slice and stop.
+        for (final index in stillPending) {
+          shares[index] = share;
+        }
+        break;
+      }
+      pending = stillPending;
+    }
+    return shares;
+  }
+
+  /// [body] shortened to [share] characters, ellipsis included.
+  String _trimToShare(String body, int share) {
+    if (body.length <= share) return body;
+    if (share <= 1) return '…';
+    return '${body.substring(0, share - 1)}…';
   }
 
   /// Short, model-friendly digest of an atom used as conversation context:
