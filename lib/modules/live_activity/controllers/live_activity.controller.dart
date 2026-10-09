@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,6 +12,15 @@ import 'package:rexone_mobile/services/services.dart';
 
 import '../../ai/services/recording.service.dart';
 import '../../home/services/home.service.dart';
+
+/// A file staged on the recording sheet. Uploaded and attached to the
+/// recording's atom when the session finishes.
+class RecordingAttachment {
+  const RecordingAttachment({required this.path, required this.name});
+
+  final String path;
+  final String name;
+}
 
 /// Drives the live recording sheet: the backend session record, the timer, the
 /// live transcript streamed from the microphone through [SpeechService], and
@@ -29,6 +39,10 @@ class LiveActivityController extends GetxController {
   final RxnString recordingId = RxnString();
   final RxBool isFinishing = false.obs;
   final noteController = TextEditingController();
+
+  /// Files staged on the sheet while recording; every one is uploaded and
+  /// attached to the atom when the session finishes.
+  final RxList<RecordingAttachment> attachments = <RecordingAttachment>[].obs;
 
   /// Transcript text streamed live from the mic while recording.
   final RxString liveTranscript = ''.obs;
@@ -217,6 +231,37 @@ class LiveActivityController extends GetxController {
     await _startLiveTranscript();
   }
 
+  /// Opens the system file picker and stages the chosen file to ride along
+  /// with the recording. The upload happens at finish, when the atom exists.
+  Future<void> pickAttachment() async {
+    try {
+      final file = await FilePickerPlatform.instance.pickFile(
+        type: FileType.any,
+      );
+      if (file == null) return;
+      stageAttachment(path: file.path, name: file.name);
+    } catch (error) {
+      debugPrint('🎙️ [LiveActivity] attachment pick failed: $error');
+      AppSnackbar.error(AppLocales.ai.filePickerFailed.tr);
+    }
+  }
+
+  /// Stages a picked file — kept separate from [pickAttachment] so tests can
+  /// stage files without the platform picker.
+  void stageAttachment({String? path, required String name}) {
+    if (path == null || path.isEmpty) {
+      AppSnackbar.info('No file path available');
+      return;
+    }
+    if (attachments.any((attachment) => attachment.path == path)) return;
+    attachments.add(RecordingAttachment(path: path, name: name));
+    AppSnackbar.info(AppLocales.ai.attachedFile.trParams({'name': name}));
+  }
+
+  void removeAttachment(RecordingAttachment attachment) {
+    attachments.removeWhere((item) => item.path == attachment.path);
+  }
+
   Future<void> finishRecording() async {
     if (isFinishing.value) return;
     isFinishing.value = true;
@@ -269,6 +314,15 @@ class LiveActivityController extends GetxController {
             await _uploadAudio(
               atomId,
               audioPath,
+            ).timeout(uploadWaitTimeout, onTimeout: () {});
+          }
+          if (attachments.isNotEmpty) {
+            // Same bounded best-effort as the audio: the atom already
+            // exists, so every staged file rides upload → attach and the
+            // screen never waits forever on a slow connection.
+            await _uploadAttachments(
+              atomId,
+              attachments.toList(),
             ).timeout(uploadWaitTimeout, onTimeout: () {});
           }
           // Ask which molecule the new atom belongs to — dismissing leaves it
@@ -340,6 +394,48 @@ class LiveActivityController extends GetxController {
       }
     } catch (error) {
       debugPrint('🎙️ [LiveActivity] audio upload error: $error');
+    }
+  }
+
+  /// Uploads every staged attachment and attaches it to the finished atom —
+  /// the same upload → attach rail the recording audio rides. One failure
+  /// never stops the rest.
+  Future<void> _uploadAttachments(
+    String atomId,
+    List<RecordingAttachment> items,
+  ) async {
+    for (final item in items) {
+      try {
+        final upload = await _media.uploadImage(
+          filePath: item.path,
+          filename: item.name,
+          type: AssetKeys.typeAttachment,
+          folder: 'atoms',
+          showLoading: false,
+        );
+
+        final assetId = upload.data?.id ?? '';
+        if (!upload.success || assetId.isEmpty) {
+          debugPrint(
+            '🎙️ [LiveActivity] attachment upload failed: ${upload.error ?? upload.message}',
+          );
+          AppSnackbar.error(upload.error ?? upload.message);
+          continue;
+        }
+
+        final attach = await _home.attachAsset(
+          atomId: atomId,
+          assetId: assetId,
+        );
+        if (!attach.success) {
+          debugPrint(
+            '🎙️ [LiveActivity] attachment attach failed: ${attach.error}',
+          );
+          AppSnackbar.error(attach.error ?? attach.message);
+        }
+      } catch (error) {
+        debugPrint('🎙️ [LiveActivity] attachment upload error: $error');
+      }
     }
   }
 

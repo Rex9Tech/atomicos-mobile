@@ -869,15 +869,21 @@ class FakeHomeService extends GetxService implements HomeService {
         data: AtomModel.fromJson(const {}),
       );
 
+  /// Every attach call as `[atomId, assetId]`, in order.
+  final List<List<String>> attachedAssetCalls = [];
+
   @override
   Future<ApiResponse<AtomAssetModel>> attachAsset({
     required String atomId,
     required String assetId,
-  }) async => ApiResponse.success(
-    message: 'Asset attached',
-    statusCode: 201,
-    data: AtomAssetModel.fromJson(const {}),
-  );
+  }) async {
+    attachedAssetCalls.add([atomId, assetId]);
+    return ApiResponse.success(
+      message: 'Asset attached',
+      statusCode: 201,
+      data: AtomAssetModel.fromJson(const {}),
+    );
+  }
 
   @override
   Future<ApiResponse<AtomModel>> renameAtom({
@@ -1294,6 +1300,12 @@ class FakeMediaService extends MediaService {
   int? lastAssetsPage;
   int? lastAssetsLimit;
 
+  /// Every uploaded file path, in call order.
+  final List<String> uploadedFilePaths = [];
+
+  /// Every uploaded filename (may be null), in call order.
+  final List<String?> uploadedFilenames = [];
+
   @override
   void onInit() {}
 
@@ -1341,6 +1353,8 @@ class FakeMediaService extends MediaService {
     lastUploadedAssetableType = assetableType;
     lastUploadedAssetableId = assetableId;
     lastUploadedDurationSecs = durationSecs;
+    uploadedFilePaths.add(filePath);
+    uploadedFilenames.add(filename);
 
     return uploadResponse ??
         ApiResponse.success(

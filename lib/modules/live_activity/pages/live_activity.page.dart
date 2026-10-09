@@ -214,8 +214,37 @@ class LiveActivityPage extends GetView<LiveActivityController> {
                     color: colors.textMuted,
                   ),
                 ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: controller.pickAttachment,
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(
+                    Design.icons.add,
+                    size: Design.spacing.iconSmall,
+                    color: colors.primary,
+                  ),
+                ),
               ],
             ),
+            Obx(() {
+              if (controller.attachments.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: EdgeInsets.only(top: Design.spacing.xs),
+                child: Wrap(
+                  spacing: Design.spacing.xs,
+                  runSpacing: Design.spacing.xs,
+                  children: [
+                    for (final attachment in controller.attachments)
+                      _AttachmentChip(
+                        label: attachment.name,
+                        onRemove: () => controller.removeAttachment(attachment),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -491,6 +520,53 @@ class _WaveformBar extends StatelessWidget {
               ),
             )
             .toList(),
+      ),
+    );
+  }
+}
+
+/// A file staged on the recording sheet — name plus remove. Uploaded and
+/// attached to the atom when the recording finishes.
+class _AttachmentChip extends StatelessWidget {
+  const _AttachmentChip({required this.label, required this.onRemove});
+
+  final String label;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 240),
+      padding: EdgeInsets.symmetric(horizontal: Design.spacing.sm, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.neumo,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.30)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Design.icons.attachment, size: 14, color: colors.primary),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.typo.caption.copyWith(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onRemove,
+            child: Icon(Design.icons.close, size: 14, color: colors.textMuted),
+          ),
+        ],
       ),
     );
   }
