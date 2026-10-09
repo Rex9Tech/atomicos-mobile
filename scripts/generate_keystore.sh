@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-APP_NAME="${1:-rexone}"
+APP_NAME="${1:-atomic}"
 KEY_ALIAS="${2:-upload}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

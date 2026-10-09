@@ -18,7 +18,7 @@ import UIKit
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
     let nowPlayingChannel = FlutterMethodChannel(
-      name: "rexone/now_playing",
+      name: "atomic/now_playing",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
     nowPlayingChannel.setMethodCallHandler { call, result in
@@ -46,7 +46,7 @@ import UIKit
     }
 
     let mediaChannel = FlutterMethodChannel(
-      name: "rexone/media_download_live_activity",
+      name: "atomic/media_download_live_activity",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
     mediaDownloadLiveActivityChannel = mediaChannel

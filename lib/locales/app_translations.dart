@@ -12,7 +12,7 @@ class AppTranslations extends Translations {
     'en_US': {
       // Common
       AppLocales.common.home: 'Home',
-      AppLocales.common.welcomeHome: 'Welcome to AtomicOS!',
+      AppLocales.common.welcomeHome: 'Welcome to Atomic!',
       AppLocales.common.loading: 'Loading...',
       AppLocales.common.signOut: 'Sign Out',
       AppLocales.common.goBack: 'Go Back',
@@ -215,7 +215,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'Share Your Feedback',
       AppLocales.feedback.description:
-          'We value your thoughts and ideas to help improve AtomicOS.',
+          'We value your thoughts and ideas to help improve Atomic.',
       AppLocales.feedback.rateExperience: 'Rate your experience (1 - 10)',
       AppLocales.feedback.tellUsMore: "What's on your mind?",
       AppLocales.feedback.placeholder:
@@ -325,13 +325,13 @@ class AppTranslations extends Translations {
       AppLocales.notification.viewAll: 'View all',
       AppLocales.notification.today: 'Today',
       AppLocales.notification.yesterday: 'Yesterday',
-      AppLocales.notification.webOnlyTitle: 'Available on AtomicOS Web',
+      AppLocales.notification.webOnlyTitle: 'Available on Atomic Web',
       AppLocales.notification.webOnlyMessage:
-          'This change is managed in the AtomicOS Web admin portal. View it there for full details.',
+          'This change is managed in the Atomic Web admin portal. View it there for full details.',
       AppLocales.notification.webOnlyConfirm: 'Understood',
       AppLocales.notification.externalTitle: 'Open external website?',
       AppLocales.notification.externalMessage:
-          'This link will leave AtomicOS and open in your browser.',
+          'This link will leave Atomic and open in your browser.',
       AppLocales.notification.externalConfirm: 'Open website',
       AppLocales.notification.openLink: 'Open Link',
       AppLocales.notification.readMore: 'Read more',
@@ -787,7 +787,7 @@ class AppTranslations extends Translations {
     'my_MM': {
       // Common
       AppLocales.common.home: 'ပင်မ',
-      AppLocales.common.welcomeHome: 'AtomicOS မှ ကြိုဆိုပါတယ်!',
+      AppLocales.common.welcomeHome: 'Atomic မှ ကြိုဆိုပါတယ်!',
       AppLocales.common.loading: 'လုပ်ဆောင်နေဆဲ...',
       AppLocales.common.signOut: 'ထွက်မည်',
       AppLocales.common.goBack: 'နောက်သို့',
@@ -991,7 +991,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'အကြံပြုချက်',
       AppLocales.feedback.description:
-          'AtomicOS ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
+          'Atomic ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
       AppLocales.feedback.rateExperience: 'အဆင့်သတ်မှတ်ပါ (၁ - ၁၀)',
       AppLocales.feedback.tellUsMore: 'သင့်အကြံပြုချက် ရေးပါ',
       AppLocales.feedback.placeholder:
@@ -1105,13 +1105,13 @@ class AppTranslations extends Translations {
       AppLocales.notification.viewAll: 'အားလုံးကြည့်ရန်',
       AppLocales.notification.today: 'ယနေ့',
       AppLocales.notification.yesterday: 'မနေ့က',
-      AppLocales.notification.webOnlyTitle: 'AtomicOS Web တွင် ရနိုင်သည်',
+      AppLocales.notification.webOnlyTitle: 'Atomic Web တွင် ရနိုင်သည်',
       AppLocales.notification.webOnlyMessage:
-          'ဤအပြောင်းအလဲကို AtomicOS Web admin portal တွင် စီမံထားသည်။ အသေးစိတ်ကို ထိုနေရာတွင် ကြည့်ပါ။',
+          'ဤအပြောင်းအလဲကို Atomic Web admin portal တွင် စီမံထားသည်။ အသေးစိတ်ကို ထိုနေရာတွင် ကြည့်ပါ။',
       AppLocales.notification.webOnlyConfirm: 'နားလည်ပါပြီ',
       AppLocales.notification.externalTitle: 'ပြင်ပ ဝဘ်ဆိုက်ကို ဖွင့်မလား?',
       AppLocales.notification.externalMessage:
-          'ဤလင့်ခ်သည် AtomicOS မှထွက်ပြီး browser တွင် ဖွင့်ပါမည်။',
+          'ဤလင့်ခ်သည် Atomic မှထွက်ပြီး browser တွင် ဖွင့်ပါမည်။',
       AppLocales.notification.externalConfirm: 'ဝဘ်ဆိုက် ဖွင့်မည်',
       AppLocales.notification.openLink: 'လင့်ခ်ဖွင့်ရန်',
       AppLocales.notification.readMore: 'ပိုမိုဖတ်ရှုရန်',

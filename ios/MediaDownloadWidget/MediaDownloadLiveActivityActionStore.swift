@@ -6,7 +6,7 @@
 import Foundation
 
 enum MediaDownloadLiveActivityActionStore {
-  static let appGroupId = "group.com.rexone.mobile"
+  static let appGroupId = "group.com.rex9.atomic.uat"
   static let pendingActionKey = "media_download_la_pending_action"
   static let pendingAssetIdKey = "media_download_la_pending_asset_id"
   static let pendingAtKey = "media_download_la_pending_at"

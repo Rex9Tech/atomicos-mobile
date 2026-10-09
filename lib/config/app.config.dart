@@ -31,7 +31,7 @@ class AppConfig {
     AppEnvironment.prod => AppEnvironment.production,
     _ => AppEnvironment.development,
   };
-  static String get appName => dotenv.env[AppConstants.nameKey] ?? 'AtomicOS';
+  static String get appName => dotenv.env[AppConstants.nameKey] ?? 'Atomic';
   static String get appVersion => AppInfo.version;
   static String get apiBaseUrl => UrlHelper.normalizeBaseUrl(
     dotenv.env[AppConstants.apiBaseUrlKey] ?? 'api base url not found',

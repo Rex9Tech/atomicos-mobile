@@ -21,7 +21,7 @@ class MediaDownloadConstants {
   static const encryptedExtension = 'enc';
   static const defaultState = 'none';
 
-  static const keySalt = 'rexone_mobile_offline_v1';
+  static const keySalt = 'atomic_mobile_offline_v1';
 
   static const downloadTaskGroup = 'media_offline';
   static const tempDirName = '.tmp';
@@ -33,7 +33,7 @@ class MediaDownloadConstants {
 
   /// MethodChannel for Live Activity Pause/Resume (must match AppDelegate).
   static const liveActivityMethodChannel =
-      'rexone/media_download_live_activity';
+      'atomic/media_download_live_activity';
   static const liveActivityMethodAction = 'action';
   static const liveActivityMethodTakePending = 'takePending';
 

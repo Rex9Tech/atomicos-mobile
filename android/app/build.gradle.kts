@@ -21,7 +21,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.rex9.uat.atomic" // $APPLICATION_ID
+    namespace = "com.rex9.atomic.uat" // $APPLICATION_ID
     // permission_handler_android requires API 37. Platform is installed
     // (or symlinked) as android-37.
     compileSdk = 37
@@ -53,9 +53,9 @@ android {
 
     defaultConfig {
         // Dynamically assigns package name, display name, and deep-link scheme for Prod vs UAT
-        applicationId = if (isUat) "com.rex9.rexone.uat" else "com.rex9.rexone"
-        manifestPlaceholders["appName"] = if (isUat) "RexOne UAT" else "RexOne"
-        manifestPlaceholders["deepLinkScheme"] = if (isUat) "rexone-uat" else "rexone"
+        applicationId = if (isUat) "com.rex9.atomic.uat.uat" else "com.rex9.atomic.uat"
+        manifestPlaceholders["appName"] = if (isUat) "Atomic UAT" else "Atomic"
+        manifestPlaceholders["deepLinkScheme"] = if (isUat) "atomic-uat" else "atomic"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -71,7 +71,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val configuredKeystore = file("../keystores/rexone-upload-keystore.jks")
+            val configuredKeystore = file("../keystores/atomic-upload-keystore.jks")
             val keystoreFile = if (configuredKeystore.exists()) {
                 configuredKeystore
             } else {

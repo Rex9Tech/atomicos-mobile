@@ -151,8 +151,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 patrol:
-  app_name: RexOne
+  app_name: Atomic
   android:
-    package_name: com.rex9.rexone
+    package_name: com.rex9.atomic.uat
   ios:
-    bundle_id: com.rex9.rexone
+    bundle_id: com.rex9.atomic.uat

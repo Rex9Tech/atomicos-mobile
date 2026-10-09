@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-APP_NAME="${1:-rexone}"
+APP_NAME="${1:-atomic}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -14,12 +14,12 @@ cd "$ROOT_DIR"
 
 CANDIDATES=(
   "$ROOT_DIR/android/keystores/${APP_NAME}-play-store-key.json"
-  "$ROOT_DIR/android/keystores/rexone-play-store-key.json"
+  "$ROOT_DIR/android/keystores/atomic-play-store-key.json"
   "$ROOT_DIR/android/keystores/play-store-key.json"
   "$ROOT_DIR/keystores/${APP_NAME}-play-store-key.json"
-  "$ROOT_DIR/keystores/rexone-play-store-key.json"
+  "$ROOT_DIR/keystores/atomic-play-store-key.json"
   "$ROOT_DIR/../keystores/${APP_NAME}-play-store-key.json"
-  "$ROOT_DIR/../keystores/rexone-play-store-key.json"
+  "$ROOT_DIR/../keystores/atomic-play-store-key.json"
 )
 
 JSON_KEY_PATH=""
@@ -38,7 +38,7 @@ if [ -z "$JSON_KEY_PATH" ]; then
   done
   echo ""
   echo "   Please place your downloaded Google Cloud Service Account JSON file in:"
-  echo "     $ROOT_DIR/keystores/rexone-play-store-key.json"
+  echo "     $ROOT_DIR/keystores/atomic-play-store-key.json"
   exit 1
 fi
 

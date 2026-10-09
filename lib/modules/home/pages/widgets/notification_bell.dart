@@ -289,7 +289,7 @@ class _NotificationRow extends StatelessWidget {
 
         // Sign-in alerts are informational — mark read is the whole action.
         if (item.link != null && item.link!.isNotEmpty && !item.isSignInAlert) {
-          AppRoutes.handleNotificationLink(item.link);
+          AppRoutes.handleDeepLink(item.link);
         }
       },
       behavior: HitTestBehavior.opaque,

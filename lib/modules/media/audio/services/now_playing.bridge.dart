@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 class NowPlayingBridge {
   const NowPlayingBridge._();
 
-  static const _channel = MethodChannel('rexone/now_playing');
+  static const _channel = MethodChannel('atomic/now_playing');
 
   static Future<void> setPlaybackState({required bool playing}) async {
     if (!GetPlatform.isIOS) return;

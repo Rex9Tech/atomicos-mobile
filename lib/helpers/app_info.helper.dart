@@ -18,7 +18,7 @@ class AppInfo {
     } catch (_) {
       // Safe fallback in test harnesses or unsupported environments
       _info = PackageInfo(
-        appName: 'RexOne',
+        appName: 'Atomic',
         packageName: 'com.rex9.rexone',
         version: '1.0.0',
         buildNumber: '1',
@@ -63,7 +63,7 @@ class AppInfo {
   static void _ensureInitialized() {
     if (!_initialized) {
       _info = PackageInfo(
-        appName: 'RexOne',
+        appName: 'Atomic',
         packageName: 'com.rex9.rexone',
         version: '1.0.0',
         buildNumber: '1',

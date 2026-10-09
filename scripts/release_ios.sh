@@ -61,9 +61,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-APP_SLUG="rexone"
-PACKAGE_BASE="com.rex9.rexone"
-DEFAULT_APP_BASE="RexOne"
+APP_SLUG="atomic"
+PACKAGE_BASE=""
+DEFAULT_APP_BASE="Atomic"
 
 APP_DISPLAY_NAME="$DEFAULT_APP_BASE"
 PACKAGE_NAME="$PACKAGE_BASE"

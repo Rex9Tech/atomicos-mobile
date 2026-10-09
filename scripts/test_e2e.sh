@@ -123,7 +123,7 @@ fi
 
 # Dynamically resolve package name from pubspec.yaml or fallback
 PACKAGE_NAME=$(grep -E '^\s*package_name:\s*' pubspec.yaml | head -n 1 | awk '{print $2}' || true)
-PACKAGE_NAME="${PACKAGE_NAME:-com.rex9.rexone}"
+PACKAGE_NAME="${PACKAGE_NAME:-}"
 
 if [ "$TARGET" = "all" ]; then
   TEST_FILES=(
@@ -148,12 +148,12 @@ echo "===================================================="
 cleanup_test_data() {
   echo ""
   echo "🧹 Cleaning up test users from database..."
-  docker exec dev-rexone-core-api bin/rails runner "User.where('email LIKE ? OR email LIKE ?', 'e2e-%', '%@rexone.test').destroy_all" 2>/dev/null || true
+  docker exec dev-atomic-core-api bin/rails runner "User.where('email LIKE ? OR email LIKE ?', 'e2e-%', '%@atomic.test').destroy_all" 2>/dev/null || true
 }
 
 ensure_test_users() {
   echo "🌱 Ensuring prerequisite E2E test users exist in database..."
-  docker exec dev-rexone-core-api bin/rails runner "
+  docker exec dev-atomic-core-api bin/rails runner "
     just = User.find_or_initialize_by(email: 'just@admin.com')
     just.assign_attributes(name: 'Just Admin User', username: 'justadmin', password: '123456', password_confirmation: '123456')
     just.confirmed_at ||= Time.current

@@ -1,4 +1,4 @@
-package com.rex9.rexone;
+package com.rex9.atomic.uat;
 
 import org.junit.Rule;
 import org.junit.runner.RunWith;

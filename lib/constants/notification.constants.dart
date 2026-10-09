@@ -33,10 +33,10 @@ class NotificationConstants {
   static const String externalLinkScheme = 'https';
 
   /// App Group shared with iOS Live Activity widget extension.
-  static const String iosAppGroupId = 'group.com.rexone.mobile';
+  static const String iosAppGroupId = 'group.com.rex9.atomic.uat';
 
-  static const String appUrlScheme = 'rexone';
+  static const String appUrlScheme = 'atomic';
 
   /// URL scheme registered for Live Activities (must match Info.plist).
-  static const String iosLiveActivityUrlScheme = 'rexone';
+  static const String iosLiveActivityUrlScheme = 'atomic';
 }
