@@ -25,12 +25,18 @@ class NotificationConstants {
   static const String assetCompressing = 'asset_compressing';
   static const String signInAlert = 'sign_in_alert';
   static const String iamUpdated = 'iam_updated';
+  static const String accessUpdated = 'access_updated';
+  static const String accessRevoked = 'access_revoked';
+  static const String sessionExpired = 'session_expired';
+  static const String sessionInvalidated = 'session_invalidated';
 
   static const String externalLinkScheme = 'https';
 
   /// App Group shared with iOS Live Activity widget extension.
   static const String iosAppGroupId = 'group.com.rexone.mobile';
 
+  static const String appUrlScheme = 'rexone';
+
   /// URL scheme registered for Live Activities (must match Info.plist).
-  static const String iosLiveActivityUrlScheme = 'rexonemobile';
+  static const String iosLiveActivityUrlScheme = 'rexone';
 }

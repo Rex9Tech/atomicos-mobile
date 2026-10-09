@@ -8,6 +8,8 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
 import '../../auth/auth.dart';
+import '../../feedback/feedback.dart';
+import '../../profile/profile.dart';
 import '../setting.dart';
 
 class SettingPage extends GetView<SettingController> {
@@ -197,14 +199,13 @@ class SettingPage extends GetView<SettingController> {
         children: [
           Obx(
             () => AppListTile(
-              leading: CircleAvatar(
-                backgroundColor: context.colors.primary.withValues(alpha: 0.1),
-                backgroundImage: authController.currentUser.value?.photo != null
-                    ? NetworkImage(authController.currentUser.value!.photo!)
-                    : null,
-                child: authController.currentUser.value?.photo == null
-                    ? Icon(Design.icons.person, color: context.colors.primary)
-                    : null,
+              leading: AppAvatar(
+                url: authController.currentUser.value?.photo,
+                name:
+                    authController.currentUser.value?.name ??
+                    authController.currentUser.value?.username ??
+                    authController.currentUser.value?.email,
+                radius: Design.spacing.avatarRadius / 2,
               ),
               title: Text(
                 authController.currentUser.value?.name ??
@@ -224,7 +225,6 @@ class SettingPage extends GetView<SettingController> {
           ),
           Divider(
             color: context.colors.divider,
-            height: 1,
             indent: Design.spacing.lg,
             endIndent: Design.spacing.lg,
           ),
@@ -233,6 +233,17 @@ class SettingPage extends GetView<SettingController> {
             title: Text(AppLocales.common.signOut.tr),
             isDestructive: true,
             onTap: () => _showLogoutDialog(context, authController),
+          ),
+          Divider(
+            color: context.colors.divider,
+            indent: Design.spacing.lg,
+            endIndent: Design.spacing.lg,
+          ),
+          AppListTile(
+            leading: Icon(Icons.delete_forever_outlined, color: context.colors.error),
+            title: Text(AppLocales.user.deleteAccount.tr),
+            isDestructive: true,
+            onTap: () => _showDeleteAccountDialog(context),
           ),
         ],
       ),
@@ -264,4 +275,35 @@ class SettingPage extends GetView<SettingController> {
     );
     if (confirmed) authController.signOut();
   }
+
+  void _showDeleteAccountDialog(BuildContext context) async {
+    final confirmed = await AppDialog.confirm(
+      context: context,
+      title: AppLocales.user.deleteConfirmTitle.tr,
+      message: AppLocales.user.deleteConfirmMessage.trParams({
+        'email': AppConfig.fromEmail,
+      }),
+      confirmLabel: AppLocales.user.deleteAccount.tr,
+    );
+    if (confirmed) {
+      AppLoading.show();
+      try {
+        final profileService = Get.find<ProfileService>();
+        final res = await profileService.discardCurrentUser();
+        if (!res.success) {
+          AppSnackbar.error(res.error ?? res.message);
+          return;
+        }
+        AppSnackbar.success(AppLocales.user.deleteSuccess.tr);
+        if (Get.isRegistered<AuthController>()) {
+          await Get.find<AuthController>().signOut();
+        }
+      } catch (e, stk) {
+        AppSnackbar.error(AppLocales.user.deleteFailed.tr, e: e, stk: stk);
+      } finally {
+        AppLoading.hide();
+      }
+    }
+  }
 }
+

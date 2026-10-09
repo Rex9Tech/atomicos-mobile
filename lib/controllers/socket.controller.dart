@@ -9,6 +9,7 @@ import '../modules/ai/ai.dart';
 import '../modules/atom_details/atom_details.dart';
 import '../modules/home/home.dart';
 import '../modules/molecule/molecule.dart';
+import '../modules/auth/auth.dart';
 import '../modules/payment/payment.dart';
 import '../modules/notification/notification.dart';
 
@@ -57,6 +58,24 @@ class SocketController extends GetxController {
     final message = event.message ?? '';
 
     debugPrint('🔔 [SocketController] type=$eventType | message="$message"');
+
+    // When IAM roles or access entitlements are revoked or changed, invalidate session so user re-authenticates fresh
+    if (eventType == EWsEventType.iamUpdated ||
+        eventType == EWsEventType.accessRevoked ||
+        eventType == EWsEventType.accessUpdated ||
+        eventType == EWsEventType.sessionExpired ||
+        eventType == EWsEventType.sessionInvalidated) {
+      _showSnackbar(
+        eventType,
+        message.isNotEmpty
+            ? message
+            : 'Your access has changed. Please sign in again.',
+      );
+      if (Get.isRegistered<AuthController>()) {
+        Get.find<AuthController>().handleSessionExpired();
+      }
+      return;
+    }
 
     await _dispatch(event, eventType);
     _showSnackbar(eventType, message);
@@ -120,6 +139,15 @@ class SocketController extends GetxController {
 
       case EWsEventType.assetCompressing:
       case EWsEventType.signInAlert:
+        AppSnackbar.info(message);
+        break;
+
+      case EWsEventType.iamUpdated:
+      case EWsEventType.accessRevoked:
+      case EWsEventType.sessionExpired:
+        AppSnackbar.warning(message);
+        break;
+
       default:
         AppSnackbar.info(message);
         break;

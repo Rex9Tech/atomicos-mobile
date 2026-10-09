@@ -18,8 +18,6 @@ class NotificationModel {
   final DateTime? updatedAt;
 
   String? get templateId => notificationId;
-  bool get isIamUpdated =>
-      metadata[NotificationKeys.type] == NotificationConstants.iamUpdated;
 
   /// Security notice ("New Sign In") — purely informational: tapping it must
   /// only mark it read, never navigate or open a dialog.

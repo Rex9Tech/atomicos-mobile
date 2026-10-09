@@ -23,7 +23,7 @@
     <!-- Allows cleartext HTTP traffic for local development (e.g. Garage S3 at http://10.0.2.2:3100 and backend API at http://10.0.2.2:3000).
          Required by better_player (video playback) and background_downloader to stream and download media assets over unencrypted HTTP. -->
     <application
-        android:label="Atomic"
+        android:label="${appName}"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
@@ -59,6 +59,12 @@
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="${deepLinkScheme}"/>
             </intent-filter>
         </activity>
         <service

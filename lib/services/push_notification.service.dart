@@ -74,11 +74,9 @@ class PushNotificationService extends GetxService {
         final link = data?[NotificationKeys.link]?.toString();
         final type = data?[NotificationKeys.type]?.toString();
 
-        // Sign-in alerts are informational — opening the app is the action.
-        if (link != null &&
-            link.isNotEmpty &&
+        if (link != null && link.isNotEmpty &&
             type != NotificationConstants.signInAlert) {
-          AppRoutes.handleNotificationLink(link);
+          AppRoutes.handleDeepLink(link);
         }
       });
     } catch (e) {

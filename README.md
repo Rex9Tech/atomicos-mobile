@@ -15,12 +15,13 @@ Built under the same creed as RexOne Core and RexOne Web: **Start from One. Not 
 [![GetX](https://img.shields.io/badge/GetX-4.7-8A2BE2)](https://pub.dev/packages/get)
 [![Drift](https://img.shields.io/badge/Drift_SQLite-Type--Safe-00599C?logo=sqlite&logoColor=white)](docs/CLIENT_DATABASE.md)
 [![Sponsor rex-9](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/rex-9)
+[![Product Hunt](https://img.shields.io/badge/Product_Hunt-Live-DA552F?logo=producthunt&logoColor=white)](https://www.producthunt.com/products/rexone)
 [![Web Demo](https://img.shields.io/badge/Web_Demo-rexone.rex9.me-FF2238?logo=firefox&logoColor=white)](https://rexone.rex9.me)
 [![CI](https://github.com/rex-9/rexone_mobile/actions/workflows/test.yml/badge.svg)](https://github.com/rex-9/rexone_mobile/actions/workflows/test.yml)
 
 **Typed · Modular · Localized · Observable · Push-ready · Analytics-enabled · API-driven · Fully Tested**
 
-[Live Web Demo ↗](https://rexone.rex9.me) · [Explore the client](#feature-map) · [Who it is for](#who-rexone-mobile-is-for) · [Ecosystem Architecture](ECOSYSTEM.md) · [Development Law](LAW.md) · [Agent Governance](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) · [Run it locally](#-quick-start) · [Architecture](#architecture) · [Documentation Hub](docs/README.md)
+[Live Web Demo ↗](https://rexone.rex9.me) · [Product Hunt ↗](https://www.producthunt.com/products/rexone) · [Explore the client](#feature-map) · [Who it is for](#who-rexone-mobile-is-for) · [Ecosystem Architecture](ECOSYSTEM.md) · [Development Law](LAW.md) · [Agent Governance](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) · [Run it locally](#-quick-start) · [Architecture](#architecture) · [Documentation Hub](docs/README.md)
 
 </div>
 
@@ -40,7 +41,7 @@ Built under the same creed as RexOne Core and RexOne Web: **Start from One. Not 
 
 ## Why RexOne Mobile?
 
-A capable backend and a polished web app are only parts of the whole product. Mobile is not a website wrapped in a webview—it is an independent, first-class native client that must navigate operating system lifecycles, volatile network disconnects, hardware audio focus, push notification routing, app store version migrations, real-time socket events, platform sessions, biometric/passcode verification, and structured error telemetry.
+A capable backend and a polished web app are only parts of the whole product. Mobile is not a website wrapped in a webview—it is an independent, first-class native client that must navigate operating system lifecycles, volatile network disconnects, hardware audio focus, push notification routing, app store version migrations, real-time socket events, platform sessions, secure passcode authentication, and structured error telemetry.
 
 RexOne Mobile exists so that work does not have to be reinvented or rebuilt from scratch for every mobile product built on RexOne Core.
 
@@ -67,7 +68,7 @@ RexOne Mobile pioneers **Discipline-Driven Development (DDD)** for native mobile
 | Dimension / Capability       | 🛡️ **RexOne Sovereign Trinity**                                                               | 📦 **Next.js Full-Stack Boilerplates**                                               | 🔥 **Firebase / Cloud Serverless**                                                       | 🪤 **Supabase / BaaS Starter Kits**                                               | 🚂 **Rails & Laravel Monoliths**                                                  |
 | :--------------------------- | :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | **Architectural Model**      | ✅ **Sovereign Tri-Platform**: Rails 8 API + React 19 SPA + pure Flutter 3 native client      | ❌ **Node Monolith**: API, DB, jobs & DOM crammed into 1 fragile runtime             | ❌ **Serverless Spaghetti**: Disconnected Cloud Functions + NoSQL Firestore              | ⚠️ **Client-Heavy BaaS**: Direct client DB queries + scattered edge functions     | ⚠️ **HTML Monolith**: Server-rendered HTML with Turbo/Livewire                    |
-| **Native Mobile App**        | ✅ **Native 60fps Flutter**: Shared contracts, biometrics, hardware media & push              | ❌ **None or Webview Shell**: Sluggish Capacitor/Cordova wrapper                     | ⚠️ **Fragmented SDKs**: Direct NoSQL queries from mobile with zero encapsulation         | ⚠️ **Raw Client SDK**: Mobile apps directly expose database tables via client key | ⚠️ **Turbo / Webview**: Web pages wrapped in a native navigation shell            |
+| **Native Mobile App**        | ✅ **Native 60fps Flutter**: Dual-app store architecture (Prod vs UAT), hardware media & push  | ❌ **None or Webview Shell**: Sluggish Capacitor/Cordova wrapper                     | ⚠️ **Fragmented SDKs**: Direct NoSQL queries from mobile with zero encapsulation         | ⚠️ **Raw Client SDK**: Mobile apps directly expose database tables via client key | ⚠️ **Turbo / Webview**: Web pages wrapped in a native navigation shell            |
 | **Offline-First Durability** | ✅ **Drift SQLite (`rexone_offline`)**: Schema mirroring, offline subtitles & AES-256 saves   | ❌ **None**: Application breaks entirely on network disconnect                       | ⚠️ **Flaky Document Cache**: Primitive document cache prone to sync desync               | ⚠️ **No Relational Offline**: Unreliable offline sync across foreign keys         | ❌ **None**: Server-rendered pages require constant connectivity                  |
 | **Database Integrity**       | ✅ **Strict Relational PostgreSQL**: Foreign keys, ACID, UUIDs, soft-deletes                  | ⚠️ **ORM Inconsistencies**: Serverless connection pool limits on Prisma/Drizzle      | ❌ **NoSQL Hell**: No joins, no cascading deletes, data duplication nightmare            | ✅ **PostgreSQL**: Relational integrity via managed Postgres instance             | ✅ **PostgreSQL / MySQL**: Mature relational ORM (ActiveRecord / Eloquent)        |
 | **Background Processing**    | ✅ **Solid Queue (Fibers + Threads)**: Workload pooling, recurring cron, zero Redis costs     | ❌ **Serverless Timeouts**: Forced into third-party Inngest, QStash, or Celery ($$$) | ❌ **Execution Timeouts**: Severe execution limits, cold starts & high invocation bills  | ⚠️ **Edge Functions**: Strict 10s CPU limits, no persistent background workers    | ⚠️ **Redis Dependency**: Requires external Redis broker & extra hosting RAM       |
@@ -81,7 +82,7 @@ RexOne Mobile stops mobile chaos decisively:
 
 - **First-Class Mobile, Not a Webview Shell**: Built with pure Flutter 3 & Dart Clean Architecture (Presentation, Business Logic, and Data layers) orchestrated by reactive GetX.
 - **Local-First Offline Resilience**: Fully backed by a local **Drift (Type-safe SQLite)** database (`rexone_offline`), ensuring instant media playback, offline subtitles, and zero network-choke even when completely disconnected.
-- **The Foundation Bends Around the Product**: RexOne Mobile provides native device plumbing (biometrics, camera, audio focus, push, background tasks, AES-256-GCM sandbox encryption) while leaving your product UI and domain completely unencumbered.
+- **The Foundation Bends Around the Product**: RexOne Mobile provides native device plumbing (camera, audio focus, push, background tasks, AES-256-GCM sandbox encryption) while leaving your product UI and domain completely unencumbered.
 
 Feature modules, shared services, models, bindings, design primitives, and telemetry pipelines have exact and deliberate responsibilities:
 
@@ -98,7 +99,7 @@ RexOne Mobile is built for Flutter teams, founder-engineers, and agencies creati
 
 It is a particularly good fit when a mobile product needs several of these capabilities to work together:
 
-- Complete identity, confirmation, recovery, Google sign-in, and platform-isolated sessions.
+- Complete identity, confirmation, recovery, Google sign-in, user self-account deletion, and platform-isolated sessions.
 - Stripe checkout, subscriptions, purchases, and entitlement-aware experiences.
 - Push and in-app notifications with deep-link handling and conversion analytics.
 - Queued AI responses and real-time operation updates that survive navigation or app backgrounding.
@@ -135,7 +136,7 @@ It was to build a **clear mobile foundation**—strong enough to carry ambitious
 
 | Foundation             | What is ready                                                                            | Details                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, platform sessions       | [Authentication & security](#authentication--security)                                  |
+| **Identity**           | Email/password flow, OTP verification, recovery, Google sign-in, user self-account deletion, platform sessions | [Authentication & security](#authentication--security)                                  |
 | **Profile & IAM**      | Profile settings, camera/gallery avatar upload, and 3-tier RBAC admin hierarchy          | [Profile & IAM Hierarchy](#profile--iam-hierarchy)                                      |
 | **Push Notifications** | OneSignal push messaging, permission management, user tag syncing, and click routing     | [Push & Analytics](#push-notifications--analytics)                                      |
 | **Product Analytics**  | Firebase Analytics screen tracking, auth lifecycle events, and telemetry                 | [Push & Analytics](#push-notifications--analytics)                                      |
@@ -150,6 +151,7 @@ It was to build a **clear mobile foundation**—strong enough to carry ambitious
 | **Localization**       | English and Burmese with dynamic runtime switching and `X-Locale` backend sync           | [Localization](#localization)                                                           |
 | **Governance**         | Constitutional Architecture (LAW.md) & AI Agent Operational Rules (AGENTS.md)            | [LAW.md](LAW.md) · [AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md) |
 | **Testing (E2E)**      | Real on-device automated user journey specs via Flutter Integration Test Driver          | [Quality & testing](#-quality--automated-testing)                                       |
+| **Store CI/CD & Dual-App** | Dual-app store architecture (Prod vs UAT side-by-side install), automated Android CI/CD to Google Play Internal testing | [CI/CD & Dual-App](docs/README.md#dual-package-store-architecture-prod-vs-uat) |
 | **Quality**            | Strongly typed Dart models, analyzer compliance, and automated test suite                | [Quality & testing](#-quality--automated-testing)                                       |
 
 ---
@@ -210,10 +212,12 @@ flowchart LR
 
 - Own feature module at `lib/modules/profile/` with route-scoped `ProfileController` on `/profile`.
 - Camera and gallery avatar selection via `image_picker` guarded by shared `PermissionService`.
+- **User Self-Account Deletion**: Dedicated "Delete Account" action in Profile and Setting views prompting an `AppDialog.confirm` warning that the account will be soft-deleted, the email cannot be re-used for new registration, and providing the rebranded support email link, followed by token purge and sign-out.
 - **Three-Tier Administrative RBAC**: Enforces `super_admin` (full authority), `admin` (domain operations, excluding `users` and `iam`), and partial admins (`*_admin`, where permissions grant access to both standard and admin endpoints).
 
-### Push notifications & Analytics
+### Push notifications, Deep Linking & Analytics
 
+- **Universal Deep Linking (`rexone://`)**: Native URI scheme support on Android and iOS via `DeepLinkService`. Automatically routes external URLs (e.g. `rexone://ai`, `rexone://payment`, `rexone://profile`, `rexone://notifications`) directly to target screens while maintaining `Home` as the base of the back navigation stack. If unauthenticated, requested routes are preserved as return-after-auth continue routes.
 - **OneSignal Push**: Native push messaging for Android and iOS with user tag synchronization hooked into auth lifecycle and deep-link click routing.
 - **Firebase Analytics**: Central navigation tracking emits `view_page` from `GetMaterialApp.navigatorObservers` with `platform: android` or `platform: ios`. User identity is synced via opaque user ID; personal data is never sent to Analytics.
 
@@ -319,7 +323,7 @@ RexOne Mobile enforces high engineering discipline with strict analyzer checks a
 # 1. Run static analysis across application, tests, and integration specs
 flutter analyze lib/ test/ integration_test/
 
-# 2. Run unit, controller, and widget tests (283 tests)
+# 2. Run unit, controller, and widget tests (342 tests)
 flutter test test/
 # or: ./scripts/test_unit.sh
 
@@ -352,22 +356,54 @@ To maintain high architectural discipline without cluttering the primary showcas
 
 ## 🚀 Production Releases & Automated CI/CD
 
-RexOne Mobile includes an automated Android release pipeline in [`.github/workflows/build_android.yaml`](.github/workflows/build_android.yaml) triggering on pushes to `uat` (Pre-Release APK) and `main` (Production Release APK).
+RexOne Mobile features a modern **hybrid release architecture** designed for zero cloud cost and maximum speed:
+- **Android (Automated Cloud CI/CD)**: [`.github/workflows/build_android.yaml`](.github/workflows/build_android.yaml) runs on Linux runners (`ubuntu-latest`) to build release APKs and App Bundles (`.aab`), automatically publishing production builds to Google Play's **Internal Testing** track.
+- **iOS (Native Local Apple Silicon Pipeline)**: Fast local builds via [`./scripts/release_ios.sh`](scripts/release_ios.sh) upload directly to Apple **TestFlight** using App Store Connect API keys (`.p8`), preserving your free GitHub Actions quota (avoiding macOS 10x multiplier).
 
-### Manual Local Builds
+### 🤖 Android Automated Publishing (GitHub Actions)
+Pushing to `uat` or `main` automatically triggers GitHub Actions:
+- **`uat` branch**: Injects `.env.uat`, builds pre-release APK & AAB (`<com.company.app>.uat`), publishes AAB directly to Google Play **Internal Testing** for `<App Name> UAT`, and tags a GitHub pre-release with attached APK & AAB downloads.
+- **`main` branch**: Injects `.env.prod`, builds production APK & AAB (`<com.company.app>`), publishes AAB directly to Google Play **Internal Testing** for `<App Name>` (Production), and tags a formal GitHub release with attached APK & AAB downloads.
 
+Generate your production signing credentials and copy the Base64 secret in one command:
 ```bash
-# Build Android Release APK
-flutter build apk --release --dart-define=APP_ENV=.env.prod
-
-# Build Android App Bundle (Google Play AAB)
-flutter build appbundle --release --dart-define=APP_ENV=.env.prod
-
-# Build iOS Release
-flutter build ios --release --dart-define=APP_ENV=.env.prod
+./scripts/generate_keystore.sh rexone upload
 ```
 
-For required GitHub Secrets configuration, see **[`docs/README.md`](docs/README.md)**.
+Build release App Bundles (.aab) or APKs locally:
+```bash
+# Build production App Bundle (.aab for Production - <com.company.app>)
+./scripts/release_android.sh prod --bundle
+
+# Build staging App Bundle (.aab for UAT - <com.company.app>.uat)
+./scripts/release_android.sh uat --bundle
+
+# Build release APK (for direct download/sideloading)
+./scripts/release_android.sh prod --apk
+./scripts/release_android.sh uat --apk
+```
+
+### 🍎 iOS Local Release & TestFlight Upload
+Compile and publish directly from your Mac terminal in ~2 minutes:
+
+```bash
+# Build and upload production IPA directly to TestFlight
+./scripts/release_ios.sh prod
+
+# Build and upload staging/UAT IPA to TestFlight
+./scripts/release_ios.sh uat
+
+# Build IPA locally without uploading to Apple
+./scripts/release_ios.sh prod --build-only
+
+# Validate IPA with App Store Connect without uploading
+./scripts/release_ios.sh prod --validate-only
+
+# Build with custom build number override (for TestFlight monotonic versioning)
+./scripts/release_ios.sh prod --build-number 15
+```
+
+For complete step-by-step key setup instructions (Google Play Service Account JSON & Apple App Store Connect `.p8`), see **[`docs/README.md`](docs/README.md)**.
 
 ---
 

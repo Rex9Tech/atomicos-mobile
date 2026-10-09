@@ -27,14 +27,15 @@ INSTRUCTION.md
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
-.dart_tool/
+.dart_tool*
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-**/doc/api/
-**/ios/Flutter/.last_build_id
+build/
+**/build/
+*.nosync
+android/.gradle/
 
 # Symbolication related
 app.*.symbols
@@ -47,6 +48,14 @@ android/local.properties
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/keystores/*
+!android/keystores/*.example
+!android/keystores/README.md
+*.jks
+*.keystore
+*.pem
+*play-store*.json
+android/key.properties
 
 # Misc
 .DS_Store

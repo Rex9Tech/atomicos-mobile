@@ -25,7 +25,7 @@ Building any modern commercial digital product across Backend, Web, and Native M
 - **Months 7–9**: Building CRUD admin portals, S3 signed upload pipelines, WebSockets, and resolving 50+ JSON contract drifts between Web and Flutter.
 - **The Result**: $150,000–$300,000 burned before writing a single line of proprietary business logic.
 
-**RexOne is Architectural Time Travel.** By delivering a synchronized, battle-hardened foundation across Rails 8, React 19, and Flutter 3 backed by 1,690+ automated tests, RexOne deletes 9 months of generic plumbing from your roadmap. You launch your unique product in **1 to 3 weeks**.
+**RexOne is Architectural Time Travel.** By delivering a synchronized, battle-hardened foundation across Rails 8, React 19, and Flutter 3 backed by 1,785+ automated tests (1,071 RSpec + 372 Vitest + 342 Flutter), RexOne deletes 9 months of generic plumbing from your roadmap. You launch your unique product in **1 to 3 weeks**.
 
 > _The author (Rex) could have closed-sourced this enterprise foundation or charged $800+ behind a commercial paywall. Instead, out of pure loving-kindness (mettā) for builders, indie hackers, and learners worldwide, RexOne is 100% free and open-source under Apache 2.0. If RexOne saves you months of work, please kindly return the loving-kindness: [Sponsor the Author on GitHub](https://github.com/sponsors/rex-9) and star the repositories. Thank u so much for your kindness._
 
@@ -34,7 +34,11 @@ Building any modern commercial digital product across Backend, Web, and Native M
 | Resource                     | Scope & Canonical Specification                                                                                                                           |
 | :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 📜 **Constitutional Law**    | Strict engineering constraints and architectural rules: **[LAW.md](LAW.md)** _(Zero exceptions)_                                                          |
-| 📖 **API Docs & Swagger**    | Complete OpenAPI v1 schema and interactive Swagger UI at `/api-docs`: **[swagger.yaml](swagger/v1/swagger.yaml)** (Spec: `spec/openapi/v1.rb`)            |
+| 🤝 **Governance & RFCs**     | Community guidelines, Code of Conduct, and BDFL/RFC governance: **[GOVERNANCE.md](GOVERNANCE.md)** & **[CONTRIBUTING.md](CONTRIBUTING.md)**               |
+| 🤖 **Anti-Vibe AI Policy**   | Machine-enforced coding standards for AI assistants & contributors: **[AI Contribution Policy](docs/AI_CONTRIBUTION_POLICY.md)**                          |
+| 🎓 **GSoC & Grants Roadmap** | Google Summer of Code project ideas catalog & institutional grant roadmap: **[GSoC Ideas Catalog](docs/GSOC_IDEAS.md)**                                   |
+| 🌐 **Public Distribution**   | Curated directories, Awesome-lists, and community launch indexes: **[docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)**                                        |
+| 📖 **API Docs & Swagger**    | Complete OpenAPI v1 schema and interactive Swagger UI at `/admin/api-docs`: **[swagger.yaml](swagger/v1/swagger.yaml)** (Spec: `spec/openapi/v1.rb`)      |
 | 🌐 **Live Web Demo**         | Production web application preview: **[rexone.rex9.me](https://rexone.rex9.me)** (API: `api.rexone.rex9.me`)                                              |
 | 🗺️ **Visual Walkthrough**    | Screenshot tour across Core, Web, Mobile, and operations: **[VISUAL_WALKTHROUGH.md](./docs/VISUAL_WALKTHROUGH.md)**                                       |
 | 🛡️ **Production Operations** | Production hardening, Cloudflare edge defense, and DDoS protection: **[Production Deployment](docs/DEPLOYMENT.md)** & **[DDoS Protection](docs/DDOS.md)** |
@@ -46,9 +50,11 @@ Building any modern commercial digital product across Backend, Web, and Native M
 Standardized across the ecosystem for any derivative product (custom TLD):
 
 - **Demo Tier**: `rexone.rex9.me` (Web) & `api.rexone.rex9.me` (API)
-- **Product Prod**: `<product>.<tld>` (e.g. `rexone.me`) & `api.<product>.<tld>` (e.g. `api.rexone.me`)
-- **Product UAT**: `uat.<product>.<tld>` (e.g. `uat.rexone.me`) & `uat.api.<product>.<tld>` (e.g. `uat.api.rexone.me`)
-- **Product Dev**: `dev.<product>.<tld>` (e.g. `dev.rexone.me`) & `dev.api.<product>.<tld>` (e.g. `dev.api.rexone.me`)
+- **Product Prod**: `<product>.<tld>` (e.g. `example.com`) & `api.<product>.<tld>` (e.g. `api.example.com`)
+  - **Mobile App**: `<App Name>` (Android: `<com.company.app>`, iOS: `<com.company.app>`), deep link: `<scheme>://`
+- **Product UAT**: `uat.<product>.<tld>` (e.g. `uat.example.com`) & `uat.api.<product>.<tld>` (e.g. `uat.api.example.com`)
+  - **Mobile App**: `<App Name> UAT` (Android: `<com.company.app>.uat`, iOS: `<com.company.app>.uat`), deep link: `<scheme>-uat://`
+- **Product Dev**: `dev.<product>.<tld>` (e.g. `dev.example.com`) & `dev.api.<product>.<tld>` (e.g. `dev.api.example.com`)
 
 ---
 
@@ -177,6 +183,14 @@ Solid Queue operates under a hybrid concurrency architecture configured in `conf
 - **Passcode Authentication**: 6-digit numeric passcodes verified via Devise with escalating cooldown protection.
 - **Google OAuth**: Links Google accounts directly, handles registration challenge flows, and sets up authentication without loose intermediate states.
 
+### 🗑️ User Account Deletion (`DELETE /v1/users/current`)
+
+- **User-Facing Terminology**: Surfaces as **"Delete Account"** in user interfaces for absolute clarity.
+- **Email Reservation**: The email address remains reserved and cannot be reused to register a new account.
+- **Confirmation Prompt**: Frontends MUST display a confirmation dialog warning users that the account will be deleted, that the email address cannot be reused for future registration, and directing users to contact support (`support@rexone.com`) if needed.
+- **Comprehensive Session Revocation**: Deletion rotates `user.jti = SecureRandom.uuid`, clears active sessions (`AuthConstants::Session.clear_all`), and broadcasts `NotificationConstants::Type::SESSION_INVALIDATED` over Action Cable, immediately terminating active sessions across Web and Mobile.
+- **Super-Admin Protection**: Super administrators (`super_admin`) are strictly forbidden from self-deletion (returns `422 Unprocessable Content`).
+
 ### 🔐 RBAC Model & Administrative Hierarchy
 
 Permissions follow a clean, four-level administrative model:
@@ -188,12 +202,12 @@ Permissions follow a clean, four-level administrative model:
    - Grants access only to specific `/v1/admin/*` resources matching the role's assigned permissions.
    - Non-admin permissions (e.g. from the base `user` role) can never access `/v1/admin/*` endpoints.
 4. **Single-Request IAM Introspection**: `GET /v1/users/current/iam` returns complete role/permission sets (`is_admin`, `is_super_admin`, `roles`, `admin_roles`, `permissions`, `admin_permissions`) so clients evaluate UI permissions immediately without secondary calls.
-5. **Unified Product Entitlements Flow (`UserSerializer.accesses`)**: Just like IAM permissions, active product accesses (`id`, `product_id`, `product_code`, `product_name`, `granted_at`, `expires_at`, `remaining_days`, `active`) are serialized directly into `UserSerializer.accesses` upon authentication (`/signin`, `/signup`, `/confirmation`) and session introspection (`GET /v1/users/me`). Frontends (Web & Mobile) persist this payload locally on boot, evaluate entitlements in-memory with real-time expiration awareness (`useAccess` in Web, `AuthController.hasAccess` in Mobile), and seamlessly refresh via WebSockets (`payment_success`, `subscription_created`, `access_granted`).
+5. **Unified Product Entitlements Flow (`UserSerializer.accesses`)**: Just like IAM permissions, active product accesses (`id`, `product_id`, `product_code`, `product_name`, `granted_at`, `expires_at`, `remaining_days`, `active`) are serialized directly into `UserSerializer.accesses` upon authentication (`/signin`, `/signup`, `/confirmation`) and session introspection (`GET /v1/users/me`). Frontends (Web & Mobile) persist this payload locally on boot, evaluate entitlements in-memory with real-time expiration awareness (`useAccess` in Web, `AuthController.hasAccess` in Mobile), and seamlessly refresh via WebSockets (`payment_success`, `subscription_created`).
 
 ### 🛠️ Core Client-Admin API Endpoints
 
 - **User Management**: `GET/POST /v1/admin/users`, `PATCH /v1/admin/users/:id`, `DELETE /v1/admin/users/:id` (CRUD, soft-delete discard/undiscard, role assignment, confirmation status auditing).
-- **IAM Management**: `GET/PATCH/DELETE /v1/admin/iam/roles`, `GET/POST/PATCH/DELETE /v1/admin/iam/permissions`.
+- **IAM Management**: `GET/PATCH/DELETE /v1/admin/iam/roles`, `GET/POST/PATCH/DELETE /v1/admin/iam/permissions`, bidirectional user role assignments via `GET/POST /v1/admin/iam/users/:user_id/roles`, `DELETE /v1/admin/iam/users/:user_id/roles/:role_id`, and `GET/POST /v1/admin/iam/roles/:role_id/users`, `DELETE /v1/admin/iam/roles/:role_id/users/:user_id`.
 - **Chat Endpoints**: User API: `GET/POST /v1/chat/rooms`, `GET/PUT/DELETE /v1/chat/rooms/:id`, `GET/POST /v1/chat/messages`, `DELETE /v1/chat/messages/destroy_all`. Admin moderation: `GET/PATCH/DELETE /v1/admin/chat/rooms` and `GET/PATCH/DELETE /v1/admin/chat/messages`.
 - **AI Control Plane & Universal TOON Pipeline**: `GET/PATCH /v1/admin/ai/profiles` (prompt templates, models, token limits, multi-attribute sorting and filters), `GET /v1/admin/ai/runs` (execution telemetry, latency, token consumption). RexOne enforces a universal **Zero-JSON LLM Pipeline**: Large Language Models never receive or output raw JSON. All inbound JSON (in user messages, assistant history, system prompts, or template values) is automatically converted to compact Token-Oriented Object Notation (TOON via `Ai::ToonService`), compressing context by 30–60% over JSON. Models are instructed to output structured data strictly in TOON format (` ```toon `). On receiving completions, the server transparently converts TOON structures back into standard, formatted JSON before database persistence and client WebSocket broadcasting, maintaining 100% standard JSON compatibility across web, mobile, and REST clients without requiring frontend TOON parsers.
 - **Standardized Permissions Protocol**: Strictly 4 canonical CRUD actions (`read`, `create`, `update`, `delete`). Soft deletes map to `:delete`, restores map to `:delete`. Resources are explicitly prefixed (e.g. `ai_profiles`, `chat_rooms`, `payment_products`).
@@ -248,7 +262,7 @@ Permissions follow a clean, four-level administrative model:
 
 - **Design System Tokens**: `AppColors`, `AppTypography`, `AppSpacing`, `AppStyles`, `AppIcons`, `AppMedia`, `AppTheme` (Material 3 Light/Dark).
 - **Theme Extensions**: Reactive styling via `context.colors.*` and `context.typo.*`.
-- **UI Components**: `AppAccessGate`, `AppButton`, `AppInputField`, `AppPasswordField`, `AppLoading` (dual-mode: modal blocking overlay & non-blocking top linear progress), `AppPagyListView` (infinite scroll lazy loading with automatic next-page trigger, pull-to-refresh, empty/error fallbacks), `AppSearchBar` (debounced search with clear trigger, filter badge, and quick filter chips), `AppSnackbar`, `AppDialog` (with `AppDialog.confirm()` for destructive flows), `AppPage`, `AppListTile`, `AppToggle`, `AppNetworkBanner` ("Offline mode" banner).
+- **UI Components**: `AppAccessGate`, `AppButton`, `AppDropdown` (universal select dropdown with custom options, prefix icons, and small/medium/large sizes matching Web's `Dropdown`), `AppInputField`, `AppPasswordField`, `AppLoading` (dual-mode: modal blocking overlay & non-blocking top linear progress), `AppPagyListView` (infinite scroll lazy loading with automatic next-page trigger, pull-to-refresh, empty/error fallbacks), `AppSearchBar` (debounced search with clear trigger, filter badge, and integrated `AppDropdown` filter selection), `AppSnackbar`, `AppDialog` (with `AppDialog.confirm()` for destructive flows), `AppPage`, `AppListTile`, `AppToggle`, `AppNetworkBanner` ("Offline mode" banner).
 
 ### 🧩 Domain Capabilities
 
@@ -262,6 +276,7 @@ Permissions follow a clean, four-level administrative model:
 - **Offline Media & SQLite (Drift)**: AES-GCM encrypted sandbox downloads backed by local Drift SQLite database (`rexone_offline`). Local-first playback preferences and storage management dialog.
 - **Client Telemetry**: Uncaught Flutter and platform dispatcher errors dispatched to Core via `POST /v1/client/logs`.
 - **Localization**: 100% translated in English (`en_US`), Spanish (`es_ES`), and Burmese (`my_MM`). Synchronizes `X-Locale` and `Accept-Language` headers on every HTTP request.
+- **Dual-App Architecture & Store CI/CD**: Side-by-side Prod & UAT application IDs (`<com.company.app>` vs `<com.company.app>.uat`) for isolated physical testing, automated GitHub Actions release builds, Google Play Internal testing track delivery, and direct GitHub Release APK downloads.
 
 ---
 
@@ -302,6 +317,8 @@ Permissions follow a clean, four-level administrative model:
 | **Admin AI Control Panel (Profiles & Runs Telemetry)**                |      ✅       |          ✅          |           N/A            |
 | **In-App Version Upgrader & Splash Check**                            |      ✅       |          ✅          |            ✅            |
 | **AI Discovery & Generative Engine Optimization (GEO)**               |      N/A      |          ✅          |           N/A            |
+| **Dual-App Store Architecture (Prod vs UAT)**                         |      N/A      |         N/A          |            ✅            |
+| **Automated Android CI/CD (Google Play & GitHub Releases)**           |      N/A      |         N/A          |            ✅            |
 
 ---
 
@@ -373,7 +390,7 @@ Permissions follow a clean, four-level administrative model:
 - **Mobile Pagy Controller & Infinite Scroll Architecture**:
   - `PagyControllerMixin<T>`: Standardized reactive controller mixin managing `items`, `pagination` (`PaginationMeta`), `isLoading`, `isLoadingMore`, `isRefreshing`, `errorMessage`, `searchQuery`, `activeFilters`, and automatic debounced search. Implements automatic state transitions for `refreshList()`, `loadMore()`, `setFilter()`, and `onSearchChanged()`.
   - `AppPagyListView<T>`: Reusable infinite scroll list view that monitors scroll offsets (`scrollThreshold: 200px`), displays a non-intrusive bottom loading spinner when fetching subsequent pages, binds to pull-to-refresh (`RefreshIndicator`), and cleanly displays customized initial loading, empty, and retry error states.
-  - `AppSearchBar`: Universal search input with built-in keystroke debouncing, active search in-flight indicator, clear button, filter modal trigger badge, and horizontal quick-filter chip row.
+  - `AppSearchBar`: Universal search input with built-in keystroke debouncing, active search in-flight indicator, clear button, filter modal trigger badge, and integrated `AppDropdown` filter selection.
   - **Unified Centralized Loading Paradigm (`AppLoading`)**: Eliminates redundant, scattered local spinners in favor of unified global loading matching Web's `LoadingContext`:
     1. **Modal Blocking Overlay** (`AppLoading.showOverlay([message])` / `AppLoading.hideOverlay()`): Used for high-stakes asynchronous mutations (checkout, authentication, cancellations) with backdrop blur and spinner.
     2. **Non-Blocking Inline Progress** (`AppLoading.showInline()` / `AppLoading.hideInline()`): Renders a sleek top linear progress indicator mounted under `SafeArea` for seamless background or list updates without freezing UI interaction.
@@ -403,18 +420,26 @@ Permissions follow a clean, four-level administrative model:
 
 Broadcasts async processing events, payment confirmations, and in-app inbox items:
 
-| Event Type                                      | Payload Attributes                                                                               | Description                                        |
-| :---------------------------------------------- | :----------------------------------------------------------------------------------------------- | :------------------------------------------------- |
-| `ai_response_ready`                             | `room_id`, `message_id`                                                                          | AI message generation finished.                    |
-| `ai_response_failed`                            | `room_id`, `error`                                                                               | AI generation failed.                              |
-| `tts_ready`                                     | `message_id`, `asset_id`                                                                         | TTS audio synthesis completed.                     |
-| `tts_failed`                                    | `message_id`, `error`                                                                            | TTS audio synthesis failed.                        |
-| `asset_updated`                                 | `id`, `status`, `size_bytes`, `compressed_size_bytes`, `compression_ratio`, `compression_passes` | Real-time compression status updates.              |
-| `asset_thumbnail_generated`                     | `asset_id`, `thumbnail`                                                                          | Video thumbnail generated in background.           |
-| `payment_success`                               | `product_name`, `amount`                                                                         | Successful Stripe payment confirmation.            |
-| `subscription_created` / `canceled` / `resumed` | `product_name`, `active_until`                                                                   | Subscription status transitions.                   |
-| `in_app_notification`                           | `id`, `title`, `message`, `link`, `read_at`, `created_at`, `metadata`                            | New persistent notification received.              |
-| `welcome`                                       | `{}`                                                                                             | Emitted upon successful Action Cable subscription. |
+| Event Type                  | Payload Attributes                                                                               | Description                                                                  |
+| :-------------------------- | :----------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
+| `ai_response_ready`         | `room_id`, `message_id`                                                                          | AI message generation finished.                                              |
+| `ai_response_failed`        | `room_id`, `error`                                                                               | AI generation failed.                                                        |
+| `tts_ready`                 | `message_id`, `asset_id`                                                                         | TTS audio synthesis completed.                                               |
+| `tts_failed`                | `message_id`, `error`                                                                            | TTS audio synthesis failed.                                                  |
+| `asset_updated`             | `id`, `status`, `size_bytes`, `compressed_size_bytes`, `compression_ratio`, `compression_passes` | Real-time compression status updates.                                        |
+| `asset_thumbnail_generated` | `asset_id`, `thumbnail`                                                                          | Video thumbnail generated in background.                                     |
+| `payment_success`           | `product_name`, `amount`                                                                         | Successful payment confirmation.                                             |
+| `payment_failed`            | `product_name`, `amount`                                                                         | Failed payment alert.                                                        |
+| `subscription_created`      | `product_name`, `active_until`                                                                   | Subscription activated.                                                      |
+| `subscription_canceled`     | `product_name`, `active_until`                                                                   | Subscription canceled.                                                       |
+| `subscription_resumed`      | `product_name`, `active_until`                                                                   | Subscription resumed.                                                        |
+| `in_app_notification`       | `id`, `title`, `message`, `link`, `read_at`, `created_at`, `metadata`                            | New persistent notification received.                                        |
+| `iam_updated`               | `roles`                                                                                          | Roles/permissions updated; JWT invalidated, client signs out.                |
+| `access_updated`            | `product_id`                                                                                     | Manual admin entitlement grant/extension; JWT invalidated, client signs out. |
+| `access_revoked`            | `product_id`                                                                                     | Manual admin entitlement revocation; JWT invalidated, client signs out.      |
+| `session_expired`           | `{}`                                                                                             | Server session expired; client signs out.                                    |
+| `session_invalidated`       | `{}`                                                                                             | Server session invalidated; client signs out.                                |
+| `welcome`                   | `{}`                                                                                             | Emitted upon successful Action Cable subscription.                           |
 
 _Navigation targets_: `link` represents the destination. Common internal destinations: `/home`, `/profile`, `/payment`, `/ai`. External URLs (`https://`) open in a new tab on Web and request user confirmation before opening the system browser on Mobile.
 
@@ -544,7 +569,7 @@ _Version resolution_: Core maps `app_version` to a matching `Client::Version` re
   - **Progressive Cooldown Ladder**: 3 attempts $\rightarrow$ 30s, 6 attempts $\rightarrow$ 60s, 9 attempts $\rightarrow$ 120s, 12+ attempts $\rightarrow$ 300s cooldown.
   - **Reset**: Successful redemption or checkout immediately clears attempt and cooldown counters.
 - **Checkout Integration (`POST /v1/payment/session`, `GET /v1/payment/session/:session_id`)**:
-  - `POST /v1/payment/session`: If `final_amount > 0`: Creates Stripe Checkout Session with `discounts: [{ coupon: stripe_coupon_id }]`, appending `session_id={CHECKOUT_SESSION_ID}` to `success_url`, returning `{ "checkout_url": "...", "session_id": "..." }`.
+  - `POST /v1/payment/session`: If `final_amount > 0`: Creates Stripe Checkout Session with `discounts: [{ coupon: provider_coupon_id }]`, appending `session_id={CHECKOUT_SESSION_ID}` to `success_url`, returning `{ "checkout_url": "...", "session_id": "..." }`.
   - If `final_amount == 0`: Bypasses Stripe, records `Payment::Purchase` (with `unit_amount: product.unit_amount, amount_received: 0`), creates `Payment::UserCoupon`, and grants access via `AccessService.grant(...)`.
   - `GET /v1/payment/session/:session_id`: Immediate client fulfillment upon reaching the success return URL. Inspects session status and immediately provisions subscription/purchase records and entitlement grants (`AccessService.grant(...)`) without waiting for background webhook delivery.
 - **Referral Coupons**:
@@ -582,6 +607,82 @@ _Version resolution_: Core maps `app_version` to a matching `Client::Version` re
   - Soft delete (`discard`) moves coupons to the recycle bin while preserving Stripe sync IDs for potential restoration.
   - Hard delete (`destroy`) permanently purges the coupon and its dependent redemption records from the database and Stripe.
   - Discarded coupons remain inspectable via `/v1/admin/payment/coupons/:id` and `/v1/admin/payment/coupons/:id/redemptions`.
+
+### 8. Universal Payment & Omnichannel In-App Purchase Protocol
+
+- **Unified Omnichannel Catalog Product Tier Model**:
+  - `Payment::Product` represents a single catalog entitlement tier (e.g. "Pro Monthly", $9/mo) and holds multi-store identifiers simultaneously:
+    - `stripe_product_id` & `stripe_price_id`: Web and card payment identifiers.
+    - `google_play_product_id`: Google Play Console product/SKU identifier.
+    - `app_store_product_id`: Apple App Store / StoreKit product/SKU identifier.
+    - `supported_providers`: Array of active platforms for this tier (`["stripe", "google_play", "app_store"]`).
+  - Single Entitlement Linkage: `Access` connects `user_id` to `product_id` (the single tier UUID). A subscription purchased on Web, iOS, or Android unlocks the exact same entitlement tier across all platforms.
+  - **Bi-Directional Omnichannel Catalog Sync**:
+    - **Stripe $\rightarrow$ RexOne**: Setting `google_play_product_id` and `app_store_product_id` in Stripe Product metadata automatically populates the RexOne database via webhooks (`product.created`, `product.updated`, `price.created`).
+    - **RexOne $\rightarrow$ Stripe**: Creating or updating products in RexOne Admin transmits `google_play_product_id` and `app_store_product_id` directly to Stripe's product metadata via API.
+- **Universal Transaction & Provider Tracking**:
+  - `Payment::Purchase`, `Payment::Subscription`, `Payment::WebhookEvent`, and `Payment::Coupon` record the specific origin provider (`provider: "stripe" | "google_play" | "app_store"`) with universal transaction keys (`provider_payment_id`, `provider_subscription_id`, `provider_event_id`, `provider_coupon_id`).
+  - Swappable provider adapters exist in `app/services/payment/providers/` (`Payment::Providers::Stripe`, `Payment::Providers::GooglePlay`, `Payment::Providers::AppStore`).
+  - Unified In-App Purchase orchestrator: `Payment::IapService` (`app/services/payment/iap_service.rb`).
+- **Free Products (`unit_amount: 0`)**:
+  - Free products operate natively without requiring external store identifiers, though optional Stripe free tiers are supported.
+  - Immediate access is granted via `AccessService.grant(...)` on `POST /v1/payment/session` returning `{ "free_access_granted": true, "access_id": "..." }`.
+- **In-App Purchase Verification (`POST /v1/payment/verify`)**:
+  - Mobile initiates native purchase via StoreKit (iOS) or Google Play Billing (Android).
+  - Mobile posts store proof to `POST /v1/payment/verify`:
+    ```json
+    {
+      "provider": "google_play", // or "app_store"
+      "product_id": "UUID",
+      "transaction_id": "STORE_TX_ID",
+      "purchase_token": "TOKEN", // Google Play
+      "package_name": "BUNDLE_ID", // Google Play
+      "receipt_data": "BASE64_JWS", // Apple App Store
+      "coupon_code": "SUMMER50" // Optional server-side promo coupon
+    }
+    ```
+  - **With or Without Coupon**:
+    - **Without Coupon (`coupon_code: nil`)**: Directly verifies token/receipt with the app store, creates `Payment::Purchase` or `Payment::Subscription`, and provisions entitlements via `AccessService.grant(...)`. Zero coupon redemptions recorded.
+    - **With Coupon**: Validates coupon upfront against product restrictions, expiration, and user limits. Following successful store verification, applies coupon via `CouponService.apply_to_checkout!` under pessimistic lock (`user.lock!`), creating `Payment::UserCoupon`, incrementing usage, and returning coupon metadata in the response.
+    - **100% Free Coupon**: Bypasses native app store sheets entirely and provisions access instantly.
+  - Core broadcasts real-time WebSocket events (`payment_success` / `subscription_created`) across connected Web and Mobile clients.
+- **Silent Mobile Integration & Dual Checkout Toggle**:
+  - Mobile features `PaymentConfig.enableInAppPurchases = false` by default, ensuring developers without app store merchant setups can run the app without errors or native store channel initialization.
+  - When `enableInAppPurchases = false`, mobile exclusively displays Stripe web checkout on all platforms.
+  - When `enableInAppPurchases = true`, mobile dynamically resolves native store SKUs (`googlePlayProductId` on Android, `appStoreProductId` on iOS), displaying native store checkout alongside optional card checkout when `supportsStripe` is true.
+
+### 9. Return-After-Auth Protocol & Universal Deep Linking (`rexone://`)
+
+A unified, tamper-proof protocol across Web and Mobile that preserves user navigation intent when unauthenticated visitors attempt to access protected resources, coupled with native universal deep link dispatch:
+
+- **Cross-Platform Storage Standard**:
+  - Universal storage key: `continueUrl` (`StorageKeys.CONTINUE_URL` on Web, `StorageKeys.continueUrl` on Mobile).
+- **Strict Zero URL Query Parameter Law**:
+  - `continueUrl` is **NEVER** exposed in URL query parameters (`?continueUrl=...`, `?returnTo=...`).
+  - Stored strictly in local client storage (`localStorage` via `AtomService` on Web, `GetStorage` via `StorageService` on Mobile) to eliminate URL tampering, open-redirect vulnerabilities, credential phishing vectors, and broken UX caused by users accidentally deleting or modifying query parameters.
+- **Capture on Protected Access**:
+  - **Web (`ProtectedRoute.tsx`)**: When an unauthenticated visitor accesses an auth-required route (e.g., `/ai`), the router captures `location.pathname + location.search`, persists it via `AtomService.setContinueUrl(targetUrl)`, and opens the onboarding auth dialog (`AppRoutes.buildDialogUrl(DialogAuthSteps.INITIAL)`).
+  - **Mobile (`GuardRoutes.redirect` / `AppRoutes.handleDeepLink`)**: When an unauthenticated visitor hits an auth-required route (`AppRoutes.ai`, `AppRoutes.settings`, deep link), the router executes `storage.setContinueRoute(target)` and redirects to `AppRoutes.auth`.
+- **Open-Redirect & Circular Loop Protection (`getSafeContinueUrl`)**:
+  - Must begin with a single `/` and must not begin with `//` (protocol-relative external redirect attack prevention).
+  - Explicitly rejects circular auth routes (`/signin`, `/signup`, `/confirm-email`, `/forgot-password`, `/reset-password`, `/signout`) using centralized `AppRoutes` constants with zero hardcoded string literals.
+  - Returns `null` if the stored route violates validation rules.
+- **Consumption on Authentication (`navigateContinueURL`)**:
+  - Upon completing authentication (password login, Google SSO, signup verification OTP, or email confirmation token link), client consumes and immediately purges the stored continue route (`consumeContinueUrl` on Web, `consumeContinueRoute` on Mobile).
+  - **Web (`navigateContinueURL(navigate)`)**: If a valid continue route was stored and passes `getSafeContinueUrl(target)`, navigates with history replacement (`navigate(target, { replace: true })`), falling back cleanly to `AppRoutes.client.protected.HOME`.
+  - **Mobile (`AppRoutes.navigateContinueURL([storageService])`)**: Because unauthenticated mobile users are gated behind `/auth` without access to in-app links, `continueRoute` triggers when unauthenticated users open external deep links (`rexone://...`) or push notification links. To prevent users from being trapped on the destination without a way to return to `Home`, mobile mounts `AppRoutes.home` as the navigation stack base (`Get.offAllNamed(AppRoutes.home)` followed by `Get.toNamed(continueRoute)`), persists `_storage.saveRouteStack([AppRoutes.home, continueRoute])`, enabling standard back-button and swipe-back navigation directly to `Home`. If no continue route is present, falls back cleanly to `AppRoutes.toHome()`.
+- **Universal Deep Linking Specification (`rexone://`)**:
+  - **Custom Scheme Authority**: Canonical URI scheme is strictly `rexone://` (e.g. `rexone://ai`, `rexone://payment`, `rexone://profile`, `rexone://settings`, `rexone://notifications`). Legacy or compound schemes like `rexonemobile://` are rejected.
+  - **Native Platform Registrations**:
+    - **iOS (`ios/Runner/Info.plist`)**: Registered under `CFBundleURLTypes` -> `CFBundleURLSchemes` with `<string>rexone</string>`.
+    - **Android (`android/app/src/main/AndroidManifest.xml`)**: Configured with `<intent-filter>` for `android.intent.action.VIEW` with `android:scheme="rexone"`.
+  - **Flutter Routing Gateway (`DeepLinkService` & `AppRoutes.handleDeepLink`)**:
+    - Native stream and initial cold-start links are listened to via `app_links` in `DeepLinkService`.
+    - `AppRoutes.handleDeepLink` parses URIs via `AppRoutes.resolveNotificationRoute`:
+      - If user is unauthenticated: stores route as `continueRoute` and prompts/redirects to `/auth`. Once authenticated, `navigateContinueURL` restores the requested screen atop `Home`.
+      - If user is already authenticated: guarantees `Home` is the base of the backstack (`Get.offAllNamed(home)` then `Get.toNamed(target)`) so native back navigation always leads back to `Home`.
+- **Session Purge on Sign Out**:
+  - Explicit sign-out (`signOut`) and auth dialog dismissal (`handleClose`) automatically clear `continueUrl` from local storage to prevent stale redirects.
 
 ---
 
