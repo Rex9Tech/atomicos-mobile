@@ -1281,7 +1281,7 @@ class _AiPageState extends State<AiPage> {
             isUser: message.isUser,
             label: message.isUser ? 'You' : 'AtomicOS',
             content: message.content,
-            status: message.isProcessing
+            status: message.isProcessing && !message.isUser
                 ? 'Processing'
                 : message.isFailed
                 ? AppLocales.ai.needsRetry.tr
@@ -2520,7 +2520,7 @@ class _ChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isUser ? 6 : Design.spacing.radiusLarge),
         ),
       ),
-      child: pending && message.content.trim().isEmpty
+      child: !isUser && pending && message.content.trim().isEmpty
           ? const AppLoading(type: LoadingType.dots, size: LoadingSize.small)
           : _ChatMarkdown(data: message.content),
     );
