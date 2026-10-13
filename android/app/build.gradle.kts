@@ -1,3 +1,8 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Base64
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,22 +12,7 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-// Firebase dependencies are managed by flutter plugins (firebase_core & firebase_analytics)
-// Somehow no need
-// dependencies {
-//   // Import the Firebase BoM
-//   implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
-
-
-//   // TODO: Add the dependencies for Firebase products you want to use
-//   // When using the BoM, don't specify versions in Firebase dependencies
-//   implementation("com.google.firebase:firebase-analytics")
-
-
-//   // Add the dependencies for any other desired Firebase products
-//   // https://firebase.google.com/docs/android/setup#available-libraries
-// }
-
+// Firebase dependencies are managed natively by Flutter plugins (firebase_core & firebase_analytics)
 dependencies {
     // Required by 'flutter_local_notifications' (and 'background_downloader'):
     // Modern Android Gradle plugin requires core library desugaring to backport
@@ -31,7 +21,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.rex9.uat.atomic" // $APPLICATION_ID
+    namespace = "com.rex9.atomic.uat" // $APPLICATION_ID
     // permission_handler_android requires API 37. Platform is installed
     // (or symlinked) as android-37.
     compileSdk = 37
@@ -45,11 +35,27 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    // Resolve target environment from environment variables, project properties, or dart-defines
+    val dartDefines = project.findProperty("dart-defines") as String?
+    val targetEnvFromDefines = if (!dartDefines.isNullOrEmpty()) {
+        dartDefines.split(",").mapNotNull {
+            try {
+                String(Base64.getDecoder().decode(it))
+            } catch (_: Exception) {
+                it
+            }
+        }.firstOrNull { it.startsWith("TARGET_ENV=") || it.startsWith("APP_ENV=") }?.substringAfter("=") ?: ""
+    } else {
+        ""
+    }
+    val targetEnv = System.getenv("TARGET_ENV") ?: project.findProperty("target_env") as String? ?: targetEnvFromDefines
+    val isUat = targetEnv.contains("uat")
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.rex9.uat.atomic" // $APPLICATION_ID
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // Dynamically assigns package name, display name, and deep-link scheme for Prod vs UAT
+        applicationId = if (isUat) "com.rex9.atomic.uat.uat" else "com.rex9.atomic.uat"
+        manifestPlaceholders["appName"] = if (isUat) "Atomic UAT" else "Atomic"
+        manifestPlaceholders["deepLinkScheme"] = if (isUat) "atomic-uat" else "atomic"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -57,11 +63,48 @@ android {
         testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
     }
 
+    val keystoreProps = Properties()
+    val keyPropsFile = file("key.properties").takeIf { it.exists() } ?: file("../key.properties")
+    if (keyPropsFile.exists()) {
+        FileInputStream(keyPropsFile).use { keystoreProps.load(it) }
+    }
+
+    signingConfigs {
+        create("release") {
+            val configuredKeystore = file("../keystores/atomic-upload-keystore.jks")
+            val keystoreFile = if (configuredKeystore.exists()) {
+                configuredKeystore
+            } else {
+                file("../keystores").listFiles()?.firstOrNull { it.name.endsWith("-upload-keystore.jks") && !it.name.contains(".example") } ?: configuredKeystore
+            }
+            val storePass = System.getenv("KEYSTORE_PASSWORD") ?: keystoreProps.getProperty("storePassword")
+            val keyPass = System.getenv("KEY_PASSWORD") ?: keystoreProps.getProperty("keyPassword") ?: storePass
+            val alias = System.getenv("KEY_ALIAS") ?: keystoreProps.getProperty("keyAlias") ?: "upload"
+
+            if (keystoreFile.exists() && !storePass.isNullOrEmpty()) {
+                storeFile = keystoreFile
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            val releaseConfig = signingConfigs.getByName("release")
+            val isReleaseTask = gradle.startParameter.taskNames.any { task ->
+                task.contains("Release", ignoreCase = true)
+            }
+
+            if (releaseConfig.storeFile?.exists() == true && !releaseConfig.storePassword.isNullOrEmpty()) {
+                signingConfig = releaseConfig
+            } else if (isReleaseTask) {
+                throw GradleException("❌ Release signing failed: Keystore file or password missing. For UAT/Prod release builds, please configure android/key.properties or KEYSTORE_PASSWORD.")
+            } else {
+                // Safe fallback only during local debug execution (e.g. flutter run / assembleDebug)
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 }

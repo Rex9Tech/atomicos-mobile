@@ -8,6 +8,7 @@ This directory serves as the technical documentation manual for **RexOne Mobile*
 
 | Guide | Description | Canonical Path |
 | :--- | :--- | :--- |
+| **🚀 Store Deployment & CI/CD** | Step-by-step store publishing, GitHub Actions automation, and TestFlight pipeline | **[`docs/DEPLOYMENT.md`](DEPLOYMENT.md)** |
 | **🗄️ Client SQLite Database (Drift)** | Drift SQLite architecture, schema mirroring, offline states, and local caching | **[`docs/CLIENT_DATABASE.md`](CLIENT_DATABASE.md)** |
 | **🏛️ Unified Ecosystem Architecture** | Cross-platform contracts, WebSocket event catalogs, and shared data structures | **[`ECOSYSTEM.md`](../ECOSYSTEM.md)** |
 | **📜 Constitutional Law** | Non-negotiable architecture, state management, and design system rules | **[`LAW.md`](../LAW.md)** |
@@ -78,6 +79,11 @@ All local development, code verification, translation checks, and rebranding tas
 | `./scripts/check_locales.sh` | Validates English/Burmese translation parity & placeholder matches | `--unused` (audit unreferenced keys) |
 | `./scripts/check_secrets.sh` | Pre-commit scanner blocking live credentials and untracked `.env` files | `--install`, `--all` |
 | `./scripts/install_pre_commit.sh` | Installs pre-commit Git hooks for secrets and translation validation | None |
+| `./scripts/generate_keystore.sh` | Generates standard Android release keystore & exports Base64 secret | `[app_name] [alias]` |
+| `./scripts/copy_keystore_base64.sh` | Encodes existing upload keystore to Base64 and copies to clipboard | `[app_name]` |
+| `./scripts/copy_play_store_key.sh` | Copies Google Play Service Account JSON key to clipboard | `[app_name]` |
+| `./scripts/release_android.sh` | Compiles release Android App Bundle (.aab) or APK locally | `[prod\|uat] [--bundle\|--apk\|--all] [--build-number <num>]` |
+| `./scripts/release_ios.sh` | Builds release IPA locally and deploys to Apple TestFlight | `[prod\|uat] [--build-only] [--validate-only] [--build-number <num>]` |
 | `./scripts/rebrand.sh` | Standalone mobile rebranding (App Display Name + Package ID + App Icon) | `"<Name>" "<bundle.id>" "<icon.png>"` |
 | `./scripts/update_app_name.sh` | Updates app display name across Android, iOS, and environment files | `"<New App Name>"` |
 | `./scripts/update_package_name.sh` | Updates package identifier and iOS Bundle ID across native projects | `<com.company.app>` |
@@ -93,6 +99,12 @@ RexOne Mobile resolves configuration at compile time using `--dart-define=APP_EN
 - **Development**: `flutter run --dart-define=APP_ENV=.env.dev` (default API: `http://10.0.2.2:3000` on Android emulator, `http://localhost:3000` on iOS Simulator)
 - **Staging / UAT**: `flutter run --dart-define=APP_ENV=.env.uat`
 - **Production**: `flutter run --dart-define=APP_ENV=.env.prod`
+
+> [!WARNING]
+> **Dev & Prod Physical Device Overwrite Behavior**:
+> Both local Development (`.env.dev`) and Production (`.env.prod`) compile under the primary base package ID (`<com.company.app>`).
+> Deploying a local development build directly to a physical smartphone that already has the Production app installed will **overwrite** the Production app.
+> To test pre-release features without replacing your installed Production app on physical devices, use **UAT / Staging** (`<com.company.app>.uat`), which possesses a distinct application ID and installs completely side-by-side.
 
 ### Sensitive Credentials & State Isolation
 - **In-Memory Passwords**: Passwords and passcodes are held strictly in memory during authentication flows. They are never written to `SharedPreferences`, Drift SQLite, or passed via URL route arguments.
@@ -132,26 +144,36 @@ RexOne Mobile includes a dedicated media and offline streaming pipeline designed
 
 ## 🚀 Production Releases & Automated CI/CD
 
-RexOne Mobile includes an automated Android release pipeline in [`.github/workflows/build_android.yaml`](../.github/workflows/build_android.yaml):
+RexOne Mobile implements a sovereign **hybrid release pipeline** designed for zero cloud cost and maximum speed:
+- **Android (Automated Cloud CI/CD)**: GitHub Actions ([`.github/workflows/build_android.yaml`](../.github/workflows/build_android.yaml)) compiles release APKs and App Bundles (`.aab`) on standard Linux runners (`ubuntu-latest`), automatically publishing to Google Play's **Internal Testing** track on pushes to `uat` or `main`.
+- **iOS (Native Local Apple Silicon Pipeline)**: Native M-series builds via [`./scripts/release_ios.sh`](../scripts/release_ios.sh) upload directly to Apple **TestFlight** in ~90 seconds using App Store Connect API keys (`.p8`), preserving your free GitHub Actions quota (avoiding macOS 10x multiplier).
 
-### Automated GitHub Actions Workflow
-- **UAT Pipeline (`uat` branch)**:
-  - Injects `ENV_UAT` secret into `.env.uat`.
-  - Builds release APK: `flutter build apk --release --dart-define=APP_ENV=.env.uat`.
-  - Automatically tags pre-release `v${VERSION}-uat+${BUILD}` with APK attached.
-- **Production Pipeline (`main` branch)**:
-  - Injects `ENV_PROD` secret into `.env.prod`.
-  - Builds release APK: `flutter build apk --release --dart-define=APP_ENV=.env.prod`.
-  - Automatically tags production release `v${VERSION}+${BUILD}` with release APK attached.
+### 📖 Master Step-by-Step Deployment Guide
+For complete instructions on keystore generation, Google Cloud Service Account permissions, GitHub Secrets configuration, Apple `.p8` credential setup, monotonic build number management, and troubleshooting, see the authoritative manual:
 
-### Manual Release Compilation
+👉 **[`docs/DEPLOYMENT.md`](DEPLOYMENT.md)**
+
+### 📱 Quick Command Reference
 ```bash
-# Build Android APK (Release)
-flutter build apk --release --dart-define=APP_ENV=.env.prod
+# Fast-fail pre-flight readiness audit (fails fast before build)
+./scripts/preflight_check.sh                  # All platforms (Prod)
+./scripts/preflight_check.sh ios prod         # iOS TestFlight check
+./scripts/preflight_check.sh android prod     # Android Google Play check
+./scripts/preflight_check.sh all uat          # UAT / Staging check
 
-# Build Android App Bundle (Google Play AAB)
-flutter build appbundle --release --dart-define=APP_ENV=.env.prod
+# Android: Generate release keystore & copy Base64 to clipboard
+./scripts/generate_keystore.sh rexone upload
 
-# Build iOS Release Archive
-flutter build ios --release --dart-define=APP_ENV=.env.prod
+# Android: Copy Google Play Service Account JSON to clipboard
+./scripts/copy_play_store_key.sh rexone
+
+# Android: Local release builds (optional)
+./scripts/release_android.sh prod --bundle    # Production .aab
+./scripts/release_android.sh uat --bundle     # UAT staging .aab
+./scripts/release_android.sh prod --apk       # Sideloadable APK
+
+# iOS: Build and upload to TestFlight (macOS)
+./scripts/release_ios.sh prod                 # Production TestFlight release
+./scripts/release_ios.sh uat                  # UAT staging TestFlight release
+./scripts/release_ios.sh prod --validate-only # Pre-validate without uploading
 ```

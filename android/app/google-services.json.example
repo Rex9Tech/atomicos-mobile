@@ -1,15 +1,34 @@
 {
   "project_info": {
     "project_number": "YOUR_PROJECT_NUMBER",
-    "project_id": "YOUR_PROJECT_ID",
-    "storage_bucket": "YOUR_PROJECT_ID.firebasestorage.app"
+    "project_id": "atomic",
+    "storage_bucket": "atomic.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:YOUR_APP_ID",
+        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:PROD_APP_ID",
         "android_client_info": {
-          "package_name": "com.rex9.uat.atomic"
+          "package_name": "com.rex9.atomic.uat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:UAT_APP_ID",
+        "android_client_info": {
+          "package_name": "com.rex9.atomic.uat.uat"
         }
       },
       "oauth_client": [],

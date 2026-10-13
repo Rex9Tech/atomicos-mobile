@@ -10,7 +10,8 @@ import '../models/user.model.dart';
 class StorageService extends GetxService {
   late final GetStorage _box;
   static const String _tokenPrefix = 'enc:v1:';
-  static const String _saltSeed = 'rexone_mobile_auth_secure_seed_2026';
+  static String get _saltSeed =>
+      '${AppConfig.appSlug}_mobile_auth_secure_seed_2026';
 
   // ===== LIFECYCLE =====
   @override
@@ -79,6 +80,25 @@ class StorageService extends GetxService {
     _box.remove(StorageKeys.token);
     _box.remove(StorageKeys.userEmail);
     _box.remove(StorageKeys.user);
+    _box.remove(StorageKeys.continueUrl);
+  }
+
+  // ============================================================
+  // CONTINUE ROUTE (Return-After-Auth)
+  // ============================================================
+  void setContinueRoute(String route) =>
+      _box.write(StorageKeys.continueUrl, route);
+
+  String? getContinueRoute() => _box.read(StorageKeys.continueUrl);
+
+  void clearContinueRoute() => _box.remove(StorageKeys.continueUrl);
+
+  String? consumeContinueRoute() {
+    final route = getContinueRoute();
+    if (route != null) {
+      clearContinueRoute();
+    }
+    return route;
   }
 
   // ============================================================

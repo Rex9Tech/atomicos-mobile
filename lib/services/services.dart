@@ -15,3 +15,4 @@ export 'version.service.dart';
 export 'share_intent.service.dart';
 export 'category.service.dart';
 export 'device_calendar.service.dart';
+export 'deep_link.service.dart';

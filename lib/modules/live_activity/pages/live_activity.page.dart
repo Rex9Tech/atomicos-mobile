@@ -181,23 +181,12 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               ],
             ),
             SizedBox(height: Design.spacing.xs),
-            TextField(
-              onTapOutside: (_) =>
-                  FocusManager.instance.primaryFocus?.unfocus(),
+            AppInputField(
+              hint: AppLocales.recording.noteFieldHint.tr,
               controller: controller.noteController,
               minLines: 2,
               maxLines: 3,
-              decoration: InputDecoration(
-                isDense: true,
-                filled: true,
-                    fillColor: Colors.transparent,
-                    border: InputBorder.none,
-                hintText: AppLocales.recording.noteFieldHint.tr,
-                hintStyle: context.typo.bodyMedium.copyWith(
-                  color: colors.textMuted,
-                ),
-              ),
-              style: context.typo.bodyMedium.copyWith(height: 1.5),
+              textCapitalization: TextCapitalization.sentences,
             ),
             SizedBox(height: Design.spacing.sm),
             Row(

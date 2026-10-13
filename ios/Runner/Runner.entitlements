@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.rexone.mobile</string>
+		<string>group.com.rex9.atomic.uat</string>
 	</array>
 </dict>
 </plist>

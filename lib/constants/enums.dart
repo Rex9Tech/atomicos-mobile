@@ -41,6 +41,11 @@ enum EWsEventType {
   recordingCompleted('recording_completed'),
   atomUpdated('atom_updated'),
   assetProcessed('asset_processed'),
+  iamUpdated('iam_updated'),
+  accessRevoked('access_revoked'),
+  accessUpdated('access_updated'),
+  sessionExpired('session_expired'),
+  sessionInvalidated('session_invalidated'),
 
   unknown('unknown');
 

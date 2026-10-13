@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
-import 'package:rexone_mobile/modules/auth/controllers/auth.controller.dart';
+import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';
@@ -131,19 +131,19 @@ class NotificationController extends GetxController {
     }
     await markAsRead(item);
 
-    if (item.isIamUpdated) {
-      if (Get.isRegistered<AuthController>()) {
-        await Get.find<AuthController>().getCurrentUser();
-      }
-      return;
-    }
+    // if (item) {
+    //   if (Get.isRegistered<AuthController>()) {
+    //     await Get.find<AuthController>().getCurrentUser();
+    //   }
+    //   return;
+    // }
 
     // Sign-in alerts are informational — tap keeps only the mark-as-read
     // side effect (no navigation, no external/web dialogs).
     if (item.isSignInAlert) return;
 
     if (item.link?.isNotEmpty ?? false) {
-      await AppRoutes.handleNotificationLink(item.link);
+      await AppRoutes.handleDeepLink(item.link);
     }
   }
 

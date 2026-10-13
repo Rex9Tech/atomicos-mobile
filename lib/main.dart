@@ -51,6 +51,10 @@ void main() async {
   await AppInfo.init();
   InitialBinding().dependencies();
 
+  await Get.find<DeepLinkService>().init();
+  await Get.find<MediaDownloadNotificationService>().initialize();
+  await Get.find<MediaDownloadService>().initializeDownloader();
+
   // Best-effort boot steps. Each is time-boxed and guarded so a plugin that
   // stalls or fails can NEVER block the first frame — a wedged init here
   // white-screens the whole app (seen on MIUI: the media downloader's
@@ -73,6 +77,7 @@ void main() async {
     'push-notifications',
     () => Get.find<PushNotificationService>().initializePlatform(),
   );
+
 
   runApp(const MyApp());
 
@@ -111,7 +116,6 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.splash,
           getPages: AppRoutes.pages,
-          unknownRoute: AppRoutes.notFound,
           navigatorObservers: [
             analytics.observer,
             MiniPlayerRouteObserver(),

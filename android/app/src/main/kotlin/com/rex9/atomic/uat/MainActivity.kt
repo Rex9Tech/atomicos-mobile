@@ -1,4 +1,4 @@
-package com.rex9.uat.atomic
+package com.rex9.atomic.uat
 
 import android.content.Intent
 import android.content.pm.PackageManager

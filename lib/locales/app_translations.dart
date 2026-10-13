@@ -12,7 +12,7 @@ class AppTranslations extends Translations {
     'en_US': {
       // Common
       AppLocales.common.home: 'Home',
-      AppLocales.common.welcomeHome: 'Welcome to AtomicOS!',
+      AppLocales.common.welcomeHome: 'Welcome to Atomic!',
       AppLocales.common.loading: 'Loading...',
       AppLocales.common.signOut: 'Sign Out',
       AppLocales.common.goBack: 'Go Back',
@@ -215,7 +215,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'Share Your Feedback',
       AppLocales.feedback.description:
-          'We value your thoughts and ideas to help improve AtomicOS.',
+          'We value your thoughts and ideas to help improve Atomic.',
       AppLocales.feedback.rateExperience: 'Rate your experience (1 - 10)',
       AppLocales.feedback.tellUsMore: "What's on your mind?",
       AppLocales.feedback.placeholder:
@@ -247,22 +247,22 @@ class AppTranslations extends Translations {
       AppLocales.payment.couponApplied: 'Coupon applied',
       AppLocales.payment.discount: 'Discount',
       AppLocales.payment.totalDue: 'Total Due',
-      AppLocales.payment.claimFreeAccess: 'Claim Free Access 🎉',
+      AppLocales.payment.claimFreeAccess: 'Claim Free Access',
       AppLocales.payment.proceedToCheckout: 'Proceed to Checkout',
       AppLocales.payment.free: 'FREE',
       AppLocales.payment.orderSummary: 'Order Summary',
       AppLocales.payment.discountApplied: '@discount discount applied',
-      AppLocales.payment.accessGranted: 'Access granted successfully! 🎉',
+      AppLocales.payment.accessGranted: 'Access granted successfully!',
       AppLocales.payment.invalidCheckout: 'Invalid checkout response',
       AppLocales.payment.checkoutFailed: 'Checkout failed: @error',
       AppLocales.payment.cancelFailed: 'Failed to cancel subscription',
       AppLocales.payment.resumeFailed: 'Failed to resume subscription',
-      AppLocales.payment.couponValidationFailed: 'Failed to validate coupon: @error',
+      AppLocales.payment.couponValidationFailed:
+          'Failed to validate coupon: @error',
 
       // Payment - IAP
       AppLocales.payment.iap.failed: 'In-app purchase failed',
-      AppLocales.payment.iap.verifySuccess:
-          'Purchase verified successfully! 🎉',
+      AppLocales.payment.iap.verifySuccess: 'Purchase verified successfully!',
       AppLocales.payment.iap.verifyFailed:
           'Failed to verify in-app purchase with server',
       AppLocales.payment.iap.disabled:
@@ -301,6 +301,12 @@ class AppTranslations extends Translations {
       AppLocales.user.accountInfo: 'Account Information',
       AppLocales.user.roles: 'Roles',
       AppLocales.user.permissions: 'Permissions',
+      AppLocales.user.deleteAccount: 'Delete Account',
+      AppLocales.user.deleteConfirmTitle: 'Delete Account',
+      AppLocales.user.deleteConfirmMessage:
+          'Are you sure you want to delete your account? You cannot create a new account with the same email again. If you need assistance or wish to restore your account, contact @email.',
+      AppLocales.user.deleteSuccess: 'Account deleted successfully',
+      AppLocales.user.deleteFailed: 'Could not delete account',
 
       // Notification
       AppLocales.notification.title: 'Notifications',
@@ -319,13 +325,13 @@ class AppTranslations extends Translations {
       AppLocales.notification.viewAll: 'View all',
       AppLocales.notification.today: 'Today',
       AppLocales.notification.yesterday: 'Yesterday',
-      AppLocales.notification.webOnlyTitle: 'Available on AtomicOS Web',
+      AppLocales.notification.webOnlyTitle: 'Available on Atomic Web',
       AppLocales.notification.webOnlyMessage:
-          'This change is managed in the AtomicOS Web admin portal. View it there for full details.',
+          'This change is managed in the Atomic Web admin portal. View it there for full details.',
       AppLocales.notification.webOnlyConfirm: 'Understood',
       AppLocales.notification.externalTitle: 'Open external website?',
       AppLocales.notification.externalMessage:
-          'This link will leave AtomicOS and open in your browser.',
+          'This link will leave Atomic and open in your browser.',
       AppLocales.notification.externalConfirm: 'Open website',
       AppLocales.notification.openLink: 'Open Link',
       AppLocales.notification.readMore: 'Read more',
@@ -781,7 +787,7 @@ class AppTranslations extends Translations {
     'my_MM': {
       // Common
       AppLocales.common.home: 'ပင်မ',
-      AppLocales.common.welcomeHome: 'AtomicOS မှ ကြိုဆိုပါတယ်!',
+      AppLocales.common.welcomeHome: 'Atomic မှ ကြိုဆိုပါတယ်!',
       AppLocales.common.loading: 'လုပ်ဆောင်နေဆဲ...',
       AppLocales.common.signOut: 'ထွက်မည်',
       AppLocales.common.goBack: 'နောက်သို့',
@@ -985,7 +991,7 @@ class AppTranslations extends Translations {
       // Feedback
       AppLocales.feedback.title: 'အကြံပြုချက်',
       AppLocales.feedback.description:
-          'AtomicOS ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
+          'Atomic ပိုမိုကောင်းမွန်စေရန် သင့်အကြံပြုချက်ကို ကြိုဆိုပါသည်။',
       AppLocales.feedback.rateExperience: 'အဆင့်သတ်မှတ်ပါ (၁ - ၁၀)',
       AppLocales.feedback.tellUsMore: 'သင့်အကြံပြုချက် ရေးပါ',
       AppLocales.feedback.placeholder:
@@ -1017,23 +1023,26 @@ class AppTranslations extends Translations {
       AppLocales.payment.couponApplied: 'ကူပွန် ထည့်သွင်းပြီးပါပြီ',
       AppLocales.payment.discount: 'လျှော့စျေး',
       AppLocales.payment.totalDue: 'ကျသင့်ငွေ',
-      AppLocales.payment.claimFreeAccess: 'အခမဲ့ ရယူမည် 🎉',
+      AppLocales.payment.claimFreeAccess: 'အခမဲ့ ရယူမည်',
       AppLocales.payment.proceedToCheckout: 'ငွေပေးချေမှုသို့ ဆက်သွားမည်',
       AppLocales.payment.free: 'အခမဲ့',
       AppLocales.payment.orderSummary: 'အော်ဒါ အကျဉ်းချုပ်',
       AppLocales.payment.discountApplied:
           '@discount လျှော့စျေး ထည့်သွင်းပြီးပါပြီ',
-      AppLocales.payment.accessGranted: 'အသုံးပြုခွင့် အောင်မြင်စွာ ပေးအပ်ပြီးပါပြီ! 🎉',
-      AppLocales.payment.invalidCheckout: 'ငွေပေးချေမှု တုံ့ပြန်ချက် မမှန်ကန်ပါ',
+      AppLocales.payment.accessGranted:
+          'အသုံးပြုခွင့် အောင်မြင်စွာ ပေးအပ်ပြီးပါပြီ!',
+      AppLocales.payment.invalidCheckout:
+          'ငွေပေးချေမှု တုံ့ပြန်ချက် မမှန်ကန်ပါ',
       AppLocales.payment.checkoutFailed: 'ငွေပေးချေမှု မအောင်မြင်ပါ: @error',
       AppLocales.payment.cancelFailed: 'စာရင်းသွင်းမှု ပယ်ဖျက်ရန် မအောင်မြင်ပါ',
       AppLocales.payment.resumeFailed: 'စာရင်းသွင်းမှု ပြန်စရန် မအောင်မြင်ပါ',
-      AppLocales.payment.couponValidationFailed: 'ကူပွန် စစ်ဆေးရန် မအောင်မြင်ပါ: @error',
+      AppLocales.payment.couponValidationFailed:
+          'ကူပွန် စစ်ဆေးရန် မအောင်မြင်ပါ: @error',
 
       // Payment - IAP
       AppLocales.payment.iap.failed: 'အက်ပ်တွင်း ဝယ်ယူမှု မအောင်မြင်ပါ',
       AppLocales.payment.iap.verifySuccess:
-          'ဝယ်ယူမှု အတည်ပြုခြင်း အောင်မြင်ပါသည်! 🎉',
+          'ဝယ်ယူမှု အတည်ပြုခြင်း အောင်မြင်ပါသည်!',
       AppLocales.payment.iap.verifyFailed:
           'ဆာဗာဖြင့် ဝယ်ယူမှု အတည်ပြုရန် မအောင်မြင်ပါ',
       AppLocales.payment.iap.disabled:
@@ -1072,6 +1081,12 @@ class AppTranslations extends Translations {
       AppLocales.user.accountInfo: 'အကောင့် အချက်အလက်',
       AppLocales.user.roles: 'ရာထူးများ',
       AppLocales.user.permissions: 'ခွင့်ပြုချက်များ',
+      AppLocales.user.deleteAccount: 'အကောင့်ဖျက်မည်',
+      AppLocales.user.deleteConfirmTitle: 'အကောင့်ဖျက်ရန် အတည်ပြုပါ',
+      AppLocales.user.deleteConfirmMessage:
+          'သင့်အကောင့်ကို ဖျက်ရန် သေချာပါသလား? ဤအီးမေးလ်ဖြင့် အကောင့်အသစ် ပြန်လည်ဖွင့်၍ ရတော့မည် မဟုတ်ပါ။ အကူအညီ လိုအပ်ပါက သို့မဟုတ် အကောင့်ပြန်ဖွင့်လိုပါက @email သို့ ဆက်သွယ်ပါ။',
+      AppLocales.user.deleteSuccess: 'အကောင့်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ',
+      AppLocales.user.deleteFailed: 'အကောင့်ဖျက်ရန် မအောင်မြင်ပါ',
 
       // Notification
       AppLocales.notification.title: 'အသိပေးချက်များ',
@@ -1090,13 +1105,13 @@ class AppTranslations extends Translations {
       AppLocales.notification.viewAll: 'အားလုံးကြည့်ရန်',
       AppLocales.notification.today: 'ယနေ့',
       AppLocales.notification.yesterday: 'မနေ့က',
-      AppLocales.notification.webOnlyTitle: 'AtomicOS Web တွင် ရနိုင်သည်',
+      AppLocales.notification.webOnlyTitle: 'Atomic Web တွင် ရနိုင်သည်',
       AppLocales.notification.webOnlyMessage:
-          'ဤအပြောင်းအလဲကို AtomicOS Web admin portal တွင် စီမံထားသည်။ အသေးစိတ်ကို ထိုနေရာတွင် ကြည့်ပါ။',
+          'ဤအပြောင်းအလဲကို Atomic Web admin portal တွင် စီမံထားသည်။ အသေးစိတ်ကို ထိုနေရာတွင် ကြည့်ပါ။',
       AppLocales.notification.webOnlyConfirm: 'နားလည်ပါပြီ',
       AppLocales.notification.externalTitle: 'ပြင်ပ ဝဘ်ဆိုက်ကို ဖွင့်မလား?',
       AppLocales.notification.externalMessage:
-          'ဤလင့်ခ်သည် AtomicOS မှထွက်ပြီး browser တွင် ဖွင့်ပါမည်။',
+          'ဤလင့်ခ်သည် Atomic မှထွက်ပြီး browser တွင် ဖွင့်ပါမည်။',
       AppLocales.notification.externalConfirm: 'ဝဘ်ဆိုက် ဖွင့်မည်',
       AppLocales.notification.openLink: 'လင့်ခ်ဖွင့်ရန်',
       AppLocales.notification.readMore: 'ပိုမိုဖတ်ရှုရန်',

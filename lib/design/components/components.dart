@@ -21,3 +21,5 @@ export 'app_pagy_list_view.dart';
 export 'recording_language_sheet.dart';
 export 'molecule_picker_sheet.dart';
 export 'app_search_bar.dart';
+export 'app_dropdown.dart';
+export 'app_avatar.dart';

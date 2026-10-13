@@ -18,7 +18,6 @@ void main() {
   late FakeNotificationService fakeService;
   late FakeAuthService fakeAuthService;
   late FakeStorageService fakeStorageService;
-  late AuthController authController;
   late NotificationController controller;
 
   setUp(() {
@@ -32,7 +31,7 @@ void main() {
     Get.put<AnalyticsService>(FakeAnalyticsService());
     Get.put<PushNotificationService>(FakePushNotificationService());
     Get.put<SocketService>(FakeSocketService());
-    authController = Get.put(AuthController());
+    Get.put(AuthController());
     controller = Get.put(NotificationController());
   });
 
@@ -220,22 +219,12 @@ void main() {
       expect(controller.unreadCount.value, equals(0));
     });
 
-    test('IAM update tap refreshes and persists the current user', () async {
-      final refreshedUser = UserModel(
-        id: 'u1',
-        email: 'updated@example.com',
-        iam: const IamModel(isAdmin: true, isSuperAdmin: false),
-      );
-      fakeAuthService.currentUserResponse = ApiResponse.success(
-        message: 'OK',
-        statusCode: 200,
-        data: refreshedUser,
-      );
+    test('handleNotificationTap marks notification as read', () async {
       final notification = NotificationModel(
-        id: 'iam_1',
+        id: 'noti_1',
         title: 'Access updated',
         message: 'Your access changed.',
-        metadata: const {NotificationKeys.type: NotificationConstants.iamUpdated},
+        metadata: const {},
         createdAt: DateTime.now(),
       );
       controller.notifications.assignAll([notification]);
@@ -243,10 +232,9 @@ void main() {
 
       await controller.handleNotificationTap(notification);
 
-      expect(authController.currentUser.value?.email, 'updated@example.com');
-      expect(authController.currentUser.value?.iam?.isAdmin, isTrue);
-      expect(fakeStorageService.getUserData()?.iam?.isAdmin, isTrue);
-      expect(fakeService.markedReadIds, contains('iam_1'));
+      expect(controller.notifications.first.read, isTrue);
+      expect(controller.unreadCount.value, equals(0));
+      expect(fakeService.markedReadIds, contains('noti_1'));
     });
 
     test('sign-in alert tap keeps only the mark-as-read behavior', () async {

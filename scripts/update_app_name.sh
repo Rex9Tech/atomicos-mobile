@@ -24,38 +24,66 @@ sedi() {
 
 echo "🔄 Updating App Name to: \"$NEW_APP_NAME\"..."
 
-# 1. Android Manifest (android:label)
+app_display_base="${NEW_APP_NAME% Mobile}"
+
+# 1. Android Gradle configuration (manifestPlaceholders["appName"]) & AndroidManifest.xml
+if [ -f "$ROOT_DIR/android/app/build.gradle.kts" ]; then
+  if grep -q 'manifestPlaceholders\["appName"\]' "$ROOT_DIR/android/app/build.gradle.kts"; then
+    sedi -E "s/manifestPlaceholders\[\"appName\"\] = if \(isUat\) \"[^\"]+\" else \"[^\"]+\"/manifestPlaceholders[\"appName\"] = if (isUat) \"$app_display_base UAT\" else \"$app_display_base\"/g" "$ROOT_DIR/android/app/build.gradle.kts"
+    echo "  ✅ Android: Updated manifestPlaceholders[\"appName\"] in build.gradle.kts ($app_display_base)"
+  fi
+fi
+
 if [ -f "$ROOT_DIR/android/app/src/main/AndroidManifest.xml" ]; then
-  sedi -E "s/android:label=\"[^\"]*\"/android:label=\"$NEW_APP_NAME\"/g" "$ROOT_DIR/android/app/src/main/AndroidManifest.xml"
-  echo "  ✅ Android: Updated android:label in AndroidManifest.xml"
+  if ! grep -q 'android:label="\${appName}"' "$ROOT_DIR/android/app/src/main/AndroidManifest.xml"; then
+    sedi -E 's/android:label="[^"]*"/android:label="${appName}"/g' "$ROOT_DIR/android/app/src/main/AndroidManifest.xml"
+  fi
+  echo "  ✅ Android: Preserved dynamic android:label=\"\${appName}\" in AndroidManifest.xml"
 fi
 
 # 2. iOS Info.plist (CFBundleDisplayName & CFBundleName)
 if [ -f "$ROOT_DIR/ios/Runner/Info.plist" ]; then
-  # CFBundleDisplayName
-  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $NEW_APP_NAME" "$ROOT_DIR/ios/Runner/Info.plist" 2>/dev/null || \
-  /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string $NEW_APP_NAME" "$ROOT_DIR/ios/Runner/Info.plist" 2>/dev/null || true
+  cf_display_name="$app_display_base"
+  cf_bundle_name="$app_display_base"
 
-  # CFBundleName
-  /usr/libexec/PlistBuddy -c "Set :CFBundleName $NEW_APP_NAME" "$ROOT_DIR/ios/Runner/Info.plist" 2>/dev/null || \
-  /usr/libexec/PlistBuddy -c "Add :CFBundleName string $NEW_APP_NAME" "$ROOT_DIR/ios/Runner/Info.plist" 2>/dev/null || true
+  python3 -c "
+import os, re
+f = '$ROOT_DIR/ios/Runner/Info.plist'
+if os.path.exists(f):
+    with open(f, 'r') as fp:
+        c = fp.read()
+    c = re.sub(r'(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)', r'\g<1>$cf_display_name\g<2>', c)
+    c = re.sub(r'(<key>CFBundleName<\/key>\s*(?:<!--[^\n]*-->\s*)?<string>)[^<]*(<\/string>)', r'\g<1>$cf_bundle_name\g<2>', c)
+    with open(f, 'w') as fp:
+        fp.write(c)
+" 2>/dev/null || true
 
   echo "  ✅ iOS: Updated CFBundleDisplayName and CFBundleName in Info.plist"
 fi
 
 # 3. pubspec.yaml description & patrol app_name
 if [ -f "$ROOT_DIR/pubspec.yaml" ]; then
-  sedi -E "s/^description: .*/description: $NEW_APP_NAME # \$APP_NAME/g" "$ROOT_DIR/pubspec.yaml"
-  sedi -E "s/app_name:\s*.*/app_name: $NEW_APP_NAME/g" "$ROOT_DIR/pubspec.yaml"
+  pub_desc="$app_display_base # \$APP_NAME"
+  patrol_app="$app_display_base"
+  sedi -E "s/^description: .*/description: $pub_desc/g" "$ROOT_DIR/pubspec.yaml"
+  sedi -E "s/app_name:[[:space:]]*.*/app_name: $patrol_app/g" "$ROOT_DIR/pubspec.yaml"
   echo "  ✅ pubspec.yaml: Updated description and patrol app_name"
 fi
 
-# 4. Environment files (.env.dev, .env.uat, .env.prod)
-for env_file in "$ROOT_DIR"/.env*; do
-  if [ -f "$env_file" ] && grep -q "APP_NAME=" "$env_file"; then
-    sedi -E "s/^APP_NAME=.*/APP_NAME=\"$NEW_APP_NAME\"/g" "$env_file"
-    echo "  ✅ Updated APP_NAME in $(basename "$env_file")"
-  fi
-done
+# 4. Environment note
+# Committed .env.example remains strictly generic stubs and is NEVER touched.
+
+
+# 5. release_android.sh default app name
+if [ -f "$ROOT_DIR/scripts/release_android.sh" ]; then
+  sedi -E "s/DEFAULT_APP_BASE=\"[^\"]*\"/DEFAULT_APP_BASE=\"$app_display_base\"/g" "$ROOT_DIR/scripts/release_android.sh"
+  echo "  ✅ release_android.sh: Updated DEFAULT_APP_BASE ($app_display_base)"
+fi
+
+# 6. release_ios.sh default app name
+if [ -f "$ROOT_DIR/scripts/release_ios.sh" ]; then
+  sedi -E "s/DEFAULT_APP_BASE=\"[^\"]*\"/DEFAULT_APP_BASE=\"$app_display_base\"/g" "$ROOT_DIR/scripts/release_ios.sh"
+  echo "  ✅ release_ios.sh: Updated DEFAULT_APP_BASE ($app_display_base)"
+fi
 
 echo "🎉 Mobile app name successfully changed to \"$NEW_APP_NAME\"!"

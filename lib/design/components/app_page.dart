@@ -119,6 +119,8 @@ class AppPage extends StatelessWidget {
       border: Border(
         bottom: BorderSide(color: context.colors.divider, width: 0.5),
       ),
+      padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+      automaticallyImplyLeading: false,
       leading: showBackButton
           ? AppButton(
               type: EButtonType.icon,
@@ -133,7 +135,13 @@ class AppPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (showTimeZone) _timeZoneIndicator(context),
+          if (showTimeZone)Flexible(
+            fit: FlexFit.loose,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: _timeZoneIndicator(context),
+            ),
+          ),
           ...?actions,
         ],
       ),
@@ -151,6 +159,7 @@ class AppPage extends StatelessWidget {
       foregroundColor: context.colors.textPrimary,
       elevation: 0,
       scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
       leading: showBackButton
           ? AppButton(
               type: EButtonType.icon,
@@ -167,11 +176,11 @@ class AppPage extends StatelessWidget {
     return Tooltip(
       message: '${AppDateTime.timeZoneName} (${AppDateTime.utcOffset})',
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        margin: const EdgeInsets.only(right: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
           border: Border.all(color: context.colors.divider),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(Design.spacing.radiusSmall),
         ),
         child: Text(AppDateTime.utcOffset, style: context.typo.caption),
       ),
@@ -179,32 +188,45 @@ class AppPage extends StatelessWidget {
   }
 
   void _handleBackPressed(BuildContext context) async {
-    if (Get.key.currentState?.canPop() ?? false) {
-      Get.back();
-    } else {
-      final storage = Get.find<StorageService>();
-      final stack = storage.getRouteStack();
-
-      if (stack.length > 1) {
-        stack.removeLast();
-        storage.saveRouteStack(stack);
-        Get.offAllNamed(stack.last);
+    if (showBackButton) {
+      if (Get.key.currentState?.canPop() ?? false) {
+        Get.back();
       } else {
-        final result = await _showExitDialog(context);
-        if (result == true) {
-          Get.back();
-          // Exit the app
-          if (GetPlatform.isIOS) {
-            Future.delayed(const Duration(milliseconds: 100), () {
-              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-            });
-          } else {
-            // Android/Web/Desktop - just close the app
-            Future.delayed(const Duration(milliseconds: 100), () {
-              SystemNavigator.pop();
-            });
-          }
+        final storage = Get.find<StorageService>();
+        final stack = storage.getRouteStack();
+
+        if (stack.length > 1) {
+          stack.removeLast();
+          storage.saveRouteStack(stack);
+          Get.offAllNamed(stack.last);
+        } else {
+          _exitApp(context);
         }
+      }
+    } else {
+      _exitApp(context);
+    }
+  }
+
+  void _exitApp(BuildContext context) async {
+    if (showExitConfirmation) {
+      final result = await _showExitDialog(context);
+      if (result == true) {
+        if (GetPlatform.isIOS) {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          });
+        } else {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            SystemNavigator.pop();
+          });
+        }
+      }
+    } else {
+      if (GetPlatform.isIOS) {
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      } else {
+        SystemNavigator.pop();
       }
     }
   }

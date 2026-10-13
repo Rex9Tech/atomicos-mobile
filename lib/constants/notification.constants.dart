@@ -1,5 +1,7 @@
 // lib/constants/notification.constants.dart
 
+import 'package:rexone_mobile/config/config.dart';
+
 /// Cross-platform notification filters and socket message types.
 class NotificationConstants {
   const NotificationConstants._();
@@ -25,12 +27,18 @@ class NotificationConstants {
   static const String assetCompressing = 'asset_compressing';
   static const String signInAlert = 'sign_in_alert';
   static const String iamUpdated = 'iam_updated';
+  static const String accessUpdated = 'access_updated';
+  static const String accessRevoked = 'access_revoked';
+  static const String sessionExpired = 'session_expired';
+  static const String sessionInvalidated = 'session_invalidated';
 
   static const String externalLinkScheme = 'https';
 
   /// App Group shared with iOS Live Activity widget extension.
-  static const String iosAppGroupId = 'group.com.rexone.mobile';
+  static String get iosAppGroupId => 'group.${AppConfig.iosAppId}';
+
+  static String get appUrlScheme => AppConfig.appSlug;
 
   /// URL scheme registered for Live Activities (must match Info.plist).
-  static const String iosLiveActivityUrlScheme = 'rexonemobile';
+  static String get iosLiveActivityUrlScheme => AppConfig.appSlug;
 }

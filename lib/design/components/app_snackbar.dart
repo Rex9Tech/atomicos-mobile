@@ -4,18 +4,20 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import '../design.dart';
 
+/// Soft-UI toast used everywhere (including socket events).
+///
+/// Renders as a raised [AppNeumoSurface] — same clay + dual shadow as the rest
+/// of the app — with a tinted leading icon for status. Flat Material/Cupertino
+/// bars with hairline borders are intentionally not used.
 class AppSnackbar {
   AppSnackbar._();
-
-  static bool get isIOS => GetPlatform.isIOS;
 
   static void error(String message, {dynamic e, StackTrace? stk}) {
     _logError(message, e, stk);
     _show(
       title: AppLocales.common.error.tr,
       message: message,
-      background: Design.colors.error.withValues(alpha: 0.12),
-      foreground: Design.colors.error,
+      accent: Design.colors.error,
       icon: Design.icons.error,
     );
   }
@@ -24,8 +26,7 @@ class AppSnackbar {
     _show(
       title: AppLocales.common.success.tr,
       message: message,
-      background: Design.colors.success.withValues(alpha: 0.12),
-      foreground: Design.colors.success,
+      accent: Design.colors.success,
       icon: Design.icons.check,
     );
   }
@@ -34,8 +35,7 @@ class AppSnackbar {
     _show(
       title: AppLocales.common.warning.tr,
       message: message,
-      background: Design.colors.warning.withValues(alpha: 0.12),
-      foreground: Design.colors.warning,
+      accent: Design.colors.warning,
       icon: Design.icons.warning,
     );
   }
@@ -44,8 +44,7 @@ class AppSnackbar {
     _show(
       title: AppLocales.common.info.tr,
       message: message,
-      background: Design.colors.primary.withValues(alpha: 0.12),
-      foreground: Design.colors.primary,
+      accent: Design.colors.primary,
       icon: Design.icons.info,
     );
   }
@@ -53,20 +52,81 @@ class AppSnackbar {
   static void _show({
     required String title,
     required String message,
-    required Color background,
-    required Color foreground,
+    required Color accent,
     required IconData icon,
+    Duration? duration,
   }) {
-    _showOsSnackbar(
-      title: title,
-      message: message,
-      background: background,
-      foreground: foreground,
-      icon: icon,
+    final context = Get.context;
+    if (context == null) return;
+
+    Get.closeAllSnackbars();
+
+    final colors = context.colors;
+    final topInset = MediaQuery.paddingOf(context).top;
+
+    // Transparent host so the raised neumo clay + shadows are the only chrome.
+    Get.rawSnackbar(
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.transparent,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.fromLTRB(
+        Design.spacing.lg,
+        topInset + Design.spacing.sm,
+        Design.spacing.lg,
+        0,
+      ),
+      duration: duration ?? Design.timers.snackbar,
+      overlayBlur: 0,
+      isDismissible: true,
+      messageText: AppNeumoSurface(
+        soft: true,
+        radius: Design.spacing.radiusLarge,
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.md,
+          vertical: Design.spacing.md,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppNeumoSurface(
+              circle: true,
+              soft: true,
+              width: 36,
+              height: 36,
+              padding: EdgeInsets.zero,
+              color: accent.withValues(alpha: 0.14),
+              child: Icon(icon, color: accent, size: Design.spacing.iconMedium),
+            ),
+            SizedBox(width: Design.spacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: Design.typo.labelLarge.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: Design.spacing.xs),
+                  Text(
+                    message,
+                    style: Design.typo.bodyMedium.copyWith(
+                      color: colors.textPrimary,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  // ===== PRIVATE LOGGING =====
   static void _logError(String message, dynamic e, StackTrace? stk) {
     if (Get.testMode) return;
 
@@ -90,119 +150,6 @@ class AppSnackbar {
       buffer.writeln(stk.toString());
     }
 
-    // Print to console
     debugPrint(buffer.toString());
-
-    // Optional: Send to crash reporting service
-    // Crashlytics.instance.recordError(e, stk, reason: message);
-  }
-
-  static void _showOsSnackbar({
-    required String title,
-    required String message,
-    required Color background,
-    required Color foreground,
-    required IconData icon,
-    Duration? duration,
-  }) {
-    if (isIOS) {
-      _showCupertinoSnackbar(
-        title: title,
-        message: message,
-        background: background,
-        foreground: foreground,
-        icon: icon,
-        duration: duration,
-      );
-    } else {
-      _showMaterialSnackbar(
-        title: title,
-        message: message,
-        background: background,
-        foreground: foreground,
-        icon: icon,
-        duration: duration,
-      );
-    }
-  }
-
-  static void _showCupertinoSnackbar({
-    required String title,
-    required String message,
-    required Color background,
-    required Color foreground,
-    required IconData icon,
-    Duration? duration,
-  }) {
-    final context = Get.context;
-    if (context == null) return;
-
-    Get.closeAllSnackbars();
-
-    Get.rawSnackbar(
-      snackPosition: SnackPosition.TOP,
-      titleText: Row(
-        children: [
-          Icon(icon, color: foreground, size: 20),
-          SizedBox(width: Design.spacing.sm),
-          Expanded(
-            child: Text(
-              title,
-              style: Design.typo.labelLarge.copyWith(color: foreground),
-            ),
-          ),
-        ],
-      ),
-      messageText: Text(
-        message,
-        style: Design.typo.bodyMedium.copyWith(color: foreground),
-      ),
-      backgroundColor: background,
-      margin: EdgeInsets.all(Design.spacing.lg),
-      borderRadius: Design.spacing.radiusMedium,
-      duration: duration ?? Design.timers.snackbar,
-      padding: EdgeInsets.symmetric(
-        horizontal: Design.spacing.lg,
-        vertical: Design.spacing.md,
-      ),
-      borderColor: foreground.withValues(alpha: 0.25),
-      borderWidth: 1,
-    );
-  }
-
-  static void _showMaterialSnackbar({
-    required String title,
-    required String message,
-    required Color background,
-    required Color foreground,
-    required IconData icon,
-    Duration? duration,
-  }) {
-    final context = Get.context;
-    if (context == null) return;
-
-    Get.closeAllSnackbars();
-
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: background,
-      colorText: foreground,
-      margin: EdgeInsets.all(Design.spacing.lg),
-      borderRadius: Design.spacing.radiusMedium,
-      duration: duration ?? Design.timers.snackbar,
-      icon: Icon(icon, color: foreground),
-      borderColor: foreground.withValues(alpha: 0.25),
-      borderWidth: 1,
-      titleText: Text(
-        title,
-        style: Design.typo.labelLarge.copyWith(color: foreground),
-      ),
-      messageText: Text(
-        message,
-        style: Design.typo.bodyMedium.copyWith(color: foreground),
-      ),
-    );
   }
 }
