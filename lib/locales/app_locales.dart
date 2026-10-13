@@ -545,6 +545,9 @@ class _AtomLocales {
   final noSummary = 'atom.no_summary';
   final noTranscript = 'atom.no_transcript';
   final noNote = 'atom.no_note';
+  final addNote = 'atom.add_note';
+  final noteSaved = 'atom.note_saved';
+  final noteSaveFailed = 'atom.note_save_failed';
   final noAssets = 'atom.no_assets';
   final loadFailed = 'atom.load_failed';
   final retry = 'atom.retry';

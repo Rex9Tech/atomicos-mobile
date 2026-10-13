@@ -974,6 +974,16 @@ class FakeHomeService extends GetxService implements HomeService {
     data: AtomModel.fromJson(const {}),
   );
 
+  @override
+  Future<ApiResponse<AtomModel>> saveNote({
+    required String atomId,
+    required String note,
+  }) async => ApiResponse.success(
+    message: 'Note saved',
+    statusCode: 200,
+    data: AtomModel.fromJson(const {}),
+  );
+
   /// Every category id sent to [setCategory], in call order (null = cleared).
   final List<String?> requestedCategoryUpdates = [];
 

@@ -106,6 +106,27 @@ class HomeService extends GetxService {
     });
   }
 
+  /// PUT /v1/atoms/:id — saves the atom's note (empty input clears it).
+  Future<ApiResponse<AtomModel>> saveNote({
+    required String atomId,
+    required String note,
+  }) async {
+    final response = await _api.put(
+      ServerRoutes.atomDetail(atomId),
+      {
+        AtomKeys.atom: {AtomKeys.note: note},
+      },
+      showLoading: false,
+    );
+    return _api.parseResponse<AtomModel>(response, (data) {
+      final record = data is Map && data[AtomKeys.atom] is Map
+          ? data[AtomKeys.atom]
+          : data;
+      return ApiHelper.parseRecord<AtomModel>(record, AtomModel.fromJson) ??
+          AtomModel.fromJson(const {});
+    });
+  }
+
   /// PUT /v1/atoms/:id — sets (or clears, with a null [categoryId]) this
   /// atom's category. Explicit null is sent so the server sees the change.
   Future<ApiResponse<AtomModel>> setCategory({
