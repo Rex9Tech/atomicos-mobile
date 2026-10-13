@@ -1,4 +1,4 @@
-package com.rex9.uat.atomic
+package com.rex9.atomic.uat
 
 import android.app.Activity
 import android.content.ContentUris
