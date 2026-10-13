@@ -355,6 +355,11 @@ class MediaUploadService extends GetxService {
       headers: {
         if (token.isNotEmpty)
           AuthHeaders.authorization: '${AppConstants.bearerPrefix}$token',
+        // Sessions are platform-scoped server-side (active_session:<id>:<platform>);
+        // without X-Platform the request resolves to 'web' and the session check
+        // 401s ("Active session not found") even with a valid token.
+        AuthHeaders.platform: AppConstants.currentPlatform,
+        AuthHeaders.accept: AppConstants.contentTypeJson,
       },
       group: MediaUploadConstants.uploadTaskGroup,
       updates: Updates.statusAndProgress,
