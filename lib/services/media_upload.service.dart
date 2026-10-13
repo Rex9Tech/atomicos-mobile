@@ -399,6 +399,14 @@ class MediaUploadService extends GetxService {
       ),
       persistProgress: _shouldPersistProgress(entry.taskId, progress),
     );
+
+    unawaited(
+      _notifications.onUploadProgress(
+        taskId: entry.taskId,
+        title: entry.displayName.isNotEmpty ? entry.displayName : entry.name,
+        progress: progress,
+      ),
+    );
   }
 
   Future<void> _onTaskStatusUpdate(TaskStatusUpdate update) async {

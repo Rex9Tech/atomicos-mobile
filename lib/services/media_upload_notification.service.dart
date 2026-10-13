@@ -12,6 +12,10 @@ import 'package:rexone_mobile/services/push_notification.service.dart';
 class MediaUploadNotificationService extends GetxService {
   late final PushNotificationService _pushNotification;
 
+  /// Last percent posted to the progress notification per task — avoids
+  /// re-posting the same value on every progress tick.
+  final Map<String, int> _lastPercent = {};
+
   @override
   void onInit() {
     super.onInit();
@@ -46,6 +50,47 @@ class MediaUploadNotificationService extends GetxService {
     );
   }
 
+  /// Live progress while a background upload runs: an ongoing notification
+  /// with a real progress bar on the Uploads channel. It uses the same
+  /// notification id that [onUploadFinished] later completes/replaces.
+  Future<void> onUploadProgress({
+    required String taskId,
+    required String title,
+    required double progress,
+  }) async {
+    if (!_pushNotification.isLocalNotificationsReady) return;
+
+    final percent = (progress.clamp(0.0, 1.0) * 100).round();
+    if (_lastPercent[taskId] == percent) return;
+    _lastPercent[taskId] = percent;
+
+    final id = taskId.hashCode & 0x7fffffff;
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        MediaUploadConstants.notificationChannelId,
+        AppLocales.media.uploadChannelName.tr,
+        channelDescription: AppLocales.media.uploadChannelDescription.tr,
+        importance: Importance.low,
+        priority: Priority.low,
+        showProgress: true,
+        maxProgress: 100,
+        progress: percent,
+        ongoing: true,
+        autoCancel: false,
+        onlyAlertOnce: true,
+      ),
+      iOS: const DarwinNotificationDetails(),
+    );
+
+    await _pushNotification.showLocalNotification(
+      id: id,
+      title: title.isEmpty ? AppConfig.appName : title,
+      body: '${AppLocales.create.uploading.tr} $percent%',
+      details: details,
+      payload: taskId,
+    );
+  }
+
   Future<void> onUploadFinished({
     required String taskId,
     required String title,
@@ -54,6 +99,7 @@ class MediaUploadNotificationService extends GetxService {
   }) async {
     if (!_pushNotification.isLocalNotificationsReady) return;
 
+    _lastPercent.remove(taskId);
     final id = taskId.hashCode & 0x7fffffff;
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -63,6 +109,8 @@ class MediaUploadNotificationService extends GetxService {
             AppLocales.media.uploadChannelDescription.tr,
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
+        ongoing: false,
+        autoCancel: true,
       ),
       iOS: const DarwinNotificationDetails(),
     );
