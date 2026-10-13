@@ -679,11 +679,88 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
   }
 
   Widget _buildNote(BuildContext context, AtomModel atom) {
-    final note = atom.note?.trim();
-    if (note == null || note.isEmpty) {
-      return _emptyState(context, AppLocales.atom.noNote.tr);
-    }
-    return _scrollableCard(context, _markdown(context, note));
+    return Obx(() {
+      if (controller.isEditingNote.value) {
+        return _scrollableCard(
+          context,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: controller.noteController,
+                maxLines: null,
+                minLines: 6,
+                autofocus: true,
+                style: context.typo.bodyMedium,
+                decoration: InputDecoration(
+                  hintText: AppLocales.atom.noNote.tr,
+                  border: InputBorder.none,
+                ),
+              ),
+              SizedBox(height: Design.spacing.md),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: controller.cancelEditingNote,
+                    child: Text(
+                      AppLocales.common.cancel.tr,
+                      style: TextStyle(color: context.colors.textSecondary),
+                    ),
+                  ),
+                  SizedBox(width: Design.spacing.sm),
+                  TextButton(
+                    onPressed: controller.isSavingNote.value
+                        ? null
+                        : controller.saveNote,
+                    child: Text(
+                      AppLocales.create.saveNote.tr,
+                      style: TextStyle(
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }
+
+      final note = atom.note?.trim();
+      if (note == null || note.isEmpty) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _emptyState(context, AppLocales.atom.noNote.tr),
+            SizedBox(height: Design.spacing.md),
+            Center(
+              child: TextButton.icon(
+                onPressed: controller.startEditingNote,
+                icon: Icon(Design.icons.edit, size: 18),
+                label: Text(AppLocales.atom.addNote.tr),
+              ),
+            ),
+          ],
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _scrollableCard(context, _markdown(context, note)),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              onPressed: controller.startEditingNote,
+              icon: Icon(Design.icons.edit, size: 20),
+              color: context.colors.primary,
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ===== Assets: supporting files (source recording excluded) =====

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -38,6 +38,11 @@ class AtomDetailsController extends GetxController {
 
   // ===== Supporting files =====
   final RxBool isUploadingAsset = false.obs;
+
+  // ===== Note (editable from the details screen) =====
+  final RxBool isEditingNote = false.obs;
+  final RxBool isSavingNote = false.obs;
+  final TextEditingController noteController = TextEditingController();
 
   // ===== Meeting date (stored on the atom) =====
   final Rxn<DateTime> meetingAt = Rxn<DateTime>();
@@ -93,6 +98,7 @@ class AtomDetailsController extends GetxController {
   void onClose() {
     if (active == this) active = null;
     _player.dispose();
+    noteController.dispose();
     super.onClose();
   }
 
@@ -161,6 +167,42 @@ class AtomDetailsController extends GetxController {
     } catch (error) {
       debugPrint('🏷️ [AtomDetailsController] category error: $error');
       AppSnackbar.error('Could not update the molecule.');
+    }
+    return false;
+  }
+
+  // ===== Note (editable on the details screen) =====
+
+  void startEditingNote() {
+    noteController.text = atom.value?.note ?? '';
+    isEditingNote.value = true;
+  }
+
+  void cancelEditingNote() => isEditingNote.value = false;
+
+  /// PUT /v1/atoms/:id — persists the note typed on the details screen
+  /// (an empty input clears it server-side).
+  Future<bool> saveNote() async {
+    final id = atomId.value;
+    if (id == null || id.isEmpty || isSavingNote.value) return false;
+    isSavingNote.value = true;
+    try {
+      final result = await _home.saveNote(
+        atomId: id,
+        note: noteController.text.trim(),
+      );
+      if (result.success && result.data != null) {
+        atom.value = result.data;
+        isEditingNote.value = false;
+        AppSnackbar.success(AppLocales.atom.noteSaved.tr);
+        return true;
+      }
+      AppSnackbar.error(result.error ?? AppLocales.atom.noteSaveFailed.tr);
+    } catch (error) {
+      debugPrint('📝 [AtomDetailsController] note save error: $error');
+      AppSnackbar.error(AppLocales.atom.noteSaveFailed.tr);
+    } finally {
+      isSavingNote.value = false;
     }
     return false;
   }
