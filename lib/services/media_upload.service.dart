@@ -279,6 +279,7 @@ class MediaUploadService extends GetxService {
       entry.copyWith(
         state: MediaUploadConstants.stateQueued,
         progress: 0,
+        secureRetryDone: false,
         clearErrorMessage: true,
       ),
     );
@@ -436,10 +437,11 @@ class MediaUploadService extends GetxService {
         await _handleCanceled(entry);
       case TaskStatus.failed:
       case TaskStatus.notFound:
-        _failEntry(
+        await _failEntry(
           entry,
           update.exception?.description ??
               'Upload failed (${update.status.name})',
+          statusCode: update.responseStatusCode,
         );
       default:
         break;
@@ -560,11 +562,43 @@ class MediaUploadService extends GetxService {
     }
   }
 
-  void _failEntry(MediaUploadModel entry, String message) {
+  Future<void> _failEntry(
+    MediaUploadModel entry,
+    String message, {
+    int? statusCode,
+  }) async {
+    // Stale-session 401s are recoverable: the task captured its Authorization
+    // header at enqueue time (see _buildTask), but the server only honors the
+    // user's LATEST token (the "active session" rule) — signing in again on
+    // any device rotates it, leaving older queued uploads on a dead token.
+    // Re-enqueue once with the token the app holds right now instead of
+    // parking the upload until someone taps retry.
+    final staleSession =
+        statusCode == 401 && !entry.secureRetryDone && !entry.hasUploadedAsset;
+    if (staleSession) {
+      final retried = entry.copyWith(
+        state: MediaUploadConstants.stateQueued,
+        progress: 0,
+        secureRetryDone: true,
+        clearErrorMessage: true,
+      );
+      _setEntry(retried);
+      final queued = await _enqueueTask(retried, _safeFileName(retried.name));
+      if (queued) {
+        debugPrint(
+          '♻️ [MediaUploadService] re-queued ${entry.taskId} with the current session token',
+        );
+        return;
+      }
+    }
+
+    final failureMessage = staleSession
+        ? 'Session was renewed — tap retry to upload again'
+        : message;
     _setEntry(
       entry.copyWith(
         state: MediaUploadConstants.stateFailed,
-        errorMessage: message,
+        errorMessage: failureMessage,
       ),
     );
     unawaited(
@@ -572,7 +606,7 @@ class MediaUploadService extends GetxService {
         taskId: entry.taskId,
         title: entry.displayName.isNotEmpty ? entry.displayName : entry.name,
         success: false,
-        errorMessage: message,
+        errorMessage: failureMessage,
       ),
     );
   }

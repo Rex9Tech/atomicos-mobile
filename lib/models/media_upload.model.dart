@@ -21,6 +21,7 @@ class MediaUploadModel {
   final String localPath;
   final String? sourcePath;
   final bool deleteSourceAfter;
+  final bool secureRetryDone;
   final DateTime? createdAt;
 
   const MediaUploadModel({
@@ -41,6 +42,7 @@ class MediaUploadModel {
     this.localPath = '',
     this.sourcePath,
     this.deleteSourceAfter = false,
+    this.secureRetryDone = false,
     this.createdAt,
   });
 
@@ -76,6 +78,7 @@ class MediaUploadModel {
     String? localPath,
     String? sourcePath,
     bool? deleteSourceAfter,
+    bool? secureRetryDone,
     DateTime? createdAt,
     bool clearErrorMessage = false,
   }) {
@@ -98,6 +101,7 @@ class MediaUploadModel {
       localPath: localPath ?? this.localPath,
       sourcePath: sourcePath ?? this.sourcePath,
       deleteSourceAfter: deleteSourceAfter ?? this.deleteSourceAfter,
+      secureRetryDone: secureRetryDone ?? this.secureRetryDone,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -128,6 +132,7 @@ class MediaUploadModel {
         MediaUploadConstants.jsonSourcePath: sourcePath,
       if (deleteSourceAfter)
         MediaUploadConstants.jsonDeleteSourceAfter: true,
+      if (secureRetryDone) MediaUploadConstants.jsonSecureRetryDone: true,
       if (createdAt != null)
         MediaUploadConstants.jsonCreatedAt: AppDateTime.toUtcIso(createdAt!),
     };
@@ -162,6 +167,7 @@ class MediaUploadModel {
       sourcePath: json[MediaUploadConstants.jsonSourcePath]?.toString(),
       deleteSourceAfter:
           json[MediaUploadConstants.jsonDeleteSourceAfter] == true,
+      secureRetryDone: json[MediaUploadConstants.jsonSecureRetryDone] == true,
       createdAt: AppDateTime.fromUtc(json[MediaUploadConstants.jsonCreatedAt]),
     );
   }

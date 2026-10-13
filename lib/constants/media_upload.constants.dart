@@ -44,6 +44,7 @@ class MediaUploadConstants {
   static const jsonLocalPath = 'localPath';
   static const jsonSourcePath = 'sourcePath';
   static const jsonDeleteSourceAfter = 'deleteSourceAfter';
+  static const jsonSecureRetryDone = 'secureRetryDone';
   static const jsonCreatedAt = 'createdAt';
 
   static const metaTaskId = 'taskId';
