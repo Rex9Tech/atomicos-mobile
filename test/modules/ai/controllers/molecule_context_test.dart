@@ -73,7 +73,9 @@ void main() {
 
     expect(context, contains('Molecule cat-1'));
     expect(context, contains('contains 1 atom;'), reason: 'count missing');
-    expect(context, contains('Alpha [note]: alpha note'));
+    // TOON table: header row + one CSV-style row per atom.
+    expect(context, contains('atoms[1]{title,source,content}:'));
+    expect(context, contains('Alpha,note,alpha note'));
     expect(fakeHome.requestedCategoryIds, contains('cat-1'));
   });
 
@@ -88,12 +90,12 @@ void main() {
 
     expect(context, contains('contains 12 atoms;'));
     for (var i = 1; i <= 12; i++) {
-      expect(context, contains('Atom $i [note]'), reason: 'atom $i missing');
+      expect(context, contains('Atom $i,note,'), reason: 'atom $i missing');
     }
     // Every atom kept real content, not just its title — including the last
     // one, which the old budget silently cut off.
-    expect(context, contains('Atom 1 [note]: xxx'));
-    expect(context, contains('Atom 12 [note]: xxx'));
+    expect(context, contains('Atom 1,note,xxx'));
+    expect(context, contains('Atom 12,note,xxx'));
     // The digest stays inside the shared budget (+ wrapper + small slack).
     expect(context.length, lessThan(26000));
   });
@@ -129,8 +131,8 @@ void main() {
     // must state the true total from pagination.
     expect(context, contains('contains 3 atoms in total;'));
     expect(context, contains('the first 2 of them'));
-    expect(context, contains('One [note]'));
-    expect(context, contains('Two [note]'));
+    expect(context, contains('One,note,'));
+    expect(context, contains('Two,note,'));
   });
 
   test('small atoms keep full text while large ones share the leftover',
@@ -145,9 +147,9 @@ void main() {
     final context = await contextFor('cat-6', 'Hi');
 
     // The tiny atom is not sacrificed for the big ones…
-    expect(context, contains('Tiny [note]: tiny note'));
+    expect(context, contains('Tiny,note,tiny note'));
     // …and each big atom still carries a substantial slice.
-    expect(RegExp(r'Big1 \[note\]: y{1000}').hasMatch(context), isTrue);
-    expect(RegExp(r'Big3 \[note\]: y{1000}').hasMatch(context), isTrue);
+    expect(RegExp(r'Big1,note,y{1000}').hasMatch(context), isTrue);
+    expect(RegExp(r'Big3,note,y{1000}').hasMatch(context), isTrue);
   });
 }

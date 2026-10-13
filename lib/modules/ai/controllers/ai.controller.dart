@@ -407,7 +407,10 @@ class AiController extends GetxController {
     final atom = contextAtom.value;
     if (atom != null) {
       final snippet = _contextSnippet(atom);
-      parts.add('Context — "${atom.title}" (${atom.source}):\n$snippet');
+      parts.add(
+        'Context — atom:\n'
+        '${Toon.encode({'title': atom.title, 'source': atom.source, 'content': snippet})}',
+      );
     }
     final attachment = attachmentName.value;
     if (attachment != null && attachment.isNotEmpty) {
@@ -416,10 +419,11 @@ class AiController extends GetxController {
     return parts.join('\n\n');
   }
 
-  /// The whole molecule for the model: the total atom count is always spelled
-  /// out, and EVERY atom contributes its digest — when the combined content
-  /// exceeds the shared budget, each atom gets a fair slice instead of the
-  /// atoms past the budget silently falling off.
+  /// The whole molecule for the model — serialized as TOON (compact tabular
+  /// LLM format; far fewer tokens than JSON at the same information). The
+  /// total atom count is always spelled out, and EVERY atom contributes its
+  /// digest: when the combined content exceeds the shared budget, each atom
+  /// gets a fair slice instead of the atoms past the budget falling off.
   Future<String> _moleculeSnippet(CategoryModel molecule) async {
     try {
       final result = await _home.getAtoms(categoryId: molecule.id, limit: 100);
@@ -430,38 +434,36 @@ class AiController extends GetxController {
             'it is empty.';
       }
 
-      final prefixes = <String>[];
-      final bodies = <String>[];
-      for (final atom in atoms) {
-        prefixes.add('- ${atom.title} [${atom.source}]');
-        bodies.add(_contextSnippet(atom));
-      }
-
       final header = atoms.length < total
           ? 'The molecule "${molecule.name}" contains $total atoms in '
-                'total; the first ${atoms.length} of them and their '
-                'contents follow:'
+                'total; the first ${atoms.length} of them follow.'
           : 'The molecule "${molecule.name}" contains $total atom'
-                '${total == 1 ? '' : 's'}; every atom and its content '
-                'follows:';
+                '${total == 1 ? '' : 's'}; every atom follows.';
 
-      final chrome = prefixes.fold<int>(
-        0,
-        (sum, prefix) => sum + prefix.length + 3, // ": " + "\n\n"
-      );
+      List<Map<String, Object?>> rows(List<String> bodies) => [
+        for (var i = 0; i < atoms.length; i++)
+          {
+            'title': atoms[i].title,
+            'source': atoms[i].source,
+            'content': bodies[i],
+          },
+      ];
+
+      final snippets = [for (final atom in atoms) _contextSnippet(atom)];
+
+      // Two passes: measure the TOON skeleton with empty bodies, then spend
+      // the remaining budget trimming each atom's content to its fair share.
+      final skeleton = Toon.encode({'atoms': rows(List.filled(atoms.length, ''))});
       final shares = _allocateContextShares(
-        [for (final body in bodies) body.length],
-        _moleculeCharLimit - header.length - chrome,
+        [for (final snippet in snippets) snippet.length],
+        _moleculeCharLimit - header.length - skeleton.length - atoms.length * 2,
       );
+      final bodies = [
+        for (var i = 0; i < snippets.length; i++)
+          _trimToShare(snippets[i], shares[i] < 0 ? 0 : shares[i]),
+      ];
 
-      final buffer = StringBuffer(header);
-      for (var i = 0; i < prefixes.length; i++) {
-        final body = _trimToShare(bodies[i], shares[i]);
-        buffer.write('\n\n');
-        buffer.write(prefixes[i]);
-        if (body.isNotEmpty) buffer.write(': $body');
-      }
-      return buffer.toString();
+      return '$header\n\n${Toon.encode({'atoms': rows(bodies)})}';
     } catch (error) {
       debugPrint('🤖 [AiController] molecule snippet error: $error');
       return '(could not load this molecule\'s atoms)';
