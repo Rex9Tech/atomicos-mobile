@@ -573,45 +573,30 @@ class AtomCreatePage extends GetView<AtomCreateController> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Obx(() {
-          if (!controller.isUploading.value) return const SizedBox.shrink();
-          final pct = (controller.uploadProgress.value * 100)
-              .clamp(0.0, 100.0)
-              .toStringAsFixed(0);
+          final uploads = Get.find<MediaUploadService>();
+          final count = uploads.activeCount;
+          if (count == 0) return const SizedBox.shrink();
           return Padding(
             padding: EdgeInsets.only(bottom: Design.spacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Text(
-                      AppLocales.create.uploading.tr,
-                      style: context.typo.labelMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '$pct%',
-                      style: context.typo.labelMedium.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(colors.primary),
+                  ),
                 ),
-                SizedBox(height: Design.spacing.sm),
-                AppNeumoSurface(
-                  depth: ENeumoDepth.inset,
-                  radius: 999,
-                  padding: EdgeInsets.zero,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: controller.uploadProgress.value.clamp(0.0, 1.0),
-                      minHeight: 8,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                SizedBox(width: Design.spacing.sm),
+                Expanded(
+                  child: Text(
+                    AppLocales.create.uploadsInProgress
+                        .trParams({'count': '$count'}),
+                    style: context.typo.labelMedium.copyWith(
+                      color: colors.textSecondary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -620,9 +605,7 @@ class AtomCreatePage extends GetView<AtomCreateController> {
           );
         }),
         GestureDetector(
-          onTap: controller.isUploading.value
-              ? null
-              : controller.pickUploadAsset,
+          onTap: controller.pickUploadAsset,
           // Drop target reads as a recess you drop into; a picked file adds a
           // soft primary glow around the well instead of a border.
           child: AnimatedContainer(

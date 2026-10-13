@@ -11,4 +11,5 @@ export 'app.constants.dart';
 export 'media_layout.constants.dart';
 export 'media_playback.constants.dart';
 export 'media_download.constants.dart';
+export 'media_upload.constants.dart';
 export 'package:rexone_mobile/locales/app_locales.dart';

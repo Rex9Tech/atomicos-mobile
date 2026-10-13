@@ -637,6 +637,10 @@ class AppTranslations extends Translations {
       AppLocales.create.import: 'Import',
       AppLocales.create.openAsk: 'Open Ask AtomicOS',
       AppLocales.create.uploading: 'Uploading…',
+      AppLocales.create.uploadQueuedNamed:
+          'Uploading @name in the background — we\'ll notify you when it\'s done.',
+      AppLocales.create.uploadsInProgress:
+          '@count file(s) uploading in the background',
       AppLocales.create.captureLive: 'Capture a live conversation',
       AppLocales.create.captureLiveSub:
           'AtomicOS records, transcribes and summarizes the session into a new atom.',
@@ -733,6 +737,12 @@ class AppTranslations extends Translations {
       AppLocales.media.downloadComplete: 'Download complete',
       AppLocales.media.downloadCompleteNamed: '@title downloaded',
       AppLocales.media.notificationChannelName: 'Media downloads',
+      AppLocales.media.uploadChannelName: 'Uploads',
+      AppLocales.media.uploadChannelDescription:
+          'Shows the progress of files uploading in the background.',
+      AppLocales.media.uploadComplete: 'Upload complete',
+      AppLocales.media.uploadCompleteNamed: '@title uploaded',
+      AppLocales.media.uploadFailed: 'Upload failed',
       AppLocales.media.notificationChannelDescription:
           'Offline media download status',
       AppLocales.media.offlineEmptyTitle: 'No downloaded videos',
@@ -1419,6 +1429,10 @@ class AppTranslations extends Translations {
       AppLocales.create.import: 'တင်သွင်းမည်',
       AppLocales.create.openAsk: 'Ask AtomicOS ဖွင့်ပါ',
       AppLocales.create.uploading: 'တင်နေသည်…',
+      AppLocales.create.uploadQueuedNamed:
+          '@name ကို နောက်ခံတွင် အပ်လုဒ်တင်နေပါသည် — ပြီးပါက အသိပေးပါမည်။',
+      AppLocales.create.uploadsInProgress:
+          'ဖိုင် @count ခု နောက်ခံတွင် အပ်လုဒ်တင်နေသည်',
       AppLocales.create.captureLive: 'တိုက်ရိုက် စကားပြောကို ဖမ်းယူပါ',
       AppLocales.create.captureLiveSub:
           'AtomicOS က အစည်းအဝေးကို ဖမ်းယူ၊ စာသားပြောင်းပြီး အက်တမ်အသစ်အဖြစ် အနှစ်ချုပ်ပေးသည်။',
@@ -1517,6 +1531,12 @@ class AppTranslations extends Translations {
       AppLocales.media.downloadComplete: 'ဒေါင်းလုဒ်ပြီးပါပြီ',
       AppLocales.media.downloadCompleteNamed: '@title ဒေါင်းလုဒ်ပြီးပါပြီ',
       AppLocales.media.notificationChannelName: 'မီဒီယာ ဒေါင်းလုဒ်များ',
+      AppLocales.media.uploadChannelName: 'အပ်လုဒ်များ',
+      AppLocales.media.uploadChannelDescription:
+          'နောက်ခံတွင် ဖိုင်များ အပ်လုဒ်တင်နေသည့် အခြေအနေကို ပြသသည်။',
+      AppLocales.media.uploadComplete: 'အပ်လုဒ် ပြီးပါပြီ',
+      AppLocales.media.uploadCompleteNamed: '@title အပ်လုဒ်တင်ပြီးပါပြီ',
+      AppLocales.media.uploadFailed: 'အပ်လုဒ် မအောင်မြင်ပါ',
       AppLocales.media.notificationChannelDescription:
           'Offline မီဒီယာ ဒေါင်းလုဒ်အခြေအနေ',
       AppLocales.media.offlineEmptyTitle: 'ဒေါင်းလုဒ်လုပ်ထားသော ဗီဒီယို မရှိပါ',

@@ -189,6 +189,23 @@ class StorageService extends GetxService {
   void clearMediaDownloadsIndex() => _box.remove(StorageKeys.mediaDownloads);
 
   // ============================================================
+  // BACKGROUND MEDIA UPLOADS
+  // ============================================================
+  Map<String, dynamic>? getMediaUploadsIndex() {
+    final data = _box.read(StorageKeys.mediaUploads);
+    if (data is! Map) return null;
+    return Map<String, dynamic>.from(
+      data.map((key, value) => MapEntry(key.toString(), value)),
+    );
+  }
+
+  void saveMediaUploadsIndex(Map<String, dynamic> index) {
+    _box.write(StorageKeys.mediaUploads, index);
+  }
+
+  void clearMediaUploadsIndex() => _box.remove(StorageKeys.mediaUploads);
+
+  // ============================================================
   // UTILITY
   // ============================================================
   void clearAll() => _box.erase();

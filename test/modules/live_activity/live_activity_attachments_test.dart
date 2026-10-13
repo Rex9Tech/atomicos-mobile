@@ -12,6 +12,7 @@ import 'package:rexone_mobile/modules/ai/services/recording.service.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/modules/live_activity/live_activity.dart';
 import 'package:rexone_mobile/services/media.service.dart';
+import 'package:rexone_mobile/services/media_upload.service.dart';
 import 'package:rexone_mobile/services/recording_session.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/speech.service.dart';
@@ -51,6 +52,7 @@ void main() {
     Get.put<RecordingService>(recording);
     Get.put<MediaService>(media);
     Get.put<HomeService>(home);
+    Get.put<MediaUploadService>(FakeMediaUploadService());
     Get.put<RecordingSessionService>(FakeRecordingSessionService());
     Get.put<SocketService>(FakeSocketService());
   });
@@ -81,13 +83,15 @@ void main() {
     expect(controller.attachments, isEmpty);
   });
 
-  test('finishRecording uploads and attaches every staged file', () async {
+  test('finishRecording queues every staged file for background upload',
+      () async {
     speech.captureResultPath = '/tmp/capture.wav';
     recording.finishResponse = ApiResponse.success(
       message: 'Recording finished',
       statusCode: 200,
       data: RecordingModel.fromJson(const {'atom_id': 'atom-9'}),
     );
+    final uploads = Get.find<MediaUploadService>() as FakeMediaUploadService;
 
     final controller = LiveActivityController();
     controller.recordingId.value = 'rec-1';
@@ -96,35 +100,43 @@ void main() {
 
     await controller.finishRecording();
 
-    // The audio and both attachments all went up…
+    // The audio and both attachments all went onto the background queue…
     expect(
-      media.uploadedFilenames,
+      uploads.enqueued.map((e) => e.name),
       containsAll(['recording.wav', 'agenda.pdf', 'slides.pptx']),
     );
-    // …and each landed on the atom the finish created.
-    expect(home.attachedAssetCalls.length, 3);
+    expect(uploads.enqueued.length, 3);
+    // …each targeting the atom the finish created, riding the attach rail.
     expect(
-      home.attachedAssetCalls.every((call) => call[0] == 'atom-9'),
+      uploads.enqueued.every(
+        (e) =>
+            e.followUpType == MediaUploadConstants.followUpAttachToAtom &&
+            e.atomId == 'atom-9',
+      ),
       isTrue,
     );
     // Attachments ride the attachment asset type.
-    expect(media.lastUploadedType, AssetKeys.typeAttachment);
+    expect(
+      uploads.enqueued.firstWhere((e) => e.name == 'agenda.pdf').type,
+      AssetKeys.typeAttachment,
+    );
   });
 
-  test('with nothing staged, only the audio is uploaded', () async {
+  test('with nothing staged, only the audio is queued', () async {
     speech.captureResultPath = '/tmp/capture.wav';
     recording.finishResponse = ApiResponse.success(
       message: 'Recording finished',
       statusCode: 200,
       data: RecordingModel.fromJson(const {'atom_id': 'atom-9'}),
     );
+    final uploads = Get.find<MediaUploadService>() as FakeMediaUploadService;
 
     final controller = LiveActivityController();
     controller.recordingId.value = 'rec-1';
 
     await controller.finishRecording();
 
-    expect(media.uploadedFilenames, ['recording.wav']);
-    expect(home.attachedAssetCalls.length, 1);
+    expect(uploads.enqueued.map((e) => e.name), ['recording.wav']);
+    expect(uploads.enqueued.single.atomId, 'atom-9');
   });
 }

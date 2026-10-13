@@ -6,6 +6,8 @@ export 'permission.service.dart';
 export 'media.service.dart';
 export 'media_download.service.dart';
 export 'media_download_notification.service.dart';
+export 'media_upload.service.dart';
+export 'media_upload_notification.service.dart';
 export 'speech.service.dart';
 export 'recording_session.service.dart';
 export 'analytics.service.dart';

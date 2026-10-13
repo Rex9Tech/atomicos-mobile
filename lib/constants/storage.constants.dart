@@ -20,6 +20,7 @@ class StorageKeys {
   static const skipPremium = 'skip_premium';
   static const audioSession = 'audio_session';
   static const mediaDownloads = 'media_downloads';
+  static const mediaUploads = 'media_uploads';
 
   // Live recording language (SpeechService)
   static const recordingLanguage = 'recording_language';

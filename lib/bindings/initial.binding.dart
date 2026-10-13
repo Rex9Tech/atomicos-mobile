@@ -54,6 +54,12 @@ class InitialBinding extends Bindings {
     // Offline media downloads (depends on StorageService + MediaService)
     Get.put(MediaDownloadService(), permanent: true);
 
+    // Background upload notifications (no dependencies)
+    Get.put(MediaUploadNotificationService(), permanent: true);
+
+    // Background upload queue (depends on StorageService + notifications)
+    Get.put(MediaUploadService(), permanent: true);
+
     // WebSocket / Action Cable Socket Service
     Get.put(SocketService(), permanent: true);
 

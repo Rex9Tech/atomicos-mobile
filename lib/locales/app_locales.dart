@@ -622,6 +622,8 @@ class _CreateLocales {
   final import = 'create.import';
   final openAsk = 'create.openAsk';
   final uploading = 'create.uploading';
+  final uploadQueuedNamed = 'create.uploadQueuedNamed';
+  final uploadsInProgress = 'create.uploadsInProgress';
   final captureLive = 'create.captureLive';
   final captureLiveSub = 'create.captureLiveSub';
   final sharedPayload = 'create.sharedPayload';
@@ -755,6 +757,11 @@ class _MediaLocales {
   final freedStorage = 'media.freed_storage';
   final downloadWithSize = 'media.download_with_size';
   final downloadedWithSize = 'media.downloaded_with_size';
+  final uploadChannelName = 'media.upload_channel_name';
+  final uploadChannelDescription = 'media.upload_channel_description';
+  final uploadComplete = 'media.upload_complete';
+  final uploadCompleteNamed = 'media.upload_complete_named';
+  final uploadFailed = 'media.upload_failed';
 }
 
 class _AudioLocales {

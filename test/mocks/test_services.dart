@@ -22,6 +22,7 @@ import 'package:rexone_mobile/services/analytics.service.dart';
 import 'package:rexone_mobile/services/category.service.dart';
 import 'package:rexone_mobile/services/media.service.dart';
 import 'package:rexone_mobile/services/media_download.service.dart';
+import 'package:rexone_mobile/services/media_upload.service.dart';
 import 'package:rexone_mobile/services/network.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
 import 'package:rexone_mobile/services/push_notification.service.dart';
@@ -181,7 +182,66 @@ class FakeStorageService extends StorageService {
   void clearMediaDownloadsIndex() => memory.remove(StorageKeys.mediaDownloads);
 
   @override
+  Map<String, dynamic>? getMediaUploadsIndex() {
+    final data = memory[StorageKeys.mediaUploads];
+    if (data is! Map) return null;
+    return Map<String, dynamic>.from(
+      data.map((key, value) => MapEntry(key.toString(), value)),
+    );
+  }
+
+  @override
+  void saveMediaUploadsIndex(Map<String, dynamic> index) {
+    memory[StorageKeys.mediaUploads] = Map<String, dynamic>.from(index);
+  }
+
+  @override
+  void clearMediaUploadsIndex() => memory.remove(StorageKeys.mediaUploads);
+
+  @override
   void clearAll() => memory.clear();
+}
+
+/// Fake background upload queue: records enqueued uploads instead of touching
+/// the native downloader. Use for screens that queue files for background
+/// upload (atom create, atom attachments, live recordings).
+class FakeMediaUploadService extends MediaUploadService {
+  /// Every queued upload, in call order.
+  final List<MediaUploadModel> enqueued = [];
+
+  @override
+  void onInit() {}
+
+  @override
+  Future<MediaUploadModel> enqueueUpload({
+    required String filePath,
+    required String filename,
+    String? type,
+    String folder = 'atoms',
+    int? durationSecs,
+    String followUpType = MediaUploadConstants.followUpNone,
+    String? categoryId,
+    String? language,
+    String? atomId,
+    bool deleteSourceAfter = false,
+  }) async {
+    final entry = MediaUploadModel(
+      taskId: 'fake_upload_${enqueued.length}',
+      name: filename,
+      displayName: filename,
+      type: type,
+      folder: folder,
+      durationSecs: durationSecs,
+      followUpType: followUpType,
+      categoryId: categoryId,
+      language: language,
+      atomId: atomId,
+      localPath: filePath,
+      deleteSourceAfter: deleteSourceAfter,
+    );
+    enqueued.add(entry);
+    return entry;
+  }
 }
 
 /// Fake Socket Service allowing manual stream emission.

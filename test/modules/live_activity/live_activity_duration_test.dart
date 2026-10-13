@@ -15,6 +15,7 @@ import 'package:rexone_mobile/modules/ai/services/recording.service.dart';
 import 'package:rexone_mobile/modules/home/services/home.service.dart';
 import 'package:rexone_mobile/modules/live_activity/live_activity.dart';
 import 'package:rexone_mobile/services/media.service.dart';
+import 'package:rexone_mobile/services/media_upload.service.dart';
 import 'package:rexone_mobile/services/recording_session.service.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/speech.service.dart';
@@ -54,6 +55,7 @@ void main() {
     Get.put<RecordingService>(FakeRecordingService());
     Get.put<MediaService>(media);
     Get.put<HomeService>(FakeHomeService());
+    Get.put<MediaUploadService>(FakeMediaUploadService());
     Get.put<RecordingSessionService>(FakeRecordingSessionService());
     Get.put<SocketService>(FakeSocketService());
   });
@@ -105,7 +107,7 @@ void main() {
     test('reports the captured length to the recording and the upload', () async {
       final speech = Get.find<SpeechService>() as FakeSpeechService;
       final recording = Get.find<RecordingService>() as FakeRecordingService;
-      final media = Get.find<MediaService>() as FakeMediaService;
+      final uploads = Get.find<MediaUploadService>() as FakeMediaUploadService;
 
       // The file holds 7.5s of audio while the on-screen timer ran 11s
       // (background chunks were dropped) — everything must record 8.
@@ -124,15 +126,17 @@ void main() {
       await controller.finishRecording();
 
       expect(recording.lastFinishDurationSecs, 8);
-      expect(media.lastUploadedDurationSecs, 8);
-      // The temp capture is cleaned up once it reaches the atom.
-      expect(file.existsSync(), isFalse);
+      expect(uploads.enqueued.single.durationSecs, 8);
+      // The temp capture stays put: the background queue deletes it only
+      // after the upload + attach both land.
+      expect(uploads.enqueued.single.deleteSourceAfter, isTrue);
+      expect(file.existsSync(), isTrue);
     });
 
     test('falls back to the timer only when nothing was captured', () async {
       final speech = Get.find<SpeechService>() as FakeSpeechService;
       final recording = Get.find<RecordingService>() as FakeRecordingService;
-      final media = Get.find<MediaService>() as FakeMediaService;
+      final uploads = Get.find<MediaUploadService>() as FakeMediaUploadService;
 
       speech.captureResultPath = null;
       recording.finishResponse = ApiResponse.success(
@@ -148,7 +152,8 @@ void main() {
       await controller.finishRecording();
 
       expect(recording.lastFinishDurationSecs, 11);
-      expect(media.lastUploadedDurationSecs, isNull);
+      // Nothing captured means nothing is queued for upload.
+      expect(uploads.enqueued, isEmpty);
     });
   });
 }

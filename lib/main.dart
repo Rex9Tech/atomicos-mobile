@@ -91,6 +91,14 @@ void main() async {
     'media-downloader',
     () => Get.find<MediaDownloadService>().initializeDownloader(),
   );
+  await bootStep(
+    'media-upload-notifications',
+    () => Get.find<MediaUploadNotificationService>().initialize(),
+  );
+  await bootStep(
+    'media-uploader',
+    () => Get.find<MediaUploadService>().initializeUploader(),
+  );
 }
 
 class MyApp extends StatelessWidget {

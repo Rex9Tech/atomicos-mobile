@@ -14,7 +14,6 @@ import '../services/atom_create.service.dart';
 
 class AtomCreateController extends GetxController {
   final AtomCreateService _service = Get.find<AtomCreateService>();
-  final MediaService _media = Get.find<MediaService>();
   final AiService _ai = Get.find<AiService>();
   final CategoryService _categories = Get.find<CategoryService>();
 
@@ -26,8 +25,6 @@ class AtomCreateController extends GetxController {
   final RxnString pickedUploadPath = RxnString();
   final RxnString pickedUploadName = RxnString();
   final RxBool isSubmitting = false.obs;
-  final RxDouble uploadProgress = 0.0.obs;
-  final RxBool isUploading = false.obs;
   final RxString urlText = ''.obs;
   final RxBool isGeneratingSummary = false.obs;
   final RxBool isExtractingTasks = false.obs;
@@ -217,54 +214,31 @@ class AtomCreateController extends GetxController {
     }
 
     isSubmitting.value = true;
-    isUploading.value = true;
-    uploadProgress.value = 0.0;
     try {
-      final upload = await _media.uploadImage(
+      // Background queue: the file uploads while the user keeps moving, the
+      // atom is created when it lands, and a notification reports the result.
+      // No screen waits on the network.
+      final entry = await Get.find<MediaUploadService>().enqueueUpload(
         filePath: pickedUploadPath.value!,
-        filename: pickedUploadName.value,
+        filename: pickedUploadName.value ?? 'file',
         folder: 'atoms',
-        showLoading: false,
-        uploadProgress: (percent) {
-          uploadProgress.value = percent / 100.0;
-        },
+        followUpType: MediaUploadConstants.followUpAtomFromAsset,
+        categoryId: selectedCategoryId.value,
+        language: Get.find<SpeechService>().activeRecordingLanguage,
       );
 
-      if (!upload.success) {
-        AppSnackbar.error(upload.error ?? upload.message);
+      if (entry.isFailed) {
+        AppSnackbar.error(entry.errorMessage ?? 'Could not start the upload');
         return;
       }
 
-      final assetId = upload.data?.id ?? '';
-      if (assetId.isEmpty) {
-        AppSnackbar.error('Upload finished without an asset id');
-        return;
-      }
-
-      final result = await _service.createFromAsset(
-        AtomFromAssetRequest(
-          assetId: assetId,
-          categoryId: selectedCategoryId.value,
-          language: Get.find<SpeechService>().activeRecordingLanguage,
-        ),
+      AppSnackbar.success(
+        AppLocales.create.uploadQueuedNamed.trParams({'name': entry.name}),
       );
-      if (result.success) {
-        AppSnackbar.success(result.message);
-        final atomId = result.data?.id ?? '';
-        if (atomId.isNotEmpty) {
-          // Swap the create screen out: Back from the atom returns to wherever
-          // the create flow was opened from, not to a stale create form.
-          AppRoutes.toAtomDetail(atomId: atomId, replace: true);
-        } else {
-          AppRoutes.toHome();
-        }
-      } else {
-        AppSnackbar.error(result.error ?? result.message);
-      }
+      AppRoutes.toHome();
     } catch (e) {
       AppSnackbar.error('Failed: $e');
     } finally {
-      isUploading.value = false;
       isSubmitting.value = false;
     }
   }

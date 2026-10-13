@@ -28,7 +28,6 @@ class RecordingAttachment {
 class LiveActivityController extends GetxController {
   final RecordingService _recording = Get.find<RecordingService>();
   final SpeechService _speech = Get.find<SpeechService>();
-  final MediaService _media = Get.find<MediaService>();
   final HomeService _home = Get.find<HomeService>();
   final RecordingSessionService _background = Get.find<RecordingSessionService>();
   final SocketService _socket = Get.find<SocketService>();
@@ -361,36 +360,24 @@ class LiveActivityController extends GetxController {
       // The asset keeps the FILE's real length, not the wall-clock timer: the
       // file is what plays back, and the timer runs past it when background
       // chunks are dropped. Same rule as the atom's duration at finish.
-      final upload = await _media.uploadImage(
+      //
+      // Enqueued in the background: the upload continues after this screen
+      // closes, the atom picks the audio up via broadcast when it lands, and
+      // the temp file is deleted only after a successful attach.
+      final entry = await Get.find<MediaUploadService>().enqueueUpload(
         filePath: path,
         filename: 'recording.wav',
         type: AssetKeys.typeAudio,
         folder: 'recordings',
         durationSecs: capturedAudioSeconds(path) ?? elapsedSeconds.value,
-        showLoading: false,
+        followUpType: MediaUploadConstants.followUpAttachToAtom,
+        atomId: atomId,
+        deleteSourceAfter: true,
       );
-
-      final assetId = upload.data?.id ?? '';
-      if (!upload.success || assetId.isEmpty) {
+      if (entry.isFailed) {
         debugPrint(
-          '🎙️ [LiveActivity] audio upload failed: ${upload.error ?? upload.message}',
+          '🎙️ [LiveActivity] audio upload not queued: ${entry.errorMessage}',
         );
-        AppSnackbar.error(upload.error ?? upload.message);
-        return;
-      }
-
-      final attach = await _home.attachAsset(atomId: atomId, assetId: assetId);
-      if (!attach.success) {
-        debugPrint('🎙️ [LiveActivity] audio attach failed: ${attach.error}');
-        AppSnackbar.error(attach.error ?? attach.message);
-        return;
-      }
-
-      // The atom has the audio now — the temp file is no longer needed.
-      try {
-        await File(path).delete();
-      } catch (_) {
-        // Best effort; the OS clears its temp directory eventually.
       }
     } catch (error) {
       debugPrint('🎙️ [LiveActivity] audio upload error: $error');
@@ -406,32 +393,19 @@ class LiveActivityController extends GetxController {
   ) async {
     for (final item in items) {
       try {
-        final upload = await _media.uploadImage(
+        final entry = await Get.find<MediaUploadService>().enqueueUpload(
           filePath: item.path,
           filename: item.name,
           type: AssetKeys.typeAttachment,
           folder: 'atoms',
-          showLoading: false,
-        );
-
-        final assetId = upload.data?.id ?? '';
-        if (!upload.success || assetId.isEmpty) {
-          debugPrint(
-            '🎙️ [LiveActivity] attachment upload failed: ${upload.error ?? upload.message}',
-          );
-          AppSnackbar.error(upload.error ?? upload.message);
-          continue;
-        }
-
-        final attach = await _home.attachAsset(
+          followUpType: MediaUploadConstants.followUpAttachToAtom,
           atomId: atomId,
-          assetId: assetId,
+          deleteSourceAfter: true,
         );
-        if (!attach.success) {
+        if (entry.isFailed) {
           debugPrint(
-            '🎙️ [LiveActivity] attachment attach failed: ${attach.error}',
+            '🎙️ [LiveActivity] attachment not queued: ${entry.errorMessage}',
           );
-          AppSnackbar.error(attach.error ?? attach.message);
         }
       } catch (error) {
         debugPrint('🎙️ [LiveActivity] attachment upload error: $error');

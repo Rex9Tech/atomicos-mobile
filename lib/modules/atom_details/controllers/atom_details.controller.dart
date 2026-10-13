@@ -15,7 +15,6 @@ import '../../home/services/home.service.dart';
 
 class AtomDetailsController extends GetxController {
   final HomeService _home = Get.find<HomeService>();
-  final MediaService _media = Get.find<MediaService>();
   final CategoryService _categories = Get.find<CategoryService>();
   final AudioPlayer _player = AudioPlayer();
 
@@ -323,34 +322,28 @@ class AtomDetailsController extends GetxController {
       return;
     }
 
-    isUploadingAsset.value = true;
     try {
-      final upload = await _media.uploadImage(
+      // Background queue: the file uploads (and attaches to this atom) while
+      // the user keeps moving. The attachment list updates when the socket
+      // broadcast lands; a notification reports the result.
+      final entry = await Get.find<MediaUploadService>().enqueueUpload(
         filePath: path,
         filename: picked.name,
         type: AssetKeys.typeAttachment,
         folder: 'atoms',
-        showLoading: false,
+        followUpType: MediaUploadConstants.followUpAttachToAtom,
+        atomId: id,
       );
-      final assetId = upload.data?.id;
-      if (!upload.success || assetId == null || assetId.isEmpty) {
-        AppSnackbar.error('Upload failed. Please try again.');
+      if (entry.isFailed) {
+        AppSnackbar.error(entry.errorMessage ?? 'Could not start the upload');
         return;
       }
-
-      final attached = await _home.attachAsset(atomId: id, assetId: assetId);
-      if (!attached.success) {
-        AppSnackbar.error('Could not attach this file.');
-        return;
-      }
-
-      await loadAtom();
-      AppSnackbar.success('${picked.name} added');
+      AppSnackbar.success(
+        AppLocales.create.uploadQueuedNamed.trParams({'name': entry.name}),
+      );
     } catch (error) {
       debugPrint('📎 [AtomDetailsController] addAttachment error: $error');
       AppSnackbar.error('Could not add the file. Please try again.');
-    } finally {
-      isUploadingAsset.value = false;
     }
   }
 }
