@@ -91,5 +91,10 @@ void main() {
     // owns the controller, so a popped route also disposes it.
     expect(find.byType(FeedbackPage), findsNothing);
     expect(tester.testTextInput.isVisible, isFalse);
+
+    // The success snackbar schedules its 3s auto-dismiss timer on the real
+    // GetX machinery — let it fire so teardown ends with no pending timers.
+    await tester.pump(Design.timers.snackbar);
+    await tester.pumpAndSettle();
   });
 }

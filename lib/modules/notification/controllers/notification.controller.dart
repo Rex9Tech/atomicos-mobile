@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
-import 'package:rexone_mobile/modules/auth/auth.dart';
+// Commented along with the isIamUpdated block below — restore together.
+// import 'package:rexone_mobile/modules/auth/auth.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/socket.service.dart';
 import 'package:rexone_mobile/services/analytics.service.dart';

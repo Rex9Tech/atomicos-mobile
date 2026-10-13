@@ -8,7 +8,6 @@ import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 
 import '../../auth/auth.dart';
-import '../../feedback/feedback.dart';
 import '../../profile/profile.dart';
 import '../setting.dart';
 

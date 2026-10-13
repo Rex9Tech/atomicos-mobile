@@ -270,7 +270,6 @@ class _NotificationPageState extends State<NotificationPage> {
     return AppPage(
       title: AppLocales.notification.title.tr,
       showBackButton: true,
-
       actions: [
         Obx(() {
           final hasUnread = _controller.unreadCount.value > 0;
@@ -337,106 +336,106 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
 
           // ── Notifications List ─────────────────────────────
-          // Expanded(
-          //   child: Obx(() {
-          //     if (_controller.isLoading.value &&
-          //         _controller.notifications.isEmpty) {
-          //       return Center(
-          //         child: CircularProgressIndicator(color: colors.primary),
-          //       );
-          //     }
-          //
-          //     if (_controller.notifications.isEmpty) {
-          //       return RefreshIndicator(
-          //         onRefresh: () =>
-          //             _controller.fetchNotifications(refresh: true),
-          //         color: colors.primary,
-          //         child: ListView(
-          //           physics: const AlwaysScrollableScrollPhysics(),
-          //           children: [
-          //             SizedBox(
-          //               height: MediaQuery.of(context).size.height * 0.2,
-          //             ),
-          //             Center(
-          //               child: Column(
-          //                 mainAxisAlignment: MainAxisAlignment.center,
-          //                 children: [
-          //                   Icon(
-          //                     Design.icons.bell,
-          //                     size: 64,
-          //                     color: colors.textSecondary.withValues(
-          //                       alpha: 0.3,
-          //                     ),
-          //                   ),
-          //                   SizedBox(height: Design.spacing.md),
-          //                   Text(
-          //                     AppLocales.notification.empty.tr,
-          //                     style: typo.bodyLarge.copyWith(
-          //                       color: colors.textSecondary,
-          //                       fontWeight: FontWeight.w600,
-          //                     ),
-          //                   ),
-          //                 ],
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       );
-          //     }
-          //
-          //     final rows = _buildRows();
-          //
-          //     return RefreshIndicator(
-          //       onRefresh: () => _controller.fetchNotifications(refresh: true),
-          //       color: colors.primary,
-          //       child: ListView.separated(
-          //         controller: _scrollController,
-          //         physics: const AlwaysScrollableScrollPhysics(),
-          //         padding: EdgeInsets.symmetric(
-          //           horizontal: Design.spacing.lg,
-          //           vertical: Design.spacing.md,
-          //         ),
-          //         itemCount:
-          //             rows.length + (_controller.isLoadingMore.value ? 1 : 0),
-          //         separatorBuilder: (context, index) {
-          //           final hasNext = index + 1 < rows.length;
-          //           if (hasNext && rows[index + 1] is _DayHeader) {
-          //             return SizedBox(height: Design.spacing.lg);
-          //           }
-          //           return SizedBox(height: Design.spacing.sm);
-          //         },
-          //         itemBuilder: (context, index) {
-          //           if (index == rows.length) {
-          //             return Padding(
-          //               padding: EdgeInsets.symmetric(
-          //                 vertical: Design.spacing.lg,
-          //               ),
-          //               child: Center(
-          //                 child: SizedBox(
-          //                   width: 24,
-          //                   height: 24,
-          //                   child: CircularProgressIndicator(
-          //                     strokeWidth: 2,
-          //                     color: colors.primary,
-          //                   ),
-          //                 ),
-          //               ),
-          //             );
-          //           }
-          //
-          //           final row = rows[index];
-          //           if (row is _DayHeader) {
-          //             return _buildDayHeader(context, row.day);
-          //           }
-          //           return _buildNotificationCard(
-          //             context,
-          //             row as NotificationModel,
-          //           );
-          //         },
-          //       ),
-          //     );
-          //   }),
-          // ),
+          Expanded(
+            child: Obx(() {
+              if (_controller.isLoading.value &&
+                  _controller.notifications.isEmpty) {
+                return Center(
+                  child: CircularProgressIndicator(color: colors.primary),
+                );
+              }
+
+              if (_controller.notifications.isEmpty) {
+                return RefreshIndicator(
+                  onRefresh: () =>
+                      _controller.fetchNotifications(refresh: true),
+                  color: colors.primary,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Design.icons.bell,
+                              size: 64,
+                              color: colors.textSecondary.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                            SizedBox(height: Design.spacing.md),
+                            Text(
+                              AppLocales.notification.empty.tr,
+                              style: typo.bodyLarge.copyWith(
+                                color: colors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final rows = _buildRows();
+
+              return RefreshIndicator(
+                onRefresh: () => _controller.fetchNotifications(refresh: true),
+                color: colors.primary,
+                child: ListView.separated(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Design.spacing.lg,
+                    vertical: Design.spacing.md,
+                  ),
+                  itemCount:
+                      rows.length + (_controller.isLoadingMore.value ? 1 : 0),
+                  separatorBuilder: (context, index) {
+                    final hasNext = index + 1 < rows.length;
+                    if (hasNext && rows[index + 1] is _DayHeader) {
+                      return SizedBox(height: Design.spacing.lg);
+                    }
+                    return SizedBox(height: Design.spacing.sm);
+                  },
+                  itemBuilder: (context, index) {
+                    if (index == rows.length) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: Design.spacing.lg,
+                        ),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final row = rows[index];
+                    if (row is _DayHeader) {
+                      return _buildDayHeader(context, row.day);
+                    }
+                    return _buildNotificationCard(
+                      context,
+                      row as NotificationModel,
+                    );
+                  },
+                ),
+              );
+            }),
+          ),
         ],
       ),
     );
