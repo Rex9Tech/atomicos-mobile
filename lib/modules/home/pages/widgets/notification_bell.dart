@@ -101,6 +101,8 @@ class _NotificationsSheet extends StatelessWidget {
     return AppNeumoSurface(
       margin: EdgeInsets.all(Design.spacing.sm),
       radius: Design.spacing.radiusXLarge,
+      // Keep content clear of the raised neumo rim/shadow on both sides —
+      // without this, timestamps sit flush against the right edge.
       padding: EdgeInsets.fromLTRB(
         Design.spacing.lg,
         Design.spacing.lg,
@@ -221,12 +223,19 @@ class _NotificationsSheet extends StatelessWidget {
 
       final visible = items.take(_maxVisible).toList();
 
+      // clipBehavior.none + side padding so raised neumo shadows (offset ~5,
+      // blur ~12) are not chopped on the right/bottom — that clip is what made
+      // the trailing timestamp look flush against a "cut" card edge.
       return ListView.separated(
         shrinkWrap: true,
-        padding: EdgeInsets.zero,
+        clipBehavior: Clip.none,
+        padding: EdgeInsets.symmetric(
+          horizontal: Design.spacing.xs,
+          vertical: Design.spacing.xs,
+        ),
         itemCount: visible.length + 1,
         separatorBuilder: (_, index) => SizedBox(
-          height: index == visible.length - 1 ? 0 : Design.spacing.sm,
+          height: index == visible.length - 1 ? 0 : Design.spacing.md,
         ),
         itemBuilder: (context, index) {
           if (index == visible.length) {
@@ -276,6 +285,8 @@ class _NotificationRow extends StatelessWidget {
   final NotificationModel item;
   final NotificationController controller;
 
+  static const double _leadingSize = 20;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -294,29 +305,37 @@ class _NotificationRow extends StatelessWidget {
       },
       behavior: HitTestBehavior.opaque,
       child: AppNeumoSurface(
+        soft: true,
         radius: Design.spacing.radiusLarge,
         padding: EdgeInsets.all(Design.spacing.md),
+        color: item.read ? null : colors.primary.withValues(alpha: 0.05),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              margin: EdgeInsets.only(top: 4, right: Design.spacing.sm),
-              child: item.read
-                  ? Icon(
-                      Design.icons.bell,
-                      size: 16,
-                      color: colors.textSecondary.withValues(alpha: 0.5),
-                    )
-                  : Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: Design.colors.shadows.neon,
+            // Fixed leading slot so unread-dot vs bell don't skew left/right
+            // balance (the old 10px dot vs 16px icon made the right look tight).
+            SizedBox(
+              width: _leadingSize,
+              height: _leadingSize,
+              child: Center(
+                child: item.read
+                    ? Icon(
+                        Design.icons.bell,
+                        size: 16,
+                        color: colors.textSecondary.withValues(alpha: 0.5),
+                      )
+                    : Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: Design.colors.shadows.neon,
+                        ),
                       ),
-                    ),
+              ),
             ),
+            SizedBox(width: Design.spacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +358,7 @@ class _NotificationRow extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: Design.spacing.sm),
+                      SizedBox(width: Design.spacing.md),
                       Text(
                         formatTimeAgo(item.createdAt),
                         style: typo.caption.copyWith(

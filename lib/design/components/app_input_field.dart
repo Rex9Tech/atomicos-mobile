@@ -67,7 +67,9 @@ class AppInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inputWidget = _NeumoFieldShell(
+    final theme = Theme.of(context);
+    // Helper/error sit below the neumo shell — not inside the inset surface.
+    final field = _NeumoFieldShell(
       focusNode: focusNode,
       hasError: error != null,
       child: osTextField(
@@ -85,13 +87,41 @@ class AppInputField extends StatelessWidget {
         enabled: enabled,
         textCapitalization: textCapitalization,
         hint: hint,
-        error: error,
-        helper: helper,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         onSubmitted: onSubmitted != null ? (_) => onSubmitted!() : null,
       ),
     );
+
+    final supporting = error != null
+        ? Text(
+            error!,
+            style: Design.typo.caption.copyWith(color: theme.colorScheme.error),
+          )
+        : (helper != null
+            ? Text(
+                helper!,
+                style: Design.typo.caption.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant
+                      .withValues(alpha: 0.7),
+                ),
+              )
+            : null);
+
+    final inputBlock = supporting == null
+        ? field
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              field,
+              SizedBox(height: Design.spacing.xs),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Design.spacing.xs),
+                child: supporting,
+              ),
+            ],
+          );
 
     final content = (label != null && label!.isNotEmpty)
         ? Column(
@@ -100,10 +130,10 @@ class AppInputField extends StatelessWidget {
             children: [
               Text(label!, style: context.typo.labelMedium),
               SizedBox(height: Design.spacing.xs),
-              inputWidget,
+              inputBlock,
             ],
           )
-        : inputWidget;
+        : inputBlock;
 
     return CallbackShortcuts(
       bindings: {
@@ -116,6 +146,8 @@ class AppInputField extends StatelessWidget {
     );
   }
 
+  /// Platform text field only — helper/error are rendered by [build] outside
+  /// the neumo shell.
   static Widget osTextField({
     TextEditingController? controller,
     FocusNode? focusNode,
@@ -131,15 +163,13 @@ class AppInputField extends StatelessWidget {
     bool enabled = true,
     TextCapitalization textCapitalization = TextCapitalization.none,
     String? hint,
-    String? error,
-    String? helper,
     Widget? prefixIcon,
     Widget? suffixIcon,
     ValueChanged<String>? onSubmitted,
   }) {
     final theme = Get.theme;
     if (isIOS) {
-      final cupertinoField = CupertinoTextField(
+      return CupertinoTextField(
         controller: controller,
         focusNode: focusNode,
         autofocus: autofocus,
@@ -156,8 +186,7 @@ class AppInputField extends StatelessWidget {
         enabled: enabled,
         placeholder: hint,
         placeholderStyle: Design.typo.helper.copyWith(
-          color:
-              theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
         ),
         style: Design.typo.bodyMedium.copyWith(
           color: theme.colorScheme.onSurface,
@@ -182,41 +211,6 @@ class AppInputField extends StatelessWidget {
         // same-tone clay (see _NeumoFieldShell).
         decoration: const BoxDecoration(color: Colors.transparent),
       );
-
-      if (error == null && helper == null) {
-        return cupertinoField;
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          cupertinoField,
-          if (error != null) ...[
-            SizedBox(height: Design.spacing.xs),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Design.spacing.xs),
-              child: Text(
-                error,
-                style: Design.typo.caption
-                    .copyWith(color: theme.colorScheme.error),
-              ),
-            ),
-          ] else if (helper != null) ...[
-            SizedBox(height: Design.spacing.xs),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Design.spacing.xs),
-              child: Text(
-                helper,
-                style: Design.typo.caption.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant
-                      .withValues(alpha: 0.7),
-                ),
-              ),
-            ),
-          ],
-        ],
-      );
     }
     return TextField(
       controller: controller,
@@ -236,8 +230,6 @@ class AppInputField extends StatelessWidget {
       textCapitalization: textCapitalization,
       decoration: Design.styles.input(
         hint: hint,
-        error: error,
-        helper: helper,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),

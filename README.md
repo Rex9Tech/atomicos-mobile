@@ -35,6 +35,7 @@ Built under the same creed as RexOne Core and RexOne Web: **Start from One. Not 
 | **📜 Constitutional Law**           | Non-negotiable architecture, design system, and state laws: **[LAW.md](LAW.md)** _(Zero exceptions)_                                                                                                                                                                                                                    |
 | **🤖 Operational Agent Governance** | Autonomous agent rules, secret isolation, and documentation synchronization: **[AGENTS.md](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)**                                                                                                                                                                   |
 | **🗄️ Client Database**              | Drift SQLite local-first architecture and schema mirroring: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                                                                                                                                                                                                    |
+| **🚀 Store Deployment & CI/CD**     | Step-by-step store publishing, GitHub Actions, and TestFlight: **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)**                                                                                                                                                                            |
 | **📖 Master Documentation Hub**     | Native subsystem architecture, CLI tools, and E2E testing: **[`docs/README.md`](docs/README.md)**                                                                                                                                                                                                                       |
 
 ---
@@ -348,6 +349,7 @@ To maintain high architectural discipline without cluttering the primary showcas
 | :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **📖 Master Mobile Documentation Hub** | Native architecture topology, CLI script catalog, and testing guides: **[`docs/README.md`](docs/README.md)**                                             |
 | **🗄️ Client SQLite Database (Drift)**  | Drift SQLite architecture, schema mirroring, offline states, and DAOs: **[`docs/CLIENT_DATABASE.md`](docs/CLIENT_DATABASE.md)**                          |
+| **🚀 Store Deployment & CI/CD**        | Step-by-step store publishing, GitHub Actions, and TestFlight: **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)**                                           |
 | **🏛️ Unified Ecosystem Architecture**  | Cross-platform contracts, WebSocket event catalogs, and shared schemas: **[`ECOSYSTEM.md`](ECOSYSTEM.md)**                                               |
 | **📜 Constitutional Law**              | Non-negotiable architecture, state management, and design tokens: **[`LAW.md`](LAW.md)**                                                                 |
 | **🤖 Autonomous Agent Governance**     | Operational agent rules, secret isolation, and documentation synchronization: **[`AGENTS.md`](https://github.com/rex-9/rexone-core/blob/dev/AGENTS.md)** |
@@ -359,6 +361,25 @@ To maintain high architectural discipline without cluttering the primary showcas
 RexOne Mobile features a modern **hybrid release architecture** designed for zero cloud cost and maximum speed:
 - **Android (Automated Cloud CI/CD)**: [`.github/workflows/build_android.yaml`](.github/workflows/build_android.yaml) runs on Linux runners (`ubuntu-latest`) to build release APKs and App Bundles (`.aab`), automatically publishing production builds to Google Play's **Internal Testing** track.
 - **iOS (Native Local Apple Silicon Pipeline)**: Fast local builds via [`./scripts/release_ios.sh`](scripts/release_ios.sh) upload directly to Apple **TestFlight** using App Store Connect API keys (`.p8`), preserving your free GitHub Actions quota (avoiding macOS 10x multiplier).
+
+### 🚦 Fast-Fail Pre-Flight Release Readiness Checker
+Audit all required signing keys, certificates, Google services, Apple `.p8` API keys, and environment files in **under 1 second** before compiling:
+
+```bash
+# Verify both Android & iOS release readiness (Production)
+./scripts/preflight_check.sh
+
+# Verify iOS TestFlight readiness
+./scripts/preflight_check.sh ios prod
+
+# Verify Android Google Play readiness
+./scripts/preflight_check.sh android prod
+
+# Verify staging / UAT release readiness
+./scripts/preflight_check.sh all uat
+```
+
+Both [`./scripts/release_ios.sh`](scripts/release_ios.sh) and [`./scripts/release_android.sh`](scripts/release_android.sh) automatically execute this preflight verification before building, halting immediately if any required credential or file is missing with exact step-by-step remediation instructions.
 
 ### 🤖 Android Automated Publishing (GitHub Actions)
 Pushing to `uat` or `main` automatically triggers GitHub Actions:
@@ -403,7 +424,7 @@ Compile and publish directly from your Mac terminal in ~2 minutes:
 ./scripts/release_ios.sh prod --build-number 15
 ```
 
-For complete step-by-step key setup instructions (Google Play Service Account JSON & Apple App Store Connect `.p8`), see **[`docs/README.md`](docs/README.md)**.
+For complete step-by-step key setup instructions (Google Play Service Account JSON & Apple App Store Connect `.p8`), see **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)**.
 
 ---
 
@@ -419,7 +440,8 @@ For complete step-by-step key setup instructions (Google Play Service Account JS
 For full, synchronized rebranding across Core, Web, and Mobile, execute the master rebrand engine from **`rexone-core`**:
 
 ```bash
-cd ../rexone-core && ./scripts/rebrand.sh
+# Recommended: Ecosystem-wide rebrand from rexone-core:
+cd ../rexone-core && ./scripts/rebrand.sh brand.config.json
 ```
 
 For standalone mobile rebranding:
@@ -428,7 +450,8 @@ For standalone mobile rebranding:
 ./scripts/rebrand.sh "New App Name" "com.company.newapp" "path/to/icon.png"
 ```
 
-For the complete catalog of individual utility scripts (name, package ID, icons, versions), see **[`docs/README.md`](docs/README.md)**.
+For the comprehensive ecosystem guide, see **[Ecosystem Rebranding Guide (rexone-core/docs/REBRANDING.md)](https://github.com/rex-9/rexone-core/blob/dev/docs/REBRANDING.md)**.
+For the complete catalog of individual mobile utility scripts (name, package ID, icons, versions), see **[`docs/README.md`](docs/README.md)**.
 
 ---
 

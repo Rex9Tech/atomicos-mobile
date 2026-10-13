@@ -427,11 +427,33 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
 
     switch (eventType) {
       case ESpeechEventType.partial:
-        _partialText = _mergePartial(_partialText, event.message ?? '');
-        liveText.value = _joinSpeech(_committedText, _partialText);
+        // Partials are the full current hypothesis for the unfinished phrase —
+        // always replace, never append. Myanmar STT often re-emits nearly the
+        // same text with different spacing; joining those duplicated the line
+        // ~10× before the final arrived.
+        final nextPartial = (event.message ?? '').trim();
+        if (nextPartial.isEmpty) return;
+        if (_sameSpeechHypothesis(_partialText, nextPartial)) {
+          // Spacing-only / growing-prefix churn — keep the longer form and
+          // skip a liveText rewrite when nothing visible changed.
+          if (nextPartial.length >= _partialText.length) {
+            _partialText = nextPartial;
+          }
+        } else {
+          _partialText = nextPartial;
+        }
+        final merged = _joinSpeech(_committedText, _partialText);
+        if (merged != liveText.value) {
+          liveText.value = merged;
+        }
       case ESpeechEventType.finalPhrase:
-        _committedText = _joinSpeech(_committedText, event.message ?? '');
+        final nextFinal = (event.message ?? '').trim();
+        // Final supersedes the in-flight partial. Prefer the final text; if
+        // the server sent an empty final, promote whatever partial we have.
+        final phrase = nextFinal.isNotEmpty ? nextFinal : _partialText;
         _partialText = '';
+        if (phrase.isEmpty) return;
+        _committedText = _joinSpeech(_committedText, phrase);
         liveText.value = _committedText;
       case ESpeechEventType.error:
         unawaited(stopListening());
@@ -589,23 +611,31 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     final next = incoming.trim();
     if (next.isEmpty) return committed;
     if (committed.isEmpty) return next;
+    // Exact duplicate only (whitespace-insensitive). A suffix check would
+    // falsely drop real English words ("thing" after "something").
+    if (_normalizeSpeech(committed) == _normalizeSpeech(next)) {
+      return committed;
+    }
     if (committed.endsWith(' ') || committed.endsWith('\n')) {
       return '$committed$next';
     }
     return '$committed $next';
   }
 
-  String _mergePartial(String current, String incoming) {
-    final next = incoming.trim();
-    if (next.isEmpty) return current;
-    if (current.isEmpty) return next;
-    final currentLower = current.toLowerCase();
-    final nextLower = next.toLowerCase();
-    if (nextLower.startsWith(currentLower) ||
-        currentLower.startsWith(nextLower)) {
-      return next;
-    }
-    return _joinSpeech(current, next);
+  /// Strips whitespace / case so Myanmar spacing variants compare equal.
+  String _normalizeSpeech(String value) {
+    return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+  }
+
+  /// True when [a] and [b] are the same hypothesis ignoring spaces/case, or
+  /// one is a prefix of the other (growing / shrinking partial).
+  bool _sameSpeechHypothesis(String a, String b) {
+    final left = _normalizeSpeech(a);
+    final right = _normalizeSpeech(b);
+    if (left.isEmpty || right.isEmpty) return false;
+    return left == right ||
+        left.startsWith(right) ||
+        right.startsWith(left);
   }
 
   double _normalizeAmplitude(double db) {

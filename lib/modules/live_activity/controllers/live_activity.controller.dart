@@ -353,7 +353,13 @@ class LiveActivityController extends GetxController {
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       elapsedSeconds.value++;
-      unawaited(_background.markRunning(formattedElapsed));
+      // Android can quietly refresh the ongoing FGS notification. On iOS,
+      // flutter_foreground_task re-posts a UNNotification on every update and
+      // always presents it as .alert — so a 1s tick floods banners. Only push
+      // elapsed text on Android; pause/resume still update both platforms.
+      if (Platform.isAndroid) {
+        unawaited(_background.markRunning(formattedElapsed));
+      }
     });
   }
 

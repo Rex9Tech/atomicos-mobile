@@ -24,12 +24,7 @@ sedi() {
 
 echo "🔄 Updating App Name to: \"$NEW_APP_NAME\"..."
 
-app_display_base="$NEW_APP_NAME"
-if [ "$NEW_APP_NAME" = "RexOne Mobile" ] || [ "$NEW_APP_NAME" = "RexOne" ]; then
-  app_display_base="RexOne"
-elif [[ "$NEW_APP_NAME" == *" Mobile" ]]; then
-  app_display_base="${NEW_APP_NAME% Mobile}"
-fi
+app_display_base="${NEW_APP_NAME% Mobile}"
 
 # 1. Android Gradle configuration (manifestPlaceholders["appName"]) & AndroidManifest.xml
 if [ -f "$ROOT_DIR/android/app/build.gradle.kts" ]; then
@@ -48,12 +43,8 @@ fi
 
 # 2. iOS Info.plist (CFBundleDisplayName & CFBundleName)
 if [ -f "$ROOT_DIR/ios/Runner/Info.plist" ]; then
-  cf_display_name="$NEW_APP_NAME"
-  cf_bundle_name="$NEW_APP_NAME"
-  if [ "$NEW_APP_NAME" = "RexOne" ] || [ "$NEW_APP_NAME" = "RexOne Mobile" ]; then
-    cf_display_name="RexOne Mobile"
-    cf_bundle_name="rexone_mobile"
-  fi
+  cf_display_name="$app_display_base"
+  cf_bundle_name="$app_display_base"
 
   python3 -c "
 import os, re
@@ -72,26 +63,16 @@ fi
 
 # 3. pubspec.yaml description & patrol app_name
 if [ -f "$ROOT_DIR/pubspec.yaml" ]; then
-  pub_desc="$NEW_APP_NAME # \$APP_NAME"
-  patrol_app="$NEW_APP_NAME"
-  if [ "$NEW_APP_NAME" = "RexOne" ] || [ "$NEW_APP_NAME" = "RexOne Mobile" ]; then
-    pub_desc="RexOne Mobile App # \$APP_NAME"
-    patrol_app="RexOne"
-  fi
+  pub_desc="$app_display_base # \$APP_NAME"
+  patrol_app="$app_display_base"
   sedi -E "s/^description: .*/description: $pub_desc/g" "$ROOT_DIR/pubspec.yaml"
   sedi -E "s/app_name:[[:space:]]*.*/app_name: $patrol_app/g" "$ROOT_DIR/pubspec.yaml"
   echo "  ✅ pubspec.yaml: Updated description and patrol app_name"
 fi
 
-# 4. Environment example file (Strict Law & Secret Isolation: never touch local gitignored .env files)
-if [ -f "$ROOT_DIR/.env.example" ]; then
-  env_app_name="$NEW_APP_NAME"
-  if [ "$NEW_APP_NAME" = "RexOne" ] || [ "$NEW_APP_NAME" = "RexOne Mobile" ]; then
-    env_app_name="RexOne"
-  fi
-  sedi -E "s/^APP_NAME=.*/APP_NAME=$env_app_name/g" "$ROOT_DIR/.env.example"
-  echo "  ✅ Updated APP_NAME in .env.example"
-fi
+# 4. Environment note
+# Committed .env.example remains strictly generic stubs and is NEVER touched.
+
 
 # 5. release_android.sh default app name
 if [ -f "$ROOT_DIR/scripts/release_android.sh" ]; then

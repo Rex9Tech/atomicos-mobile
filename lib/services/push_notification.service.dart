@@ -87,7 +87,14 @@ class PushNotificationService extends GetxService {
   Future<void> _initializeLocalNotifications() async {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings();
+    // Do not auto-prompt on iOS — OneSignal.requestPermission() handles it
+    // after auth. Default DarwinInitializationSettings requests alert/badge/sound
+    // and caused a duplicate system dialog on first install.
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,

@@ -1,5 +1,7 @@
 // lib/constants/notification.constants.dart
 
+import 'package:rexone_mobile/config/config.dart';
+
 /// Cross-platform notification filters and socket message types.
 class NotificationConstants {
   const NotificationConstants._();
@@ -33,10 +35,10 @@ class NotificationConstants {
   static const String externalLinkScheme = 'https';
 
   /// App Group shared with iOS Live Activity widget extension.
-  static const String iosAppGroupId = 'group.com.rex9.atomic.uat';
+  static String get iosAppGroupId => 'group.${AppConfig.iosAppId}';
 
-  static const String appUrlScheme = 'atomic';
+  static String get appUrlScheme => AppConfig.appSlug;
 
   /// URL scheme registered for Live Activities (must match Info.plist).
-  static const String iosLiveActivityUrlScheme = 'atomic';
+  static String get iosLiveActivityUrlScheme => AppConfig.appSlug;
 }
