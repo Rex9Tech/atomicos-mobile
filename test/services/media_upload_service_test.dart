@@ -299,6 +299,9 @@ void main() {
       await waitFor(
         () => uploads.entries[entry.taskId]!.isDone,
       );
+      // The service fires the completion notification after cleaning up the
+      // queued copy — wait for it like the no-follow-up test does.
+      await waitFor(() => fakeNotifications.finishedSuccess.isNotEmpty);
 
       final done = uploads.entries[entry.taskId]!;
       expect(done.isDone, isTrue);
