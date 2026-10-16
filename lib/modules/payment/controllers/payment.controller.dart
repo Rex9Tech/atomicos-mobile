@@ -96,8 +96,10 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
       case EWsEventType.paymentIntentSucceeded:
       case EWsEventType.paymentFailed:
       case EWsEventType.paymentIntentPaymentFailed:
-        // Pop the checkout WebView back to the payment page.
-        if (Get.currentRoute == AppRoutes.checkout) {
+        // Pop the checkout screen (Stripe WebView or MMQR page) back to the
+        // payment page.
+        if (Get.currentRoute == AppRoutes.checkout ||
+            Get.currentRoute == AppRoutes.mmpayCheckout) {
           Get.back();
         }
         if (Get.isRegistered<AuthController>()) {
@@ -240,6 +242,26 @@ class PaymentController extends GetxController with PagyControllerMixin<ProductM
             unawaited(Get.find<AuthController>().getCurrentUser());
           }
           await fetchData();
+          return;
+        }
+
+        // MyanMyanPay (MMQR): show the scan-to-pay QR instead of a WebView.
+        final qr = response.data![PaymentKeys.qr]?.toString();
+        final orderId = response.data![PaymentKeys.orderId]?.toString();
+        if (qr != null && qr.isNotEmpty && orderId != null && orderId.isNotEmpty) {
+          removeCoupon();
+          final amountRaw = response.data![PaymentKeys.amount];
+          final amount = amountRaw is num
+              ? amountRaw.toInt()
+              : int.tryParse(amountRaw?.toString() ?? '') ?? 0;
+          AppRoutes.toMmpayCheckout(
+            orderId: orderId,
+            qr: qr,
+            amount: amount,
+            currency: response.data![PaymentKeys.currency]?.toString() ?? 'MMK',
+            expiresAt: response.data![PaymentKeys.expiresAt]?.toString(),
+            productId: productId,
+          );
           return;
         }
 

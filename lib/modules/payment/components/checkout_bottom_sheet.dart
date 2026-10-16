@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/helpers/helpers.dart';
 
 import '../controllers/payment.controller.dart';
 import '../models/models.dart';
@@ -46,14 +47,7 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
 
   String _formatMoney(int cents, String currency) {
     if (cents == 0) return AppLocales.payment.free.tr;
-    final value = cents / 100.0;
-    final curr = currency.toLowerCase();
-    final symbol = curr == PaymentCurrencies.mmk
-        ? PaymentCurrencies.mmkSymbol
-        : curr == PaymentCurrencies.sgd
-        ? PaymentCurrencies.sgdSymbol
-        : PaymentCurrencies.usdSymbol;
-    return '$symbol${value.toStringAsFixed(2)}';
+    return formatPaymentAmount(cents, currency);
   }
 
   @override

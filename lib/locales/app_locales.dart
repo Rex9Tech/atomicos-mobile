@@ -443,6 +443,21 @@ class _PaymentLocales {
   final resumeFailed = 'payment.resume_failed';
   final couponValidationFailed = 'payment.coupon_validation_failed';
 
+  // ===== MyanMyanPay (MMQR) checkout =====
+  final mmpayTitle = 'payment.mmpay_title';
+  final mmpayScanHint = 'payment.mmpay_scan_hint';
+  final mmpayExpiresIn = 'payment.mmpay_expires_in';
+  final mmpayWaiting = 'payment.mmpay_waiting';
+  final mmpayExpired = 'payment.mmpay_expired';
+  final mmpayFailed = 'payment.mmpay_failed';
+  final mmpayGetNewQr = 'payment.mmpay_get_new_qr';
+  final mmpayDownload = 'payment.mmpay_download';
+  final mmpayPoweredBy = 'payment.mmpay_powered_by';
+  final mmpayOrderRef = 'payment.mmpay_order_ref';
+  final mmpayPaid = 'payment.mmpay_paid';
+  final mmpaySaved = 'payment.mmpay_saved';
+  final mmpaySaveFailed = 'payment.mmpay_save_failed';
+
   final iap = const _PaymentIapLocales();
 }
 

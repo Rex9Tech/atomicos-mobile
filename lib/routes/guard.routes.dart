@@ -21,6 +21,7 @@ class GuardRoutes extends GetMiddleware {
       AppRoutes.settings,
       AppRoutes.payment,
       AppRoutes.checkout,
+      AppRoutes.mmpayCheckout,
       AppRoutes.ai,
       AppRoutes.profile,
       AppRoutes.notifications,

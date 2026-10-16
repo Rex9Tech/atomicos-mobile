@@ -49,6 +49,7 @@ class AppRoutes {
   static const String feedback = '/feedback';
   static const String payment = '/payment';
   static const String checkout = '/checkout';
+  static const String mmpayCheckout = '/mmpay-checkout';
   static const String ai = '/ai';
   static const String liveActivity = '/live-activity';
   static const String search = '/search';
@@ -129,6 +130,24 @@ class AppRoutes {
   static void toPayment() => Get.toNamed(payment);
   static void toCheckout({required String url}) =>
       Get.toNamed(checkout, arguments: {'url': url});
+  static void toMmpayCheckout({
+    required String orderId,
+    required String qr,
+    required int amount,
+    required String currency,
+    String? expiresAt,
+    String? productId,
+  }) => Get.toNamed(
+    mmpayCheckout,
+    arguments: {
+      'order_id': orderId,
+      'qr': qr,
+      'amount': amount,
+      'currency': currency,
+      'expires_at': ?expiresAt,
+      'product_id': ?productId,
+    },
+  );
   static void toAi({
     String mode = 'auto',
     String? atomId,
@@ -431,6 +450,14 @@ class AppRoutes {
       page: () => const CheckoutWebViewPage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<CheckoutController>(() => CheckoutController());
+      }),
+      middlewares: [GuardRoutes()],
+    ),
+    GetPage(
+      name: mmpayCheckout,
+      page: () => const MmpayCheckoutPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<MmpayCheckoutController>(() => MmpayCheckoutController());
       }),
       middlewares: [GuardRoutes()],
     ),

@@ -61,6 +61,8 @@ class ServerRoutes {
   static String get paymentSession => api('/payment/session');
   static String paymentSessionStatus(String sessionId) =>
       api('/payment/session/$sessionId');
+  static String paymentMmpaySessionStatus(String orderId) =>
+      api('/payment/mmpay/session/$orderId');
   static String get paymentProducts => api('/payment/products');
   static String get paymentSubscriptions => api('/payment/subscriptions');
   static String paymentSubscriptionCancel(String id) =>

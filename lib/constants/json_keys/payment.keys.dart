@@ -11,6 +11,13 @@ class PaymentKeys {
   static const freeAccessGranted = 'free_access_granted';
   static const accessId = 'access_id';
 
+  // ===== MyanMyanPay (MMQR) checkout =====
+  static const qr = 'qr';
+  static const orderId = 'order_id';
+  static const transactionRefId = 'transaction_ref_id';
+  static const resumes = 'resumed';
+  static const paidAt = 'paid_at';
+
   // ===== Universal Provider Keys =====
   static const provider = 'provider';
   static const providerPaymentId = 'provider_payment_id';

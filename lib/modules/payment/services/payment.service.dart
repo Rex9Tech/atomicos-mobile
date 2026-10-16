@@ -172,6 +172,18 @@ class PaymentService extends GetxService {
   }
 
   // ============================================================
+  // MYANMYANPAY (MMQR) STATUS POLL
+  // ============================================================
+  Future<ApiResponse<Map<String, dynamic>>> getMmpayStatus(
+    String orderId,
+  ) async {
+    final response = await _api.get(
+      ServerRoutes.paymentMmpaySessionStatus(orderId),
+    );
+    return _api.parseRecord<Map<String, dynamic>>(response);
+  }
+
+  // ============================================================
   // COUPONS
   // ============================================================
   Future<ApiResponse<CouponValidationModel>> validateCoupon(
