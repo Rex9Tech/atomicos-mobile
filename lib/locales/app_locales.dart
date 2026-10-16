@@ -462,6 +462,7 @@ class _PaymentLocales {
   final payIn = 'payment.pay_in';
   final usdComingSoon = 'payment.usd_coming_soon';
   final supportedApps = 'payment.supported_apps';
+  final creditsLeft = 'payment.credits_left';
 
   final iap = const _PaymentIapLocales();
 }

@@ -10,6 +10,7 @@ class UserModel {
   final String? name;
   final String? provider;
   final String? photo;
+  final int credits;
   final IamModel? iam;
   final List<AccessModel> accesses;
 
@@ -20,6 +21,7 @@ class UserModel {
     this.name,
     this.provider,
     this.photo,
+    this.credits = 0,
     this.iam,
     this.accesses = const [],
   });
@@ -32,6 +34,9 @@ class UserModel {
       name: json[AuthKeys.name]?.toString(),
       provider: json[AuthKeys.provider]?.toString(),
       photo: json[AuthKeys.avatarUrl]?.toString() ?? json[AuthKeys.photo]?.toString(),
+      credits: json[AuthKeys.credits] is int
+          ? json[AuthKeys.credits] as int
+          : int.tryParse(json[AuthKeys.credits]?.toString() ?? '') ?? 0,
       iam: json[AuthKeys.iam] is Map
           ? IamModel.fromJson(Map<String, dynamic>.from(json[AuthKeys.iam] as Map))
           : null,
@@ -51,6 +56,7 @@ class UserModel {
     AuthKeys.name: name,
     AuthKeys.provider: provider,
     AuthKeys.avatarUrl: photo,
+    AuthKeys.credits: credits,
     AuthKeys.iam: iam?.toJson(),
     PaymentKeys.accesses: accesses.map((e) => e.toJson()).toList(),
   };

@@ -641,6 +641,7 @@ class AppTranslations extends Translations {
       AppLocales.payment.usdComingSoon:
           'USD payments are coming soon. Please pay in MMK for now.',
       AppLocales.payment.supportedApps: 'Supported payment apps',
+      AppLocales.payment.creditsLeft: 'You have @count credits left',
       AppLocales.ai.sourcePhotoSub: 'Attach a photo',
       AppLocales.ai.sourceFilesSub: 'Attach a file',
       AppLocales.ai.attachedFile: 'Attached @name',
@@ -1455,6 +1456,7 @@ class AppTranslations extends Translations {
       AppLocales.payment.usdComingSoon:
           'USD ဖြင့် ငွေပေးချေမှုကို မကြာမီ ရရှိနိုင်ပါမည်။ ကျေးဇူးပြု၍ ယခုအချိန်တွင် MMK ဖြင့် ပေးချေပါ။',
       AppLocales.payment.supportedApps: 'ပံ့ပိုးထားသော ငွေပေးချေမှု အက်ပ်များ',
+      AppLocales.payment.creditsLeft: 'သင့်တွင် ခရက်ဒစ် @count ကျန်ရှိပါသည်',
       AppLocales.ai.sourcePhotoSub: 'ဓာတ်ပုံ ပူးတွဲပါ',
       AppLocales.ai.sourceFilesSub: 'ဖိုင် ပူးတွဲပါ',
       AppLocales.ai.attachedFile: '@name ပူးတွဲပြီးပါပြီ',

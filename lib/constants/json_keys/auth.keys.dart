@@ -25,6 +25,7 @@ class AuthKeys {
   static const provider = 'provider';
   static const avatarUrl = 'avatar_url';
   static const photo = 'photo';
+  static const credits = 'credits';
   static const iam = 'iam';
   static const isAdmin = 'is_admin';
   static const isSuperAdmin = 'is_super_admin';

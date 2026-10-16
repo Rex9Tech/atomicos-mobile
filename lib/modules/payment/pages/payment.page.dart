@@ -5,6 +5,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
 
+import '../../auth/auth.dart';
 import '../payment.dart';
 
 class PaymentPage extends GetView<PaymentController> {
@@ -50,6 +51,24 @@ class PaymentPage extends GetView<PaymentController> {
               style: context.typo.bodyMedium,
               textAlign: TextAlign.center,
             ),
+            Obx(() {
+              if (!Get.isRegistered<AuthController>()) {
+                return const SizedBox.shrink();
+              }
+              final credits =
+                  Get.find<AuthController>().currentUser.value?.credits ?? 0;
+              return Padding(
+                padding: EdgeInsets.only(top: Design.spacing.sm),
+                child: Text(
+                  AppLocales.payment.creditsLeft.trParams({'count': '$credits'}),
+                  style: context.typo.labelMedium.copyWith(
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }),
             SizedBox(height: Design.spacing.lg),
 
             // Search and Filter Bar

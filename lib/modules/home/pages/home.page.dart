@@ -73,6 +73,37 @@ class HomePage extends GetView<AuthController> {
           ),
         ),
         const Spacer(),
+        Obx(() {
+          final credits = controller.currentUser.value?.credits ?? 0;
+          return GestureDetector(
+            onTap: AppRoutes.toPayment,
+            child: Container(
+              margin: EdgeInsets.only(right: Design.spacing.sm),
+              padding: EdgeInsets.symmetric(
+                horizontal: Design.spacing.sm,
+                vertical: Design.spacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Design.icons.bolt, size: 14, color: colors.primary),
+                  SizedBox(width: 3),
+                  Text(
+                    '$credits',
+                    style: context.typo.labelMedium.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
         const NotificationBell(),
         SizedBox(width: Design.spacing.sm),
         GestureDetector(
