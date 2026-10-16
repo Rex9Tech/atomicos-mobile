@@ -37,6 +37,12 @@ class SettingPage extends GetView<SettingController> {
 
           SizedBox(height: Design.spacing.xxl),
 
+          // Subscription Section — plans & MyanMyanPay (MMQR) checkout
+          _buildSectionHeader(context, AppLocales.payment.plansPricing.tr),
+          _buildPlansTile(context),
+
+          SizedBox(height: Design.spacing.xxl),
+
           // Account Section
           _buildSectionHeader(context, AppLocales.setting.account.tr),
           _buildAccountTile(context, authController),
@@ -74,6 +80,25 @@ class SettingPage extends GetView<SettingController> {
         trailing:
             Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
         onTap: () => Get.toNamed(AppRoutes.feedback),
+      ),
+    );
+  }
+
+  /// Plans & Pricing — product list + MyanMyanPay (MMQR) / store checkout.
+  Widget _buildPlansTile(BuildContext context) {
+    return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
+      padding: EdgeInsets.zero,
+      child: AppListTile(
+        leading: Icon(
+          Icons.workspace_premium_outlined,
+          color: context.colors.primary,
+        ),
+        title: Text(AppLocales.payment.plansPricing.tr),
+        subtitle: Text(AppLocales.payment.choosePlanSub.tr),
+        trailing:
+            Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
+        onTap: AppRoutes.toPayment,
       ),
     );
   }
