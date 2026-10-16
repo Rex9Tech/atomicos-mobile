@@ -458,6 +458,11 @@ class _PaymentLocales {
   final mmpaySaved = 'payment.mmpay_saved';
   final mmpaySaveFailed = 'payment.mmpay_save_failed';
 
+  // ===== Checkout currency & supported apps =====
+  final payIn = 'payment.pay_in';
+  final usdComingSoon = 'payment.usd_coming_soon';
+  final supportedApps = 'payment.supported_apps';
+
   final iap = const _PaymentIapLocales();
 }
 

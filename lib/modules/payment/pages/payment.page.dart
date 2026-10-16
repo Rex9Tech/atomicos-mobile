@@ -15,6 +15,7 @@ class PaymentPage extends GetView<PaymentController> {
     return AppPage(
       title: AppLocales.payment.plansPricing.tr,
       showBackButton: true,
+      showTimeZone: false,
       padding: Design.spacing.zero,
       child: Obx(() {
         final filterOptions = [

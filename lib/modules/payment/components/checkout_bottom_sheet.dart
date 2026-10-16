@@ -32,6 +32,9 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
   late final TextEditingController _codeController;
   late final PaymentController _controller;
 
+  /// Checkout currency — MMK goes through the MMQR rail; USD is coming soon.
+  String _selectedCurrency = 'MMK';
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +51,38 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
   String _formatMoney(int cents, String currency) {
     if (cents == 0) return AppLocales.payment.free.tr;
     return formatPaymentAmount(cents, currency);
+  }
+
+  Widget _currencyOption(BuildContext context, String code) {
+    final selected = _selectedCurrency == code;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedCurrency = code),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: Design.spacing.md),
+          decoration: BoxDecoration(
+            color: selected
+                ? context.colors.primary.withValues(alpha: 0.10)
+                : context.colors.surface,
+            borderRadius: BorderRadius.circular(Design.spacing.radiusMedium),
+            border: Border.all(
+              color: selected ? context.colors.primary : context.colors.border,
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          child: Text(
+            code,
+            textAlign: TextAlign.center,
+            style: context.typo.bodyMedium.copyWith(
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+              color: selected
+                  ? context.colors.primary
+                  : context.colors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -352,6 +387,36 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
 
             SizedBox(height: Design.spacing.xl),
 
+            // Payment currency — MMK (MMQR scan-to-pay) or USD (coming soon)
+            Obx(() {
+              final applied = _controller.appliedCoupon.value;
+              final isFree =
+                  product.isFree || (applied != null && applied.isFree);
+              if (isFree) return const SizedBox.shrink();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    AppLocales.payment.payIn.tr,
+                    style: context.typo.bodySmall.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: Design.spacing.sm),
+                  Row(
+                    children: [
+                      _currencyOption(context, 'MMK'),
+                      SizedBox(width: Design.spacing.sm),
+                      _currencyOption(context, 'USD'),
+                    ],
+                  ),
+                  SizedBox(height: Design.spacing.lg),
+                ],
+              );
+            }),
+
             // Checkout Button
             Obx(() {
               final applied = _controller.appliedCoupon.value;
@@ -397,6 +462,12 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
                       type: EButtonType.text,
                       isExpanded: true,
                       onPressed: () {
+                        if (_selectedCurrency == 'USD') {
+                          AppSnackbar.info(
+                            AppLocales.payment.usdComingSoon.tr,
+                          );
+                          return;
+                        }
                         Get.back();
                         _controller.startCheckout(
                           product.id,
@@ -413,6 +484,10 @@ class _CheckoutBottomSheetState extends State<CheckoutBottomSheet> {
                 type: EButtonType.primary,
                 isExpanded: true,
                 onPressed: () {
+                  if (_selectedCurrency == 'USD') {
+                    AppSnackbar.info(AppLocales.payment.usdComingSoon.tr);
+                    return;
+                  }
                   Get.back();
                   _controller.startCheckout(
                     product.id,

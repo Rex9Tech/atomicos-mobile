@@ -637,6 +637,10 @@ class AppTranslations extends Translations {
       AppLocales.payment.mmpayPaid: 'Payment received!',
       AppLocales.payment.mmpaySaved: 'QR image saved',
       AppLocales.payment.mmpaySaveFailed: 'Could not save the QR image',
+      AppLocales.payment.payIn: 'Pay in',
+      AppLocales.payment.usdComingSoon:
+          'USD payments are coming soon. Please pay in MMK for now.',
+      AppLocales.payment.supportedApps: 'Supported payment apps',
       AppLocales.ai.sourcePhotoSub: 'Attach a photo',
       AppLocales.ai.sourceFilesSub: 'Attach a file',
       AppLocales.ai.attachedFile: 'Attached @name',
@@ -1447,6 +1451,10 @@ class AppTranslations extends Translations {
       AppLocales.payment.mmpayPaid: 'ငွေပေးချေမှု လက်ခံရရှိပါပြီ။',
       AppLocales.payment.mmpaySaved: 'QR ပုံ သိမ်းဆည်းပြီးပါပြီ',
       AppLocales.payment.mmpaySaveFailed: 'QR ပုံကို သိမ်းဆည်း၍ မရပါ',
+      AppLocales.payment.payIn: 'ငွေပေးချေမည့် ငွေကြေး',
+      AppLocales.payment.usdComingSoon:
+          'USD ဖြင့် ငွေပေးချေမှုကို မကြာမီ ရရှိနိုင်ပါမည်။ ကျေးဇူးပြု၍ ယခုအချိန်တွင် MMK ဖြင့် ပေးချေပါ။',
+      AppLocales.payment.supportedApps: 'ပံ့ပိုးထားသော ငွေပေးချေမှု အက်ပ်များ',
       AppLocales.ai.sourcePhotoSub: 'ဓာတ်ပုံ ပူးတွဲပါ',
       AppLocales.ai.sourceFilesSub: 'ဖိုင် ပူးတွဲပါ',
       AppLocales.ai.attachedFile: '@name ပူးတွဲပြီးပါပြီ',

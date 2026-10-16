@@ -23,6 +23,7 @@ class MmpayCheckoutPage extends GetView<MmpayCheckoutController> {
           return AppPage(
             title: AppLocales.payment.mmpayTitle.tr,
             showBackButton: false,
+            showTimeZone: false,
             backgroundColor: colors.background,
             actions: [
               AppButton(
@@ -42,6 +43,16 @@ class MmpayCheckoutPage extends GetView<MmpayCheckoutController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // MMQR mark — this is a national MMQR payment
+                    Center(
+                      child: Image.asset(
+                        'assets/images/payments/mmqr.png',
+                        height: 72,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    SizedBox(height: Design.spacing.md),
+
                     // Amount
                     Text(
                       controller.formattedAmount,
@@ -108,6 +119,54 @@ class MmpayCheckoutPage extends GetView<MmpayCheckoutController> {
                           ),
                         ],
                       ),
+                      SizedBox(height: Design.spacing.lg),
+                      Text(
+                        AppLocales.payment.supportedApps.tr,
+                        textAlign: TextAlign.center,
+                        style: themeContext.typo.bodySmall.copyWith(
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      SizedBox(height: Design.spacing.sm),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: Design.spacing.sm,
+                        runSpacing: Design.spacing.sm,
+                        children: [
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/kbzpay.webp',
+                            label: 'KBZPay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/wavepay.webp',
+                            label: 'WavePay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/ayapay.webp',
+                            label: 'AYA Pay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/cbpay.webp',
+                            label: 'CB Pay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/okdollar.webp',
+                            label: 'OK\$',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/onepay.webp',
+                            label: 'OnePay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/uabpay.webp',
+                            label: 'UAB Pay',
+                          ),
+                          _PayAppLogo(
+                            asset: 'assets/images/payments/saisaipay.webp',
+                            label: 'SaiSaiPay',
+                          ),
+                        ],
+                      ),
                     ] else ...[
                       Text(
                         status == 'expired'
@@ -162,6 +221,40 @@ class MmpayCheckoutPage extends GetView<MmpayCheckoutController> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Small rounded app-icon + label used in the "supported payment apps" row.
+class _PayAppLogo extends StatelessWidget {
+  const _PayAppLogo({required this.asset, required this.label});
+
+  final String asset;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: colors.border),
+          ),
+          child: Image.asset(asset, fit: BoxFit.contain),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: context.typo.caption.copyWith(color: colors.textMuted),
+        ),
+      ],
     );
   }
 }
