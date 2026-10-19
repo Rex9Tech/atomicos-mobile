@@ -67,6 +67,33 @@ class AtomDetailsController extends GetxController {
   List<AtomAssetModel> get _allAssets =>
       atom.value?.assets ?? const <AtomAssetModel>[];
 
+  /// True while the server is still building summary/transcript for this atom.
+  /// Details uses this for a processing card instead of empty Note/Assets.
+  bool get isAiProcessing {
+    final current = atom.value;
+    if (current == null) return false;
+
+    final status = current.status.toLowerCase();
+    if (status == 'processing') return true;
+    if (status == 'completed' || status == 'failed') return false;
+
+    // Audio-backed atoms often arrive with an empty/pending status before
+    // summary and transcript land — treat that as processing too.
+    if (!_isAudioBacked(current)) return false;
+    return current.summaryBlocks.isEmpty && current.transcriptSegments.isEmpty;
+  }
+
+  bool _isAudioBacked(AtomModel current) {
+    final source = current.source.toLowerCase();
+    if (source == 'asset' ||
+        source == 'recording' ||
+        source == 'meeting' ||
+        source == 'upload') {
+      return true;
+    }
+    return sourceAudio != null || (audioUrl.value?.isNotEmpty ?? false);
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -102,26 +129,50 @@ class AtomDetailsController extends GetxController {
     super.onClose();
   }
 
+  /// Loads (or reloads) the atom. When one is already on screen, refreshes
+  /// quietly so socket updates don't flash a full-page spinner.
   Future<void> loadAtom() async {
     final id = atomId.value;
     if (id == null) return;
 
-    isLoading.value = true;
+    final soft = atom.value != null;
+    final wasProcessing = soft && isAiProcessing;
+
+    if (!soft) {
+      isLoading.value = true;
+    }
     hasError.value = false;
     try {
       final result = await _home.getAtom(id);
       if (result.success && result.data != null) {
-        atom.value = result.data;
+        final next = result.data!;
+        atom.value = next;
         _syncAudioSource();
         resolveMeetingDate();
-      } else {
+        if (wasProcessing) {
+          _selectContentTabWhenReady(next);
+        }
+      } else if (!soft) {
         hasError.value = true;
       }
     } catch (error) {
       debugPrint('📝 [AtomDetailsController] loadAtom error: $error');
-      hasError.value = true;
+      if (!soft) {
+        hasError.value = true;
+      }
     } finally {
-      isLoading.value = false;
+      if (!soft) {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  /// After AI finishes, land on Summary (or Transcript) instead of empty Note.
+  void _selectContentTabWhenReady(AtomModel next) {
+    if (next.summaryBlocks.isNotEmpty) {
+      activeTab.value = 0;
+    } else if (next.transcriptSegments.isNotEmpty) {
+      activeTab.value = 1;
     }
   }
 

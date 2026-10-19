@@ -734,7 +734,22 @@ class _MoleculeCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (expanded) ..._expandedAtoms(context, home, loading, atoms),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: expanded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _expandedAtoms(
+                          context,
+                          home,
+                          loading,
+                          atoms,
+                        ),
+                      )
+                    : const SizedBox(width: double.infinity),
+              ),
             ],
           ),
         ),
@@ -753,13 +768,14 @@ class _MoleculeCard extends StatelessWidget {
 
     if (loading && atoms.isEmpty) {
       return [
-        SizedBox(height: Design.spacing.md),
-        SizedBox(
-          width: 16,
-          height: 16,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: colors.primary,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: Design.spacing.lg),
+          child: Center(
+            child: AppLoading(
+              size: LoadingSize.small,
+              color: colors.primary,
+              strokeWidth: 2,
+            ),
           ),
         ),
       ];

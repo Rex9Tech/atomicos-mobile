@@ -574,6 +574,8 @@ class _AtomLocales {
   final retry = 'atom.retry';
   final copiedToClipboard = 'atom.copied_to_clipboard';
   final copy = 'atom.copy';
+  final processingTitle = 'atom.processing_title';
+  final processingSub = 'atom.processing_sub';
 
   // Delete flow
   final deleteAtom = 'atom.delete_atom';

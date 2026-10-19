@@ -366,6 +366,9 @@ class AppTranslations extends Translations {
           '“{title}” will be removed from your atoms. This cannot be undone.',
       AppLocales.atom.deleted: 'Atom deleted',
       AppLocales.atom.deleteFailed: "Couldn't delete the atom",
+      AppLocales.atom.processingTitle: 'Processing your atom',
+      AppLocales.atom.processingSub:
+          'AtomicOS is building the summary and transcript from your audio. You can still play it or add a note while you wait.',
 
       // Calendar
       AppLocales.calendar.title: 'Planner',
@@ -1178,6 +1181,9 @@ class AppTranslations extends Translations {
           '“{title}” ကို သင့်အက်တမ်များမှ ဖယ်ရှားပါမည်။ ပြန်လည်ရယူ၍ မရနိုင်ပါ။',
       AppLocales.atom.deleted: 'အက်တမ် ဖျက်ပြီးပါပြီ',
       AppLocales.atom.deleteFailed: 'အက်တမ်ကို ဖျက်၍ မရပါ',
+      AppLocales.atom.processingTitle: 'အက်တမ်ကို လုပ်ဆောင်နေသည်',
+      AppLocales.atom.processingSub:
+          'သင့်အသံမှ အနှစ်ချုပ်နှင့် စကားပြောစာသားကို AtomicOS ဖန်တီးနေသည်။ စောင့်နေစဉ် ဖွင့်နားနိုင်သလို မှတ်စု ထည့်နိုင်ပါသည်။',
 
       // Calendar
       AppLocales.calendar.title: 'ပြက္ခဒိန်',

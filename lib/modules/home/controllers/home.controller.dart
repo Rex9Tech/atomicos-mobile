@@ -49,6 +49,17 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     if (permissions.notificationPromptShown) return;
     permissions.notificationPromptShown = true;
 
+    // Sign-in already showed the system popup; whatever the user picked
+    // there is their answer.
+    final systemRequest = Get.isRegistered<PushNotificationService>()
+        ? Get.find<PushNotificationService>().permissionRequest
+        : null;
+    if (systemRequest != null) {
+      await systemRequest;
+      await permissions.markNotificationPromptAsked();
+      return;
+    }
+
     if (await permissions.isNotificationAllowed()) return;
 
     // Ask once, ever: after the first prompt, the choice is the user's.

@@ -306,6 +306,7 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
 
   Widget _buildContent(BuildContext context, AtomModel atom) {
     final hasAudio = controller.audioUrl.value != null;
+    final processing = controller.isAiProcessing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -325,6 +326,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                 SizedBox(height: Design.spacing.lg),
                 _buildPlayerCard(context),
               ],
+              if (processing) ...[
+                SizedBox(height: Design.spacing.lg),
+                _buildProcessingCard(context),
+              ],
               SizedBox(height: Design.spacing.lg),
               _buildTabs(context, atom),
             ],
@@ -340,6 +345,23 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Shown while summary/transcript are still being generated — keeps the
+  /// page from looking like a finished-but-empty atom.
+  Widget _buildProcessingCard(BuildContext context) {
+    return AppToneCard(
+      title: AppLocales.atom.processingTitle.tr,
+      subtitle: AppLocales.atom.processingSub.tr,
+      leadingIcon: Design.icons.sparkles,
+      tone: EAppToneCardTone.primary,
+      padding: EdgeInsets.all(Design.spacing.lg),
+      trailing: AppLoading(
+        size: LoadingSize.small,
+        color: context.colors.primary,
+        strokeWidth: 2,
+      ),
     );
   }
 
@@ -387,17 +409,10 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         SizedBox(height: Design.spacing.sm),
         Obx(() {
           final meetingAt = controller.meetingAt.value;
-          final hasCustomDate =
-              (controller.atom.value?.meetingAt ?? '').isNotEmpty;
           return Row(
             children: [
-              Flexible(
-                child: GestureDetector(
-                  onTap: controller.isSavingDate.value
-                      ? null
-                      : () => hasCustomDate
-                            ? _showMeetingActions(context)
-                            : _pickMeetingDate(context),
+              if (meetingAt != null)
+                Flexible(
                   child: AppNeumoSurface(
                     soft: true,
                     radius: 999,
@@ -408,29 +423,15 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (controller.isSavingDate.value)
-                          SizedBox(
-                            height: 12,
-                            width: 12,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: colors.primary,
-                            ),
-                          )
-                        else
-                          Icon(
-                            hasCustomDate
-                                ? Design.icons.check
-                                : Design.icons.calendar,
-                            size: 13,
-                            color: colors.primary,
-                          ),
+                        Icon(
+                          Design.icons.calendar,
+                          size: 13,
+                          color: colors.primary,
+                        ),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
-                            meetingAt == null
-                                ? AppLocales.atom.setMeetingDate.tr
-                                : _dateTimeLabel(context, meetingAt),
+                            _dateTimeLabel(context, meetingAt),
                             overflow: TextOverflow.ellipsis,
                             style: context.typo.caption.copyWith(
                               color: colors.textPrimary,
@@ -438,19 +439,12 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Design.icons.edit,
-                          size: 12,
-                          color: colors.textMuted,
-                        ),
                       ],
                     ),
                   ),
                 ),
-              ),
               if (duration.isNotEmpty) ...[
-                SizedBox(width: Design.spacing.sm),
+                if (meetingAt != null) SizedBox(width: Design.spacing.sm),
                 Icon(Design.icons.clock, size: 13, color: colors.textMuted),
                 const SizedBox(width: 4),
                 Text(
@@ -1178,123 +1172,6 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       return '${hours.toString().padLeft(2, '0')}:$minutes:$seconds';
     }
     return '$minutes:$seconds';
-  }
-
-  Future<void> _pickMeetingDate(BuildContext context) async {
-    final current = controller.meetingAt.value ?? DateTime.now();
-    final date = await showDatePicker(
-      context: context,
-      initialDate: current,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(DateTime.now().year + 3, 12, 31),
-    );
-    if (date == null || !context.mounted) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(current),
-    );
-    if (!context.mounted) return;
-
-    final picked = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time?.hour ?? current.hour,
-      time?.minute ?? current.minute,
-    );
-    await controller.saveMeetingDate(picked);
-  }
-
-  /// Actions for an atom whose meeting date is set: update or clear it.
-  Future<void> _showMeetingActions(BuildContext context) async {
-    final colors = context.colors;
-    final meetingAt = controller.meetingAt.value;
-    Get.bottomSheet<void>(
-      Container(
-        decoration: BoxDecoration(
-          color: colors.card,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Design.spacing.radiusXLarge),
-          ),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          Design.spacing.lg,
-          Design.spacing.lg,
-          Design.spacing.lg,
-          Design.spacing.xl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              meetingAt == null
-                  ? AppLocales.calendar.title.tr
-                  : _dateTimeLabel(context, meetingAt),
-              textAlign: TextAlign.center,
-              style: context.typo.labelLarge.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: Design.spacing.md),
-            _sheetAction(
-              context,
-              icon: Design.icons.edit,
-              label: AppLocales.calendar.updateDateTime.tr,
-              onTap: () {
-                Get.back<void>();
-                _pickMeetingDate(context);
-              },
-            ),
-            _sheetAction(
-              context,
-              icon: Design.icons.delete,
-              label: AppLocales.calendar.clearDate.tr,
-              onTap: () {
-                Get.back<void>();
-                controller.clearMeetingDate();
-              },
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.transparent,
-    );
-  }
-
-  Widget _sheetAction(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    final colors = context.colors;
-    return InkWell(
-      borderRadius: BorderRadius.circular(Design.spacing.radiusLarge),
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: Design.spacing.sm,
-          horizontal: Design.spacing.xs,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: colors.primary),
-            SizedBox(width: Design.spacing.sm),
-            Expanded(
-              child: Text(
-                label,
-                style: context.typo.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Icon(Design.icons.rightArrow, size: 18, color: colors.textMuted),
-          ],
-        ),
-      ),
-    );
   }
 
   String _dateTimeLabel(BuildContext context, DateTime value) {

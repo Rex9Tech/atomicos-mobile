@@ -19,6 +19,7 @@ class FeedbackPage extends GetView<FeedbackController> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      showBackButton: true,
       showTimeZone: false,
       title: AppLocales.feedback.title.tr,
       child: SingleChildScrollView(

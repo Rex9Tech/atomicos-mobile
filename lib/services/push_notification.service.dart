@@ -187,8 +187,16 @@ class PushNotificationService extends GetxService {
     }
   }
 
+  /// The system permission request started this session, if any. Home's
+  /// in-app prompt defers to it so the user isn't asked twice.
+  Future<void>? get permissionRequest => _permissionRequest;
+  Future<void>? _permissionRequest;
+
   // Request notification permission (call after onboarding/signin)
-  Future<void> requestPermission() async {
+  Future<void> requestPermission() =>
+      _permissionRequest ??= _requestPermission();
+
+  Future<void> _requestPermission() async {
     try {
       await OneSignal.Notifications.requestPermission(true);
       debugPrint('✅ Push permission requested');

@@ -360,6 +360,9 @@ class FakePushNotificationService extends GetxService
   Future<void> endLiveActivity(String activityId) async {}
 
   @override
+  Future<void>? permissionRequest;
+
+  @override
   Future<void> requestPermission() async {
     permissionRequested = true;
   }

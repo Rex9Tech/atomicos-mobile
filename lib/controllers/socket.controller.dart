@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/components/components.dart';
+import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 import '../modules/ai/ai.dart';
 import '../modules/atom_details/atom_details.dart';
@@ -66,6 +67,7 @@ class SocketController extends GetxController {
         eventType == EWsEventType.sessionExpired ||
         eventType == EWsEventType.sessionInvalidated) {
       _showSnackbar(
+        event,
         eventType,
         message.isNotEmpty
             ? message
@@ -78,7 +80,7 @@ class SocketController extends GetxController {
     }
 
     await _dispatch(event, eventType);
-    _showSnackbar(eventType, message);
+    _showSnackbar(event, eventType, message);
   }
 
   void _handleSpeechEvent(SocketMessage event) {
@@ -112,7 +114,11 @@ class SocketController extends GetxController {
   // SNACKBAR — single source of truth for all socket toasts
   // ============================================================
 
-  void _showSnackbar(EWsEventType eventType, String message) {
+  void _showSnackbar(
+    SocketMessage event,
+    EWsEventType eventType,
+    String message,
+  ) {
     if (message.isEmpty) return;
 
     switch (eventType) {
@@ -120,13 +126,20 @@ class SocketController extends GetxController {
       case EWsEventType.subscriptionCreated:
       case EWsEventType.subscriptionResumed:
       case EWsEventType.welcome:
-      case EWsEventType.aiResponseReady:
       case EWsEventType.assetCompressed:
       case EWsEventType.ttsReady:
       case EWsEventType.recordingCompleted:
       case EWsEventType.atomUpdated:
       case EWsEventType.assetProcessed:
         AppSnackbar.success(message);
+        break;
+
+      case EWsEventType.aiResponseReady:
+        // Tap was a no-op before — openNotificationRoom exists for this toast.
+        AppSnackbar.success(
+          message,
+          onTap: () => _openAiFromReadySnackbar(event),
+        );
         break;
 
       case EWsEventType.paymentFailed:
@@ -152,6 +165,39 @@ class SocketController extends GetxController {
         AppSnackbar.info(message);
         break;
     }
+  }
+
+  /// Lands on the AI room from an "AI response ready" toast.
+  void _openAiFromReadySnackbar(SocketMessage event) {
+    final link = event.link?.trim();
+    if (link != null && link.isNotEmpty) {
+      unawaited(AppRoutes.handleDeepLink(link));
+      return;
+    }
+
+    final roomId = event.data?[AiKeys.roomId]?.toString();
+    final moleculeId = event.data?[CategoryKeys.categoryId]?.toString();
+    final ai = AiController.active;
+
+    // Already on chat: switch room in place instead of stacking another /ai.
+    if (ai != null && Get.currentRoute == AppRoutes.ai) {
+      if (roomId != null && roomId.isNotEmpty) {
+        unawaited(
+          ai.openNotificationRoom(
+            roomId: roomId,
+            moleculeId: moleculeId,
+          ),
+        );
+      } else {
+        unawaited(ai.loadHistory(ai.currentRoomId.value));
+      }
+      return;
+    }
+
+    AppRoutes.toAi(
+      roomId: roomId,
+      moleculeId: moleculeId,
+    );
   }
 
   // ============================================================
