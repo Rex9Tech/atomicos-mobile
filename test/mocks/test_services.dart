@@ -54,6 +54,14 @@ class FakeStorageService extends StorageService {
       memory[StorageKeys.recordingLanguage] as String?;
 
   @override
+  void setCaptionsVisible(bool visible) =>
+      memory[StorageKeys.captionsVisible] = visible;
+
+  @override
+  bool getCaptionsVisible() =>
+      (memory[StorageKeys.captionsVisible] as bool?) ?? true;
+
+  @override
   void setUserEmail(String email) => memory[StorageKeys.userEmail] = email;
 
   @override

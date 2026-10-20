@@ -75,6 +75,7 @@ class _RecordingLocales {
   final transcriptMicNeeded = 'recording.transcriptMicNeeded';
   final transcriptOfflineRecording = 'recording.transcriptOfflineRecording';
   final transcriptUnavailable = 'recording.transcriptUnavailable';
+  final captionsOff = 'recording.captions_off';
 
   final languageTitle = 'recording.language_title';
   final languageSub = 'recording.language_sub';

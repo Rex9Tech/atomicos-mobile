@@ -97,6 +97,13 @@ class LiveActivityPage extends GetView<LiveActivityController> {
           ),
           const Spacer(),
           _GlassRoundButton(
+            icon: controller.captionsVisible.value
+                ? Design.icons.captionsActive
+                : Design.icons.captions,
+            onTap: controller.toggleCaptions,
+          ),
+          SizedBox(width: Design.spacing.xs),
+          _GlassRoundButton(
             icon: Design.icons.close,
             onTap: () => _confirmFinish(context),
           ),
@@ -162,7 +169,11 @@ class LiveActivityPage extends GetView<LiveActivityController> {
               ],
             ),
             SizedBox(height: Design.spacing.md),
-            Expanded(child: _LiveTranscriptPanel(controller: controller)),
+            Expanded(
+              child: controller.captionsVisible.value
+                  ? _LiveTranscriptPanel(controller: controller)
+                  : const _CaptionsOffPanel(),
+            ),
             SizedBox(height: Design.spacing.md),
             Row(
               children: [
@@ -366,6 +377,44 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
                 ),
         );
       }),
+    );
+  }
+}
+
+/// Placeholder shown in place of the live transcript when captions are off —
+/// keeps the sheet's shape while making the toggle state obvious.
+class _CaptionsOffPanel extends StatelessWidget {
+  const _CaptionsOffPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return AppNeumoSurface(
+      depth: ENeumoDepth.inset,
+      width: double.infinity,
+      padding: EdgeInsets.all(Design.spacing.md),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Design.icons.captions,
+              size: Design.spacing.iconSmall,
+              color: colors.textMuted,
+            ),
+            SizedBox(height: Design.spacing.xs),
+            Text(
+              AppLocales.recording.captionsOff.tr,
+              textAlign: TextAlign.center,
+              style: context.typo.bodyMedium.copyWith(
+                color: colors.textMuted,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

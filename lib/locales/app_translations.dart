@@ -572,6 +572,7 @@ class AppTranslations extends Translations {
           'Live transcript will appear here as you speak…',
       AppLocales.recording.badgeLive: 'LIVE',
       AppLocales.recording.badgeOff: 'OFF',
+      AppLocales.recording.captionsOff: 'Live captions are off',
       AppLocales.recording.transcriptOffline:
           'Live transcript is offline — reconnect to stream it.',
       AppLocales.recording.transcriptMicNeeded:
@@ -1389,6 +1390,7 @@ class AppTranslations extends Translations {
           'သင်ပြောနေစဉ် တိုက်ရိုက်စာသား ဤနေရာတွင် ပေါ်လာမည်…',
       AppLocales.recording.badgeLive: 'တိုက်ရိုက်',
       AppLocales.recording.badgeOff: 'ပိတ်',
+      AppLocales.recording.captionsOff: 'တိုက်ရိုက် စာတန်းထိုးများ ပိတ်ထားသည်',
       AppLocales.recording.transcriptOffline:
           'တိုက်ရိုက်စာသား အော့ဖ်လိုင်း — ပြန်ချိတ်ဆက်ပါ။',
       AppLocales.recording.transcriptMicNeeded:

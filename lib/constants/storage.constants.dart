@@ -25,6 +25,9 @@ class StorageKeys {
   // Live recording language (SpeechService)
   static const recordingLanguage = 'recording_language';
 
+  // Live captions panel visibility on the recording sheet
+  static const captionsVisible = 'captions_visible';
+
   // Device-calendar sync
   static const calendarTarget = 'calendar_target';
   static const calendarLinks = 'calendar_event_links';

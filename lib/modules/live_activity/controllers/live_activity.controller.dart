@@ -32,6 +32,11 @@ class LiveActivityController extends GetxController {
   final RecordingSessionService _background = Get.find<RecordingSessionService>();
   final SocketService _socket = Get.find<SocketService>();
 
+  /// Lazy — test setups that construct this controller without a storage
+  /// service still work; persistence is simply skipped there.
+  StorageService? get _storage =>
+      Get.isRegistered<StorageService>() ? Get.find<StorageService>() : null;
+
   final RxString selectedSurface = 'Expanded'.obs;
   final RxBool isRecording = false.obs;
   final RxInt elapsedSeconds = 0.obs;
@@ -48,6 +53,12 @@ class LiveActivityController extends GetxController {
 
   /// Whether the live STT session is running right now.
   final RxBool isTranscriptLive = false.obs;
+
+  /// Whether the live caption panel shows on the sheet while recording.
+  /// DISPLAY ONLY — live STT keeps streaming (and the finished atom keeps its
+  /// transcript) whether or not captions are visible. Persisted across
+  /// sessions so a tester who hid them once keeps their choice.
+  final RxBool captionsVisible = true.obs;
 
   /// Set when the live transcript cannot start (offline, no permission…).
   final RxnString transcriptNotice = RxnString();
@@ -96,9 +107,18 @@ class LiveActivityController extends GetxController {
       (text) => liveTranscript.value = text,
     );
     liveTranscript.value = '';
+    captionsVisible.value = _storage?.getCaptionsVisible() ?? true;
     // Notification buttons (Pause / Resume / Stop) come back here.
     _background.onAction = _onBackgroundAction;
     startRecording();
+  }
+
+  /// Shows/hides the live caption panel on the recording sheet. Display only:
+  /// the live STT stream keeps running so the finished atom still carries its
+  /// transcript, and the choice is persisted for future sessions.
+  void toggleCaptions() {
+    captionsVisible.value = !captionsVisible.value;
+    _storage?.setCaptionsVisible(captionsVisible.value);
   }
 
   @override

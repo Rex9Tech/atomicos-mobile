@@ -131,6 +131,15 @@ class StorageService extends GetxService {
       _box.write(StorageKeys.recordingLanguage, code);
   String? getRecordingLanguage() => _box.read(StorageKeys.recordingLanguage);
 
+  // ===== LIVE CAPTIONS PANEL =====
+  void setCaptionsVisible(bool visible) =>
+      _box.write(StorageKeys.captionsVisible, visible);
+
+  /// Whether the live caption panel shows on the recording sheet — defaults
+  /// to on for anyone who has never toggled it.
+  bool getCaptionsVisible() =>
+      (_box.read(StorageKeys.captionsVisible) as bool?) ?? true;
+
   // ===== DEVICE CALENDAR SYNC =====
   void setCalendarTarget(Map<String, dynamic> target) =>
       _box.write(StorageKeys.calendarTarget, target);
