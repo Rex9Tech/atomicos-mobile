@@ -573,6 +573,11 @@ class AppTranslations extends Translations {
       AppLocales.recording.badgeLive: 'LIVE',
       AppLocales.recording.badgeOff: 'OFF',
       AppLocales.recording.captionsOff: 'Live captions are off',
+      AppLocales.recording.captionsEnableTitle: 'Enable live captions?',
+      AppLocales.recording.captionsEnableMessage:
+          'Live transcription will consume more credits while captions are on.',
+      AppLocales.recording.captionsEnableConfirm: 'Enable',
+      AppLocales.recording.captionsTurnOn: 'Enable live captions',
       AppLocales.recording.transcriptOffline:
           'Live transcript is offline — reconnect to stream it.',
       AppLocales.recording.transcriptMicNeeded:
@@ -1391,6 +1396,11 @@ class AppTranslations extends Translations {
       AppLocales.recording.badgeLive: 'တိုက်ရိုက်',
       AppLocales.recording.badgeOff: 'ပိတ်',
       AppLocales.recording.captionsOff: 'တိုက်ရိုက် စာတန်းထိုးများ ပိတ်ထားသည်',
+      AppLocales.recording.captionsEnableTitle: 'တိုက်ရိုက် စာတန်းထိုးများ ဖွင့်မလား?',
+      AppLocales.recording.captionsEnableMessage:
+          'စာတန်းထိုးများ ဖွင့်ထားစဉ် တိုက်ရိုက် စကားမှစာသား ပြောင်းလဲမှုသည် ခရက်ဒစ် ပိုမို သုံးစွဲပါမည်။',
+      AppLocales.recording.captionsEnableConfirm: 'ဖွင့်မည်',
+      AppLocales.recording.captionsTurnOn: 'တိုက်ရိုက် စာတန်းထိုးများ ဖွင့်မည်',
       AppLocales.recording.transcriptOffline:
           'တိုက်ရိုက်စာသား အော့ဖ်လိုင်း — ပြန်ချိတ်ဆက်ပါ။',
       AppLocales.recording.transcriptMicNeeded:

@@ -65,6 +65,10 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   int _captureBytes = 0;
   bool _captureOnly = false;
 
+  /// When false, the mic/WAV capture still runs but PCM is not streamed to
+  /// live STT (no speech-channel credits). Recording CC uses this.
+  bool _liveSttDesired = true;
+
   bool _isStartingListen = false;
   bool _isTearingDown = false;
   bool _speechSubscribed = false;
@@ -247,16 +251,18 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     String seed = '',
     String? capturePath,
     bool allowOfflineCapture = false,
+    bool liveStt = true,
   }) async {
     if (isListening.value || _isStartingListen) {
       return ESpeechListenResult.alreadyListening;
     }
 
-    final canStream = _socket.isConnected.value;
+    _liveSttDesired = liveStt;
+    final canStream = liveStt && _socket.isConnected.value;
     final wantsCapture = capturePath != null && capturePath.isNotEmpty;
 
-    // Capture-only still makes sense offline: the audio is kept for a later
-    // transcription, only the live text is lost.
+    // Capture-only still makes sense offline (or with live STT opted out):
+    // the audio is kept for a later transcription, only the live text is lost.
     if (!canStream && !(wantsCapture && allowOfflineCapture)) {
       return ESpeechListenResult.disconnected;
     }
@@ -569,11 +575,42 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     return header.toBytes();
   }
 
+  /// Turns live STT on/off during an active capture session without stopping
+  /// the mic. Used by meeting CC so credits are only used when captions are on.
+  Future<bool> setLiveSttEnabled(bool enabled) async {
+    _liveSttDesired = enabled;
+    if (!isListening.value) return false;
+
+    if (enabled) {
+      if (_speechSubscribed) return true;
+      if (!_socket.isConnected.value) {
+        _captureOnly = true;
+        return false;
+      }
+      await _reattachSpeechChannel();
+      if (_speechSubscribed) {
+        _captureOnly = false;
+        return true;
+      }
+      return false;
+    }
+
+    if (_speechSubscribed) {
+      _socket.perform(SpeechKeys.channel, SpeechKeys.stop);
+      await Future<void>.delayed(_finalPhraseGrace);
+      _socket.unsubscribe(SpeechKeys.channel);
+      _speechSubscribed = false;
+    }
+    _captureOnly = true;
+    return true;
+  }
+
   /// Re-attaches the live STT channel after a reconnect, leaving the mic (and
   /// the WAV capture) untouched. The backend opens a fresh recognition session
   /// for the new subscription; the text accumulated so far is kept client-side.
   Future<void> _reattachSpeechChannel() async {
     if (!isListening.value || _speechSubscribed) return;
+    if (!_liveSttDesired) return;
     if (!_socket.isConnected.value) return;
 
     final epoch = _listenEpoch;
@@ -588,6 +625,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
 
     if (subscribed) {
       _speechSubscribed = true;
+      _captureOnly = false;
       debugPrint('🎤 [SpeechService] live STT re-attached after reconnect');
     }
   }

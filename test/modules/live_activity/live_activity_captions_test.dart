@@ -1,8 +1,6 @@
 // test/modules/live_activity/live_activity_captions_test.dart
 //
-// Captions on/off on the live recording sheet is a DISPLAY toggle: hiding the
-// caption panel must never stop live STT (the finished atom keeps its
-// transcript), and the choice persists across sessions (default: on).
+// Captions always start off each recording session (credit confirm on enable).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/modules/ai/services/recording.service.dart';
@@ -44,29 +42,27 @@ void main() {
 
   tearDown(Get.reset);
 
-  test('captions default to visible', () {
-    final controller = LiveActivityController();
-    expect(controller.captionsVisible.value, isTrue);
+  test('captions default to off', () {
+    final controller = Get.put(LiveActivityController());
+    expect(controller.captionsVisible.value, isFalse);
   });
 
-  test('toggle flips visibility and persists the choice', () {
-    final controller = LiveActivityController();
+  test('ignores a previously persisted on preference', () {
     final storage = Get.find<StorageService>();
+    storage.setCaptionsVisible(true);
 
-    controller.toggleCaptions();
+    final controller = Get.put(LiveActivityController());
     expect(controller.captionsVisible.value, isFalse);
     expect(storage.getCaptionsVisible(), isFalse);
-
-    controller.toggleCaptions();
-    expect(controller.captionsVisible.value, isTrue);
-    expect(storage.getCaptionsVisible(), isTrue);
   });
 
-  test('storage round-trips the captions preference', () {
-    final storage = Get.find<StorageService>();
-    expect(storage.getCaptionsVisible(), isTrue); // never toggled -> on
+  test('toggle flips visibility for the session', () async {
+    final controller = Get.put(LiveActivityController());
 
-    storage.setCaptionsVisible(false);
-    expect(storage.getCaptionsVisible(), isFalse);
+    await controller.toggleCaptions();
+    expect(controller.captionsVisible.value, isTrue);
+
+    await controller.toggleCaptions();
+    expect(controller.captionsVisible.value, isFalse);
   });
 }

@@ -59,7 +59,7 @@ class FakeStorageService extends StorageService {
 
   @override
   bool getCaptionsVisible() =>
-      (memory[StorageKeys.captionsVisible] as bool?) ?? true;
+      (memory[StorageKeys.captionsVisible] as bool?) ?? false;
 
   @override
   void setUserEmail(String email) => memory[StorageKeys.userEmail] = email;
@@ -1157,10 +1157,16 @@ class FakeSpeechService extends GetxService
     String seed = '',
     String? capturePath,
     bool allowOfflineCapture = false,
+    bool liveStt = true,
   }) async {
     isListening.value = true;
-    return ESpeechListenResult.started;
+    return liveStt
+        ? ESpeechListenResult.started
+        : ESpeechListenResult.capturedOffline;
   }
+
+  @override
+  Future<bool> setLiveSttEnabled(bool enabled) async => enabled;
 
   /// Path returned by [finishCapture] — tests set it to a real temp WAV file
   /// so the captured-length logic can be exercised.

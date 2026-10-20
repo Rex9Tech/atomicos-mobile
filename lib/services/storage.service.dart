@@ -138,7 +138,7 @@ class StorageService extends GetxService {
   /// Whether the live caption panel shows on the recording sheet — defaults
   /// to on for anyone who has never toggled it.
   bool getCaptionsVisible() =>
-      (_box.read(StorageKeys.captionsVisible) as bool?) ?? true;
+      (_box.read(StorageKeys.captionsVisible) as bool?) ?? false;
 
   // ===== DEVICE CALENDAR SYNC =====
   void setCalendarTarget(Map<String, dynamic> target) =>

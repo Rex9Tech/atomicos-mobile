@@ -100,7 +100,7 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             icon: controller.captionsVisible.value
                 ? Design.icons.captionsActive
                 : Design.icons.captions,
-            onTap: controller.toggleCaptions,
+            onTap: () => controller.toggleCaptions(),
           ),
           SizedBox(width: Design.spacing.xs),
           _GlassRoundButton(
@@ -172,7 +172,9 @@ class LiveActivityPage extends GetView<LiveActivityController> {
             Expanded(
               child: controller.captionsVisible.value
                   ? _LiveTranscriptPanel(controller: controller)
-                  : const _CaptionsOffPanel(),
+                  : _CaptionsOffPanel(
+                      onEnable: () => controller.toggleCaptions(),
+                    ),
             ),
             SizedBox(height: Design.spacing.md),
             Row(
@@ -382,9 +384,11 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
 }
 
 /// Placeholder shown in place of the live transcript when captions are off —
-/// keeps the sheet's shape while making the toggle state obvious.
+/// keeps the sheet's shape and offers a clear way to turn captions on.
 class _CaptionsOffPanel extends StatelessWidget {
-  const _CaptionsOffPanel();
+  const _CaptionsOffPanel({required this.onEnable});
+
+  final VoidCallback onEnable;
 
   @override
   Widget build(BuildContext context) {
@@ -411,6 +415,11 @@ class _CaptionsOffPanel extends StatelessWidget {
                 color: colors.textMuted,
                 height: 1.5,
               ),
+            ),
+            SizedBox(height: Design.spacing.md),
+            AppButton(
+              text: AppLocales.recording.captionsTurnOn.tr,
+              onPressed: onEnable,
             ),
           ],
         ),
