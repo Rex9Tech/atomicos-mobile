@@ -367,7 +367,11 @@ class LiveActivityController extends GetxController {
       final entry = await Get.find<MediaUploadService>().enqueueUpload(
         filePath: path,
         filename: 'recording.wav',
-        type: AssetKeys.typeAudio,
+        // Server asset TYPES are avatar|thumbnail|subtitle|tts|attachment|
+        // general — "audio" is a LISTING filter, not a type, and sends came
+        // back 422 (recording never attached). `general` is correct for
+        // recording audio (format=audio is derived from the extension).
+        type: AssetKeys.typeGeneral,
         folder: 'recordings',
         durationSecs: capturedAudioSeconds(path) ?? elapsedSeconds.value,
         followUpType: MediaUploadConstants.followUpAttachToAtom,
