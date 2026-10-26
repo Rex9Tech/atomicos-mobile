@@ -54,11 +54,10 @@ class LiveActivityController extends GetxController {
   /// Whether the live STT session is running right now.
   final RxBool isTranscriptLive = false.obs;
 
-  /// Whether the live caption panel shows on the sheet while recording.
-  /// DISPLAY ONLY — live STT keeps streaming (and the finished atom keeps its
-  /// transcript) whether or not captions are visible. Persisted across
-  /// sessions so a tester who hid them once keeps their choice.
-  final RxBool captionsVisible = true.obs;
+  /// Whether live captions (and live STT) are on for this recording.
+  /// Always starts off each session — turning on asks for confirmation
+  /// because live transcription consumes credits.
+  final RxBool captionsVisible = false.obs;
 
   /// Set when the live transcript cannot start (offline, no permission…).
   final RxnString transcriptNotice = RxnString();
@@ -107,18 +106,58 @@ class LiveActivityController extends GetxController {
       (text) => liveTranscript.value = text,
     );
     liveTranscript.value = '';
-    captionsVisible.value = _storage?.getCaptionsVisible() ?? true;
+    // Never restore a previous "on" — older builds defaulted on and persisted
+    // that choice, which skipped the credit confirm on the next meeting.
+    captionsVisible.value = false;
+    _storage?.setCaptionsVisible(false);
     // Notification buttons (Pause / Resume / Stop) come back here.
     _background.onAction = _onBackgroundAction;
     startRecording();
   }
 
-  /// Shows/hides the live caption panel on the recording sheet. Display only:
-  /// the live STT stream keeps running so the finished atom still carries its
-  /// transcript, and the choice is persisted for future sessions.
-  void toggleCaptions() {
-    captionsVisible.value = !captionsVisible.value;
-    _storage?.setCaptionsVisible(captionsVisible.value);
+  /// Toggles live captions. Turning them on confirms credit use first, then
+  /// starts live STT; turning them off stops streaming without ending capture.
+  Future<void> toggleCaptions() async {
+    if (captionsVisible.value) {
+      await _applyCaptionsVisible(false);
+      return;
+    }
+
+    // Unit tests have no dialog surface — treat as confirmed.
+    if (!Get.testMode) {
+      final context = Get.context;
+      if (context == null || !context.mounted) return;
+
+      final confirmed = await AppDialog.confirm(
+        context: context,
+        title: AppLocales.recording.captionsEnableTitle.tr,
+        message: AppLocales.recording.captionsEnableMessage.tr,
+        confirmLabel: AppLocales.recording.captionsEnableConfirm.tr,
+        confirmColor: context.colors.primary,
+        cancelColor: context.colors.textSecondary,
+      );
+      if (!confirmed) return;
+      if (Get.context == null || !Get.context!.mounted) return;
+    }
+
+    await _applyCaptionsVisible(true);
+  }
+
+  Future<void> _applyCaptionsVisible(bool visible) async {
+    captionsVisible.value = visible;
+    // Persist off so a killed mid-session app does not reopen with CC on.
+    // "On" is never restored across sessions (see onInit).
+    if (!visible) {
+      _storage?.setCaptionsVisible(false);
+    }
+
+    final sttOk = await _speech.setLiveSttEnabled(visible);
+    isTranscriptLive.value = visible && sttOk;
+    if (visible && !sttOk) {
+      transcriptNotice.value = AppLocales.recording.transcriptUnavailable.tr;
+    } else if (visible) {
+      transcriptNotice.value = null;
+    }
   }
 
   @override
@@ -457,21 +496,31 @@ class LiveActivityController extends GetxController {
     });
   }
 
-  /// Starts (or resumes) live speech-to-text, seeding it with what has already
-  /// been transcribed so the text keeps appending across pauses. The same mic
-  /// stream is written to [_capturePath] so the recording keeps its audio.
+  /// Starts (or resumes) the mic capture, and live STT only when captions are
+  /// on. Audio is always written to [_capturePath]; STT is optional.
   Future<void> _startLiveTranscript() async {
+    final captionsOn = captionsVisible.value;
     final result = await _speech.startListening(
       seed: liveTranscript.value,
       capturePath: _capturePath,
       allowOfflineCapture: true,
+      liveStt: captionsOn,
     );
-    isTranscriptLive.value =
+    final listening =
         result == ESpeechListenResult.started ||
-        result == ESpeechListenResult.alreadyListening;
-    transcriptNotice.value = isTranscriptLive.value
-        ? null
-        : _noticeFor(result);
+        result == ESpeechListenResult.alreadyListening ||
+        result == ESpeechListenResult.capturedOffline;
+    isTranscriptLive.value =
+        captionsOn &&
+        (result == ESpeechListenResult.started ||
+            result == ESpeechListenResult.alreadyListening);
+    if (!captionsOn) {
+      transcriptNotice.value = null;
+    } else if (listening && isTranscriptLive.value) {
+      transcriptNotice.value = null;
+    } else {
+      transcriptNotice.value = _noticeFor(result);
+    }
   }
 
   String? _noticeFor(ESpeechListenResult result) {
