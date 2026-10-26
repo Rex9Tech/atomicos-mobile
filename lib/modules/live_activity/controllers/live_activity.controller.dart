@@ -358,7 +358,10 @@ class LiveActivityController extends GetxController {
           .finish(
             id,
             durationSecs: capturedSecs ?? elapsedSeconds.value,
-            transcript: liveTranscript.value.trim(),
+            // Read the shared STT stream directly: the mirrored panel value
+            // can lag (or start empty on a page/controller recreation), which
+            // silently sent an empty transcript and skipped the summary.
+            transcript: _speech.liveText.value.trim(),
             note: noteController.text.trim(),
           )
           .timeout(const Duration(seconds: 60));
