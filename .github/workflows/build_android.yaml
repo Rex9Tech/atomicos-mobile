@@ -78,7 +78,7 @@ jobs:
             else
               echo "⚠️ WARNING: ENV_UAT secret is not set in GitHub Repository Secrets! Using fallback."
               echo "APP_ENV=.env.uat" > .env.uat
-              echo "API_BASE_URL=https://uat.api.rexone.com" >> .env.uat
+              echo "API_BASE_URL=https://core.atomicos.io" >> .env.uat
             fi
           else
             echo "Writing .env.prod from GitHub Secrets..."
@@ -87,7 +87,7 @@ jobs:
             else
               echo "⚠️ WARNING: ENV_PROD secret is not set in GitHub Repository Secrets! Using fallback."
               echo "APP_ENV=.env.prod" > .env.prod
-              echo "API_BASE_URL=https://api.rexone.com" >> .env.prod
+              echo "API_BASE_URL=https://core.atomicos.io" >> .env.prod
             fi
           fi
 
