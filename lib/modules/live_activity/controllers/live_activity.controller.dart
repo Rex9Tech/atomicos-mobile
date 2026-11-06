@@ -408,11 +408,33 @@ class LiveActivityController extends GetxController {
       }
     } catch (error) {
       // Anything unexpected (a timed-out finish call, a platform error) must
-      // leave the screen usable — the user can retry or leave normally.
+      // leave the screen usable. The request may have SUCCEEDED server-side
+      // while the client timed out, so check before reporting a failure.
       debugPrint('🎙️ [LiveActivity] finish failed: $error');
+      if (await _recoverFinishedRecording(recordingId.value)) return;
       AppSnackbar.error(AppLocales.recording.finishFailed.tr);
       isFinishing.value = false;
     }
+  }
+
+  /// The finish request can time out on the device while the server has
+  /// already completed the session. Poll once and, when the atom exists, go
+  /// there instead of showing a failure the user would misread.
+  Future<bool> _recoverFinishedRecording(String? id) async {
+    if (id == null || id.isEmpty) return false;
+    try {
+      final result = await _recording
+          .getRecording(id)
+          .timeout(const Duration(seconds: 12));
+      final atomId = result.data?.atomId ?? '';
+      if (result.success && atomId.isNotEmpty) {
+        AppRoutes.toAtomDetail(atomId: atomId, replace: true);
+        return true;
+      }
+    } catch (error) {
+      debugPrint('🎙️ [LiveActivity] finish recovery failed: $error');
+    }
+    return false;
   }
 
   /// Uploads the captured audio and attaches it to the finished atom, so the
