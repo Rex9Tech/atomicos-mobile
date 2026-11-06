@@ -774,6 +774,17 @@ class AppTranslations extends Translations {
       AppLocales.media.uploadComplete: 'Upload complete',
       AppLocales.media.uploadCompleteNamed: '@title uploaded',
       AppLocales.media.uploadFailed: 'Upload failed',
+      AppLocales.media.uploading: 'Uploading',
+      AppLocales.media.voiceRecording: 'Voice recording',
+      AppLocales.media.uploadFailedRetry: 'Upload failed. Tap retry.',
+      AppLocales.media.uploadFailedConnection:
+          'Could not reach the server. Check your connection and tap retry.',
+      AppLocales.media.uploadPendingAttach:
+          'Saved, but attaching it to the atom failed. Tap retry.',
+      AppLocales.media.uploadSessionRenewed:
+          'Your session expired. Tap retry to upload again.',
+      AppLocales.media.uploadInterrupted:
+          'Upload was interrupted. Tap retry.',
       AppLocales.media.notificationChannelDescription:
           'Offline media download status',
       AppLocales.media.offlineEmptyTitle: 'No downloaded videos',
@@ -1600,6 +1611,18 @@ class AppTranslations extends Translations {
       AppLocales.media.uploadComplete: 'အပ်လုဒ် ပြီးပါပြီ',
       AppLocales.media.uploadCompleteNamed: '@title အပ်လုဒ်တင်ပြီးပါပြီ',
       AppLocales.media.uploadFailed: 'အပ်လုဒ် မအောင်မြင်ပါ',
+      AppLocales.media.uploading: 'အပ်လုဒ်တင်နေသည်',
+      AppLocales.media.voiceRecording: 'အသံဖမ်းယူမှု',
+      AppLocales.media.uploadFailedRetry:
+          'အပ်လုဒ် မအောင်မြင်ပါ။ ထပ်စမ်းရန် နှိပ်ပါ။',
+      AppLocales.media.uploadFailedConnection:
+          'ဆာဗာသို့ မချိတ်ဆက်နိုင်ပါ။ အင်တာနက် စစ်ဆေးပြီး ထပ်စမ်းပါ။',
+      AppLocales.media.uploadPendingAttach:
+          'သိမ်းဆည်းပြီးပါပြီ၊ အက်တမ်နှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။ ထပ်စမ်းပါ။',
+      AppLocales.media.uploadSessionRenewed:
+          'သင့် session သက်တမ်းကုန်သွားပါပြီ။ ထပ်စမ်းရန် နှိပ်ပါ။',
+      AppLocales.media.uploadInterrupted:
+          'အပ်လုဒ် ရပ်တန့်ခံခဲ့ရပါသည်။ ထပ်စမ်းပါ။',
       AppLocales.media.notificationChannelDescription:
           'Offline မီဒီယာ ဒေါင်းလုဒ်အခြေအနေ',
       AppLocales.media.offlineEmptyTitle: 'ဒေါင်းလုဒ်လုပ်ထားသော ဗီဒီယို မရှိပါ',

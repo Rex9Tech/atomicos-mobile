@@ -10,7 +10,6 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/media_upload.service.dart';
-import 'package:rexone_mobile/services/media_upload_notification.service.dart';
 import 'package:rexone_mobile/services/push_notification.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 
@@ -36,29 +35,10 @@ class _FakePathProvider extends Fake
   Future<String?> getLibraryPath() async => '$root/library';
 }
 
-class _FakeMediaUploadNotificationService
-    extends MediaUploadNotificationService {
-  final List<String> finished = [];
-  final List<bool> finishedSuccess = [];
-
-  @override
-  Future<void> initialize() async {}
-
-  @override
-  Future<void> onUploadFinished({
-    required String taskId,
-    required String title,
-    required bool success,
-    String? errorMessage,
-  }) async {
-    finished.add(title);
-    finishedSuccess.add(success);
-  }
-}
-
 class _FakeUploadTransport implements UploadTransport {
   final List<UploadTask> enqueued = [];
   final Map<String, TaskRecord> records = {};
+  final List<TaskNotificationConfig> notificationConfigs = [];
 
   void Function(TaskStatusUpdate update)? statusCallback;
   void Function(TaskProgressUpdate update)? progressCallback;
@@ -83,6 +63,25 @@ class _FakeUploadTransport implements UploadTransport {
   Future<bool> enqueue(UploadTask task) async {
     enqueued.add(task);
     return true;
+  }
+
+  @override
+  void configureTaskNotifications(
+    UploadTask task, {
+    TaskNotification? running,
+    TaskNotification? complete,
+    TaskNotification? error,
+    bool progressBar = false,
+  }) {
+    notificationConfigs.add(
+      TaskNotificationConfig(
+        taskOrGroup: task,
+        running: running,
+        complete: complete,
+        error: error,
+        progressBar: progressBar,
+      ),
+    );
   }
 
   @override
@@ -129,7 +128,6 @@ void main() {
   late Directory tempRoot;
   late FakeStorageService fakeStorage;
   late _FakeUploadTransport fakeTransport;
-  late _FakeMediaUploadNotificationService fakeNotifications;
   late MediaUploadService uploads;
 
   setUp(() async {
@@ -146,9 +144,6 @@ void main() {
     Get.put<StorageService>(fakeStorage);
 
     Get.put<PushNotificationService>(FakePushNotificationService());
-
-    fakeNotifications = _FakeMediaUploadNotificationService();
-    Get.put<MediaUploadNotificationService>(fakeNotifications);
 
     fakeTransport = _FakeUploadTransport();
     uploads = Get.put(MediaUploadService(transport: fakeTransport));
@@ -211,12 +206,14 @@ void main() {
       final entry = await uploads.enqueueUpload(
         filePath: source.path,
         filename: 'demo.mp3',
+        displayName: 'Voice recording',
         type: AssetKeys.typeAudio,
         folder: 'recordings',
         durationSecs: 12,
       );
 
       expect(entry.state, MediaUploadConstants.stateQueued);
+      expect(entry.displayName, 'Voice recording');
       expect(entry.localPath, isNotEmpty);
       expect(File(entry.localPath).existsSync(), isTrue);
 
@@ -240,6 +237,20 @@ void main() {
         '${AppConstants.bearerPrefix}tok_123',
       );
       expect(task.group, MediaUploadConstants.uploadTaskGroup);
+      expect(task.displayName, 'Voice recording');
+
+      // Notifications carry human copy: never the raw file name, never an
+      // HTTP status string, and the failure text tells the user what to do.
+      final config = fakeTransport.notificationConfigs.single;
+      expect(config.running?.body, contains('{progress}'));
+      expect(
+        config.complete?.body,
+        AppLocales.media.uploadCompleteNamed.trParams({
+          'title': 'Voice recording',
+        }),
+      );
+      expect(config.error?.body, AppLocales.media.uploadFailedRetry.tr);
+      expect(config.progressBar, isTrue);
     });
 
     test('progress and completion finalize a no-follow-up upload', () async {
@@ -265,14 +276,15 @@ void main() {
         responseBody:
             '{"status":{"code":200},"data":{"id":"ast_done"}}',
       );
-      await waitFor(() => fakeNotifications.finishedSuccess.isNotEmpty);
+      await waitFor(() => uploads.entries[entry.taskId]!.isDone);
+      // Cleanup of the queued copy runs right after the entry flips to done.
+      await waitFor(() => !File(storedPath).existsSync());
 
       final done = uploads.entries[entry.taskId]!;
       expect(done.isDone, isTrue);
       expect(done.assetId, 'ast_done');
       // Queued copy is cleaned up after success.
       expect(File(storedPath).existsSync(), isFalse);
-      expect(fakeNotifications.finishedSuccess, [true]);
     });
 
     test('atom_from_asset follow-up runs after completion', () async {
@@ -299,14 +311,10 @@ void main() {
       await waitFor(
         () => uploads.entries[entry.taskId]!.isDone,
       );
-      // The service fires the completion notification after cleaning up the
-      // queued copy — wait for it like the no-follow-up test does.
-      await waitFor(() => fakeNotifications.finishedSuccess.isNotEmpty);
 
       final done = uploads.entries[entry.taskId]!;
       expect(done.isDone, isTrue);
       expect(done.atomId, 'atom_42');
-      expect(fakeNotifications.finishedSuccess, [true]);
     });
 
     test('follow-up failure keeps the file and retry finishes it', () async {
@@ -332,7 +340,7 @@ void main() {
       final pending = uploads.entries[entry.taskId]!;
       expect(pending.needsFollowUp, isTrue);
       expect(File(pending.localPath).existsSync(), isTrue);
-      expect(fakeNotifications.finishedSuccess, isEmpty);
+      expect(pending.errorMessage, AppLocales.media.uploadPendingAttach.tr);
 
       uploads.debugFollowUpOverride = (e, assetId) async => 'atom_77';
       await uploads.retryUpload(entry.taskId);
@@ -351,12 +359,13 @@ void main() {
       final task = fakeTransport.enqueued.single;
 
       fakeTransport.emitStatus(task, TaskStatus.failed);
-      await waitFor(() => fakeNotifications.finishedSuccess.isNotEmpty);
+      await waitFor(() => uploads.entries[entry.taskId]!.isFailed);
 
       final failed = uploads.entries[entry.taskId]!;
       expect(failed.isFailed, isTrue);
       expect(File(failed.localPath).existsSync(), isTrue);
-      expect(fakeNotifications.finishedSuccess, [false]);
+      // Raw transport/HTTP text never reaches the user; the copy is actionable.
+      expect(failed.errorMessage, AppLocales.media.uploadFailedRetry.tr);
 
       await uploads.retryUpload(entry.taskId);
       await waitFor(

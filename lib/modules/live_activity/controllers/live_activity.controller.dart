@@ -436,6 +436,7 @@ class LiveActivityController extends GetxController {
         type: AssetKeys.typeGeneral,
         folder: 'recordings',
         durationSecs: capturedAudioSeconds(path) ?? elapsedSeconds.value,
+        displayName: AppLocales.media.voiceRecording.tr,
         followUpType: MediaUploadConstants.followUpAttachToAtom,
         atomId: atomId,
         deleteSourceAfter: true,

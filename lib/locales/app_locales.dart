@@ -793,6 +793,13 @@ class _MediaLocales {
   final uploadComplete = 'media.upload_complete';
   final uploadCompleteNamed = 'media.upload_complete_named';
   final uploadFailed = 'media.upload_failed';
+  final uploading = 'media.uploading';
+  final voiceRecording = 'media.voice_recording';
+  final uploadFailedRetry = 'media.upload_failed_retry';
+  final uploadFailedConnection = 'media.upload_failed_connection';
+  final uploadPendingAttach = 'media.upload_pending_attach';
+  final uploadSessionRenewed = 'media.upload_session_renewed';
+  final uploadInterrupted = 'media.upload_interrupted';
 }
 
 class _AudioLocales {

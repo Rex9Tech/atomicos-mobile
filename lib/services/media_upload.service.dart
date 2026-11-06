@@ -1,5 +1,4 @@
 // lib/services/media_upload.service.dart
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -13,7 +12,6 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/api.service.dart';
-import 'package:rexone_mobile/services/media_upload_notification.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 
 import '../modules/auth/auth.dart';
@@ -46,6 +44,17 @@ abstract class UploadTransport {
   Future<TaskRecord?> recordForId(String taskId);
 
   Future<void> trackTasks(String group);
+
+  /// Sets the notification content for a single upload task. Uploads show one
+  /// progress notification and one final notice, with human wording instead of
+  /// the raw file name or HTTP status.
+  void configureTaskNotifications(
+    UploadTask task, {
+    TaskNotification? running,
+    TaskNotification? complete,
+    TaskNotification? error,
+    bool progressBar = false,
+  });
 }
 
 class BackgroundUploaderTransport implements UploadTransport {
@@ -101,6 +110,23 @@ class BackgroundUploaderTransport implements UploadTransport {
     // Flushes updates that were processed while the app was backgrounded.
     await FileDownloader().resumeFromBackground();
   }
+
+  @override
+  void configureTaskNotifications(
+    UploadTask task, {
+    TaskNotification? running,
+    TaskNotification? complete,
+    TaskNotification? error,
+    bool progressBar = false,
+  }) {
+    FileDownloader().configureNotificationForTask(
+      task,
+      running: running,
+      complete: complete,
+      error: error,
+      progressBar: progressBar,
+    );
+  }
 }
 
 /// Background upload queue for atom files, recordings, and attachments.
@@ -117,7 +143,6 @@ class MediaUploadService extends GetxService {
   late final UploadTransport _transport;
 
   late final StorageService _storage;
-  late final MediaUploadNotificationService _notifications;
 
   /// Test seam: replaces the real follow-up network calls.
   @visibleForTesting
@@ -135,7 +160,6 @@ class MediaUploadService extends GetxService {
   void onInit() {
     super.onInit();
     _storage = Get.find<StorageService>();
-    _notifications = Get.find<MediaUploadNotificationService>();
     _transport = _transportOverride ?? const BackgroundUploaderTransport();
   }
 
@@ -204,6 +228,7 @@ class MediaUploadService extends GetxService {
     String? language,
     String? atomId,
     bool deleteSourceAfter = false,
+    String? displayName,
   }) async {
     await _ensureDir();
 
@@ -224,7 +249,7 @@ class MediaUploadService extends GetxService {
     final entry = MediaUploadModel(
       taskId: taskId,
       name: filename,
-      displayName: filename,
+      displayName: displayName ?? filename,
       type: type,
       folder: folder,
       durationSecs: durationSecs,
@@ -324,6 +349,7 @@ class MediaUploadService extends GetxService {
 
   Future<bool> _enqueueTask(MediaUploadModel entry, String safeName) async {
     final task = _buildTask(entry, safeName);
+    _configureTaskNotifications(task, entry);
     try {
       return await _transport.enqueue(task);
     } catch (error) {
@@ -370,6 +396,46 @@ class MediaUploadService extends GetxService {
     );
   }
 
+  /// Human, actionable notification copy for one upload. The plugin's default
+  /// content shows the raw file name ("recording.wav") and the transport
+  /// description ("Internal Server Error"), which tell the user nothing.
+  void _configureTaskNotifications(UploadTask task, MediaUploadModel entry) {
+    final label = entry.displayName.isNotEmpty ? entry.displayName : entry.name;
+    final runningBody = Platform.isIOS
+        ? AppLocales.media.uploading.tr
+        : '${AppLocales.media.uploading.tr} · {progress}';
+    _transport.configureTaskNotifications(
+      task,
+      running: TaskNotification(AppConfig.appName, runningBody),
+      complete: TaskNotification(
+        AppConfig.appName,
+        AppLocales.media.uploadCompleteNamed.trParams({'title': label}),
+      ),
+      error: TaskNotification(
+        AppConfig.appName,
+        AppLocales.media.uploadFailedRetry.tr,
+      ),
+      progressBar: true,
+    );
+  }
+
+  /// Maps transport/HTTP noise onto copy a user can act on. The raw message is
+  /// still logged for support.
+  String _friendlyUploadFailure(String raw) {
+    final lower = raw.toLowerCase();
+    final looksOffline = lower.contains('socketexception') ||
+        lower.contains('handshakeexception') ||
+        lower.contains('connection') ||
+        lower.contains('network') ||
+        lower.contains('timeout') ||
+        lower.contains('getaddrinfo') ||
+        lower.contains('failed host lookup');
+    if (looksOffline) {
+      return AppLocales.media.uploadFailedConnection.tr;
+    }
+    return AppLocales.media.uploadFailedRetry.tr;
+  }
+
   String _currentToken() {
     try {
       var token = '';
@@ -406,13 +472,6 @@ class MediaUploadService extends GetxService {
       persistProgress: _shouldPersistProgress(entry.taskId, progress),
     );
 
-    unawaited(
-      _notifications.onUploadProgress(
-        taskId: entry.taskId,
-        title: entry.displayName.isNotEmpty ? entry.displayName : entry.name,
-        progress: progress,
-      ),
-    );
   }
 
   Future<void> _onTaskStatusUpdate(TaskStatusUpdate update) async {
@@ -511,16 +570,12 @@ class MediaUploadService extends GetxService {
       _setEntry(done);
       _lastPersistedProgress.remove(entry.taskId);
       await _cleanupFiles(done);
-      await _notifications.onUploadFinished(
-        taskId: done.taskId,
-        title: done.displayName.isNotEmpty ? done.displayName : done.name,
-        success: true,
-      );
     } catch (error) {
+      debugPrint('⚠️ [MediaUploadService] follow-up failed: $error');
       _setEntry(
         entries[entry.taskId]!.copyWith(
           state: MediaUploadConstants.stateNeedsFollowUp,
-          errorMessage: 'Uploaded. Finishing touches pending: $error',
+          errorMessage: AppLocales.media.uploadPendingAttach.tr,
         ),
       );
     }
@@ -597,20 +652,16 @@ class MediaUploadService extends GetxService {
       }
     }
 
+    debugPrint(
+      '⚠️ [MediaUploadService] upload ${entry.taskId} failed: $message '
+      '(status: ${statusCode ?? '-'})',
+    );
     final failureMessage = staleSession
-        ? 'Session was renewed — tap retry to upload again'
-        : message;
+        ? AppLocales.media.uploadSessionRenewed.tr
+        : _friendlyUploadFailure(message);
     _setEntry(
       entry.copyWith(
         state: MediaUploadConstants.stateFailed,
-        errorMessage: failureMessage,
-      ),
-    );
-    unawaited(
-      _notifications.onUploadFinished(
-        taskId: entry.taskId,
-        title: entry.displayName.isNotEmpty ? entry.displayName : entry.name,
-        success: false,
         errorMessage: failureMessage,
       ),
     );
@@ -639,7 +690,7 @@ class MediaUploadService extends GetxService {
             _setEntry(
               entry.copyWith(
                 state: MediaUploadConstants.stateFailed,
-                errorMessage: 'Upload interrupted',
+                errorMessage: AppLocales.media.uploadInterrupted.tr,
               ),
             );
           }

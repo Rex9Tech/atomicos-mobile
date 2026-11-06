@@ -74,3 +74,7 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 # Flutter golden-test failure artifacts
 test/design/failures/
+
+# Local backups of platform configs (may contain credentials)
+*.bak
+*.bak-*

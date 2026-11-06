@@ -232,11 +232,12 @@ class FakeMediaUploadService extends MediaUploadService {
     String? language,
     String? atomId,
     bool deleteSourceAfter = false,
+    String? displayName,
   }) async {
     final entry = MediaUploadModel(
       taskId: 'fake_upload_${enqueued.length}',
       name: filename,
-      displayName: filename,
+      displayName: displayName ?? filename,
       type: type,
       folder: folder,
       durationSecs: durationSecs,

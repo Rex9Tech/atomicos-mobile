@@ -92,10 +92,6 @@ void main() async {
     () => Get.find<MediaDownloadService>().initializeDownloader(),
   );
   await bootStep(
-    'media-upload-notifications',
-    () => Get.find<MediaUploadNotificationService>().initialize(),
-  );
-  await bootStep(
     'media-uploader',
     () => Get.find<MediaUploadService>().initializeUploader(),
   );
