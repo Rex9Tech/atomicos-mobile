@@ -377,9 +377,7 @@ class LiveActivityController extends GetxController {
             // silently sent an empty transcript and skipped the summary.
             transcript: _speech.liveText.value.trim(),
             note: noteController.text.trim(),
-            segments: _speech.liveSegments
-                .map((segment) => segment.toJson())
-                .toList(growable: false),
+            segments: _finishSegments(),
           )
           .timeout(const Duration(seconds: 60));
       if (result.success) {
@@ -432,6 +430,21 @@ class LiveActivityController extends GetxController {
       AppSnackbar.error(AppLocales.recording.finishFailed.tr);
       isFinishing.value = false;
     }
+  }
+
+  /// Speaker turns captured during the session, or an empty list when the
+  /// diarizer never caught up with the end of the recording. Sending a partial
+  /// segment list would make the atom drop the unlabelled tail, so the server
+  /// falls back to the complete plain transcript in that case.
+  List<Map<String, dynamic>> _finishSegments() {
+    final segments = _speech.liveSegments;
+    if (segments.isEmpty) return const [];
+
+    final duration = elapsedSeconds.value.toDouble();
+    final lastEnd = segments.last.end;
+    if (duration > 0 && lastEnd < duration - 15) return const [];
+
+    return segments.map((segment) => segment.toJson()).toList(growable: false);
   }
 
   /// The finish request can time out on the device while the server has
