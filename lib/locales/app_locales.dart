@@ -90,6 +90,7 @@ class _RecordingLocales {
   final endMessage = 'recording.end_message';
   final endConfirm = 'recording.end_confirm';
   final finishFailed = 'recording.finish_failed';
+  final speakerLabel = 'recording.speaker_label';
 }
 
 class _SearchLocales {

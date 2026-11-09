@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/models/models.dart';
 
 import '../controllers/live_activity.controller.dart';
 
@@ -322,26 +323,45 @@ class _LiveTranscriptPanel extends StatefulWidget {
 class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
   final ScrollController _scroll = ScrollController();
   Worker? _transcriptWorker;
+  Worker? _segmentsWorker;
 
   @override
   void initState() {
     super.initState();
-    _transcriptWorker = ever<String>(widget.controller.liveTranscript, (_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients) {
-          _scroll.animateTo(
-            _scroll.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+    _transcriptWorker = ever<String>(
+      widget.controller.liveTranscript,
+      (_) => _scrollToLatest(),
+    );
+    _segmentsWorker = ever<List<LiveSpeakerSegment>>(
+      widget.controller.liveSegments,
+      (_) => _scrollToLatest(),
+    );
+  }
+
+  void _scrollToLatest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+        );
+      }
     });
+  }
+
+  /// "Speaker 3" reads as localized "ပြောသူ 3" (or the raw label if it has
+  /// no number, e.g. a custom name from the server).
+  String _speakerLabel(String speaker) {
+    final number = RegExp(r'\d+').firstMatch(speaker)?.group(0) ?? '';
+    final base = AppLocales.recording.speakerLabel.tr;
+    return number.isEmpty ? speaker : '$base $number';
   }
 
   @override
   void dispose() {
     _transcriptWorker?.dispose();
+    _segmentsWorker?.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -359,24 +379,89 @@ class _LiveTranscriptPanelState extends State<_LiveTranscriptPanel> {
       child: Obx(() {
         final text = widget.controller.liveTranscript.value.trim();
         final notice = widget.controller.transcriptNotice.value;
+        final segments = widget.controller.liveSegments.toList(growable: false);
+
+        // Until the first diarization window lands there is only plain text.
+        if (segments.isEmpty) {
+          return SingleChildScrollView(
+            controller: _scroll,
+            child: text.isEmpty
+                ? Text(
+                    notice ?? AppLocales.recording.transcriptPlaceholder.tr,
+                    style: context.typo.bodyMedium.copyWith(
+                      color: colors.textMuted,
+                      height: 1.5,
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: context.typo.bodyMedium.copyWith(
+                      color: colors.textPrimary,
+                      height: 1.5,
+                    ),
+                  ),
+          );
+        }
+
+        // Speaker labels trail the raw captions by a few seconds; whatever the
+        // diarizer has not labelled yet stays visible as muted live text.
+        final lastText = segments.last.text;
+        final lastIndex = text.lastIndexOf(lastText);
+        final pending = lastIndex >= 0
+            ? text.substring(lastIndex + lastText.length).trim()
+            : '';
 
         return SingleChildScrollView(
           controller: _scroll,
-          child: text.isEmpty
-              ? Text(
-                  notice ?? AppLocales.recording.transcriptPlaceholder.tr,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final segment in segments) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        _speakerLabel(segment.speaker),
+                        style: context.typo.labelMedium.copyWith(
+                          color: colors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        segment.text,
+                        style: context.typo.bodyMedium.copyWith(
+                          color: colors.textPrimary,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+              if (pending.isNotEmpty)
+                Text(
+                  pending,
                   style: context.typo.bodyMedium.copyWith(
                     color: colors.textMuted,
                     height: 1.5,
                   ),
-                )
-              : Text(
-                  text,
-                  style: context.typo.bodyMedium.copyWith(
-                    color: colors.textPrimary,
-                    height: 1.5,
-                  ),
                 ),
+            ],
+          ),
         );
       }),
     );

@@ -1097,6 +1097,7 @@ class FakeRecordingService extends GetxService implements RecordingService {
     int? durationSecs,
     String? transcript,
     String? note,
+    List<Map<String, dynamic>>? segments,
   }) async {
     lastFinishDurationSecs = durationSecs;
     return finishResponse ??
@@ -1120,6 +1121,9 @@ class FakeSpeechService extends GetxService
   final RxBool isPlaying = false.obs;
   @override
   final RxString liveText = ''.obs;
+  @override
+  final RxList<LiveSpeakerSegment> liveSegments =
+      <LiveSpeakerSegment>[].obs;
 
   @override
   bool get isListenSessionActive => isListening.value;

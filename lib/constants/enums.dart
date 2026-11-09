@@ -74,6 +74,7 @@ enum ESpeechListenResult {
 enum ESpeechEventType {
   partial('partial'),
   finalPhrase('final'),
+  diarized('diarized'),
   error('error'),
   unknown('unknown');
 

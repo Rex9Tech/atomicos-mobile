@@ -8,3 +8,4 @@ export 'version.model.dart';
 export 'user_version.model.dart';
 export 'api_response.model.dart';
 export 'pagination.model.dart';
+export 'live_speaker_segment.model.dart';

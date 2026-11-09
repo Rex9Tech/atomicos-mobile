@@ -33,6 +33,10 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
   final RxBool isPlaying = false.obs;
   final RxString liveText = ''.obs;
 
+  /// Speaker-labeled turns streamed by the live channel's "diarized" events.
+  /// Append-only per session; cleared when a new recording starts.
+  final RxList<LiveSpeakerSegment> liveSegments = <LiveSpeakerSegment>[].obs;
+
   /// How long to keep the live-STT subscription open after asking the backend
   /// to stop, so the final phrase is not lost.
   static const Duration _finalPhraseGrace = Duration(milliseconds: 1800);
@@ -279,6 +283,7 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
     try {
       _committedText = seed;
       _partialText = '';
+      if (seed.isEmpty) liveSegments.clear();
       liveText.value = seed;
       _captureOnly = !canStream;
 
@@ -461,11 +466,46 @@ class SpeechService extends GetxService with WidgetsBindingObserver {
         if (phrase.isEmpty) return;
         _committedText = _joinSpeech(_committedText, phrase);
         liveText.value = _committedText;
+      case ESpeechEventType.diarized:
+        _ingestDiarized(event);
       case ESpeechEventType.error:
         unawaited(stopListening());
       case ESpeechEventType.unknown:
         break;
     }
+  }
+
+  /// Appends the speaker-labeled turns of a "diarized" batch. The server sends
+  /// only turns not yet delivered, so the list stays in order and duplicates
+  /// at the window seam can be skipped by comparing the last entry.
+  void _ingestDiarized(SocketMessage event) {
+    final raw = event.data?[SpeechKeys.segments];
+    if (raw is! List) return;
+
+    for (final entry in raw) {
+      if (entry is! Map) continue;
+      final text = entry[SpeechKeys.text]?.toString().trim() ?? '';
+      if (text.isEmpty) continue;
+      final speaker =
+          entry[SpeechKeys.speaker]?.toString().trim() ?? 'Speaker';
+      if (liveSegments.isNotEmpty) {
+        final last = liveSegments.last;
+        if (last.text == text && last.speaker == speaker) continue;
+      }
+      liveSegments.add(
+        LiveSpeakerSegment(
+          speaker: speaker,
+          text: text,
+          start: _toSeconds(entry[SpeechKeys.start]),
+          end: _toSeconds(entry[SpeechKeys.end]),
+        ),
+      );
+    }
+  }
+
+  double _toSeconds(Object? value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse('$value') ?? 0;
   }
 
   void _onPcmChunk(Uint8List chunk) {

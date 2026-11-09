@@ -417,6 +417,7 @@ class AppTranslations extends Translations {
       AppLocales.recording.endConfirm: 'End & create atom',
       AppLocales.recording.finishFailed:
           'Couldn\'t finish the recording. Please try again.',
+      AppLocales.recording.speakerLabel: 'Speaker',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'Write a Meeting Note...',
@@ -1249,6 +1250,7 @@ class AppTranslations extends Translations {
       AppLocales.recording.endConfirm: 'ရပ်ပြီး အက်တမ် ဖန်တီးမည်',
       AppLocales.recording.finishFailed:
           'အသံဖမ်းခြင်းကို ပြီးဆုံးအောင် မလုပ်ဆောင်နိုင်ပါ။ တစ်ခါထပ် ကြိုးစားပါ။',
+      AppLocales.recording.speakerLabel: 'ပြောသူ',
 
       // AI workspace (ask + recording)
       AppLocales.ai.meetingNoteHint: 'အစည်းအဝေး မှတ်စု ရေးသားပါ...',

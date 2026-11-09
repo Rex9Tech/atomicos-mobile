@@ -18,5 +18,10 @@ class SpeechKeys {
   static const stop = 'stop';
   static const partial = 'partial';
   static const finalPhrase = 'final';
+  static const diarized = 'diarized';
+  static const segments = 'segments';
+  static const speaker = 'speaker';
+  static const start = 'start';
+  static const end = 'end';
   static const error = 'error';
 }

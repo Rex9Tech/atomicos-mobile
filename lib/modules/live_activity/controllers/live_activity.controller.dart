@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/models/models.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
@@ -51,6 +52,9 @@ class LiveActivityController extends GetxController {
   /// Transcript text streamed live from the mic while recording.
   final RxString liveTranscript = ''.obs;
 
+  /// Speaker-labeled turns mirrored from the shared live-STT stream.
+  final RxList<LiveSpeakerSegment> liveSegments = <LiveSpeakerSegment>[].obs;
+
   /// Whether the live STT session is running right now.
   final RxBool isTranscriptLive = false.obs;
 
@@ -64,6 +68,7 @@ class LiveActivityController extends GetxController {
 
   Timer? _ticker;
   Worker? _transcriptWorker;
+  Worker? _segmentsWorker;
   bool _started = false;
 
   /// Bounds how long every teardown step of [finishRecording] may wait — a
@@ -106,6 +111,14 @@ class LiveActivityController extends GetxController {
       (text) => liveTranscript.value = text,
     );
     liveTranscript.value = '';
+
+    // Diarized turns arrive as batches from the live channel; mirror them so
+    // the sheet (and the finish payload) share one ordered list.
+    _segmentsWorker = ever<List<LiveSpeakerSegment>>(
+      _speech.liveSegments,
+      (segments) => liveSegments.assignAll(segments),
+    );
+    liveSegments.clear();
     // Never restore a previous "on" — older builds defaulted on and persisted
     // that choice, which skipped the credit confirm on the next meeting.
     captionsVisible.value = false;
@@ -164,6 +177,7 @@ class LiveActivityController extends GetxController {
   void onClose() {
     _ticker?.cancel();
     _transcriptWorker?.dispose();
+    _segmentsWorker?.dispose();
     _background.onAction = null;
     _speech.allowBackgroundListening = false;
     _socket.allowBackgroundReconnect = false;
@@ -363,6 +377,9 @@ class LiveActivityController extends GetxController {
             // silently sent an empty transcript and skipped the summary.
             transcript: _speech.liveText.value.trim(),
             note: noteController.text.trim(),
+            segments: _speech.liveSegments
+                .map((segment) => segment.toJson())
+                .toList(growable: false),
           )
           .timeout(const Duration(seconds: 60));
       if (result.success) {

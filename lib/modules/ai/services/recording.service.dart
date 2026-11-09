@@ -59,6 +59,7 @@ class RecordingService extends GetxService {
     int? durationSecs,
     String? transcript,
     String? note,
+    List<Map<String, dynamic>>? segments,
   }) async {
     final response = await _api.post(
       ServerRoutes.recordingFinish(id),
@@ -66,6 +67,7 @@ class RecordingService extends GetxService {
         RecordingKeys.durationSecs: ?durationSecs,
         RecordingKeys.transcript: ?transcript,
         RecordingKeys.note: ?note,
+        RecordingKeys.segments: ?segments,
       },
       showLoading: false,
     );

@@ -107,6 +107,7 @@ class SocketController extends GetxController {
     final dataType = event.data?[SocketKeys.type]?.toString() ?? '';
     return dataType == SpeechKeys.partial ||
         dataType == SpeechKeys.finalPhrase ||
+        dataType == SpeechKeys.diarized ||
         dataType == SpeechKeys.error;
   }
 

@@ -8,6 +8,7 @@ class RecordingKeys {
   static const durationSecs = 'duration_secs';
   static const transcript = 'transcript';
   static const note = 'note';
+  static const segments = 'segments';
   static const startedAt = 'started_at';
   static const endedAt = 'ended_at';
   static const atomId = 'atom_id';
