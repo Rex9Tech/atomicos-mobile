@@ -654,17 +654,77 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
     if (atom.transcriptSegments.isEmpty) {
       return _emptyState(context, AppLocales.atom.noTranscript.tr);
     }
+
+    // Diarized atoms label every turn ("Speaker 1", "Speaker 2", ...); legacy
+    // atoms carry a single generic "Speaker" placeholder. Only the former get
+    // speaker chips — a placeholder must not read like a diarization result.
+    if (!_hasDiarization(atom.transcriptSegments)) {
+      return _scrollableCard(
+        context,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: atom.transcriptSegments.map((segment) {
+            final text = _segmentText(segment);
+            return Padding(
+              padding: EdgeInsets.only(bottom: Design.spacing.sm),
+              child: Text(
+                text,
+                style: context.typo.bodyMedium.copyWith(height: 1.4),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    final segments = atom.transcriptSegments;
+    final colors = context.colors;
     return _scrollableCard(
       context,
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: atom.transcriptSegments.map((segment) {
-          final text = _segmentText(segment);
+        children: segments.asMap().entries.map((entry) {
+          final index = entry.key;
+          final segment = entry.value;
+          final text = _segmentBody(segment);
+          final speaker = _segmentSpeaker(segment) ?? '';
+          final startsTurn =
+              speaker.isNotEmpty &&
+              (index == 0 || _segmentSpeaker(segments[index - 1]) != speaker);
+
           return Padding(
-            padding: EdgeInsets.only(bottom: Design.spacing.sm),
-            child: Text(
-              text,
-              style: context.typo.bodyMedium.copyWith(height: 1.4),
+            padding: EdgeInsets.only(
+              top: index == 0 ? 0 : Design.spacing.md,
+              bottom: Design.spacing.sm,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (startsTurn) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      _speakerLabel(speaker),
+                      style: context.typo.labelMedium.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                Text(
+                  text,
+                  style: context.typo.bodyMedium.copyWith(height: 1.4),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -1252,6 +1312,42 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
       return text.isNotEmpty ? text : segment.toString();
     }
     return segment.toString();
+  }
+
+  /// Raw turn text without a speaker prefix (the chip carries the speaker).
+  String _segmentBody(dynamic segment) {
+    if (segment is String) return segment;
+    if (segment is Map) {
+      return segment['text']?.toString() ??
+          segment['content']?.toString() ??
+          segment.toString();
+    }
+    return segment.toString();
+  }
+
+  String? _segmentSpeaker(dynamic segment) {
+    if (segment is Map) {
+      final speaker = segment['speaker']?.toString().trim();
+      return (speaker == null || speaker.isEmpty) ? null : speaker;
+    }
+    return null;
+  }
+
+  /// True when the transcript carries real speaker turns (numbered labels)
+  /// rather than the generic "Speaker" placeholder of un-diarized atoms.
+  bool _hasDiarization(List<dynamic> segments) {
+    for (final segment in segments) {
+      final speaker = _segmentSpeaker(segment);
+      if (speaker != null && speaker != 'Speaker') return true;
+    }
+    return false;
+  }
+
+  /// "Speaker 3" -> localized "ပြောသူ 3"; unnumbered labels stay as-is.
+  String _speakerLabel(String speaker) {
+    final number = RegExp(r'\d+').firstMatch(speaker)?.group(0) ?? '';
+    final base = AppLocales.recording.speakerLabel.tr;
+    return number.isEmpty ? speaker : '$base $number';
   }
 
   Widget _markdown(BuildContext context, String text) {
