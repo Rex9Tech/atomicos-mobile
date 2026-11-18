@@ -261,6 +261,7 @@ class _SettingLocales {
   final settings = 'settings.title';
   final theme = 'settings.theme';
   final language = 'settings.language';
+  final integrations = 'settings.integrations';
   final account = 'settings.account';
   final logoutConfirmation = 'settings.logout_confirmation';
   final appInfo = 'settings.app_info';
@@ -631,6 +632,22 @@ class _CalendarLocales {
   final clearDate = 'calendar.clear_date';
   final dateSaved = 'calendar.date_saved';
   final dateCleared = 'calendar.date_cleared';
+
+  // Google Calendar connect + meeting reminders
+  final connectTitle = 'calendar.connect_title';
+  final connectSubtitle = 'calendar.connect_subtitle';
+  final connectMessage = 'calendar.connect_message';
+  final connectAction = 'calendar.connect_action';
+  final notNow = 'calendar.not_now';
+  final storeOpened = 'calendar.store_opened';
+  final appOpened = 'calendar.app_opened';
+  final connectDone = 'calendar.connect_done';
+  final permissionDenied = 'calendar.permission_denied';
+  final connectFailed = 'calendar.connect_failed';
+  final reminderTitle = 'calendar.reminder_title';
+  final reminderBody = 'calendar.reminder_body';
+  final channelName = 'calendar.channel_name';
+  final channelDescription = 'calendar.channel_description';
 }
 
 class _PermissionLocales {

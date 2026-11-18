@@ -186,12 +186,14 @@ class AppDialog {
     required String title,
     required String message,
     String? confirmLabel,
+    String? cancelLabel,
     Color? confirmColor,
     Color? cancelColor,
     bool destructive = false,
   }) async {
     Get.addTranslations(AppTranslations().keys);
     final label = confirmLabel ?? AppLocales.setting.confirmDelete.tr;
+    final cancelText = cancelLabel ?? AppLocales.common.cancel.tr;
     // The primary action reads as the app's green (Atomic Green) unless the
     // caller asked for a destructive confirm — red is reserved for
     // destructive/dangerous actions, never for ordinary actions like
@@ -215,7 +217,7 @@ class AppDialog {
               },
               isDefaultAction: true,
               child: Text(
-                AppLocales.common.cancel.tr,
+                cancelText,
                 style: cancelColor == null
                     ? null
                     : TextStyle(color: cancelColor),
@@ -263,7 +265,7 @@ class AppDialog {
               Get.closeAllSnackbars();
               Get.back(result: false);
             },
-            text: AppLocales.common.cancel.tr,
+            text: cancelText,
             color: cancelColor,
           ),
           AppButton(

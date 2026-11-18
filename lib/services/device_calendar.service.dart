@@ -53,6 +53,42 @@ class DeviceCalendar {
   }
 }
 
+/// An upcoming meeting read from the device calendar (the user's Google
+/// account events included).
+class CalendarMeeting {
+  const CalendarMeeting({
+    required this.eventId,
+    required this.calendarId,
+    required this.title,
+    required this.start,
+    required this.end,
+    this.allDay = false,
+  });
+
+  final String eventId;
+  final String calendarId;
+  final String title;
+  final DateTime start;
+  final DateTime end;
+  final bool allDay;
+
+  /// A timed meeting with a name — the kind worth reminding about.
+  bool get isTimed => !allDay && title.trim().isNotEmpty;
+
+  factory CalendarMeeting.fromMap(Map<dynamic, dynamic> map) => CalendarMeeting(
+    eventId: map['eventId']?.toString() ?? '',
+    calendarId: map['calendarId']?.toString() ?? '',
+    title: map['title']?.toString() ?? '',
+    start: DateTime.fromMillisecondsSinceEpoch(
+      (map['startMillis'] as num?)?.toInt() ?? 0,
+    ),
+    end: DateTime.fromMillisecondsSinceEpoch(
+      (map['endMillis'] as num?)?.toInt() ?? 0,
+    ),
+    allDay: map['allDay'] == true,
+  );
+}
+
 /// Result of trying to write a meeting into the device calendar.
 enum CalendarSyncResult {
   /// Created or updated — the meeting is now in the device calendar.
@@ -121,6 +157,9 @@ class DeviceCalendarService extends GetxService {
   bool debugSupportedOverride = false;
 
   bool get _supported => debugSupportedOverride || Platform.isAndroid;
+
+  /// Whether the native calendar bridge exists on this platform.
+  bool get isSupported => _supported;
 
   @override
   void onInit() {
@@ -218,6 +257,31 @@ class DeviceCalendarService extends GetxService {
           .toList();
     } catch (error) {
       debugPrint('🗓️ [DeviceCalendar] availableCalendars failed: $error');
+      return const [];
+    }
+  }
+
+  /// Upcoming meetings from the device calendar (the user's Google account
+  /// events included), between now and [horizon].
+  Future<List<CalendarMeeting>> upcomingEvents({
+    Duration horizon = const Duration(hours: 48),
+  }) async {
+    if (!_supported) return const [];
+    try {
+      final now = DateTime.now();
+      final raw = await deviceCalendarChannel
+              .invokeMethod<List<dynamic>>('listUpcomingEvents', {
+        'startMillis': now.millisecondsSinceEpoch,
+        'endMillis': now.add(horizon).millisecondsSinceEpoch,
+      }) ??
+          const [];
+      return raw
+          .whereType<Map>()
+          .map(CalendarMeeting.fromMap)
+          .where((meeting) => meeting.eventId.isNotEmpty)
+          .toList();
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] upcomingEvents failed: $error');
       return const [];
     }
   }

@@ -140,6 +140,24 @@ class FakeStorageService extends StorageService {
       memory[StorageKeys.calendarLinks] = links;
 
   @override
+  bool getGoogleCalendarConnected() =>
+      memory[StorageKeys.googleCalendarConnected] == true;
+
+  @override
+  void setGoogleCalendarConnected(bool connected) =>
+      memory[StorageKeys.googleCalendarConnected] = connected;
+
+  @override
+  Map<String, dynamic> getMeetingReminders() {
+    final value = memory[StorageKeys.meetingReminders];
+    return value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  }
+
+  @override
+  void setMeetingReminders(Map<String, dynamic> reminders) =>
+      memory[StorageKeys.meetingReminders] = reminders;
+
+  @override
   void setThemeName(String name) => memory[StorageKeys.theme] = name;
 
   @override
@@ -352,6 +370,19 @@ class FakePushNotificationService extends GetxService
     required NotificationDetails details,
     String? payload,
   }) async {}
+
+  @override
+  Future<void> scheduleLocalNotification({
+    required int id,
+    required DateTime when,
+    required String title,
+    required String body,
+    required NotificationDetails details,
+    String? payload,
+  }) async {}
+
+  @override
+  Future<void> cancelLocalNotification(int id) async {}
 
   @override
   Future<void> createLiveActivity(

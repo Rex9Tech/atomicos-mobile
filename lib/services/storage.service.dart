@@ -157,6 +157,21 @@ class StorageService extends GetxService {
   void setCalendarEventLinks(Map<String, dynamic> links) =>
       _box.write(StorageKeys.calendarLinks, links);
 
+  // ===== GOOGLE CALENDAR CONNECT + MEETING REMINDERS =====
+  bool getGoogleCalendarConnected() =>
+      (_box.read(StorageKeys.googleCalendarConnected) as bool?) ?? false;
+
+  void setGoogleCalendarConnected(bool connected) =>
+      _box.write(StorageKeys.googleCalendarConnected, connected);
+
+  Map<String, dynamic> getMeetingReminders() {
+    final value = _box.read(StorageKeys.meetingReminders);
+    return value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  }
+
+  void setMeetingReminders(Map<String, dynamic> reminders) =>
+      _box.write(StorageKeys.meetingReminders, reminders);
+
   // ============================================================
   // APP VERSION FLAGS
   // ============================================================

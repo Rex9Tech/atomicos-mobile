@@ -31,4 +31,8 @@ class StorageKeys {
   // Device-calendar sync
   static const calendarTarget = 'calendar_target';
   static const calendarLinks = 'calendar_event_links';
+
+  // Google Calendar connect + meeting reminders
+  static const googleCalendarConnected = 'google_calendar_connected';
+  static const meetingReminders = 'meeting_reminders';
 }

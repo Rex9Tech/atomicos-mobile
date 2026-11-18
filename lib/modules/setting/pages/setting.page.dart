@@ -37,6 +37,12 @@ class SettingPage extends GetView<SettingController> {
 
           SizedBox(height: Design.spacing.xxl),
 
+          // Integrations Section — Google Calendar connect + meeting reminders
+          _buildSectionHeader(context, AppLocales.setting.integrations.tr),
+          _buildGoogleCalendarTile(context),
+
+          SizedBox(height: Design.spacing.xxl),
+
           // Subscription Section — plans & MyanMyanPay (MMQR) checkout
           _buildSectionHeader(context, AppLocales.payment.plansPricing.tr),
           _buildPlansTile(context),
@@ -115,6 +121,22 @@ class SettingPage extends GetView<SettingController> {
         trailing:
             Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
         onTap: AppRoutes.toAdminCategories,
+      ),
+    );
+  }
+
+  /// Google Calendar connect — popup → store when the app is missing.
+  Widget _buildGoogleCalendarTile(BuildContext context) {
+    return AppCard(
+      borderRadius: Design.spacing.radiusLarge,
+      padding: EdgeInsets.zero,
+      child: AppListTile(
+        leading: Icon(Design.icons.calendar, color: context.colors.primary),
+        title: Text(AppLocales.calendar.connectTitle.tr),
+        subtitle: Text(AppLocales.calendar.connectSubtitle.tr),
+        trailing:
+            Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
+        onTap: () => controller.connectGoogleCalendar(context),
       ),
     );
   }

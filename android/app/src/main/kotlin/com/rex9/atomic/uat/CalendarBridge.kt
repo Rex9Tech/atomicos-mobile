@@ -33,6 +33,7 @@ object CalendarBridge {
                 "listCalendars" -> result.success(listCalendars(activity))
                 "createOrUpdateEvent" -> result.success(upsertEvent(activity, call))
                 "deleteEvent" -> result.success(deleteEvent(activity, call))
+                "listUpcomingEvents" -> result.success(listUpcomingEvents(activity, call))
                 else -> result.notImplemented()
             }
         } catch (error: SecurityException) {
@@ -75,6 +76,53 @@ object CalendarBridge {
             }
         }
         return calendars
+    }
+
+    /**
+     * Reads upcoming events (the user's Google account included) between two
+     * instants. Cancelled events are skipped.
+     */
+    private fun listUpcomingEvents(activity: Activity, call: MethodCall): List<Map<String, Any?>> {
+        val startMillis =
+            call.argument<Number>("startMillis")?.toLong() ?: System.currentTimeMillis()
+        val endMillis =
+            call.argument<Number>("endMillis")?.toLong()
+                ?: (startMillis + 7L * 24L * 60L * 60L * 1000L)
+
+        val events = mutableListOf<Map<String, Any?>>()
+        val projection = arrayOf(
+            CalendarContract.Instances.EVENT_ID,
+            CalendarContract.Instances.CALENDAR_ID,
+            CalendarContract.Instances.TITLE,
+            CalendarContract.Instances.BEGIN,
+            CalendarContract.Instances.END,
+            CalendarContract.Instances.ALL_DAY,
+        )
+        val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
+        ContentUris.appendId(builder, startMillis)
+        ContentUris.appendId(builder, endMillis)
+
+        activity.contentResolver.query(
+            builder.build(),
+            projection,
+            CalendarContract.Instances.STATUS + " != " + CalendarContract.Events.STATUS_CANCELED,
+            null,
+            CalendarContract.Instances.BEGIN + " ASC",
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                events.add(
+                    mapOf(
+                        "eventId" to cursor.getString(0),
+                        "calendarId" to cursor.getString(1),
+                        "title" to (cursor.getString(2) ?: ""),
+                        "startMillis" to cursor.getLong(3),
+                        "endMillis" to cursor.getLong(4),
+                        "allDay" to (cursor.getInt(5) == 1),
+                    ),
+                )
+            }
+        }
+        return events
     }
 
     private fun upsertEvent(activity: Activity, call: MethodCall): String? {

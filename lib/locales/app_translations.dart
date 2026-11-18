@@ -152,6 +152,7 @@ class AppTranslations extends Translations {
       AppLocales.setting.settings: 'Settings',
       AppLocales.setting.theme: 'Theme',
       AppLocales.setting.language: 'Language',
+      AppLocales.setting.integrations: 'Integrations',
       AppLocales.setting.account: 'Account',
       AppLocales.setting.logoutConfirmation:
           'Are you sure you want to sign out?',
@@ -390,6 +391,25 @@ class AppTranslations extends Translations {
       AppLocales.calendar.removeFromCalendar: 'Remove from calendar',
       AppLocales.calendar.openCalendarApp: 'Open calendar app',
       AppLocales.calendar.chooseCalendar: 'Choose a calendar',
+      AppLocales.calendar.connectTitle: 'Connect Google Calendar',
+      AppLocales.calendar.connectSubtitle: 'Fetch meetings & get reminders',
+      AppLocales.calendar.connectMessage:
+          'Keep your meetings in sync with Google Calendar. If the app isn\'t installed yet, we\'ll take you to the store to get it.',
+      AppLocales.calendar.connectAction: 'Connect',
+      AppLocales.calendar.notNow: 'Not now',
+      AppLocales.calendar.storeOpened:
+          'Opening the store — install Google Calendar, then come back to connect.',
+      AppLocales.calendar.appOpened: 'Google Calendar opened',
+      AppLocales.calendar.connectDone:
+          'Google Calendar connected — @count upcoming meeting reminders armed',
+      AppLocales.calendar.permissionDenied:
+          'Calendar access was denied — allow it to fetch meetings.',
+      AppLocales.calendar.connectFailed: 'Could not connect Google Calendar',
+      AppLocales.calendar.reminderTitle: 'Meeting soon',
+      AppLocales.calendar.reminderBody: '@title starts at @time',
+      AppLocales.calendar.channelName: 'Meeting reminders',
+      AppLocales.calendar.channelDescription:
+          'Reminds you shortly before a calendar meeting starts.',
 
       // Permission
       AppLocales.permission.title: 'Permissions',
@@ -982,6 +1002,7 @@ class AppTranslations extends Translations {
       AppLocales.setting.settings: 'ဆက်တင်များ',
       AppLocales.setting.theme: 'အပြင်အဆင်',
       AppLocales.setting.language: 'ဘာသာစကား',
+      AppLocales.setting.integrations: 'ချိတ်ဆက်မှုများ',
       AppLocales.setting.account: 'အကောင့်',
       AppLocales.setting.logoutConfirmation: 'ထွက်ရန် သေချာပါသလား?',
       AppLocales.setting.appInfo: 'အက်ပ် အချက်အလက်',
@@ -1223,6 +1244,26 @@ class AppTranslations extends Translations {
       AppLocales.calendar.removeFromCalendar: 'ပြက္ခဒိန်မှ ဖယ်ရှားရန်',
       AppLocales.calendar.openCalendarApp: 'ပြက္ခဒိန်အက်ပ် ဖွင့်ရန်',
       AppLocales.calendar.chooseCalendar: 'ပြက္ခဒိန် ရွေးချယ်ပါ',
+      AppLocales.calendar.connectTitle: 'Google Calendar ချိတ်ဆက်ရန်',
+      AppLocales.calendar.connectSubtitle:
+          'အစည်းအဝေးများ ရယူပြီး သတိပေးချက် ရယူပါ',
+      AppLocales.calendar.connectMessage:
+          'အစည်းအဝေးများကို Google Calendar နှင့် ချိတ်ဆက်ထားပါ။ Google Calendar အက်ပ် မထည့်သွင်းရသေးပါက စတိုးသို့ ခေါ်သွားပေးပါမည်။',
+      AppLocales.calendar.connectAction: 'ချိတ်ဆက်ရန်',
+      AppLocales.calendar.notNow: 'နောက်မှ',
+      AppLocales.calendar.storeOpened:
+          'စတိုးကို ဖွင့်နေသည် — Google Calendar ထည့်သွင်းပြီး ပြန်လာပါ။',
+      AppLocales.calendar.appOpened: 'Google Calendar ဖွင့်ပြီးပါပြီ',
+      AppLocales.calendar.connectDone:
+          'Google Calendar ချိတ်ဆက်ပြီးပါပြီ — လာမည့် အစည်းအဝေး သတိပေးချက် @count ခု ပြင်ဆင်ပြီးပါပြီ',
+      AppLocales.calendar.permissionDenied:
+          'ပြက္ခဒိန် ခွင့်ပြုချက် ငြင်းပယ်ခံရသည် — အစည်းအဝေးများ ရယူရန် ခွင့်ပြုပါ။',
+      AppLocales.calendar.connectFailed: 'Google Calendar ချိတ်ဆက်၍ မရပါ',
+      AppLocales.calendar.reminderTitle: 'အစည်းအဝေး နီးလာပါပြီ',
+      AppLocales.calendar.reminderBody: '@title — @time တွင် စတင်ပါမည်',
+      AppLocales.calendar.channelName: 'အစည်းအဝေး သတိပေးချက်များ',
+      AppLocales.calendar.channelDescription:
+          'ပြက္ခဒိန်မှ အစည်းအဝေး မစမီ သတိပေးပါမည်။',
 
       // Permission
       AppLocales.permission.title: 'ခွင့်ပြုချက်များ',

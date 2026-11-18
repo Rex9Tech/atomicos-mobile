@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS"/>
     <!-- Device-calendar sync: meeting events are written into the user's own
          calendar so they appear in the built-in calendar app automatically. -->
@@ -124,5 +125,7 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Google Calendar app presence check + launch (com.google.android.calendar) -->
+        <package android:name="com.google.android.calendar" />
     </queries>
 </manifest>

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities/models/url_scheme_data.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -143,6 +144,49 @@ class PushNotificationService extends GetxService {
       notificationDetails: details,
       payload: payload,
     );
+  }
+
+  /// Schedules a local notification at [when] (device-local time). Exact
+  /// alarms are used when the OS permits them, inexact otherwise.
+  Future<void> scheduleLocalNotification({
+    required int id,
+    required DateTime when,
+    required String title,
+    required String body,
+    required NotificationDetails details,
+    String? payload,
+  }) async {
+    if (!_localNotificationsReady) return;
+    await _localNotifications.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: tz.TZDateTime.from(when, tz.UTC),
+      notificationDetails: details,
+      androidScheduleMode: await _preferredScheduleMode(),
+      payload: payload,
+    );
+  }
+
+  /// Cancels a scheduled (or already shown) local notification.
+  Future<void> cancelLocalNotification(int id) async {
+    if (!_localNotificationsReady) return;
+    await _localNotifications.cancel(id: id);
+  }
+
+  Future<AndroidScheduleMode> _preferredScheduleMode() async {
+    try {
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin != null &&
+          (await androidPlugin.canScheduleExactNotifications() ?? false)) {
+        return AndroidScheduleMode.exactAllowWhileIdle;
+      }
+    } catch (error) {
+      debugPrint('⚠️ Exact alarm check failed: $error');
+    }
+    return AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
   Future<void> createLiveActivity(

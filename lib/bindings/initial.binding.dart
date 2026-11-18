@@ -90,6 +90,8 @@ class InitialBinding extends Bindings {
     Get.put(AtomCreateService(), permanent: true);
     Get.put(RecordingService(), permanent: true);
     Get.put(DeviceCalendarService(), permanent: true);
+    Get.put(MeetingReminderService(), permanent: true);
+    Get.put(GoogleCalendarService(), permanent: true);
     Get.put(CategoryService(), permanent: true);
 
     // Auth Service (depends on ApiService)

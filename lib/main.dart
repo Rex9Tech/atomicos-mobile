@@ -78,6 +78,11 @@ void main() async {
     () => Get.find<PushNotificationService>().initializePlatform(),
   );
 
+  await bootStep(
+    'meeting-reminders',
+    () => Get.find<MeetingReminderService>().refreshFromStartup(),
+  );
+
 
   runApp(const MyApp());
 
