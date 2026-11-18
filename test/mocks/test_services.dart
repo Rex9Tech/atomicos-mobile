@@ -158,6 +158,16 @@ class FakeStorageService extends StorageService {
       memory[StorageKeys.meetingReminders] = reminders;
 
   @override
+  Map<String, dynamic> getNextMeetingPrompts() {
+    final value = memory[StorageKeys.nextMeetingPrompts];
+    return value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  }
+
+  @override
+  void setNextMeetingPrompts(Map<String, dynamic> prompts) =>
+      memory[StorageKeys.nextMeetingPrompts] = prompts;
+
+  @override
   void setThemeName(String name) => memory[StorageKeys.theme] = name;
 
   @override

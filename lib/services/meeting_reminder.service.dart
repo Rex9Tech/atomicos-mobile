@@ -94,10 +94,22 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
       final meetings = await _deviceCalendar.upcomingEvents(horizon: horizon);
       final now = DateTime.now();
 
+      // Events AtomicOS created itself (atom meeting dates, next meetings)
+      // already carry a calendar reminder — skip them so the user never gets
+      // two notifications for the same meeting.
+      final managedEventIds = _storage
+          .getCalendarEventLinks()
+          .values
+          .whereType<Map>()
+          .map((link) => link['event_id']?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+
       // Desired: timed meetings whose lead moment is still ahead.
       final desired = <String, CalendarMeeting>{};
       for (final meeting in meetings) {
         if (!meeting.isTimed || meeting.start.isBefore(now)) continue;
+        if (managedEventIds.contains(meeting.eventId)) continue;
         if (!meeting.start.subtract(leadTime).isAfter(now)) continue;
         desired[meeting.eventId] = meeting;
       }

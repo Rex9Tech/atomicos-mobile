@@ -35,4 +35,5 @@ class StorageKeys {
   // Google Calendar connect + meeting reminders
   static const googleCalendarConnected = 'google_calendar_connected';
   static const meetingReminders = 'meeting_reminders';
+  static const nextMeetingPrompts = 'next_meeting_prompts';
 }

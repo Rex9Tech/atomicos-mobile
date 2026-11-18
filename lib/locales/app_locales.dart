@@ -648,6 +648,10 @@ class _CalendarLocales {
   final reminderBody = 'calendar.reminder_body';
   final channelName = 'calendar.channel_name';
   final channelDescription = 'calendar.channel_description';
+  final nextMeetingEventTitle = 'calendar.next_meeting_event_title';
+  final nextMeetingEventDescription = 'calendar.next_meeting_event_description';
+  final nextMeetingAdded = 'calendar.next_meeting_added';
+  final nextMeetingConnectMessage = 'calendar.next_meeting_connect_message';
 }
 
 class _PermissionLocales {

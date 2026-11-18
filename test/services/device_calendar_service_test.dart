@@ -146,6 +146,55 @@ void main() {
     );
   });
 
+  test('syncNextMeeting creates a separate event and persists its own link',
+      () async {
+    final start = DateTime(2026, 12, 2, 15, 30);
+
+    final result = await service.syncNextMeeting(
+      atomId: 'atom-1',
+      title: 'Next meeting · Standup',
+      start: start,
+    );
+
+    expect(result, CalendarSyncResult.synced);
+    final link = service.nextMeetingLinkFor('atom-1');
+    expect(link, isNotNull);
+    expect(link!.eventId, 'evt-100');
+    expect(link.date, start);
+    // The atom's own meeting-date link stays untouched.
+    expect(service.linkFor('atom-1'), isNull);
+    final upsert = calls.lastWhere((c) => c.method == 'createOrUpdateEvent');
+    final args = Map<String, Object?>.from(upsert.arguments as Map);
+    expect(args['reminderMinutes'], 10);
+  });
+
+  test('syncNextMeeting re-sync updates the same next-meeting event',
+      () async {
+    await service.syncNextMeeting(
+      atomId: 'atom-1',
+      title: 'Next meeting',
+      start: DateTime(2026, 12, 2, 15),
+    );
+    await service.syncNextMeeting(
+      atomId: 'atom-1',
+      title: 'Next meeting',
+      start: DateTime(2026, 12, 2, 17),
+    );
+
+    final upserts =
+        calls.where((c) => c.method == 'createOrUpdateEvent').toList();
+    expect(upserts.length, 2);
+    expect(
+      Map<String, Object?>.from(upserts.last.arguments as Map)['eventId'],
+      'evt-100',
+      reason: 'the update must target the existing next-meeting event',
+    );
+    expect(
+      service.nextMeetingLinkFor('atom-1')?.date,
+      DateTime(2026, 12, 2, 17),
+    );
+  });
+
   test('permission refusal surfaces permissionDenied and writes nothing',
       () async {
     permissionGranted = false;

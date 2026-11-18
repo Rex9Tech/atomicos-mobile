@@ -63,6 +63,10 @@ class AtomModel {
   /// The atom's meeting date (ISO-8601, server-persisted) — set from the
   /// details header; null when none was assigned.
   final String? meetingAt;
+
+  /// The next meeting date detected in the AI summary (ISO-8601,
+  /// server-persisted) — used to create the meeting in the user's calendar.
+  final String? nextMeetingAt;
   final String createdAt;
   final String updatedAt;
 
@@ -82,6 +86,7 @@ class AtomModel {
     this.assets = const [],
     this.categoryId,
     this.meetingAt,
+    this.nextMeetingAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -117,6 +122,7 @@ class AtomModel {
       assets: assets,
       categoryId: json[CategoryKeys.categoryId]?.toString(),
       meetingAt: json[AtomKeys.meetingAt]?.toString(),
+      nextMeetingAt: json[AtomKeys.nextMeetingAt]?.toString(),
       createdAt: json[AtomKeys.createdAt]?.toString() ?? '',
       updatedAt: json[AtomKeys.updatedAt]?.toString() ?? '',
     );

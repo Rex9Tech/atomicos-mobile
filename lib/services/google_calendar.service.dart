@@ -94,6 +94,9 @@ class GoogleCalendarService extends GetxService {
     _reminders = Get.find<MeetingReminderService>();
   }
 
+  /// Whether the user connected Google Calendar (persisted flag).
+  bool get isConnected => _storage.getGoogleCalendarConnected();
+
   /// Is the Google Calendar app installed on this device?
   Future<bool> isInstalled() async {
     if (!_supported) return false;

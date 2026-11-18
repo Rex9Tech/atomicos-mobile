@@ -149,6 +149,7 @@ class AtomDetailsController extends GetxController {
         atom.value = next;
         _syncAudioSource();
         resolveMeetingDate();
+        unawaited(_handleNextMeeting(next));
         if (wasProcessing) {
           _selectContentTabWhenReady(next);
         }
@@ -273,6 +274,93 @@ class AtomDetailsController extends GetxController {
     if (iso == null || iso.isEmpty) return null;
     return DateTime.tryParse(iso)?.toLocal();
   }
+
+  /// When the AI summary mentions a next meeting, put it in the user's
+  /// calendar: create the event when Google Calendar is connected, or offer
+  /// to connect (once per atom) when it is not.
+  Future<void> _handleNextMeeting(AtomModel next) async {
+    final raw = next.nextMeetingAt;
+    if (raw == null || raw.isEmpty) return;
+    final start = DateTime.tryParse(raw)?.toLocal();
+    if (start == null || !start.isAfter(DateTime.now())) return;
+
+    final device = Get.find<DeviceCalendarService>();
+    if (!device.isSupported) return;
+    if (device.nextMeetingLinkFor(next.id) != null) return;
+
+    final google = Get.find<GoogleCalendarService>();
+    if (google.isConnected) {
+      await _createNextMeetingEvent(next, start, device);
+      return;
+    }
+    await _promptNextMeetingConnect(next, start, device, google);
+  }
+
+  Future<void> _promptNextMeetingConnect(
+    AtomModel next,
+    DateTime start,
+    DeviceCalendarService device,
+    GoogleCalendarService google,
+  ) async {
+    final context = Get.context;
+    if (context == null) return;
+
+    final storage = Get.find<StorageService>();
+    final prompts = storage.getNextMeetingPrompts();
+    if (prompts[next.id] == true) return; // asked once per atom
+    prompts[next.id] = true;
+    storage.setNextMeetingPrompts(prompts);
+
+    final shouldConnect = await AppDialog.confirm(
+      context: context,
+      title: AppLocales.calendar.connectTitle.tr,
+      message: AppLocales.calendar.nextMeetingConnectMessage.trParams({
+        'date': _formatNextMeeting(start),
+      }),
+      confirmLabel: AppLocales.calendar.connectAction.tr,
+      cancelLabel: AppLocales.calendar.notNow.tr,
+    );
+    if (!shouldConnect) return;
+
+    final result = await google.connect();
+    switch (result) {
+      case GoogleCalendarConnectResult.connected:
+        await _createNextMeetingEvent(next, start, device);
+      case GoogleCalendarConnectResult.storeOpened:
+        AppSnackbar.info(AppLocales.calendar.storeOpened.tr);
+      case GoogleCalendarConnectResult.permissionDenied:
+        AppSnackbar.error(AppLocales.calendar.permissionDenied.tr);
+      case GoogleCalendarConnectResult.unsupported:
+      case GoogleCalendarConnectResult.failed:
+        AppSnackbar.error(AppLocales.calendar.connectFailed.tr);
+    }
+  }
+
+  Future<void> _createNextMeetingEvent(
+    AtomModel next,
+    DateTime start,
+    DeviceCalendarService device,
+  ) async {
+    final result = await device.syncNextMeeting(
+      atomId: next.id,
+      title: AppLocales.calendar.nextMeetingEventTitle.trParams({
+        'title': next.title,
+      }),
+      start: start,
+      description: AppLocales.calendar.nextMeetingEventDescription.tr,
+    );
+    if (result == CalendarSyncResult.synced) {
+      AppSnackbar.success(
+        AppLocales.calendar.nextMeetingAdded.trParams({
+          'date': _formatNextMeeting(start),
+        }),
+      );
+    }
+  }
+
+  static String _formatNextMeeting(DateTime time) =>
+      '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')} '
+      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
   /// Persists the picked date on the ATOM (server) — this is the update the
   /// whole app sees; nothing is written to any device calendar.

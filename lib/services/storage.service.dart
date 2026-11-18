@@ -172,6 +172,16 @@ class StorageService extends GetxService {
   void setMeetingReminders(Map<String, dynamic> reminders) =>
       _box.write(StorageKeys.meetingReminders, reminders);
 
+  /// Atoms the user was already asked to connect Google Calendar for (the
+  /// summary mentioned a next meeting) — asked once per atom.
+  Map<String, dynamic> getNextMeetingPrompts() {
+    final value = _box.read(StorageKeys.nextMeetingPrompts);
+    return value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  }
+
+  void setNextMeetingPrompts(Map<String, dynamic> prompts) =>
+      _box.write(StorageKeys.nextMeetingPrompts, prompts);
+
   // ============================================================
   // APP VERSION FLAGS
   // ============================================================

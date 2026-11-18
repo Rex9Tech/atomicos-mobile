@@ -408,4 +408,76 @@ class DeviceCalendarService extends GetxService {
       return false;
     }
   }
+
+  /// Creates (or updates) the atom's NEXT-MEETING event — the date mentioned
+  /// in the AI summary — kept separate from the atom's own meeting-date event.
+  Future<CalendarSyncResult> syncNextMeeting({
+    required String atomId,
+    required String title,
+    required DateTime start,
+    Duration duration = const Duration(hours: 1),
+    String? description,
+  }) async {
+    if (!_supported) return CalendarSyncResult.unsupported;
+    if (!await ensurePermissions()) return CalendarSyncResult.permissionDenied;
+
+    final calendar = await _resolveTarget();
+    if (calendar == null) return CalendarSyncResult.needCalendar;
+
+    final linkKey = nextMeetingKey(atomId);
+    var existing = linkFor(linkKey);
+    if (existing != null && existing.calendarId != calendar.id) {
+      await _deleteLinkedEvent(linkKey);
+      existing = null;
+    }
+
+    try {
+      final eventId = await deviceCalendarChannel
+          .invokeMethod<String>('createOrUpdateEvent', {
+            'calendarId': calendar.id,
+            'eventId': existing?.eventId,
+            'title': title,
+            'description': description,
+            'startMillis': start.millisecondsSinceEpoch,
+            'endMillis': start.add(duration).millisecondsSinceEpoch,
+            'reminderMinutes': 10,
+          });
+      if (eventId == null || eventId.isEmpty) {
+        return CalendarSyncResult.failed;
+      }
+      _saveLink(
+        CalendarEventLink(
+          atomId: linkKey,
+          calendarId: calendar.id,
+          eventId: eventId,
+          date: start,
+        ),
+      );
+      return CalendarSyncResult.synced;
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] syncNextMeeting failed: $error');
+      return CalendarSyncResult.failed;
+    }
+  }
+
+  /// The persisted next-meeting link for an atom (null until created).
+  CalendarEventLink? nextMeetingLinkFor(String atomId) =>
+      linkFor(nextMeetingKey(atomId));
+
+  /// The storage key for an atom's next-meeting event link.
+  static String nextMeetingKey(String atomId) => 'next_meeting:$atomId';
+
+  Future<void> _deleteLinkedEvent(String linkKey) async {
+    final link = linkFor(linkKey);
+    if (link == null) return;
+    try {
+      await deviceCalendarChannel.invokeMethod<bool>('deleteEvent', {
+        'calendarId': link.calendarId,
+        'eventId': link.eventId,
+      });
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] deleteLinkedEvent failed: $error');
+    }
+    _clearLink(linkKey);
+  }
 }

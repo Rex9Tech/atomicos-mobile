@@ -410,6 +410,13 @@ class AppTranslations extends Translations {
       AppLocales.calendar.channelName: 'Meeting reminders',
       AppLocales.calendar.channelDescription:
           'Reminds you shortly before a calendar meeting starts.',
+      AppLocales.calendar.nextMeetingEventTitle: 'Next meeting · @title',
+      AppLocales.calendar.nextMeetingEventDescription:
+          'Scheduled from an AtomicOS meeting summary.',
+      AppLocales.calendar.nextMeetingAdded:
+          'Next meeting added to your calendar — @date',
+      AppLocales.calendar.nextMeetingConnectMessage:
+          'This summary mentions a next meeting on @date. Connect Google Calendar to add it automatically.',
 
       // Permission
       AppLocales.permission.title: 'Permissions',
@@ -1264,6 +1271,13 @@ class AppTranslations extends Translations {
       AppLocales.calendar.channelName: 'အစည်းအဝေး သတိပေးချက်များ',
       AppLocales.calendar.channelDescription:
           'ပြက္ခဒိန်မှ အစည်းအဝေး မစမီ သတိပေးပါမည်။',
+      AppLocales.calendar.nextMeetingEventTitle: 'လာမည့် အစည်းအဝေး · @title',
+      AppLocales.calendar.nextMeetingEventDescription:
+          'AtomicOS အစည်းအဝေး အနှစ်ချုပ်မှ ဖန်တီးထားသည်။',
+      AppLocales.calendar.nextMeetingAdded:
+          'လာမည့် အစည်းအဝေးကို ပြက္ခဒိန်သို့ ထည့်ပြီးပါပြီ — @date',
+      AppLocales.calendar.nextMeetingConnectMessage:
+          'ဤအနှစ်ချုပ်တွင် လာမည့် အစည်းအဝေးကို @date တွင် ဖော်ပြထားသည်။ အလိုအလျောက် ထည့်ရန် Google Calendar ကို ချိတ်ဆက်ပါ။',
 
       // Permission
       AppLocales.permission.title: 'ခွင့်ပြုချက်များ',
