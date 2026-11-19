@@ -243,12 +243,8 @@ void main() {
       // HTTP status string, and the failure text tells the user what to do.
       final config = fakeTransport.notificationConfigs.single;
       expect(config.running?.body, contains('{progress}'));
-      expect(
-        config.complete?.body,
-        AppLocales.media.uploadCompleteNamed.trParams({
-          'title': 'Voice recording',
-        }),
-      );
+      // Completion is in-app only — no system notification on done.
+      expect(config.complete, isNull);
       expect(config.error?.body, AppLocales.media.uploadFailedRetry.tr);
       expect(config.progressBar, isTrue);
     });

@@ -399,18 +399,17 @@ class MediaUploadService extends GetxService {
   /// Human, actionable notification copy for one upload. The plugin's default
   /// content shows the raw file name ("recording.wav") and the transport
   /// description ("Internal Server Error"), which tell the user nothing.
+  ///
+  /// Upload COMPLETION intentionally has no system notification — it is
+  /// surfaced in-app (upload state in the create/details screens). Progress
+  /// and failures keep their notifications.
   void _configureTaskNotifications(UploadTask task, MediaUploadModel entry) {
-    final label = entry.displayName.isNotEmpty ? entry.displayName : entry.name;
     final runningBody = Platform.isIOS
         ? AppLocales.media.uploading.tr
         : '${AppLocales.media.uploading.tr} · {progress}';
     _transport.configureTaskNotifications(
       task,
       running: TaskNotification(AppConfig.appName, runningBody),
-      complete: TaskNotification(
-        AppConfig.appName,
-        AppLocales.media.uploadCompleteNamed.trParams({'title': label}),
-      ),
       error: TaskNotification(
         AppConfig.appName,
         AppLocales.media.uploadFailedRetry.tr,
