@@ -702,16 +702,16 @@ class AuthController extends GetxController {
     unawaited(_promptCalendarAfterLogin());
   }
 
-  /// Shows the Google Calendar connect popup right after a successful login —
-  /// only while it is not connected yet. Lets the post-login navigation (and
-  /// the push-permission prompt) settle first.
+  /// Shows the Google Calendar connect popup shortly after a successful login
+  /// — only while it is not connected yet. Lets the post-login navigation
+  /// (and the push-permission prompt) settle first.
   Future<void> _promptCalendarAfterLogin() async {
     if (!Get.isRegistered<GoogleCalendarService>()) return;
     if (Get.find<GoogleCalendarService>().isConnected) return;
 
     await Future<void>.delayed(const Duration(milliseconds: 900));
     final context = Get.context;
-    if (context == null) return;
+    if (context == null || !context.mounted) return;
     await promptGoogleCalendarConnect(context);
   }
 }
