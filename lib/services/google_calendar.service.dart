@@ -138,8 +138,9 @@ class GoogleCalendarService extends GetxService {
           : GoogleCalendarConnectResult.failed;
     }
 
-    // The native read bridge exists on Android; on other platforms the
-    // connection is recorded and the reminder pass is a no-op for now.
+    // Native read bridges exist on Android (CalendarContract) and iOS
+    // (EventKit) — on other platforms the connection is recorded and the
+    // reminder pass is a no-op.
     if (_deviceCalendar.isSupported &&
         !await _deviceCalendar.ensurePermissions()) {
       return GoogleCalendarConnectResult.permissionDenied;
@@ -147,6 +148,7 @@ class GoogleCalendarService extends GetxService {
 
     _storage.setGoogleCalendarConnected(true);
     await _reminders.refresh();
+    await _reminders.ensureLiveSync();
     return GoogleCalendarConnectResult.connected;
   }
 

@@ -370,6 +370,9 @@ class FakePushNotificationService extends GetxService
   }
 
   @override
+  Future<void> initializeLocalOnly() async {}
+
+  @override
   Future<void> createAndroidChannel(AndroidNotificationChannel channel) async {}
 
   @override

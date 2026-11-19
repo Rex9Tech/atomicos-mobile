@@ -152,11 +152,13 @@ class CalendarEventLink {
 class DeviceCalendarService extends GetxService {
   late final StorageService _storage;
 
-  /// The native bridge exists on Android only; tests flip this on.
+  /// The native bridges exist on Android (CalendarContract) and iOS
+  /// (EventKit); tests flip this on.
   @visibleForTesting
   bool debugSupportedOverride = false;
 
-  bool get _supported => debugSupportedOverride || Platform.isAndroid;
+  bool get _supported =>
+      debugSupportedOverride || Platform.isAndroid || Platform.isIOS;
 
   /// Whether the native calendar bridge exists on this platform.
   bool get isSupported => _supported;
@@ -242,6 +244,52 @@ class DeviceCalendarService extends GetxService {
 
   Future<bool> ensurePermissions() async =>
       (await hasPermissions()) || (await requestPermissions());
+
+  // ============================================================
+  // LIVE SYNC (calendar-change observer + background re-arm)
+  // ============================================================
+
+  /// Starts the native calendar-change observer: while the app process is
+  /// alive, calendar edits trigger an instant reminder refresh.
+  Future<void> startWatching() async {
+    if (!_supported) return;
+    try {
+      await deviceCalendarChannel.invokeMethod<bool>('startWatching');
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] startWatching failed: $error');
+    }
+  }
+
+  /// Stops the native calendar-change observer.
+  Future<void> stopWatching() async {
+    if (!_supported) return;
+    try {
+      await deviceCalendarChannel.invokeMethod<bool>('stopWatching');
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] stopWatching failed: $error');
+    }
+  }
+
+  /// Schedules the periodic (~15 min) background reminder refresh so sync
+  /// keeps working when the app process is dead.
+  Future<void> scheduleBackgroundSync() async {
+    if (!_supported) return;
+    try {
+      await deviceCalendarChannel.invokeMethod<bool>('scheduleBackgroundSync');
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] scheduleBackgroundSync failed: $error');
+    }
+  }
+
+  /// Cancels the periodic background refresh (disconnect / logout).
+  Future<void> cancelBackgroundSync() async {
+    if (!_supported) return;
+    try {
+      await deviceCalendarChannel.invokeMethod<bool>('cancelBackgroundSync');
+    } catch (error) {
+      debugPrint('🗓️ [DeviceCalendar] cancelBackgroundSync failed: $error');
+    }
+  }
 
   /// Writable calendars on the device (for the picker + target resolution).
   Future<List<DeviceCalendar>> availableCalendars() async {

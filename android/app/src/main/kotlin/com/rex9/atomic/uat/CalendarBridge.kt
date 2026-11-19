@@ -1,8 +1,8 @@
 package com.rex9.atomic.uat
 
-import android.app.Activity
 import android.content.ContentUris
 import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
@@ -16,6 +16,9 @@ import java.util.TimeZone
  * Meetings are written straight into the user's own calendar through the
  * provider — no "save the event" hand-off in a second app — so they show up
  * in the built-in calendar apps automatically.
+ *
+ * Also hosts the live-sync controls: the calendar-change observer
+ * (CalendarWatcher) and the periodic background sync (CalendarSyncWorker).
  */
 object CalendarBridge {
     const val CHANNEL = "atomicos/calendar"
@@ -26,14 +29,30 @@ object CalendarBridge {
         android.Manifest.permission.WRITE_CALENDAR,
     )
 
-    fun handle(activity: Activity, call: MethodCall, result: MethodChannel.Result) {
+    fun handle(context: Context, call: MethodCall, result: MethodChannel.Result) {
         try {
             when (call.method) {
-                "hasPermissions" -> result.success(hasPermissions(activity))
-                "listCalendars" -> result.success(listCalendars(activity))
-                "createOrUpdateEvent" -> result.success(upsertEvent(activity, call))
-                "deleteEvent" -> result.success(deleteEvent(activity, call))
-                "listUpcomingEvents" -> result.success(listUpcomingEvents(activity, call))
+                "hasPermissions" -> result.success(hasPermissions(context))
+                "listCalendars" -> result.success(listCalendars(context))
+                "createOrUpdateEvent" -> result.success(upsertEvent(context, call))
+                "deleteEvent" -> result.success(deleteEvent(context, call))
+                "listUpcomingEvents" -> result.success(listUpcomingEvents(context, call))
+                "startWatching" -> {
+                    CalendarWatcher.start(context)
+                    result.success(true)
+                }
+                "stopWatching" -> {
+                    CalendarWatcher.stop(context)
+                    result.success(true)
+                }
+                "scheduleBackgroundSync" -> {
+                    CalendarSyncWorker.schedule(context)
+                    result.success(true)
+                }
+                "cancelBackgroundSync" -> {
+                    CalendarSyncWorker.cancel(context)
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         } catch (error: SecurityException) {
@@ -43,11 +62,11 @@ object CalendarBridge {
         }
     }
 
-    fun hasPermissions(activity: Activity): Boolean = PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED
+    fun hasPermissions(context: Context): Boolean = PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun listCalendars(activity: Activity): List<Map<String, Any?>> {
+    private fun listCalendars(context: Context): List<Map<String, Any?>> {
         val calendars = mutableListOf<Map<String, Any?>>()
         val projection = arrayOf(
             CalendarContract.Calendars._ID,
@@ -55,7 +74,7 @@ object CalendarBridge {
             CalendarContract.Calendars.ACCOUNT_NAME,
             CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
         )
-        activity.contentResolver.query(
+        context.contentResolver.query(
             CalendarContract.Calendars.CONTENT_URI,
             projection,
             null,
@@ -82,7 +101,7 @@ object CalendarBridge {
      * Reads upcoming events (the user's Google account included) between two
      * instants. Cancelled events are skipped.
      */
-    private fun listUpcomingEvents(activity: Activity, call: MethodCall): List<Map<String, Any?>> {
+    private fun listUpcomingEvents(context: Context, call: MethodCall): List<Map<String, Any?>> {
         val startMillis =
             call.argument<Number>("startMillis")?.toLong() ?: System.currentTimeMillis()
         val endMillis =
@@ -102,7 +121,7 @@ object CalendarBridge {
         ContentUris.appendId(builder, startMillis)
         ContentUris.appendId(builder, endMillis)
 
-        activity.contentResolver.query(
+        context.contentResolver.query(
             builder.build(),
             projection,
             CalendarContract.Instances.STATUS + " != " + CalendarContract.Events.STATUS_CANCELED,
@@ -125,7 +144,7 @@ object CalendarBridge {
         return events
     }
 
-    private fun upsertEvent(activity: Activity, call: MethodCall): String? {
+    private fun upsertEvent(context: Context, call: MethodCall): String? {
         val calendarId = call.argument<String>("calendarId") ?: return null
         val eventId = call.argument<String>("eventId")
         val title = call.argument<String>("title") ?: "AtomicOS meeting"
@@ -150,19 +169,19 @@ object CalendarBridge {
                 CalendarContract.Events.CONTENT_URI,
                 eventId.toLong(),
             )
-            if (activity.contentResolver.update(uri, values, null, null) > 0) {
+            if (context.contentResolver.update(uri, values, null, null) > 0) {
                 return eventId
             }
             // The event was deleted in the calendar app — fall through and
             // create a fresh one so the meeting is never silently lost.
         }
 
-        val newUri = activity.contentResolver
+        val newUri = context.contentResolver
             .insert(CalendarContract.Events.CONTENT_URI, values) ?: return null
         val newId = newUri.lastPathSegment ?: return null
         if (reminderMinutes != null && reminderMinutes >= 0) {
             try {
-                activity.contentResolver.insert(
+                context.contentResolver.insert(
                     CalendarContract.Reminders.CONTENT_URI,
                     ContentValues().apply {
                         put(CalendarContract.Reminders.EVENT_ID, newId.toLong())
@@ -180,12 +199,12 @@ object CalendarBridge {
         return newId
     }
 
-    private fun deleteEvent(activity: Activity, call: MethodCall): Boolean {
+    private fun deleteEvent(context: Context, call: MethodCall): Boolean {
         val eventId = call.argument<String>("eventId") ?: return false
         val uri = ContentUris.withAppendedId(
             CalendarContract.Events.CONTENT_URI,
             eventId.toLong(),
         )
-        return activity.contentResolver.delete(uri, null, null) > 0
+        return context.contentResolver.delete(uri, null, null) > 0
     }
 }

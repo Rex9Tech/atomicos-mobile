@@ -17,11 +17,15 @@ import 'package:rexone_mobile/services/analytics.service.dart';
 
 /// App-level notification stack: OneSignal (remote), local notifications, Live Activities.
 class PushNotificationService extends GetxService {
-  final AnalyticsService _analytics = Get.find<AnalyticsService>();
+  late final AnalyticsService _analytics = Get.find<AnalyticsService>();
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
   LiveActivities? _liveActivities;
   bool _localNotificationsReady = false;
+
+  /// Headless sync-isolate mode (see `background_calendar_sync.dart`): skips
+  /// OneSignal and listener setup — only local notifications are used there.
+  static bool backgroundMode = false;
 
   bool get isLocalNotificationsReady => _localNotificationsReady;
 
@@ -35,6 +39,7 @@ class PushNotificationService extends GetxService {
   @override
   void onInit() {
     super.onInit();
+    if (backgroundMode) return;
     _initOneSignal();
     _setupListeners();
   }
@@ -44,6 +49,10 @@ class PushNotificationService extends GetxService {
     await _initializeLocalNotifications();
     await _initializeLiveActivities();
   }
+
+  /// Local notifications only — used by the headless background sync isolate
+  /// (no Live Activities, no OneSignal there).
+  Future<void> initializeLocalOnly() => _initializeLocalNotifications();
 
   void _initOneSignal() {
     try {

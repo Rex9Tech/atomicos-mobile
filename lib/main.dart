@@ -12,6 +12,10 @@ import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
+// Imported so the headless entry point (calendarSyncMain, marked with
+// @pragma('vm:entry-point')) stays in the compiled kernel.
+// ignore: unused_import
+import 'background_calendar_sync.dart';
 import 'bindings/initial.binding.dart';
 import 'locales/locales.dart';
 import 'modules/media/media.dart';

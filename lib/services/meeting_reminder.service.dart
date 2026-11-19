@@ -1,4 +1,7 @@
 // lib/services/meeting_reminder.service.dart
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -33,7 +36,14 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
 
   static const String _channelId = 'atomicos_meetings';
 
+  /// Native calendar-change events (CalendarWatcher on Android) — live sync
+  /// while the app process is alive.
+  static const MethodChannel _eventsChannel = MethodChannel(
+    'atomicos/calendar_events',
+  );
+
   bool _refreshInFlight = false;
+  DateTime? _lastNativeRefresh;
 
   @override
   void onInit() {
@@ -42,6 +52,9 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
     _deviceCalendar = Get.find<DeviceCalendarService>();
     _push = Get.find<PushNotificationService>();
     WidgetsBinding.instance.addObserver(this);
+    if (Platform.isAndroid || Platform.isIOS) {
+      _eventsChannel.setMethodCallHandler(_onNativeCalendarEvent);
+    }
   }
 
   @override
@@ -57,6 +70,20 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
     }
   }
 
+  /// Fired by the native calendar observer (debounced ~1 s) whenever the
+  /// device calendar changes — re-arm reminders right away.
+  Future<dynamic> _onNativeCalendarEvent(MethodCall call) async {
+    if (call.method != 'calendarChanged') return null;
+    final now = DateTime.now();
+    final last = _lastNativeRefresh;
+    if (last != null && now.difference(last) < const Duration(seconds: 3)) {
+      return null;
+    }
+    _lastNativeRefresh = now;
+    await refresh();
+    return null;
+  }
+
   /// Whether the user connected Google Calendar.
   bool get isConnected => _storage.getGoogleCalendarConnected();
 
@@ -69,6 +96,16 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
     if (!isConnected || !_deviceCalendar.isSupported) return;
     if (!await _deviceCalendar.hasPermissions()) return;
     await refresh();
+    await ensureLiveSync();
+  }
+
+  /// Keeps the live-sync paths armed: the native calendar observer (instant
+  /// updates while the app process is alive) and the periodic background
+  /// sync (WorkManager, ~15 min, when the app is closed).
+  Future<void> ensureLiveSync() async {
+    if (!isConnected || !_deviceCalendar.isSupported) return;
+    await _deviceCalendar.startWatching();
+    await _deviceCalendar.scheduleBackgroundSync();
   }
 
   /// Fetches upcoming meetings and (re)arms their reminders. Safe to call
@@ -176,6 +213,8 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
       if (id != null) await _push.cancelLocalNotification(id);
     }
     _storage.setMeetingReminders(<String, dynamic>{});
+    await _deviceCalendar.stopWatching();
+    await _deviceCalendar.cancelBackgroundSync();
   }
 
   static Map<String, dynamic> _savedEntry(Object? value) =>

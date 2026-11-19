@@ -5,6 +5,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.pravera.flutter_foreground_task.refresh</string>
+		<string>com.rex9.atomic.uat.calendar-sync</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
@@ -70,7 +71,9 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is needed to choose a profile picture.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Calendar access is needed to update the meeting date</string>
+	<string>AtomicOS uses your calendar to remind you about upcoming meetings and to add meetings created from your summaries.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>AtomicOS uses your calendar to remind you about upcoming meetings and to add meetings created from your summaries.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

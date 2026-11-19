@@ -13,6 +13,13 @@ class MainActivity : AudioServiceActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        AppProcessState.mainEngineAlive = true
+        CalendarWatcher.attach(
+            MethodChannel(
+                flutterEngine.dartExecutor.binaryMessenger,
+                "atomicos/calendar_events",
+            ),
+        )
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CalendarBridge.CHANNEL)
             .setMethodCallHandler { call, result ->
                 if (call.method == "requestPermissions") {
@@ -50,6 +57,11 @@ class MainActivity : AudioServiceActivity() {
                     result.notImplemented()
                 }
             }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        AppProcessState.mainEngineAlive = false
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     override fun onRequestPermissionsResult(

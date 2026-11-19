@@ -18,6 +18,8 @@ dependencies {
     // Modern Android Gradle plugin requires core library desugaring to backport
     // Java 8+ APIs (such as java.time and streams) to older Android versions without runtime crashes.
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // Periodic background calendar sync (CalendarSyncWorker).
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
 }
 
 android {
