@@ -12,6 +12,7 @@ import 'package:rexone_mobile/modules/payment/payment.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../routes/app.routes.dart';
 import '../../../services/services.dart';
+import '../../setting/helpers/google_calendar_connect.helper.dart';
 import '../auth.dart';
 
 class AuthController extends GetxController {
@@ -696,5 +697,21 @@ class AuthController extends GetxController {
 
     // 3. Navigate to continue route or fallback to home
     AppRoutes.navigateContinueURL(_storage);
+
+    // 4. Offer to connect Google Calendar when it is not connected yet.
+    unawaited(_promptCalendarAfterLogin());
+  }
+
+  /// Shows the Google Calendar connect popup right after a successful login —
+  /// only while it is not connected yet. Lets the post-login navigation (and
+  /// the push-permission prompt) settle first.
+  Future<void> _promptCalendarAfterLogin() async {
+    if (!Get.isRegistered<GoogleCalendarService>()) return;
+    if (Get.find<GoogleCalendarService>().isConnected) return;
+
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    final context = Get.context;
+    if (context == null) return;
+    await promptGoogleCalendarConnect(context);
   }
 }

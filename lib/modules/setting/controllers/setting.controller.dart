@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
-import '../../../services/google_calendar.service.dart';
-import '../../../services/meeting_reminder.service.dart';
 import '../../../services/storage.service.dart';
 import '../../../locales/app_translations.dart';
 import 'package:rexone_mobile/constants/constants.dart';
+import '../helpers/google_calendar_connect.helper.dart';
 
 /// Theme + locale settings, persisted with GetStorage.
 class SettingController extends GetxController {
@@ -107,35 +106,10 @@ class SettingController extends GetxController {
   }
 
   // ===== GOOGLE CALENDAR =====
-  /// Shows the “Connect Google Calendar” popup and runs the connect flow:
-  /// routes to the store when the Google Calendar app is missing, otherwise
-  /// unlocks the meeting fetch + upcoming-meeting reminders.
-  Future<void> connectGoogleCalendar(BuildContext context) async {
-    Get.addTranslations(AppTranslations().keys);
-    final shouldConnect = await AppDialog.confirm(
-      context: context,
-      title: AppLocales.calendar.connectTitle.tr,
-      message: AppLocales.calendar.connectMessage.tr,
-      confirmLabel: AppLocales.calendar.connectAction.tr,
-      cancelLabel: AppLocales.calendar.notNow.tr,
-    );
-    if (!shouldConnect) return;
-
-    final result = await Get.find<GoogleCalendarService>().connect();
-    switch (result) {
-      case GoogleCalendarConnectResult.connected:
-        AppSnackbar.success(
-          AppLocales.calendar.connectDone.trParams({
-            'count': '${Get.find<MeetingReminderService>().armedCount}',
-          }),
-        );
-      case GoogleCalendarConnectResult.storeOpened:
-        AppSnackbar.info(AppLocales.calendar.storeOpened.tr);
-      case GoogleCalendarConnectResult.permissionDenied:
-        AppSnackbar.error(AppLocales.calendar.permissionDenied.tr);
-      case GoogleCalendarConnectResult.unsupported:
-      case GoogleCalendarConnectResult.failed:
-        AppSnackbar.error(AppLocales.calendar.connectFailed.tr);
-    }
-  }
+  /// Shows the connect popup, then routes to the store when the Google
+  /// Calendar app is missing, otherwise unlocks the meeting fetch +
+  /// upcoming-meeting reminders. (Flow lives in the shared helper — also used
+  /// by the post-login prompt.)
+  Future<void> connectGoogleCalendar(BuildContext context) =>
+      promptGoogleCalendarConnect(context);
 }
