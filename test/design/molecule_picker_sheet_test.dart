@@ -81,4 +81,65 @@ void main() {
     expect(result, isNull);
     expect(find.text('Select molecule'), findsNothing);
   });
+
+  group('ask chooser (showMoleculePickerForAsk)', () {
+    testWidgets('lists neurons and resolves with the picked one', (
+      tester,
+    ) async {
+      Get.find<CategoryService>().categories.assignAll(const [
+        CategoryModel(id: 'cat-general', name: 'General'),
+        CategoryModel(id: 'cat-nova', name: 'Nova'),
+      ]);
+
+      await pumpHost(tester);
+      CategoryModel? picked;
+      showMoleculePickerForAsk().then((value) => picked = value);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select neuron'), findsOneWidget);
+      await tester.tap(find.text('Nova'));
+      await tester.pumpAndSettle();
+
+      expect(picked?.id, 'cat-nova');
+    });
+
+    testWidgets('an empty neuron list still opens with the create row', (
+      tester,
+    ) async {
+      await pumpHost(tester);
+      CategoryModel? picked = const CategoryModel(id: 'unset', name: '');
+      showMoleculePickerForAsk().then((value) => picked = value);
+      await tester.pumpAndSettle();
+
+      expect(find.text('No neurons yet'), findsOneWidget);
+      expect(find.text('Create new neuron'), findsOneWidget);
+
+      // Dismissing cancels the ask — no neuron chosen, no route.
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(picked, isNull);
+    });
+
+    testWidgets('creating a neuron resolves the sheet with it', (tester) async {
+      await pumpHost(tester);
+      CategoryModel? picked;
+      showMoleculePickerForAsk().then((value) => picked = value);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Create new neuron'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Deep Work');
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+
+      expect(picked?.name, 'Deep Work');
+      expect(picked?.id.isNotEmpty, isTrue);
+
+      // Let the "Neuron added" snackbar time out before the test ends.
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+    });
+  });
 }

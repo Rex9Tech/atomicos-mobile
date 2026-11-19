@@ -4,9 +4,9 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
+import 'package:rexone_mobile/modules/ai/helpers/ask_with_neuron.helper.dart';
 import 'package:rexone_mobile/modules/home/home.dart';
 import 'package:rexone_mobile/modules/molecule/molecule.dart';
-import 'package:rexone_mobile/routes/routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -133,10 +133,9 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
               _SheetAction(
                 icon: Design.icons.sparkles,
                 label: AppLocales.ai.askAboutThisAtom.tr,
-                onTap: () {
+                onTap: () async {
                   Get.back();
-                  AppRoutes.toAi(
-                    mode: 'ask',
+                  await askWithNeuronPicker(
                     atomId: atom.id,
                     atomTitle: atom.title,
                   );
@@ -1015,11 +1014,12 @@ class AtomDetailsPage extends GetView<AtomDetailsController> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => AppRoutes.toAi(
-                mode: 'ask',
-                atomId: atom.id,
-                atomTitle: atom.title,
-              ),
+              onTap: () async {
+                await askWithNeuronPicker(
+                  atomId: atom.id,
+                  atomTitle: atom.title,
+                );
+              },
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(

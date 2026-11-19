@@ -130,13 +130,26 @@ class AiController extends GetxController {
     if (args is Map && args['mode'] != null) {
       entryMode.value = args['mode'].toString();
     }
-    // Opened from an atom: pin that atom as conversation context, so
-    // "Ask about this Atom" actually sends its content with the question.
-    if (args is Map && args['atom_id'] != null) {
-      final id = args['atom_id'].toString();
-      if (id.isNotEmpty) {
-        unawaited(_attachAtomContext(id));
-      }
+    final entryAtomId = args is Map ? args['atom_id']?.toString() ?? '' : '';
+    final entryMoleculeId =
+        args is Map ? args['molecule_id']?.toString() ?? '' : '';
+    final entryRoomId = args is Map ? args['room_id']?.toString() ?? '' : '';
+    // An ask routed through the neuron picker carries BOTH an atom and the
+    // chosen molecule: the molecule room switch clears a stray atom context,
+    // so the two entries must run as one ordered path instead of racing.
+    final combinedAsk = entryAtomId.isNotEmpty && entryMoleculeId.isNotEmpty;
+    if (combinedAsk) {
+      unawaited(
+        _openMoleculeAskWithAtom(
+          entryMoleculeId,
+          args is Map ? args['molecule_name']?.toString() : null,
+          entryAtomId,
+        ),
+      );
+    } else if (entryAtomId.isNotEmpty) {
+      // Opened from an atom: pin that atom as conversation context, so
+      // "Ask about this Atom" actually sends its content with the question.
+      unawaited(_attachAtomContext(entryAtomId));
     }
     // Fallback for callers that only pass a title.
     if (args is Map && args['atom_title'] != null) {
@@ -144,26 +157,23 @@ class AiController extends GetxController {
     }
     // Opened from a notification: land on the room it points at (the
     // related molecule's conversation when it has one).
-    if (args is Map && args['room_id'] != null) {
-      final roomId = args['room_id'].toString();
-      if (roomId.isNotEmpty) {
-        unawaited(
-          openNotificationRoom(
-            roomId: roomId,
-            moleculeId: args['molecule_id']?.toString(),
-            moleculeName: args['molecule_name']?.toString(),
-          ),
-        );
-      }
-    } else if (args is Map && args['molecule_id'] != null) {
+    if (entryRoomId.isNotEmpty) {
+      unawaited(
+        openNotificationRoom(
+          roomId: entryRoomId,
+          moleculeId: args is Map ? args['molecule_id']?.toString() : null,
+          moleculeName: args is Map ? args['molecule_name']?.toString() : null,
+        ),
+      );
+    } else if (entryMoleculeId.isNotEmpty && !combinedAsk) {
       // Opened from a molecule: open the molecule's OWN conversation so asks
       // stay in one history per molecule (created on first ask).
-      final id = args['molecule_id'].toString();
-      if (id.isNotEmpty) {
-        unawaited(
-          _openMoleculeAsk(id, args['molecule_name']?.toString()),
-        );
-      }
+      unawaited(
+        _openMoleculeAsk(
+          entryMoleculeId,
+          args is Map ? args['molecule_name']?.toString() : null,
+        ),
+      );
     }
     // Meeting workspace starts idle; the user taps the record control to start
     // a backend session (startRecording) + device mic.
@@ -563,10 +573,26 @@ class AiController extends GetxController {
     );
   }
 
+  /// Ask-about-atom through the neuron picker: the atom stays pinned while
+  /// the chosen neuron's own conversation opens. Ordered on purpose — the
+  /// atom attaches first and the molecule open is told to keep it.
+  Future<void> _openMoleculeAskWithAtom(
+    String moleculeId,
+    String? name,
+    String atomId,
+  ) async {
+    await _attachAtomContext(atomId);
+    await _openMoleculeAsk(moleculeId, name, keepAtomContext: true);
+  }
+
   /// Loads the molecule handed over by the molecule screen and opens ITS own
   /// conversation — asking about a molecule must land in that molecule's
   /// history, not in whatever room was last active.
-  Future<void> _openMoleculeAsk(String moleculeId, String? name) async {
+  Future<void> _openMoleculeAsk(
+    String moleculeId,
+    String? name, {
+    bool keepAtomContext = false,
+  }) async {
     final categories = Get.find<CategoryService>();
     var molecule = categories.byId(moleculeId);
     if (molecule == null) {
@@ -579,13 +605,18 @@ class AiController extends GetxController {
         ? CategoryModel(id: moleculeId, name: name)
         : null;
     if (molecule == null) return;
-    await openMoleculeChat(molecule);
+    await openMoleculeChat(molecule, keepAtomContext: keepAtomContext);
   }
 
   /// Opens the molecule's home conversation, creating it on the first ask.
   /// The server get-or-creates one room per molecule, so the thread persists
   /// across asks. Quiet on purpose: this runs from onInit (no snackbars).
-  Future<void> openMoleculeChat(CategoryModel molecule) async {
+  /// [keepAtomContext] preserves an atom pinned by the ask flow — the
+  /// question is about that atom, asked inside its neuron.
+  Future<void> openMoleculeChat(
+    CategoryModel molecule, {
+    bool keepAtomContext = false,
+  }) async {
     try {
       final response = await _ai.createRoom(
         CreateRoomRequest(title: molecule.name, categoryId: molecule.id),
@@ -596,11 +627,16 @@ class AiController extends GetxController {
           rooms.insert(0, room);
         }
         contextMolecule.value = molecule;
-        contextAtom.value = null;
-        selectRoom(room);
+        if (!keepAtomContext) {
+          contextAtom.value = null;
+        }
+        selectRoom(room, keepAtomContext: keepAtomContext);
         // Only a brand-new molecule chat gets the suggested question; a
-        // returning thread shows its history instead.
-        if (room.messageCount == 0) _seedQuestion(molecule.name);
+        // returning thread shows its history instead. (With an atom pinned,
+        // the atom's own question is already seeded.)
+        if (!keepAtomContext && room.messageCount == 0) {
+          _seedQuestion(molecule.name);
+        }
       }
     } catch (error) {
       debugPrint('🤖 [AiController] openMoleculeChat error: $error');
@@ -714,15 +750,17 @@ class AiController extends GetxController {
     }
   }
 
-  void selectRoom(AiRoomModel room) {
+  void selectRoom(AiRoomModel room, {bool keepAtomContext = false}) {
     // Choosing a conversation must open the CHAT for it — this used to force
     // entryMode 'details', so picking a conversation landed on the
     // atom-details canvas instead of the conversation itself. The details
     // canvas is only for the Ask-with-atom flow.
     entryMode.value = 'ask';
     resetAskFlow();
-    contextAtom.value = null;
-    contextAtoms.clear();
+    if (!keepAtomContext) {
+      contextAtom.value = null;
+      contextAtoms.clear();
+    }
     currentRoomId.value = room.id;
     currentRoomTitle.value = room.title;
     // A molecule's room carries its molecule: re-pin it so questions in this

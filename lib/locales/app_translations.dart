@@ -486,6 +486,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.askAboutThisAtom: 'Ask about this Atom',
       AppLocales.ai.askAboutThisAtomSub:
           'Open the AI workspace with this note as the current context.',
+      AppLocales.ai.askNeuronSub: 'Choose the neuron to ask this question in.',
       AppLocales.ai.noAssets: 'No assets yet',
       AppLocales.ai.noAssetsSub:
           'Attachments and imported files will appear here.',
@@ -551,6 +552,7 @@ class AppTranslations extends Translations {
       AppLocales.category.created: 'Neuron added',
       AppLocales.category.deleted: 'Neuron deleted',
       AppLocales.category.quickAdd: 'New',
+      AppLocales.category.createNew: 'Create new neuron',
       AppLocales.category.none: 'No neuron',
       AppLocales.category.selectTitle: 'Select neuron',
       AppLocales.category.updated: 'Neuron updated',
@@ -1347,6 +1349,7 @@ class AppTranslations extends Translations {
       AppLocales.ai.askAboutThisAtom: 'ဤအက်တမ်အကြောင်း မေးမည်',
       AppLocales.ai.askAboutThisAtomSub:
           'ဤမှတ်စုကို အကြောင်းအရာအဖြစ် ထည့်သွင်း၍ AI workspace ဖွင့်ပါ။',
+      AppLocales.ai.askNeuronSub: 'ဤမေးခွန်းကို ဘယ်နျူရွန်တွင် မေးမလဲ ရွေးပါ။',
       AppLocales.ai.noAssets: 'ဖိုင်များ မရှိသေးပါ',
       AppLocales.ai.noAssetsSub:
           'ပူးတွဲဖိုင်များနှင့် တင်သွင်းထားသော ဖိုင်များ ဤနေရာတွင် ပေါ်လာမည်။',
@@ -1413,6 +1416,7 @@ class AppTranslations extends Translations {
       AppLocales.category.created: 'နျူရွန် ထည့်ပြီးပါပြီ',
       AppLocales.category.deleted: 'နျူရွန် ဖျက်ပြီးပါပြီ',
       AppLocales.category.quickAdd: 'အသစ်',
+      AppLocales.category.createNew: 'နျူရွန် အသစ် ဖန်တီးမည်',
       AppLocales.category.none: 'နျူရွန် မရှိ',
       AppLocales.category.selectTitle: 'နျူရွန် ရွေးချယ်ပါ',
       AppLocales.category.updated: 'နျူရွန် ပြောင်းလဲပြီးပါပြီ',

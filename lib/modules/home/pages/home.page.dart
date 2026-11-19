@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
+import 'package:rexone_mobile/modules/ai/helpers/ask_with_neuron.helper.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
 import 'package:rexone_mobile/services/services.dart';
 
@@ -434,7 +435,9 @@ class HomePage extends GetView<AuthController> {
         children: [
           Expanded(
             child: TextButton.icon(
-              onPressed: () => AppRoutes.toAi(mode: 'ask'),
+              onPressed: () async {
+                await askWithNeuronPicker();
+              },
               style: TextButton.styleFrom(
                 foregroundColor: colors.textSecondary,
                 padding: EdgeInsets.symmetric(vertical: Design.spacing.md),

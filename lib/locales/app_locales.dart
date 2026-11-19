@@ -42,6 +42,7 @@ class _CategoryLocales {
   final created = 'category.created';
   final deleted = 'category.deleted';
   final quickAdd = 'category.quickAdd';
+  final createNew = 'category.createNew';
   final none = 'category.none';
   final selectTitle = 'category.selectTitle';
   final updated = 'category.updated';
@@ -342,6 +343,7 @@ class _AiLocales {
   final participants = 'ai.participants';
   final askAboutThisAtom = 'ai.askAboutThisAtom';
   final askAboutThisAtomSub = 'ai.askAboutThisAtomSub';
+  final askNeuronSub = 'ai.askNeuronSub';
   final noAssets = 'ai.noAssets';
   final noAssetsSub = 'ai.noAssetsSub';
   final addMoreFiles = 'ai.addMoreFiles';

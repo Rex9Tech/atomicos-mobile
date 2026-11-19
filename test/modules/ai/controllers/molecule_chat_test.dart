@@ -108,4 +108,55 @@ void main() {
     expect(request.toJson()['atom_id'], 'atom-1');
     expect(request.toJson()['atom_title'], 'Live meeting');
   });
+
+  test('ask-atom via the neuron picker keeps the atom pinned', () async {
+    const molecule = CategoryModel(id: 'cat-1', name: 'General');
+    fakeAi.createRoomResponse = ApiResponse.success(
+      message: 'ok',
+      statusCode: 201,
+      data: room('room-cat-1', 'General', categoryId: 'cat-1'),
+    );
+    controller.contextAtom.value = AtomModel(
+      id: 'atom-1',
+      title: 'Live meeting',
+      source: 'note',
+      status: 'ready',
+      createdAt: '2026-10-06T00:00:00Z',
+      updatedAt: '2026-10-06T00:00:00Z',
+    );
+
+    await controller.openMoleculeChat(molecule, keepAtomContext: true);
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(
+      controller.contextAtom.value?.id,
+      'atom-1',
+      reason: 'the ask is about this atom — it must survive the room switch',
+    );
+    expect(controller.contextMolecule.value?.id, 'cat-1');
+    expect(controller.currentRoomId.value, 'room-cat-1');
+  });
+
+  test('a plain molecule open still drops a stale atom context', () async {
+    const molecule = CategoryModel(id: 'cat-2', name: 'Nova');
+    fakeAi.createRoomResponse = ApiResponse.success(
+      message: 'ok',
+      statusCode: 201,
+      data: room('room-cat-2', 'Nova', categoryId: 'cat-2'),
+    );
+    controller.contextAtom.value = AtomModel(
+      id: 'atom-stale',
+      title: 'Stale atom',
+      source: 'note',
+      status: 'ready',
+      createdAt: '2026-10-06T00:00:00Z',
+      updatedAt: '2026-10-06T00:00:00Z',
+    );
+
+    await controller.openMoleculeChat(molecule);
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(controller.contextAtom.value, isNull);
+    expect(controller.contextMolecule.value?.id, 'cat-2');
+  });
 }
