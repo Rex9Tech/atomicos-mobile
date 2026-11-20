@@ -92,10 +92,14 @@ class GoogleCalendarService extends GetxService {
     _storage = Get.find<StorageService>();
     _deviceCalendar = Get.find<DeviceCalendarService>();
     _reminders = Get.find<MeetingReminderService>();
+    connected.value = _storage.getGoogleCalendarConnected();
   }
 
   /// Whether the user connected Google Calendar (persisted flag).
   bool get isConnected => _storage.getGoogleCalendarConnected();
+
+  /// Reactive mirror of [isConnected] — the Settings status UI observes it.
+  final connected = false.obs;
 
   /// Is the Google Calendar app installed on this device?
   Future<bool> isInstalled() async {
@@ -147,6 +151,7 @@ class GoogleCalendarService extends GetxService {
     }
 
     _storage.setGoogleCalendarConnected(true);
+    connected.value = true;
     await _reminders.refresh();
     await _reminders.ensureLiveSync();
     return GoogleCalendarConnectResult.connected;
@@ -155,6 +160,7 @@ class GoogleCalendarService extends GetxService {
   /// Forgets the connection and cancels every armed reminder.
   Future<void> disconnect() async {
     _storage.setGoogleCalendarConnected(false);
+    connected.value = false;
     await _reminders.cancelAll();
   }
 

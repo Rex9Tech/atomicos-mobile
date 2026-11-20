@@ -85,6 +85,11 @@ void main() {
 
     expect(result, GoogleCalendarConnectResult.connected);
     expect(storage.getGoogleCalendarConnected(), true);
+    expect(
+      service.connected.value,
+      true,
+      reason: 'the settings status UI observes this flag',
+    );
   });
 
   test('iOS store fallback uses the App Store URL', () async {
@@ -148,5 +153,28 @@ void main() {
       meetings.single.start.millisecondsSinceEpoch,
       start.millisecondsSinceEpoch,
     );
+  });
+
+  test('disconnect clears the flag and the reactive status', () async {
+    service.debugAndroidCanResolve = (_) async => true;
+    await service.connect();
+    expect(service.connected.value, true);
+
+    await service.disconnect();
+
+    expect(storage.getGoogleCalendarConnected(), false);
+    expect(service.connected.value, false);
+  });
+
+  test('a fresh service re-reads the persisted flag', () {
+    storage.setGoogleCalendarConnected(true);
+    // GetxService instances need force — plain delete refuses them.
+    Get.delete<GoogleCalendarService>(force: true);
+
+    final fresh = GoogleCalendarService();
+    fresh.debugSupportedOverride = true;
+    Get.put<GoogleCalendarService>(fresh);
+
+    expect(fresh.connected.value, true);
   });
 }

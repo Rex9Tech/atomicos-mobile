@@ -24,8 +24,10 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
   late final DeviceCalendarService _deviceCalendar;
   late final PushNotificationService _push;
 
-  /// How early a meeting reminder fires.
-  static const Duration leadTime = Duration(minutes: 10);
+  /// How early a meeting reminder fires — configurable in Settings
+  /// ("Meeting alerts", default 10 minutes).
+  Duration get leadTime =>
+      Duration(minutes: _storage.getMeetingAlertLeadMinutes());
 
   /// How far ahead meetings are fetched and armed.
   static const Duration horizon = Duration(hours: 48);
@@ -87,6 +89,9 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
   /// Whether the user connected Google Calendar.
   bool get isConnected => _storage.getGoogleCalendarConnected();
 
+  /// Whether meeting alerts are switched on (Settings → Meeting alerts).
+  bool get alertsEnabled => _storage.getMeetingAlertsEnabled();
+
   /// How many reminders are currently armed.
   int get armedCount => _storage.getMeetingReminders().length;
 
@@ -115,6 +120,12 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
     if (!_deviceCalendar.isSupported) return;
     _refreshInFlight = true;
     try {
+      // Alerts switched off: drop anything armed and stay out of the way
+      // (switching them back on re-arms through the same refresh pass).
+      if (!alertsEnabled) {
+        await _cancelArmed();
+        return;
+      }
       if (!await _deviceCalendar.hasPermissions()) return;
       if (!_push.isLocalNotificationsReady) return;
 
@@ -152,13 +163,17 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
       }
 
       final tracked = _storage.getMeetingReminders();
+      final leadMinutes = _storage.getMeetingAlertLeadMinutes();
 
-      // Drop reminders whose meeting vanished or moved.
+      // Drop reminders whose meeting vanished, moved, or whose lead time
+      // changed in Settings (they get re-armed below with the new lead).
       for (final eventId in tracked.keys.toList()) {
         final saved = _savedEntry(tracked[eventId]);
         final meeting = desired[eventId];
+        final savedLead = (saved['lead'] as num?)?.toInt();
         if (meeting == null ||
-            meeting.start.toIso8601String() != saved['start']?.toString()) {
+            meeting.start.toIso8601String() != saved['start']?.toString() ||
+            savedLead != leadMinutes) {
           final id = (saved['notification_id'] as num?)?.toInt();
           if (id != null) await _push.cancelLocalNotification(id);
           tracked.remove(eventId);
@@ -193,6 +208,7 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
           'start': meeting.start.toIso8601String(),
           'notification_id': notificationId,
           'title': meeting.title,
+          'lead': leadMinutes,
         };
       }
 
@@ -206,6 +222,14 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
 
   /// Cancels every armed reminder (disconnect, logout, …).
   Future<void> cancelAll() async {
+    await _cancelArmed();
+    await _deviceCalendar.stopWatching();
+    await _deviceCalendar.cancelBackgroundSync();
+  }
+
+  /// Cancels whatever is armed but leaves the connection + watchers alone
+  /// (used when meeting alerts are switched off in Settings).
+  Future<void> _cancelArmed() async {
     final tracked = _storage.getMeetingReminders();
     for (final entry in tracked.values) {
       final saved = _savedEntry(entry);
@@ -213,8 +237,6 @@ class MeetingReminderService extends GetxService with WidgetsBindingObserver {
       if (id != null) await _push.cancelLocalNotification(id);
     }
     _storage.setMeetingReminders(<String, dynamic>{});
-    await _deviceCalendar.stopWatching();
-    await _deviceCalendar.cancelBackgroundSync();
   }
 
   static Map<String, dynamic> _savedEntry(Object? value) =>

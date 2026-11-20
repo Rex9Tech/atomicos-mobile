@@ -23,6 +23,7 @@ import 'package:rexone_mobile/services/category.service.dart';
 import 'package:rexone_mobile/services/media.service.dart';
 import 'package:rexone_mobile/services/media_download.service.dart';
 import 'package:rexone_mobile/services/media_upload.service.dart';
+import 'package:rexone_mobile/services/meeting_reminder.service.dart';
 import 'package:rexone_mobile/services/network.service.dart';
 import 'package:rexone_mobile/services/permission.service.dart';
 import 'package:rexone_mobile/services/push_notification.service.dart';
@@ -156,6 +157,22 @@ class FakeStorageService extends StorageService {
   @override
   void setMeetingReminders(Map<String, dynamic> reminders) =>
       memory[StorageKeys.meetingReminders] = reminders;
+
+  @override
+  bool getMeetingAlertsEnabled() =>
+      (memory[StorageKeys.meetingAlertsEnabled] as bool?) ?? true;
+
+  @override
+  void setMeetingAlertsEnabled(bool enabled) =>
+      memory[StorageKeys.meetingAlertsEnabled] = enabled;
+
+  @override
+  int getMeetingAlertLeadMinutes() =>
+      (memory[StorageKeys.meetingAlertLeadMinutes] as int?) ?? 10;
+
+  @override
+  void setMeetingAlertLeadMinutes(int minutes) =>
+      memory[StorageKeys.meetingAlertLeadMinutes] = minutes;
 
   @override
   Map<String, dynamic> getNextMeetingPrompts() {
@@ -355,6 +372,10 @@ class FakePushNotificationService extends GetxService
   bool userCleared = false;
   bool platformInitialized = false;
 
+  /// Local-notification calls, recorded so tests can assert scheduling.
+  final scheduledLocalNotifications = <Map<String, Object?>>[];
+  final cancelledLocalNotificationIds = <int>[];
+
   @override
   bool get isLocalNotificationsReady => true;
 
@@ -392,10 +413,20 @@ class FakePushNotificationService extends GetxService
     required String body,
     required NotificationDetails details,
     String? payload,
-  }) async {}
+  }) async {
+    scheduledLocalNotifications.add({
+      'id': id,
+      'when': when,
+      'title': title,
+      'body': body,
+      'payload': payload,
+    });
+  }
 
   @override
-  Future<void> cancelLocalNotification(int id) async {}
+  Future<void> cancelLocalNotification(int id) async {
+    cancelledLocalNotificationIds.add(id);
+  }
 
   @override
   Future<void> createLiveActivity(
@@ -429,6 +460,26 @@ class FakePushNotificationService extends GetxService
   Future<void> clearUser() async {
     userCleared = true;
   }
+}
+
+/// Fake meeting reminder service: records refresh calls instead of touching
+/// the device calendar or local notifications.
+class FakeMeetingReminderService extends MeetingReminderService {
+  int refreshCalls = 0;
+
+  @override
+  void onInit() {}
+
+  @override
+  Future<void> refresh() async {
+    refreshCalls++;
+  }
+
+  @override
+  Future<void> cancelAll() async {}
+
+  @override
+  Future<void> ensureLiveSync() async {}
 }
 
 /// Fake AuthService with configurable mock responses.

@@ -6,6 +6,7 @@ import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/design/design.dart';
 import 'package:rexone_mobile/helpers/helpers.dart';
 import 'package:rexone_mobile/routes/app.routes.dart';
+import 'package:rexone_mobile/services/google_calendar.service.dart';
 
 import '../../auth/auth.dart';
 import '../../profile/profile.dart';
@@ -37,9 +38,14 @@ class SettingPage extends GetView<SettingController> {
 
           SizedBox(height: Design.spacing.xxl),
 
-          // Integrations Section — Google Calendar connect + meeting reminders
+          // Integrations Section — Google Calendar connect/status + meeting
+          // alerts (on/off + how early the reminder fires).
           _buildSectionHeader(context, AppLocales.setting.integrations.tr),
           _buildGoogleCalendarTile(context),
+
+          SizedBox(height: Design.spacing.sm),
+
+          _buildMeetingAlertsCard(context),
 
           SizedBox(height: Design.spacing.xxl),
 
@@ -125,18 +131,179 @@ class SettingPage extends GetView<SettingController> {
     );
   }
 
-  /// Google Calendar connect — popup → store when the app is missing.
+  /// Google Calendar connect — popup → store when the app is missing; once
+  /// connected the tile wears a status pill and opens the manage actions.
   Widget _buildGoogleCalendarTile(BuildContext context) {
+    final calendar = Get.find<GoogleCalendarService>();
+
+    return Obx(() {
+      final connected = calendar.connected.value;
+
+      return AppCard(
+        borderRadius: Design.spacing.radiusLarge,
+        padding: EdgeInsets.zero,
+        child: AppListTile(
+          leading: Icon(Design.icons.calendar, color: context.colors.primary),
+          title: Text(AppLocales.calendar.connectTitle.tr),
+          subtitle: Text(
+            connected
+                ? AppLocales.calendar.connectedSub.tr
+                : AppLocales.calendar.connectSubtitle.tr,
+          ),
+          trailing: connected
+              ? _buildConnectedBadge(context)
+              : Icon(
+                  Design.icons.rightArrow,
+                  color: context.colors.textSecondary,
+                ),
+          onTap: () => connected
+              ? _showCalendarManageDialog(context, calendar)
+              : controller.connectGoogleCalendar(context),
+        ),
+      );
+    });
+  }
+
+  /// Green status pill shown once Google Calendar is connected.
+  Widget _buildConnectedBadge(BuildContext context) {
+    final success = Design.colors.success;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Design.spacing.sm,
+        vertical: Design.spacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: success.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        AppLocales.calendar.connected.tr,
+        style: context.typo.labelMedium.copyWith(
+          color: success,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  /// Connected tile actions: open Google Calendar, or disconnect (which also
+  /// cancels the armed meeting alerts).
+  Future<void> _showCalendarManageDialog(
+    BuildContext context,
+    GoogleCalendarService calendar,
+  ) async {
+    final action = await Get.dialog<String>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Design.spacing.radiusXLarge),
+        ),
+        title: Text(
+          AppLocales.calendar.appTitle.tr,
+          style: context.typo.headline4.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: Text(AppLocales.calendar.connectedSub.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(AppLocales.common.cancel.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: 'disconnect'),
+            child: Text(
+              AppLocales.calendar.disconnect.tr,
+              style: TextStyle(color: context.colors.error),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: 'open'),
+            child: Text(AppLocales.calendar.openCalendarApp.tr),
+          ),
+        ],
+      ),
+    );
+
+    switch (action) {
+      case 'open':
+        await calendar.openApp();
+      case 'disconnect':
+        await calendar.disconnect();
+        AppSnackbar.success(AppLocales.calendar.disconnected.tr);
+    }
+  }
+
+  /// Meeting alerts — on/off plus how early the reminder fires.
+  Widget _buildMeetingAlertsCard(BuildContext context) {
     return AppCard(
       borderRadius: Design.spacing.radiusLarge,
       padding: EdgeInsets.zero,
-      child: AppListTile(
-        leading: Icon(Design.icons.calendar, color: context.colors.primary),
-        title: Text(AppLocales.calendar.connectTitle.tr),
-        subtitle: Text(AppLocales.calendar.connectSubtitle.tr),
-        trailing:
-            Icon(Design.icons.rightArrow, color: context.colors.textSecondary),
-        onTap: () => controller.connectGoogleCalendar(context),
+      child: Column(
+        children: [
+          Obx(
+            () => AppListTile(
+              leading: Icon(
+                Icons.notifications_active_outlined,
+                color: context.colors.primary,
+              ),
+              title: Text(AppLocales.calendar.alertsTitle.tr),
+              subtitle: Text(AppLocales.calendar.alertsSub.tr),
+              trailing: AppToggle(
+                value: controller.meetingAlertsEnabled.value,
+                onChanged: controller.setMeetingAlertsEnabled,
+                activeColor: context.colors.primary,
+              ),
+              onTap: () => controller.setMeetingAlertsEnabled(
+                !controller.meetingAlertsEnabled.value,
+              ),
+            ),
+          ),
+          Divider(
+            color: context.colors.divider,
+            indent: Design.spacing.lg,
+            endIndent: Design.spacing.lg,
+          ),
+          Obx(
+            () => AppListTile(
+              leading: Icon(
+                Icons.schedule_outlined,
+                color: context.colors.textSecondary,
+              ),
+              title: Text(AppLocales.calendar.alertsLead.tr),
+              subtitle: Text(
+                AppLocales.calendar.leadMinutes.trParams({
+                  'count': '${controller.meetingAlertLeadMinutes.value}',
+                }),
+              ),
+              trailing: PopupMenuButton<int>(
+                icon: Icon(
+                  Design.icons.downArrow,
+                  color: context.colors.textSecondary,
+                ),
+                onSelected: controller.setMeetingAlertLeadMinutes,
+                itemBuilder: (context) => SettingController
+                    .meetingAlertLeadOptions
+                    .map(
+                      (minutes) => PopupMenuItem<int>(
+                        value: minutes,
+                        child: Text(
+                          AppLocales.calendar.leadMinutes.trParams({
+                            'count': '$minutes',
+                          }),
+                          style: context.typo.bodyMedium.copyWith(
+                            color:
+                                controller.meetingAlertLeadMinutes.value ==
+                                    minutes
+                                ? context.colors.primary
+                                : context.colors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

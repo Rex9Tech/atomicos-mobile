@@ -36,4 +36,6 @@ class StorageKeys {
   static const googleCalendarConnected = 'google_calendar_connected';
   static const meetingReminders = 'meeting_reminders';
   static const nextMeetingPrompts = 'next_meeting_prompts';
+  static const meetingAlertsEnabled = 'meeting_alerts_enabled';
+  static const meetingAlertLeadMinutes = 'meeting_alert_lead_minutes';
 }

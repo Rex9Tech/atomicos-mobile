@@ -630,6 +630,15 @@ class _CalendarLocales {
   final changeCalendar = 'calendar.change_calendar';
   final removeFromCalendar = 'calendar.remove_from_calendar';
   final openCalendarApp = 'calendar.open_calendar_app';
+  final appTitle = 'calendar.appTitle';
+  final connected = 'calendar.connected';
+  final connectedSub = 'calendar.connectedSub';
+  final disconnect = 'calendar.disconnect';
+  final disconnected = 'calendar.disconnected';
+  final alertsTitle = 'calendar.alertsTitle';
+  final alertsSub = 'calendar.alertsSub';
+  final alertsLead = 'calendar.alertsLead';
+  final leadMinutes = 'calendar.leadMinutes';
   final chooseCalendar = 'calendar.choose_calendar';
   final clearDate = 'calendar.clear_date';
   final dateSaved = 'calendar.date_saved';

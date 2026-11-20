@@ -172,6 +172,22 @@ class StorageService extends GetxService {
   void setMeetingReminders(Map<String, dynamic> reminders) =>
       _box.write(StorageKeys.meetingReminders, reminders);
 
+  /// Meeting alerts: whether reminders fire before meetings at all
+  /// (Settings → Meeting alerts; default on).
+  bool getMeetingAlertsEnabled() =>
+      (_box.read(StorageKeys.meetingAlertsEnabled) as bool?) ?? true;
+
+  void setMeetingAlertsEnabled(bool enabled) =>
+      _box.write(StorageKeys.meetingAlertsEnabled, enabled);
+
+  /// How early a meeting alert fires, in minutes before the start
+  /// (default 10).
+  int getMeetingAlertLeadMinutes() =>
+      (_box.read(StorageKeys.meetingAlertLeadMinutes) as int?) ?? 10;
+
+  void setMeetingAlertLeadMinutes(int minutes) =>
+      _box.write(StorageKeys.meetingAlertLeadMinutes, minutes);
+
   /// Atoms the user was already asked to connect Google Calendar for (the
   /// summary mentioned a next meeting) — asked once per atom.
   Map<String, dynamic> getNextMeetingPrompts() {

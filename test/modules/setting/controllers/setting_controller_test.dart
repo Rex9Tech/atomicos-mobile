@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:rexone_mobile/constants/constants.dart';
 import 'package:rexone_mobile/modules/setting/controllers/setting.controller.dart';
+import 'package:rexone_mobile/services/meeting_reminder.service.dart';
 import 'package:rexone_mobile/services/storage.service.dart';
 import '../../../mocks/test_services.dart';
 
@@ -11,12 +12,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late FakeStorageService fakeStorage;
+  late FakeMeetingReminderService fakeReminders;
   late SettingController controller;
 
   setUp(() {
     Get.testMode = true;
     fakeStorage = FakeStorageService();
     Get.put<StorageService>(fakeStorage);
+    fakeReminders = FakeMeetingReminderService();
+    Get.put<MeetingReminderService>(fakeReminders);
     controller = Get.put(SettingController());
   });
 
@@ -99,6 +103,31 @@ void main() {
 
       expect(controller.localeCode.value, equals('en_US'));
       expect(fakeStorage.getLocaleCode(), equals('en_US'));
+    });
+  });
+
+  group('SettingController - Meeting alerts', () {
+    test('defaults to alerts on with a 10-minute lead', () {
+      expect(controller.meetingAlertsEnabled.value, isTrue);
+      expect(controller.meetingAlertLeadMinutes.value, equals(10));
+    });
+
+    test('toggling alerts persists and re-arms the reminders', () {
+      controller.setMeetingAlertsEnabled(false);
+
+      expect(controller.meetingAlertsEnabled.value, isFalse);
+      expect(fakeStorage.getMeetingAlertsEnabled(), isFalse);
+      expect(fakeReminders.refreshCalls, greaterThan(0));
+    });
+
+    test('changing the lead time persists and re-arms the reminders', () {
+      final before = fakeReminders.refreshCalls;
+
+      controller.setMeetingAlertLeadMinutes(30);
+
+      expect(controller.meetingAlertLeadMinutes.value, equals(30));
+      expect(fakeStorage.getMeetingAlertLeadMinutes(), equals(30));
+      expect(fakeReminders.refreshCalls, greaterThan(before));
     });
   });
 }
